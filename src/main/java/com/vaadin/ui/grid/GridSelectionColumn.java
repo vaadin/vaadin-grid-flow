@@ -27,7 +27,7 @@ import com.vaadin.ui.common.HtmlImport;
  * @author Vaadin Ltd.
  */
 @Tag("vaadin-grid-flow-selection-column")
-@HtmlImport("context://vaadin-grid-flow-selection-column.html")
+@HtmlImport("frontend://vaadin-grid-flow-selection-column.html")
 public class GridSelectionColumn extends Component {
 
     private final SerializableRunnable selectAllCallback;
@@ -36,7 +36,7 @@ public class GridSelectionColumn extends Component {
     /**
      * Constructs a new grid selection column configured to use the given
      * callbacks whenever the select all checkbox is toggled on the client side.
-     * 
+     *
      * @param selectAllCallback
      *            the runnable to run when the select all checkbox has been
      *            checked
