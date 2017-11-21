@@ -89,7 +89,7 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>${jetty.version}</version>
                 <configuration>
-					<!-- To serve Grid's static resources like gridConnector.js -->
+                    <!-- To serve Grid's static resources like gridConnector.js -->
                     <webAppSourceDirectory>${project.basedir}/src/main/resources/META-INF/resources</webAppSourceDirectory>
                 </configuration>
             </plugin>
