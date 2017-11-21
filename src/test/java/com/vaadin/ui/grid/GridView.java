@@ -43,11 +43,6 @@ import com.vaadin.ui.textfield.TextField;
 /**
  * View for {@link Grid} demo.
  */
-// @Route(value = "vaadin-grid", layout = MainLayout.class)
-// @ComponentDemo(name = "Grid")
-// @HtmlImport("bower_components/vaadin-valo-theme/vaadin-grid.html")
-// @HtmlImport("bower_components/vaadin-valo-theme/vaadin-button.html")
-// @HtmlImport("bower_components/vaadin-valo-theme/vaadin-text-field.html")
 @Route("vaadin-grid")
 @HtmlImport("bower_components/vaadin-valo-theme/vaadin-grid.html")
 @HtmlImport("bower_components/vaadin-valo-theme/vaadin-button.html")
