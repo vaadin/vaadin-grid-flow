@@ -1577,6 +1577,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         };
         return sortOrder.stream().map(
                 order -> order.getSorted().getComparator(order.getDirection()))
-                .reduce((x, y) -> 0, operator);
+                .reduce(operator).orElse(null);
     }
 }
