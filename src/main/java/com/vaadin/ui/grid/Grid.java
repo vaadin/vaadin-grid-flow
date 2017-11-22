@@ -413,8 +413,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                     "No comparator defined for sorted column.");
             setSortable(true);
             boolean reverse = sortDirection != SortDirection.ASCENDING;
-            return reverse ? (t1, t2) -> comparator.reversed().compare(t1, t2)
-                    : comparator;
+            return reverse ? comparator.reversed()::compare : comparator;
         }
 
         /**
