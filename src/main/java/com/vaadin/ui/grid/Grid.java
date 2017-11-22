@@ -789,9 +789,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the created column
      */
     public Column<T> addColumn(ValueProvider<T, ?> valueProvider) {
-        String columnKey = getColumnKey(false);
-        return addColumn(TemplateRenderer.<T> of("[[item." + columnKey + "]]")
-                .withProperty(columnKey, valueProvider));
+        String columnId = createColumnId(false);
+        return addColumn(TemplateRenderer.<T> of("[[item." + columnId + "]]")
+                .withProperty(columnId, valueProvider));
     }
 
     /**
@@ -831,12 +831,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see TemplateRenderer#of(String)
      */
     public Column<T> addColumn(TemplateRenderer<T> renderer) {
-        String columnKey = getColumnKey(true);
+        String columnId = createColumnId(true);
 
         getDataCommunicator().reset();
 
-        Column<T> column = new Column<>(this, columnKey, renderer);
-        idToColumnMap.put(columnKey, column);
+        Column<T> column = new Column<>(this, columnId, renderer);
+        idToColumnMap.put(columnId, column);
         parentColumns.add(column);
         getElement().appendChild(column.getElement());
 
@@ -894,7 +894,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return column;
     }
 
-    private String getColumnKey(boolean increment) {
+    private String createColumnId(boolean increment) {
         int id = nextColumnId;
         if (increment) {
             nextColumnId++;
