@@ -388,10 +388,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return columnKey;
         }
 
-        protected String getColumnId() {
-            return columnId;
-        }
-
         /**
          * Gets the underlying {@code <vaadin-grid-column>} element.
          * <p>
