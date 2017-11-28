@@ -1316,12 +1316,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Initializes the list of columns and/or column groups that are direct
+     * Gets a list of columns and/or column groups that are direct
      * child-elements of this grid (those that are top-most in the column
      * hierarchy).
-     * <p>
-     * This method should be called before using {@link #topLevelColumns} to
-     * make sure it's lazily initialized when first needed.
+     * 
+     * @return top-level columns and/or column groups of this grid
      */
     private List<ColumnBase<?>> getTopLevelColumns() {
         return getElement().getChildren().map(element -> element.getComponent())
