@@ -787,11 +787,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private Map<String, Column> idToColumnMap = new HashMap<>();
     private Map<String, Column> keyToColumnMap = new HashMap<>();
 
-    /**
-     * Should be lazily initialized with {@link #initTopLevelColumns()}.
-     */
-    private List<ColumnBase<?>> topLevelColumns;
-
     private final List<GridSortOrder<T>> sortOrder = new ArrayList<>();
 
     /**
@@ -1293,7 +1288,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the column group that contains the merged columns
      */
     public ColumnGroup mergeColumns(Collection<ColumnBase<?>> columnsToMerge) {
-        initTopLevelColumns();
+        List<ColumnBase<?>> topLevelColumns = getTopLevelColumns();
 
         Objects.requireNonNull(columnsToMerge,
                 "Columns to merge cannot be null");
@@ -1312,13 +1307,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         columnsToMerge.forEach(column -> {
             getElement().removeChild(column.getElement());
-            topLevelColumns.remove(column);
         });
 
         ColumnGroup columnGroup = new ColumnGroup(this, columnsToMerge);
-
         getElement().insertChild(insertIndex, columnGroup.getElement());
-        topLevelColumns.add(insertIndex, columnGroup);
 
         return columnGroup;
     }
@@ -1331,15 +1323,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * This method should be called before using {@link #topLevelColumns} to
      * make sure it's lazily initialized when first needed.
      */
-    private void initTopLevelColumns() {
-        if (topLevelColumns == null) {
-            topLevelColumns = getElement().getChildren()
-                    .map(element -> element.getComponent())
-                    .filter(component -> component.isPresent()
-                            && component.get() instanceof ColumnBase<?>)
-                    .map(component -> (ColumnBase<?>) component.get())
-                    .collect(Collectors.toList());
-        }
+    private List<ColumnBase<?>> getTopLevelColumns() {
+        return getElement().getChildren().map(element -> element.getComponent())
+                .filter(component -> component.isPresent()
+                        && component.get() instanceof ColumnBase<?>)
+                .map(component -> (ColumnBase<?>) component.get())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -1355,8 +1344,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public List<Column<T>> getColumns() {
         List<Column<T>> ret = new ArrayList<>();
-        initTopLevelColumns();
-        topLevelColumns.forEach(column -> appendChildColumns(ret, column));
+        getTopLevelColumns().forEach(column -> appendChildColumns(ret, column));
         return Collections.unmodifiableList(ret);
     }
 
