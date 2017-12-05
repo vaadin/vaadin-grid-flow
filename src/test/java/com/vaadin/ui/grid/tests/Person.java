@@ -21,6 +21,8 @@ public class Person implements Serializable {
     private String name;
     private final int born;
 
+    private Person friend;
+
     public Person(String name, int born) {
         this.name = name;
         this.born = born;
@@ -36,6 +38,14 @@ public class Person implements Serializable {
 
     public int getBorn() {
         return born;
+    }
+
+    public Person getFriend() {
+        return friend;
+    }
+
+    public void setFriend(Person friend) {
+        this.friend = friend;
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package com.vaadin.ui.grid.tests;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -160,8 +161,7 @@ public class GridIT extends TabbedComponentDemoTest {
         openTabAndCheckForErrors("selection");
         WebElement grid = findElement(By.id("none-selection"));
         scrollToElement(grid);
-        grid.findElements(By.tagName("vaadin-grid-cell-content")).get(3)
-                .click();
+        getCells(grid).get(3).click();
         Assert.assertFalse(isRowSelected(grid, 1));
     }
 
@@ -478,6 +478,44 @@ public class GridIT extends TabbedComponentDemoTest {
                         "<label data-flow-renderer-item-key=\"0\" style=\"color: red;\">Total: 499 people</label>"));
     }
 
+    @Test
+    public void beanGrid_columnsForPropertiesAddedWithCorrectHeaders() {
+        openTabAndCheckForErrors("configuring-columns");
+        WebElement grid = findElement(By.id("bean-grid"));
+        scrollToElement(grid);
+
+        Assert.assertEquals("Unexpected amount of columns", 5,
+                grid.findElements(By.tagName("vaadin-grid-column")).size());
+
+        List<WebElement> cells = getCells(grid);
+
+        WebElement firstHeader = getCell(grid, "Address");
+        Assert.assertNotNull("Missing expected column header Address",
+                firstHeader);
+
+        int index = cells.indexOf(firstHeader);
+        for (String header : Arrays.asList("Name", "Id", "Age",
+                "Postal Code")) {
+            if (header.equals("Id")) {
+                header = ""; // Id column is hidden
+            }
+            Assert.assertEquals("Missing expected column header " + header,
+                    header, cells.get(++index).getText());
+        }
+    }
+
+    @Test
+    public void beanGrid_valuesAreConvertedToStrings() {
+        openTabAndCheckForErrors("configuring-columns");
+        WebElement grid = findElement(By.id("bean-grid"));
+        scrollToElement(grid);
+
+        Assert.assertTrue(
+                "Address should be displayed as a String starting with the street name",
+                getCells(grid).stream()
+                        .anyMatch(cell -> cell.getText().startsWith("Street")));
+    }
+
     private static String getSelectionMessage(Object oldSelection,
             Object newSelection, boolean isFromClient) {
         return String.format(
@@ -491,8 +529,7 @@ public class GridIT extends TabbedComponentDemoTest {
     }
 
     private void waitUntilCellHasText(WebElement grid, String text) {
-        waitUntil(driver -> grid
-                .findElements(By.tagName("vaadin-grid-cell-content")).stream()
+        waitUntil(driver -> getCells(grid).stream()
                 .filter(cell -> text.equals(cell.getText())).findFirst()
                 .isPresent());
     }
@@ -516,10 +553,9 @@ public class GridIT extends TabbedComponentDemoTest {
     }
 
     private WebElement getCell(WebElement grid, String text) {
-        List<WebElement> cells = grid
-                .findElements(By.tagName("vaadin-grid-cell-content"));
-        return cells.stream().filter(cell -> text.equals(cell.getText()))
-                .findAny().orElse(null);
+        return getCells(grid).stream()
+                .filter(cell -> text.equals(cell.getText())).findAny()
+                .orElse(null);
     }
 
     private boolean hasHtmlCell(WebElement grid, String html) {
@@ -527,18 +563,13 @@ public class GridIT extends TabbedComponentDemoTest {
     }
 
     private WebElement getHtmlCell(WebElement grid, String text) {
-        List<WebElement> cells = grid
-                .findElements(By.tagName("vaadin-grid-cell-content"));
-        return cells.stream()
+        return getCells(grid).stream()
                 .filter(cell -> text.equals(cell.getAttribute("innerHTML")))
                 .findAny().orElse(null);
     }
 
     private boolean hasComponentRendereredCell(WebElement grid, String text) {
-        List<WebElement> cells = grid
-                .findElements(By.tagName("vaadin-grid-cell-content"));
-
-        return cells.stream()
+        return getCells(grid).stream()
                 .map(cell -> cell
                         .findElements(By.tagName("flow-component-renderer")))
                 .filter(list -> !list.isEmpty()).map(list -> list.get(0))
@@ -576,6 +607,10 @@ public class GridIT extends TabbedComponentDemoTest {
 
         Assert.assertTrue(layouts.get(0).getAttribute("innerHTML")
                 .contains("<label>Name: " + personName + "</label>"));
+    }
+
+    private List<WebElement> getCells(WebElement grid) {
+        return grid.findElements(By.tagName("vaadin-grid-cell-content"));
     }
 
     private void clickCheckbox(WebElement checkbox) {
