@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.ui.grid;
+package com.vaadin.ui.grid.demo;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -30,6 +30,10 @@ import com.vaadin.ui.button.Button;
 import com.vaadin.ui.checkbox.Checkbox;
 import com.vaadin.ui.common.HasComponents;
 import com.vaadin.ui.common.HtmlImport;
+import com.vaadin.ui.grid.ColumnGroup;
+import com.vaadin.ui.grid.Grid;
+import com.vaadin.ui.grid.GridMultiSelectionModel;
+import com.vaadin.ui.grid.GridSelectionModel;
 import com.vaadin.ui.grid.Grid.Column;
 import com.vaadin.ui.grid.Grid.SelectionMode;
 import com.vaadin.ui.html.Div;
