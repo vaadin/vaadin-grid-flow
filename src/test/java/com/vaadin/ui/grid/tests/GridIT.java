@@ -312,9 +312,9 @@ public class GridIT extends TabbedComponentDemoTest {
         scrollToElement(grid);
 
         Assert.assertTrue(hasComponentRendereredCell(grid,
-                "<div data-flow-renderer-item-key=\"1\">Hi, I'm Person 1!</div>"));
+                "<div>Hi, I'm Person 1!</div>"));
         Assert.assertTrue(hasComponentRendereredCell(grid,
-                "<div data-flow-renderer-item-key=\"2\">Hi, I'm Person 2!</div>"));
+                "<div>Hi, I'm Person 2!</div>"));
 
         WebElement idField = findElement(By.id("component-renderer-id-field"));
         WebElement nameField = findElement(
@@ -328,7 +328,7 @@ public class GridIT extends TabbedComponentDemoTest {
         clickElementWithJs(updateButton);
 
         waitUntil(driver -> hasComponentRendereredCell(grid,
-                "<div data-flow-renderer-item-key=\"1\">Hi, I'm SomeOtherName!</div>"));
+                "<div>Hi, I'm SomeOtherName!</div>"));
 
         executeScript("arguments[0].value = arguments[1];", idField, "2");
         executeScript("arguments[0].value = arguments[1];", nameField,
@@ -336,7 +336,7 @@ public class GridIT extends TabbedComponentDemoTest {
         clickElementWithJs(updateButton);
 
         waitUntil(driver -> hasComponentRendereredCell(grid,
-                "<div data-flow-renderer-item-key=\"2\">Hi, I'm SomeOtherName2!</div>"));
+                "<div>Hi, I'm SomeOtherName2!</div>"));
     }
 
     @Test
@@ -346,10 +346,10 @@ public class GridIT extends TabbedComponentDemoTest {
         scrollToElement(grid);
 
         getRow(grid, 0).click();
-        assertComponentRendereredDetails(grid, "1", "Person 1");
+        assertComponentRendereredDetails(grid, 0, "Person 1");
 
         getRow(grid, 1).click();
-        assertComponentRendereredDetails(grid, "2", "Person 2");
+        assertComponentRendereredDetails(grid, 1, "Person 2");
 
         WebElement idField = findElement(By.id("component-renderer-id-field"));
         WebElement nameField = findElement(
@@ -363,7 +363,7 @@ public class GridIT extends TabbedComponentDemoTest {
         clickElementWithJs(updateButton);
 
         getRow(grid, 0).click();
-        assertComponentRendereredDetails(grid, "1", "SomeOtherName");
+        assertComponentRendereredDetails(grid, 0, "SomeOtherName");
 
         executeScript("arguments[0].value = arguments[1];", idField, "2");
         executeScript("arguments[0].value = arguments[1];", nameField,
@@ -371,7 +371,7 @@ public class GridIT extends TabbedComponentDemoTest {
         clickElementWithJs(updateButton);
 
         getRow(grid, 1).click();
-        assertComponentRendereredDetails(grid, "2", "SomeOtherName2");
+        assertComponentRendereredDetails(grid, 1, "SomeOtherName2");
     }
 
     @Test
@@ -460,22 +460,22 @@ public class GridIT extends TabbedComponentDemoTest {
 
         Assert.assertTrue(
                 "There should be a cell with the renderered 'Basic Information' header",
-                hasComponentRendereredCell(grid,
-                        "<label data-flow-renderer-item-key=\"0\" title=\"Basic Information\" style=\"color: orange;\">Basic Information</label>"));
+                hasComponentRendereredHeaderCell(grid,
+                        "<label title=\"Basic Information\" style=\"color: orange;\">Basic Information</label>"));
 
         Assert.assertTrue(
                 "There should be a cell with the renderered 'Name' header",
-                hasComponentRendereredCell(grid,
-                        "<label data-flow-renderer-item-key=\"0\" title=\"Name\" style=\"color: green;\">Name</label>"));
+                hasComponentRendereredHeaderCell(grid,
+                        "<label title=\"Name\" style=\"color: green;\">Name</label>"));
 
         Assert.assertTrue(
                 "There should be a cell with the renderered 'Age' header",
-                hasComponentRendereredCell(grid,
-                        "<label data-flow-renderer-item-key=\"0\" title=\"Age\" style=\"color: blue;\">Age</label>"));
+                hasComponentRendereredHeaderCell(grid,
+                        "<label title=\"Age\" style=\"color: blue;\">Age</label>"));
 
         Assert.assertTrue("There should be a cell with the renderered footer",
-                hasComponentRendereredCell(grid,
-                        "<label data-flow-renderer-item-key=\"0\" style=\"color: red;\">Total: 499 people</label>"));
+                hasComponentRendereredHeaderCell(grid,
+                        "<label style=\"color: red;\">Total: 499 people</label>"));
     }
 
     private static String getSelectionMessage(Object oldSelection,
@@ -535,36 +535,37 @@ public class GridIT extends TabbedComponentDemoTest {
     }
 
     private boolean hasComponentRendereredCell(WebElement grid, String text) {
+        return hasComponentRendereredCell(grid, text,
+                "flow-grid-component-renderer");
+    }
+
+    private boolean hasComponentRendereredHeaderCell(WebElement grid,
+            String text) {
+        return hasComponentRendereredCell(grid, text,
+                "flow-component-renderer");
+    }
+
+    private boolean hasComponentRendereredCell(WebElement grid, String text,
+            String componentTag) {
         List<WebElement> cells = grid
                 .findElements(By.tagName("vaadin-grid-cell-content"));
 
         return cells.stream()
-                .map(cell -> cell
-                        .findElements(By.tagName("flow-component-renderer")))
+                .map(cell -> cell.findElements(By.tagName(componentTag)))
                 .filter(list -> !list.isEmpty()).map(list -> list.get(0))
                 .anyMatch(cell -> text.equals(cell.getAttribute("innerHTML")));
     }
 
-    private void assertComponentRendereredDetails(WebElement grid, String key,
+    private void assertComponentRendereredDetails(WebElement grid, int rowIndex,
             String personName) {
         waitUntil(driver -> {
             List<WebElement> elements = grid
                     .findElements(By.className("custom-details"));
-            if (elements.size() > 0) {
-                return elements.stream().anyMatch(element -> key.equals(
-                        element.getAttribute("data-flow-renderer-item-key")));
-            }
-            return false;
+            return elements.size() > rowIndex;
         });
         List<WebElement> elements = grid
                 .findElements(By.className("custom-details"));
-        WebElement element = elements.stream()
-                .filter(child -> key.equals(
-                        child.getAttribute("data-flow-renderer-item-key")))
-                .findFirst().get();
-
-        Assert.assertEquals(key,
-                element.getAttribute("data-flow-renderer-item-key"));
+        WebElement element = elements.get(rowIndex);
 
         element = element.findElement(By.tagName("vaadin-horizontal-layout"));
         Assert.assertNotNull(element);
