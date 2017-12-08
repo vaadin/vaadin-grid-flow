@@ -985,8 +985,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                     .getProperty(propertyName).get();
             return addColumn(property);
         } catch (NoSuchElementException exception) {
-            throw new IllegalArgumentException("Can't resolve property name "
-                    + propertyName + " from " + propertySet);
+            throw new IllegalArgumentException("Can't resolve property name '"
+                    + propertyName + "' from '" + propertySet + "'");
         }
     }
 
