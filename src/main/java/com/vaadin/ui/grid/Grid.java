@@ -980,14 +980,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
         Objects.requireNonNull(propertyName, "Property name can't be null");
 
+        PropertyDefinition<T, ?> property;
         try {
-            PropertyDefinition<T, ?> property = propertySet
-                    .getProperty(propertyName).get();
-            return addColumn(property);
-        } catch (NoSuchElementException exception) {
+            property = propertySet.getProperty(propertyName).get();
+        } catch (NoSuchElementException | IllegalArgumentException exception) {
             throw new IllegalArgumentException("Can't resolve property name '"
                     + propertyName + "' from '" + propertySet + "'");
         }
+        return addColumn(property);
     }
 
     private Column<T> addColumn(PropertyDefinition<T, ?> property) {

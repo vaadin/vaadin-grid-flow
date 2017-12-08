@@ -17,12 +17,17 @@ package com.vaadin.ui.grid.tests;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.vaadin.ui.grid.Grid;
 import com.vaadin.ui.grid.Grid.Column;
 
 public class BeanGridTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     Grid<Person> grid;
 
@@ -54,25 +59,36 @@ public class BeanGridTest {
                 grid.getColumnByKey(property));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void duplicateColumnsForSameProperty_throws() {
+        expectIllegalArgumentException(
+                "Multiple columns for the same property");
         grid.addColumn("name");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void duplicateColumnsForSameSubProperty_throws() {
+        expectIllegalArgumentException(
+                "Multiple columns for the same property");
         grid.addColumn("friend.name");
         grid.addColumn("friend.name");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void addColumnForNonExistingProperty_throws() {
+        expectIllegalArgumentException("Can't resolve property name");
         grid.addColumn("foobar");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void addColumnForNonExistingSubProperty_throws() {
+        expectIllegalArgumentException("Can't resolve property name");
         grid.addColumn("friend.foobar");
+    }
+
+    private void expectIllegalArgumentException(String expectedMessage) {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(expectedMessage);
     }
 
     @Test(expected = UnsupportedOperationException.class)
