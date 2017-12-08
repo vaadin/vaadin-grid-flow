@@ -17,6 +17,8 @@ package com.vaadin.ui.grid;
 
 import java.util.Map;
 
+import com.vaadin.data.provider.DataGenerator;
+import com.vaadin.data.provider.KeyMapper;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.function.ValueProvider;
 import com.vaadin.server.VaadinRequest;
@@ -27,6 +29,8 @@ import com.vaadin.ui.renderers.ComponentTemplateRenderer;
 import com.vaadin.ui.renderers.TemplateRenderer;
 import com.vaadin.ui.renderers.TemplateRendererUtil;
 import com.vaadin.util.JsonSerializer;
+
+import elemental.json.JsonObject;
 
 /**
  * Helper class with utility methods used internally by {@link Grid} to support
@@ -39,6 +43,74 @@ import com.vaadin.util.JsonSerializer;
 class GridTemplateRendererUtil {
 
     private GridTemplateRendererUtil() {
+    }
+
+    static class ComponentDataGenerator<T> implements DataGenerator<T> {
+
+        private ComponentTemplateRenderer<? extends Component, T> componentRenderer;
+        private Map<String, Component> renderedComponents;
+        private Element container;
+        private String nodeIdPropertyName;
+        private KeyMapper<T> keyMapper;
+
+        public ComponentDataGenerator(
+                ComponentTemplateRenderer<? extends Component, T> componentRenderer,
+                Map<String, Component> renderedComponents, Element container,
+                String nodeIdPropertyName, KeyMapper<T> keyMapper) {
+            this.componentRenderer = componentRenderer;
+            this.renderedComponents = renderedComponents;
+            this.container = container;
+            this.nodeIdPropertyName = nodeIdPropertyName;
+            this.keyMapper = keyMapper;
+        }
+
+        @Override
+        public void generateData(T item, JsonObject jsonObject) {
+            String itemKey = jsonObject.getString("key");
+            Component renderedComponent = renderedComponents.get(itemKey);
+            if (renderedComponent == null) {
+                renderedComponent = componentRenderer.createComponent(item);
+                GridTemplateRendererUtil.registerRenderedComponent(
+                        componentRenderer, renderedComponents, container,
+                        itemKey, renderedComponent);
+            }
+            int nodeId = renderedComponent.getElement().getNode().getId();
+            jsonObject.put(nodeIdPropertyName, nodeId);
+        }
+
+        @Override
+        public void refreshData(T item) {
+            String itemKey = keyMapper.key(item);
+            Component oldComponent = renderedComponents.get(itemKey);
+            if (oldComponent != null) {
+                Component recreatedComponent = componentRenderer
+                        .createComponent(item);
+
+                int oldId = oldComponent.getElement().getNode().getId();
+                int newId = recreatedComponent.getElement().getNode().getId();
+                if (oldId != newId) {
+                    container.removeChild(oldComponent.getElement());
+                    GridTemplateRendererUtil.registerRenderedComponent(
+                            componentRenderer, renderedComponents, container,
+                            itemKey, recreatedComponent);
+                }
+            }
+        }
+
+        @Override
+        public void destroyData(T item) {
+            String itemKey = keyMapper.key(item);
+            Component rendereredComponent = renderedComponents.remove(itemKey);
+            if (rendereredComponent != null) {
+                rendereredComponent.getElement().removeFromParent();
+            }
+        }
+
+        @Override
+        public void destroyAllData() {
+            container.removeAllChildren();
+            renderedComponents.clear();
+        }
     }
 
     static String getAppId() {

@@ -279,6 +279,9 @@ public class GridIT extends TabbedComponentDemoTest {
         Assert.assertEquals(0,
                 grid.findElements(By.className("custom-details")).size());
         clickElementWithJs(findElement(By.id("toggle-details-button")));
+
+        waitUntil(driver -> grid.findElements(By.className("custom-details"))
+                .size() == 1);
         Assert.assertEquals(1,
                 grid.findElements(By.className("custom-details")).size());
         Assert.assertTrue(grid.findElement(By.className("custom-details"))

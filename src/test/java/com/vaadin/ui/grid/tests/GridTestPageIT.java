@@ -51,14 +51,17 @@ public class GridTestPageIT extends AbstractComponentIT {
         WebElement grid = findElement(By.id("grid-with-component-renderers"));
         String itemIdPrefix = "grid-with-component-renderers-";
 
+        waitUntil(driver -> getItems(driver, grid).size() == 20);
         assertItemsArePresent(grid, itemIdPrefix, 0, 20);
 
         WebElement button = findElement(By.id(itemIdPrefix + "change-list"));
 
         clickElementWithJs(button);
+        waitUntil(driver -> getItems(driver, grid).size() == 10);
         assertItemsArePresent(grid, itemIdPrefix, 20, 10);
 
         clickElementWithJs(button);
+        waitUntil(driver -> getItems(driver, grid).size() == 20);
         assertItemsArePresent(grid, itemIdPrefix, 0, 20);
     }
 
