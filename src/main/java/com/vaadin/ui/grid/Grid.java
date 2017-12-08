@@ -98,6 +98,8 @@ import elemental.json.JsonValue;
 public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
 
+    private static final String GRID_COMPONENT_RENDERER_TAG = "flow-grid-component-renderer";
+
     private final class UpdateQueue implements Update {
         private List<Runnable> queue = new ArrayList<>();
 
@@ -245,15 +247,20 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             comparator = (a, b) -> 0;
 
+            String template;
             if (renderer instanceof ComponentTemplateRenderer) {
                 renderedComponents = new HashMap<>();
                 ComponentTemplateRenderer<? extends Component, T> componentRenderer = (ComponentTemplateRenderer<? extends Component, T>) renderer;
                 grid.setupItemComponentRenderer(this, columnId,
                         componentRenderer, renderedComponents);
+                template = componentRenderer
+                        .getTemplate(GRID_COMPONENT_RENDERER_TAG);
+            } else {
+                template = renderer.getTemplate();
             }
 
             Element contentTemplate = new Element("template")
-                    .setProperty("innerHTML", renderer.getTemplate());
+                    .setProperty("innerHTML", template);
 
             getElement().setAttribute("id", columnId)
                     .appendChild(contentTemplate);
@@ -1178,17 +1185,23 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (renderer == null) {
             return;
         }
+
+        String template;
         if (renderer instanceof ComponentTemplateRenderer) {
             renderedDetailComponents = new HashMap<>();
 
             ComponentTemplateRenderer<? extends Component, T> componentRenderer = (ComponentTemplateRenderer<? extends Component, T>) renderer;
             itemDetailsDataGeneratorRegistration = setupItemComponentRenderer(
                     this, null, componentRenderer, renderedDetailComponents);
+            template = componentRenderer
+                    .getTemplate(GRID_COMPONENT_RENDERER_TAG);
+        } else {
+            template = renderer.getTemplate();
         }
 
         Element newDetailsTemplate = new Element("template")
                 .setAttribute("class", "row-details")
-                .setProperty("innerHTML", renderer.getTemplate());
+                .setProperty("innerHTML", template);
 
         detailsTemplate = newDetailsTemplate;
         getElement().appendChild(detailsTemplate);
@@ -1465,8 +1478,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             ComponentTemplateRenderer<? extends Component, T> componentRenderer,
             Map<String, Component> renderedComponents) {
 
-        componentRenderer
-                .setComponentRendererTag("flow-grid-component-renderer");
         Element container = new Element("div", false);
         owner.getElement().appendVirtualChild(container);
 
