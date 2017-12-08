@@ -15,10 +15,10 @@ window.gridConnector = {
     
     // Used by flow-grid-component-renderer 
     grid.$connector.asyncNotifyResize = function() {
-    	grid.$connector.resizeDebouncer = Polymer.Debouncer.debounce(
-    			grid.$connector.resizeDebouncer,
-    	        Polymer.Async.animationFrame,
-    	        () => grid.notifyResize());
+      grid.$connector.resizeDebouncer = Polymer.Debouncer.debounce(
+          grid.$connector.resizeDebouncer,
+              Polymer.Async.animationFrame,
+              () => grid.notifyResize());
     }
 
     grid.$connector.doSelection = function(item, userOriginated) {
