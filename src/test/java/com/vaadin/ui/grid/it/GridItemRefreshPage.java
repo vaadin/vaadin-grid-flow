@@ -65,17 +65,22 @@ public class GridItemRefreshPage extends Div {
 
     private void createTemplateGrid() {
         Grid<Bean> grid = new Grid<>();
+        grid.setHeight("500px");
         grid.addColumn(Bean::getFirstField).setHeader("First Field");
         grid.addColumn(Bean::getSecondField).setHeader("Second Field");
         List<Bean> items = createItems(1000);
         grid.setItems(items);
         grid.setId("template-grid");
-        add(grid);
+
+        Div div = new Div();
+        div.setText("Template Grid");
+        add(div, grid);
         addButtons(grid, items, "template-");
     }
 
     private void createComponentGrid() {
         Grid<Bean> grid = new Grid<>();
+        grid.setHeight("500px");
         grid.addColumn(new ComponentTemplateRenderer<Label, Bean>(
                 item -> new Label(item.getFirstField())))
                 .setHeader("First Field");
@@ -85,7 +90,10 @@ public class GridItemRefreshPage extends Div {
         List<Bean> items = createItems(1000);
         grid.setItems(items);
         grid.setId("component-grid");
-        add(grid);
+
+        Div div = new Div();
+        div.setText("Component Grid");
+        add(div, grid);
         addButtons(grid, items, "component-");
     }
 

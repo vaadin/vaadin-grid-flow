@@ -86,11 +86,11 @@ public class GridItemRefreshPageIT extends AbstractComponentIT {
         clickElementWithJs(refreshAll);
         waitUntilUpdated(grid, 10, 15);
 
-        getCommandExecutor().executeScript("arguments[0].scrollToIndex(900)",
+        getCommandExecutor().executeScript("arguments[0].scrollToIndex(1000)",
                 grid);
         // rows at the bottom (outside of the initial cache) should also be
         // updated
-        waitUntilUpdated(grid, 900, 910);
+        waitUntilUpdated(grid, 990, 999);
     }
 
     private void waitUntilUpdated(WebElement grid, int startIndex,
@@ -101,7 +101,7 @@ public class GridItemRefreshPageIT extends AbstractComponentIT {
         waitUntil(driver -> grid
                 .findElements(By.tagName("vaadin-grid-cell-content")).stream()
                 .map(this::getContentIfComponentRenderered)
-                .collect(Collectors.toSet()).containsAll(expected), 60);
+                .collect(Collectors.toSet()).containsAll(expected));
     }
 
     private void assertNotUpdated(WebElement grid, int startIndex,
