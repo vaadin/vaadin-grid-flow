@@ -101,7 +101,7 @@ public class GridItemRefreshPageIT extends AbstractComponentIT {
         waitUntil(driver -> grid
                 .findElements(By.tagName("vaadin-grid-cell-content")).stream()
                 .map(this::getContentIfComponentRenderered)
-                .collect(Collectors.toSet()).containsAll(expected));
+                .collect(Collectors.toSet()).containsAll(expected), 60);
     }
 
     private void assertNotUpdated(WebElement grid, int startIndex,
