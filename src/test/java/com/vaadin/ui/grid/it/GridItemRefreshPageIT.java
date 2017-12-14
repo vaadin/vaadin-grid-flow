@@ -117,7 +117,7 @@ public class GridItemRefreshPageIT extends AbstractComponentIT {
 
     private String getContentIfComponentRenderered(WebElement cell) {
         List<WebElement> renderer = cell
-                .findElements(By.tagName("flow-component-renderer"));
+                .findElements(By.tagName("flow-grid-component-renderer"));
         if (renderer.isEmpty()) {
             return cell.getAttribute("innerHTML");
         }
