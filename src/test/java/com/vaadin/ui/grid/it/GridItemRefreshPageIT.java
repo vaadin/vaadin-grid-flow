@@ -52,6 +52,9 @@ public class GridItemRefreshPageIT extends AbstractComponentIT {
      * the way the flow-component-renderer injects the components inside itself.
      * Currently it uses a Polymer.Async.idlePeriod debouncer strategy, that
      * makes it update the cell in a non-blocking way.
+     * 
+     * The bug these tests are supposed to prevent is described at
+     * https://github.com/vaadin/vaadin-grid-flow/issues/9
      */
 
     @Test
