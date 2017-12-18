@@ -32,15 +32,16 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.ColumnGroup;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridMultiSelectionModel;
-import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
+import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.flow.component.grid.demo.GridView.Address;
 import com.vaadin.flow.component.grid.demo.GridView.PersonCard;
 import com.vaadin.flow.component.grid.demo.GridView.PersonComponent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.data.binder.BeanPropertySetTest.Person;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -52,7 +53,6 @@ import com.vaadin.flow.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.renderer.NumberRenderer;
 import com.vaadin.flow.renderer.TemplateRenderer;
 import com.vaadin.flow.router.Route;
-import com.vaadin.ui.button.Button;
 import com.vaadin.ui.checkbox.Checkbox;
 import com.vaadin.ui.layout.HorizontalLayout;
 import com.vaadin.ui.layout.VerticalLayout;
@@ -366,7 +366,7 @@ public class GridView extends DemoView {
                         event.getOldValue(), event.getValue(),
                         event.isFromClient())));
 
-        Button toggleSelect = new Button(
+        NativeButton toggleSelect = new NativeButton(
                 "Toggle selection of the first person");
         Person firstPerson = people.get(0);
         toggleSelect.addClickListener(event -> {
@@ -405,10 +405,10 @@ public class GridView extends DemoView {
                         event.getOldValue(), event.getValue(),
                         event.isFromClient())));
 
-        Button selectBtn = new Button("Select first five persons");
+        NativeButton selectBtn = new NativeButton("Select first five persons");
         selectBtn.addClickListener(event -> grid.asMultiSelect()
                 .setValue(new LinkedHashSet<>(people.subList(0, 5))));
-        Button selectAllBtn = new Button("Select all");
+        NativeButton selectAllBtn = new NativeButton("Select all");
         selectAllBtn.addClickListener(
                 event -> ((GridMultiSelectionModel<Person>) grid
                         .getSelectionModel()).selectAll());
@@ -494,7 +494,7 @@ public class GridView extends DemoView {
 
         // Or you can use an ordinary function to get the component
         grid.addColumn(new ComponentTemplateRenderer<>(
-                item -> new Button("Remove", evt -> {
+                item -> new NativeButton("Remove", evt -> {
                     ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                             .getDataProvider();
                     dataProvider.getItems().remove(item);
@@ -509,7 +509,7 @@ public class GridView extends DemoView {
         TextField idField = new TextField("", "Person id");
         TextField nameField = new TextField("", "New name");
 
-        Button updateButton = new Button("Update person", event -> {
+        NativeButton updateButton = new NativeButton("Update person", event -> {
             String id = idField.getValue();
             String name = nameField.getValue();
             ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
@@ -551,20 +551,22 @@ public class GridView extends DemoView {
         grid.addColumn(Person::getAge).setHeader("Age").setKey("age");
         grid.getColumnByKey("age").setResizable(true);
 
-        Button idColumnVisibility = new Button(
+        NativeButton idColumnVisibility = new NativeButton(
                 "Toggle visibility of the ID column");
         idColumnVisibility.addClickListener(
                 event -> idColumn.setHidden(!idColumn.isHidden()));
 
-        Button userReordering = new Button("Toggle user reordering of columns");
+        NativeButton userReordering = new NativeButton(
+                "Toggle user reordering of columns");
         userReordering.addClickListener(event -> grid
                 .setColumnReorderingAllowed(!grid.isColumnReorderingAllowed()));
 
-        Button freezeIdColumn = new Button("Toggle frozen state of ID column");
+        NativeButton freezeIdColumn = new NativeButton(
+                "Toggle frozen state of ID column");
         freezeIdColumn.addClickListener(
                 event -> idColumn.setFrozen(!idColumn.isFrozen()));
 
-        Button merge = new Button("Merge ID and name columns");
+        NativeButton merge = new NativeButton("Merge ID and name columns");
         merge.addClickListener(event -> {
             grid.mergeColumns(idColumn, nameColumn)
                     .setHeader("ID, Name column group");
@@ -605,7 +607,8 @@ public class GridView extends DemoView {
                     grid.getDataProvider().refreshItem(person);
                 }));
 
-        Button toggleDetails = new Button("Toggle details open for second row");
+        NativeButton toggleDetails = new NativeButton(
+                "Toggle details open for second row");
         toggleDetails
                 .addClickListener(event -> grid.setDetailsVisible(people.get(1),
                         !grid.isDetailsVisible(people.get(1))));
