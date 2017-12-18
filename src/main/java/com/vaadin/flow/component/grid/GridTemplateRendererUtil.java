@@ -24,11 +24,11 @@ import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.renderer.ComponentTemplateRenderer;
 import com.vaadin.flow.renderer.TemplateRenderer;
 import com.vaadin.flow.renderer.TemplateRendererUtil;
 import com.vaadin.flow.server.VaadinRequest;
-import com.vaadin.flow.util.JsonSerializer;
 
 import elemental.json.JsonObject;
 

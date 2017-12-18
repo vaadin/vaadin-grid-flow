@@ -10,11 +10,11 @@ import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.Route;
-import com.vaadin.ui.textfield.TextField;
 
 @Route("grid-filtering")
 public class GridFiltering extends Div {

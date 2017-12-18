@@ -22,10 +22,9 @@ import java.util.stream.IntStream;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.renderer.ComponentTemplateRenderer;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.templatemodel.Bean;
-import com.vaadin.ui.button.Button;
 
 @Route("grid-item-refresh-page")
 public class GridItemRefreshPage extends Div {
@@ -100,31 +99,31 @@ public class GridItemRefreshPage extends Div {
 
     private void addButtons(Grid<Bean> grid, List<Bean> items,
             String idPrefix) {
-        Button refreshFirstBtn = new Button("update and refresh first item",
-                event -> {
+        NativeButton refreshFirstBtn = new NativeButton(
+                "update and refresh first item", event -> {
                     updateBean(items.get(0));
                     grid.getDataProvider().refreshItem(items.get(0));
                 });
-        Button refreshMultipleBtn = new Button("update and refresh items 5-10",
-                event -> {
+        NativeButton refreshMultipleBtn = new NativeButton(
+                "update and refresh items 5-10", event -> {
                     items.subList(4, 10).forEach(item -> {
                         updateBean(item);
                         grid.getDataProvider().refreshItem(item);
                     });
                 });
-        Button refreshProviderBtn = new Button(
+        NativeButton refreshProviderBtn = new NativeButton(
                 "refresh all through data provider", event -> {
                     items.forEach(this::updateBean);
                     grid.getDataProvider().refreshAll();
                 });
 
-        Button refreshFirstCommunicatorBtn = new Button(
+        NativeButton refreshFirstCommunicatorBtn = new NativeButton(
                 "update and refresh first item through data communicator",
                 event -> {
                     updateBean(items.get(0));
                     grid.getDataCommunicator().refresh(items.get(0));
                 });
-        Button refreshMultipleCommunicatorBtn = new Button(
+        NativeButton refreshMultipleCommunicatorBtn = new NativeButton(
                 "update and refresh items 5-10 through data communicator",
                 event -> {
                     items.subList(4, 10).forEach(item -> {
@@ -132,7 +131,7 @@ public class GridItemRefreshPage extends Div {
                         grid.getDataCommunicator().refresh(item);
                     });
                 });
-        Button resetCommunicatorBtn = new Button(
+        NativeButton resetCommunicatorBtn = new NativeButton(
                 "refresh all through data communicator", event -> {
                     items.forEach(this::updateBean);
                     grid.getDataCommunicator().reset();

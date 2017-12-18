@@ -23,9 +23,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.renderer.ComponentTemplateRenderer;
 import com.vaadin.flow.router.Route;
-import com.vaadin.ui.button.Button;
 
 /**
  * Page created for testing purposes. Not suitable for demos.
@@ -85,7 +85,7 @@ public class GridTestPage extends Div {
             return label;
         }));
         grid.addColumn(new ComponentTemplateRenderer<>(item -> {
-            Button remove = new Button("Remove", evt -> {
+            NativeButton remove = new NativeButton("Remove", evt -> {
                 if (usingFirstList.get()) {
                     firstList.remove(item);
                 } else {
@@ -102,7 +102,7 @@ public class GridTestPage extends Div {
         grid.setWidth("500px");
         grid.setHeight("500px");
 
-        Button changeList = new Button("Change list", evt -> {
+        NativeButton changeList = new NativeButton("Change list", evt -> {
             if (usingFirstList.get()) {
                 grid.setItems(secondList);
             } else {
