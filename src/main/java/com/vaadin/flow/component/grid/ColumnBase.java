@@ -18,8 +18,8 @@ package com.vaadin.flow.component.grid;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.internal.HtmlUtils;
 import com.vaadin.flow.renderer.TemplateRenderer;
-import com.vaadin.flow.util.HtmlUtils;
 
 /**
  * Mixin interface for {@link Grid} columns.

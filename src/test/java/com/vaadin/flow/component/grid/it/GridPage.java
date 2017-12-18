@@ -19,9 +19,9 @@ import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.Route;
-import com.vaadin.ui.button.Button;
 
 /**
  * @author Vaadin Ltd.
@@ -52,7 +52,7 @@ public class GridPage extends Div {
 
         add(grid);
 
-        Button updateProvider = new Button("Use another provider",
+        NativeButton updateProvider = new NativeButton("Use another provider",
                 event -> setProvider(grid));
         updateProvider.setId("update-provider");
 

@@ -18,6 +18,7 @@ package com.vaadin.flow.component.grid.tests;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -261,10 +262,24 @@ public class GridIT extends TabbedComponentDemoTest {
 
         WebElement detailsElement = grid
                 .findElement(By.className("custom-details"));
-        Assert.assertEquals("<div class=\"custom-details\">"
-                + "<div>Hi! My name is Person 1!</div>"
-                + "<div><vaadin-button tabindex=\"0\" role=\"button\">Update Person</vaadin-button></div>"
-                + "</div>", detailsElement.getAttribute("outerHTML"));
+
+        List<WebElement> children = detailsElement
+                .findElements(By.tagName("div"));
+        Assert.assertEquals(2, children.size());
+
+        Assert.assertEquals("div",
+                children.get(0).getTagName().toLowerCase(Locale.ENGLISH));
+        Assert.assertEquals("Hi! My name is Person 1!",
+                children.get(0).getText());
+
+        Assert.assertEquals("div",
+                children.get(1).getTagName().toLowerCase(Locale.ENGLISH));
+
+        WebElement button = children.get(1)
+                .findElement(By.tagName("vaadin-button"));
+
+        Assert.assertEquals("Update Person", button.getText());
+
         clickElementWithJs(
                 detailsElement.findElement(By.tagName("vaadin-button")));
 

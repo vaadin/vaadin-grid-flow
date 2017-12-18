@@ -71,12 +71,12 @@ import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.internal.HtmlUtils;
+import com.vaadin.flow.internal.JsonSerializer;
+import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.renderer.ComponentTemplateRenderer;
 import com.vaadin.flow.renderer.TemplateRenderer;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.util.HtmlUtils;
-import com.vaadin.flow.util.JsonSerializer;
-import com.vaadin.flow.util.JsonUtils;
 
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
