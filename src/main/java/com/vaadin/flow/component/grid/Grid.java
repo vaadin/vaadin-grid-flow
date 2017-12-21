@@ -58,7 +58,6 @@ import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
@@ -1501,7 +1500,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         return getDataGenerator().addDataGenerator(new ComponentDataGenerator<>(
                 componentRenderer, container, nodeIdPropertyName,
-                (KeyMapper<T>) getDataCommunicator().getKeyMapper()));
+                getDataCommunicator().getKeyMapper()));
     }
 
     /*
