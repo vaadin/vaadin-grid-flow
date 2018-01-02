@@ -256,7 +256,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             HasDataGenerators<T> gridDataGenerator = grid.getDataGenerator();
             String template;
-            DataGenerator<T> extraGenerator;
             if (renderer instanceof ComponentTemplateRenderer) {
                 ComponentTemplateRenderer<? extends Component, T> componentRenderer = (ComponentTemplateRenderer<? extends Component, T>) renderer;
                 DataGenerator<T> componentDataGenerator = grid
@@ -268,7 +267,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                         .getTemplate(GRID_COMPONENT_RENDERER_TAG);
             } else {
                 template = renderer.getTemplate();
-                extraGenerator = null;
             }
 
             Element contentTemplate = new Element("template")
@@ -1400,20 +1398,17 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Removes a column with the given column key from the Grid.
-     * <p>
-     * Removing <code>null</code> is a NO-OP.
      * 
      * @param columnKey
      *            the key of the column, assigned by
      *            {@link Column#setKey(String)}, or automatically created when
-     *            using {@link Grid#Grid(Class)}
+     *            using {@link Grid#Grid(Class)}. Cannot be <code>null</code>
      * @throws IllegalArgumentException
      *             if the column is not part of this Grid
      */
     public void removeColumnByKey(String columnKey) {
-        if (columnKey == null) {
-            return;
-        }
+        Objects.requireNonNull(columnKey, "columnKey should not be null");
+
         Column<T> columnByKey = getColumnByKey(columnKey);
         if (columnByKey == null) {
             throw new IllegalArgumentException("The column with key '"
@@ -1424,26 +1419,43 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Removes a column from the Grid.
-     * <p>
-     * Removing <code>null</code> is a NO-OP.
      * 
      * @param column
-     *            the column to be removed
+     *            the column to be removed, not <code>null</code>
      * @throws IllegalArgumentException
-     *             if the column is not part of this Grid
+     *             if column is <code>null</code> or if it is not part of this
+     *             Grid
      */
     public void removeColumn(Column<T> column) {
-        if (column == null) {
-            return;
-        }
-        if (!getElement().equals(column.getElement().getParent())) {
+        Objects.requireNonNull(column, "column should not be null");
+
+        if (!column.getGrid().equals(this)
+                || column.getElement().getParent() == null) {
             throw new IllegalArgumentException("The column with key '"
                     + column.getKey() + "' is not part of this Grid");
         }
-        getElement().removeChild(column.getElement());
+        removeColumnAndColumnGroupsIfNeeded(column);
         column.destroyDataGenerators();
         keyToColumnMap.remove(column.getKey());
         idToColumnMap.remove(column.getInternalId());
+    }
+
+    private void removeColumnAndColumnGroupsIfNeeded(Column<?> column) {
+        Element parent = column.getElement().getParent();
+        parent.removeChild(column.getElement());
+        if (!parent.equals(getElement())) {
+            removeEmptyColumnGroups(parent);
+        }
+    }
+
+    private void removeEmptyColumnGroups(Element columnGroup) {
+        Element parent = columnGroup.getParent();
+        if (columnGroup.getChildCount() == 0) {
+            parent.removeChild(columnGroup);
+            if (!parent.equals(getElement())) {
+                removeEmptyColumnGroups(parent);
+            }
+        }
     }
 
     /**

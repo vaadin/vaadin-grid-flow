@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -103,7 +104,8 @@ public class GridColumnTest {
     }
 
     @Test
-    public void removeColumnByNullKey_noOp() {
+    public void removeColumnByNullKey_throws() {
+        expectNullPointerException("columnKey should not be null");
         grid.removeColumnByKey(null);
     }
 
@@ -115,7 +117,8 @@ public class GridColumnTest {
     }
 
     @Test
-    public void removeNullColumn_noOp() {
+    public void removeNullColumn_throws() {
+        expectNullPointerException("column should not be null");
         grid.removeColumn(null);
     }
 
@@ -158,6 +161,49 @@ public class GridColumnTest {
         grid.removeColumn(firstColumn);
     }
 
+    @Test
+    public void removeMergedColumn() {
+        ColumnGroup merged = grid.mergeColumns(firstColumn, secondColumn);
+
+        firstColumn.setKey("first");
+        grid.removeColumn(firstColumn);
+
+        Assert.assertThat(merged.getChildColumns(),
+                CoreMatchers.not(CoreMatchers.hasItem(firstColumn)));
+        Assert.assertNull(grid.getColumnByKey("first"));
+    }
+
+    @Test
+    public void removeMergedColumns_columnGroupIsRemoved() {
+        ColumnGroup merged = grid.mergeColumns(firstColumn, secondColumn);
+        Assert.assertEquals(grid.getElement(), merged.getElement().getParent());
+
+        grid.removeColumn(firstColumn);
+        grid.removeColumn(secondColumn);
+
+        Assert.assertEquals(0, merged.getChildColumns().size());
+        Assert.assertNull(merged.getElement().getParent());
+    }
+
+    @Test
+    public void removeAllMergedColumns_columnGroupsAreRemoved() {
+        ColumnGroup merged = grid.mergeColumns(firstColumn, thirdColumn);
+        ColumnGroup secondMerge = grid.mergeColumns(merged, secondColumn);
+        Assert.assertEquals(secondMerge.getElement(),
+                merged.getElement().getParent());
+        Assert.assertEquals(grid.getElement(),
+                secondMerge.getElement().getParent());
+
+        grid.removeColumn(firstColumn);
+        grid.removeColumn(secondColumn);
+        grid.removeColumn(thirdColumn);
+
+        Assert.assertEquals(0, merged.getChildColumns().size());
+        Assert.assertNull(merged.getElement().getParent());
+        Assert.assertEquals(0, secondMerge.getChildColumns().size());
+        Assert.assertNull(secondMerge.getElement().getParent());
+    }
+
     private List<ColumnBase<?>> getTopLevelColumns() {
         return grid.getElement().getChildren()
                 .map(element -> element.getComponent())
@@ -165,6 +211,11 @@ public class GridColumnTest {
                         && component.get() instanceof ColumnBase<?>)
                 .map(component -> (ColumnBase<?>) component.get())
                 .collect(Collectors.toList());
+    }
+
+    private void expectNullPointerException(String message) {
+        thrown.expect(NullPointerException.class);
+        thrown.expectMessage(message);
     }
 
     private void expectIllegalArgumentException(String message) {
