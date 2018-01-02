@@ -623,22 +623,11 @@ public class GridView extends DemoView {
         // Disable the default way of opening item details:
         grid.setDetailsVisibleOnClick(false);
 
-        grid.setSelectionMode(SelectionMode.SINGLE);
-
-        NativeButton toggleDetails = new NativeButton(
-                "Toggle details open for selected row");
-        toggleDetails.addClickListener(event -> {
-            Person selected = grid.asSingleSelect().getValue();
-            if (selected != null) {
-                grid.setDetailsVisible(selected,
-                        !grid.isDetailsVisible(selected));
-            }
-        });
+        grid.addColumn(new ButtonRenderer<>("Toggle details open", item -> grid
+                .setDetailsVisible(item, !grid.isDetailsVisible(item))));
         // end-source-example
         grid.setId("grid-with-details-row-2");
-        toggleDetails.setId("toggle-details-button");
-        addCard("Item details", "Open details programmatically", grid,
-                toggleDetails);
+        addCard("Item details", "Open details programmatically", grid);
     }
 
     private void createColumnGroup() {
