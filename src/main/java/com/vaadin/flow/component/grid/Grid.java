@@ -1395,9 +1395,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #setItemDetailsRenderer(TemplateRenderer)
      */
     public void setDetailsVisibleOnClick(boolean detailsVisibleOnClick) {
-        this.detailsVisibleOnClick = detailsVisibleOnClick;
-        getElement().callFunction("$connector.setDetailsVisibleOnClick",
-                detailsVisibleOnClick);
+        if (this.detailsVisibleOnClick != detailsVisibleOnClick) {
+            this.detailsVisibleOnClick = detailsVisibleOnClick;
+            getElement().callFunction("$connector.setDetailsVisibleOnClick",
+                    detailsVisibleOnClick);
+        }
     }
 
     /**
