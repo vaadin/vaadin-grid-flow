@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.vaadin.flow.component.grid.ColumnBase;
 import com.vaadin.flow.component.grid.ColumnGroup;
@@ -34,6 +36,9 @@ public class GridColumnTest {
     Column<String> firstColumn;
     Column<String> secondColumn;
     Column<String> thirdColumn;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void init() {
@@ -90,6 +95,69 @@ public class GridColumnTest {
         grid.mergeColumns(firstColumn, thirdColumn);
     }
 
+    @Test
+    public void removeColumnByKey() {
+        firstColumn.setKey("first");
+        grid.removeColumnByKey("first");
+        Assert.assertNull(grid.getColumnByKey("first"));
+    }
+
+    @Test
+    public void removeColumnByNullKey_noOp() {
+        grid.removeColumnByKey(null);
+    }
+
+    @Test
+    public void removeColumn() {
+        firstColumn.setKey("first");
+        grid.removeColumn(firstColumn);
+        Assert.assertNull(grid.getColumnByKey("first"));
+    }
+
+    @Test
+    public void removeNullColumn_noOp() {
+        grid.removeColumn(null);
+    }
+
+    @Test
+    public void removeInvalidColumnByKey_throws() {
+        expectIllegalArgumentException(
+                "The column with key 'wrong' is not part of this Grid");
+
+        grid.removeColumnByKey("wrong");
+    }
+
+    @Test
+    public void removeColumnByKeyTwice_throws() {
+        expectIllegalArgumentException(
+                "The column with key 'first' is not part of this Grid");
+
+        firstColumn.setKey("first");
+        grid.removeColumnByKey("first");
+        grid.removeColumnByKey("first");
+    }
+
+    @Test
+    public void removeInvalidColumn_throws() {
+        expectIllegalArgumentException(
+                "The column with key 'wrong' is not part of this Grid");
+
+        Grid<String> grid2 = new Grid<>();
+        Column<String> wrongColumn = grid2.addColumn(str -> str);
+        wrongColumn.setKey("wrong");
+        grid.removeColumn(wrongColumn);
+    }
+
+    @Test
+    public void removeColumnTwice_throws() {
+        expectIllegalArgumentException(
+                "The column with key 'first' is not part of this Grid");
+
+        firstColumn.setKey("first");
+        grid.removeColumn(firstColumn);
+        grid.removeColumn(firstColumn);
+    }
+
     private List<ColumnBase<?>> getTopLevelColumns() {
         return grid.getElement().getChildren()
                 .map(element -> element.getComponent())
@@ -97,5 +165,10 @@ public class GridColumnTest {
                         && component.get() instanceof ColumnBase<?>)
                 .map(component -> (ColumnBase<?>) component.get())
                 .collect(Collectors.toList());
+    }
+
+    private void expectIllegalArgumentException(String message) {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(message);
     }
 }
