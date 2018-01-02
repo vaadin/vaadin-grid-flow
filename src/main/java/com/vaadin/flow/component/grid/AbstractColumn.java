@@ -70,9 +70,9 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
     }
 
     /**
-     * Returns whether this column is hidden. Default is {@code false}.
+     * Returns whether this column is visible. Default is {@code true}.
      *
-     * @return {@code true} if the column is currently hidden, {@code false}
+     * @return {@code false} if the column is currently hidden, {@code true}
      *         otherwise
      */
     @Override
