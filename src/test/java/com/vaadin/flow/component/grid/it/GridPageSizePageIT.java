@@ -16,6 +16,7 @@
 package com.vaadin.flow.component.grid.it;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -26,7 +27,14 @@ import com.vaadin.flow.testutil.TestPath;
 @TestPath("grid-page-size")
 public class GridPageSizePageIT extends AbstractComponentIT {
 
+    /**
+     * Test ignored for now, while
+     * https://github.com/vaadin/vaadin-grid-flow/issues/68 is not fixed. It
+     * should be re-enabled once the underlying functionality is made public
+     * again.
+     */
     @Test
+    @Ignore
     public void gridWithPageSize10() {
         open();
 

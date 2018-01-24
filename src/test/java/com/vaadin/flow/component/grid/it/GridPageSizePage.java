@@ -40,7 +40,12 @@ public class GridPageSizePage extends Div {
      * Creates a view with a grid with page size of 10.
      */
     public GridPageSizePage() {
-        Grid<String> grid = new Grid<>(10);
+        /*
+         * Disabled until https://github.com/vaadin/vaadin-grid-flow/issues/68
+         * is fixed.
+         */
+        // Grid<String> grid = new Grid<>(10);
+        Grid<String> grid = new Grid<>();
 
         grid.setDataProvider(dataProvider);
         grid.addColumn(i -> i).setHeader("text");
