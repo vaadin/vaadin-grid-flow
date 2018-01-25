@@ -15,11 +15,10 @@
  */
 package com.vaadin.flow.component.grid;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.internal.HtmlUtils;
-import com.vaadin.flow.renderer.TemplateRenderer;
 
 /**
  * Mixin interface for {@link Grid} columns.
@@ -86,20 +85,16 @@ public interface ColumnBase<T extends ColumnBase<T>> extends HasElement {
      *            the text to be shown at the column header
      * @return this column, for method chaining
      */
-    default T setHeader(String labelText) {
-        setHeader(TemplateRenderer.of(HtmlUtils.escape(labelText)));
-        return (T) this;
-    }
+    T setHeader(String labelText);
 
     /**
-     * Sets a header template to the column.
+     * Sets a header component to the column.
      *
-     * @param renderer
-     *            the template renderer to be used to render the header of the
-     *            column
+     * @param headerComponent
+     *            the component to be used in the header of the column
      * @return this column, for method chaining
      */
-    T setHeader(TemplateRenderer<?> renderer);
+    T setHeader(Component headerComponent);
 
     /**
      * Sets a footer text to the column.
@@ -108,20 +103,16 @@ public interface ColumnBase<T extends ColumnBase<T>> extends HasElement {
      *            the text to be shown at the column footer
      * @return this column, for method chaining
      */
-    default T setFooter(String labelText) {
-        setFooter(TemplateRenderer.of(HtmlUtils.escape(labelText)));
-        return (T) this;
-    }
+    T setFooter(String labelText);
 
     /**
-     * Sets a footer template to the column.
+     * Sets a footer component to the column.
      *
-     * @param renderer
-     *            the template renderer to be used to render the footer of the
-     *            column
+     * @param footerComponent
+     *            the component to be used in the footer of the column
      * @return this column, for method chaining
      */
-    T setFooter(TemplateRenderer<?> renderer);
+    T setFooter(Component footerComponent);
 
     /**
      * Gets the underlying column element.
