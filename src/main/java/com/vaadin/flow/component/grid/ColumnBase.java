@@ -80,6 +80,9 @@ public interface ColumnBase<T extends ColumnBase<T>> extends HasElement {
 
     /**
      * Sets a header text to the column.
+     * <p>
+     * Calling this method after {@link #setHeader(Component)} will remove the
+     * component previously set.
      *
      * @param labelText
      *            the text to be shown at the column header
@@ -89,6 +92,10 @@ public interface ColumnBase<T extends ColumnBase<T>> extends HasElement {
 
     /**
      * Sets a header component to the column.
+     * <p>
+     * Calling this method after {@link #setHeader(String)} will remove the text
+     * previously set. Calling this method twice will remove the previous
+     * component.
      *
      * @param headerComponent
      *            the component to be used in the header of the column
@@ -98,6 +105,9 @@ public interface ColumnBase<T extends ColumnBase<T>> extends HasElement {
 
     /**
      * Sets a footer text to the column.
+     * <p>
+     * Calling this method after {@link #setFooter(Component)} will remove the
+     * component previously set.
      *
      * @param labelText
      *            the text to be shown at the column footer
@@ -107,6 +117,10 @@ public interface ColumnBase<T extends ColumnBase<T>> extends HasElement {
 
     /**
      * Sets a footer component to the column.
+     * <p>
+     * Calling this method after {@link #setFooter(String)} will remove the text
+     * previously set. Calling this method twice will remove the previous
+     * component.
      *
      * @param footerComponent
      *            the component to be used in the footer of the column
