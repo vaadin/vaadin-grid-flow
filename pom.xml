@@ -30,7 +30,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.webjars.bower</groupId>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
             <artifactId>vaadin-grid</artifactId>
         </dependency>
         <dependency>
