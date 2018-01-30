@@ -16,6 +16,7 @@
 package com.vaadin.flow.component.grid;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,10 +38,9 @@ import elemental.json.JsonObject;
 /**
  * Abstract implementation of a GridMultiSelectionModel.
  *
- * @author Vaadin Ltd.
- *
  * @param <T>
- *            the grid type
+ *         the grid type
+ * @author Vaadin Ltd.
  */
 public abstract class AbstractGridMultiSelectionModel<T>
         extends AbstractGridExtension<T> implements GridMultiSelectionModel<T> {
@@ -53,8 +53,8 @@ public abstract class AbstractGridMultiSelectionModel<T>
      * Constructor for passing a reference of the grid to this implementation.
      *
      * @param grid
-     *            reference to the grid for which this selection model is
-     *            created
+     *         reference to the grid for which this selection model is
+     *         created
      */
     public AbstractGridMultiSelectionModel(Grid<T> grid) {
         super(grid);
@@ -110,7 +110,12 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doSelect(item, false);
-        getGrid().getDataCommunicator().reset();
+        Set<T> selected = new LinkedHashSet<>();
+        if(item != null) {
+            selected.add(item);
+        }
+        doUpdateSelection(selected, Collections.emptySet(),
+                false);
     }
 
     @Override
@@ -119,14 +124,18 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doDeselect(item, false);
-        getGrid().getDataCommunicator().reset();
+        Set<T> deselected = new LinkedHashSet<>();
+        if(item != null) {
+            deselected.add(item);
+        }
+        doUpdateSelection(Collections.emptySet(), deselected,
+                false);
         selectionColumn.setSelectAllCheckboxState(false);
     }
 
     @Override
     public void selectAll() {
-        updateSelection(
-                getGrid().getDataCommunicator().getDataProvider()
+        updateSelection(getGrid().getDataCommunicator().getDataProvider()
                         .fetch(new Query<>()).collect(Collectors.toSet()),
                 Collections.emptySet());
         selectionColumn.setSelectAllCheckboxState(true);
@@ -258,13 +267,12 @@ public abstract class AbstractGridMultiSelectionModel<T>
      * Method for handling the firing of selection events.
      *
      * @param event
-     *            the selection event to fire
+     *         the selection event to fire
      */
     protected abstract void fireSelectionEvent(SelectionEvent<T> event);
 
     private void clientSelectAll() {
-        doUpdateSelection(
-                getGrid().getDataCommunicator().getDataProvider()
+        doUpdateSelection(getGrid().getDataCommunicator().getDataProvider()
                         .fetch(new Query<>()).collect(Collectors.toSet()),
                 Collections.emptySet(), true);
         selectionColumn.setSelectAllCheckboxState(true);
@@ -296,16 +304,19 @@ public abstract class AbstractGridMultiSelectionModel<T>
     private void doUpdateSelection(Set<T> addedItems, Set<T> removedItems,
             boolean userOriginated) {
         addedItems.removeIf(removedItems::remove);
-        if (selected.containsAll(addedItems)
-                && Collections.disjoint(selected, removedItems)) {
+        if (selected.containsAll(addedItems) && Collections
+                .disjoint(selected, removedItems)) {
             return;
         }
         Set<T> oldSelection = new LinkedHashSet<>(selected);
         selected.removeAll(removedItems);
         selected.addAll(addedItems);
-        getGrid().getDataCommunicator().reset();
-        fireSelectionEvent(new MultiSelectionEvent<>(getGrid(),
-                getGrid().asMultiSelect(), oldSelection, userOriginated));
+        addedItems.forEach(getGrid().getDataCommunicator()::refresh);
+        removedItems.forEach(getGrid().getDataCommunicator()::refresh);
+
+        fireSelectionEvent(
+                new MultiSelectionEvent<>(getGrid(), getGrid().asMultiSelect(),
+                        oldSelection, userOriginated));
         if (!removedItems.isEmpty()) {
             selectionColumn.setSelectAllCheckboxState(false);
         }
