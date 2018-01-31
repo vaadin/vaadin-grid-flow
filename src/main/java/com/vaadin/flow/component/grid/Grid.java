@@ -770,6 +770,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
+        getElement().synchronizeProperty("size", "mSync");
 
         getElement().getNode()
                 .runWhenAttached(ui -> ui.getPage().executeJavaScript(
