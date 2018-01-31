@@ -254,11 +254,6 @@ public abstract class AbstractGridMultiSelectionModel<T>
     }
 
     @Override
-    public void destroyData(T item) {
-        deselect(item);
-    }
-
-    @Override
     public void destroyAllData() {
         deselectAll();
     }

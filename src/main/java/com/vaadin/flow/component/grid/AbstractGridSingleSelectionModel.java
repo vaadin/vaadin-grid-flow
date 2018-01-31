@@ -171,11 +171,6 @@ public abstract class AbstractGridSingleSelectionModel<T> extends
     }
 
     @Override
-    public void destroyData(T item) {
-        deselect(item);
-    }
-
-    @Override
     public void destroyAllData() {
         deselectAll();
     }
