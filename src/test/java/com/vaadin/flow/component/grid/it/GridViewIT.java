@@ -37,7 +37,6 @@ import com.vaadin.flow.demo.TabbedComponentDemoTest;
 
 /**
  * Integration tests for the {@link GridView}.
- *
  */
 public class GridViewIT extends TabbedComponentDemoTest {
 
@@ -134,10 +133,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
         WebElement messageDiv = findElement(By.id("multi-selection-message"));
 
         clickElementWithJs(selectBtn);
-        Assert.assertEquals(
-                getSelectionMessage(Collections.emptySet(),
-                        GridView.items.subList(0, 5), false),
-                messageDiv.getText());
+        Assert.assertEquals(getSelectionMessage(Collections.emptySet(),
+                GridView.items.subList(0, 5), false), messageDiv.getText());
         assertRowsSelected(grid, 0, 5);
 
         List<WebElement> checkboxes = grid
@@ -147,10 +144,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 .collect(Collectors.toList());
         checkboxes.get(0).click();
         checkboxes.get(1).click();
-        Assert.assertEquals(
-                getSelectionMessage(GridView.items.subList(1, 5),
-                        GridView.items.subList(2, 5), true),
-                messageDiv.getText());
+        Assert.assertEquals(getSelectionMessage(GridView.items.subList(1, 5),
+                GridView.items.subList(2, 5), true), messageDiv.getText());
         assertRowsSelected(grid, 2, 5);
 
         checkboxes.get(5).click();
@@ -165,8 +160,9 @@ public class GridViewIT extends TabbedComponentDemoTest {
         openTabAndCheckForErrors("selection");
         WebElement grid = findElement(By.id("none-selection"));
         scrollToElement(grid);
-        clickElementWithJs(grid
-                .findElements(By.tagName("vaadin-grid-cell-content")).get(3));
+        clickElementWithJs(
+                grid.findElements(By.tagName("vaadin-grid-cell-content"))
+                        .get(3));
         Assert.assertFalse(isRowSelected(grid, 1));
     }
 
@@ -211,8 +207,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
                         "return arguments[0].shadowRoot.querySelectorAll('[part~=\"resize-handle\"]').length;",
                         grid));
 
-        Assert.assertEquals("First width is fixed", "75px",
-                getCommandExecutor().executeScript(
+        Assert.assertEquals("First width is fixed", "75px", getCommandExecutor()
+                .executeScript(
                         "return arguments[0].shadowRoot.querySelectorAll('th')[0].style.width;",
                         grid));
 
@@ -321,8 +317,9 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     private void assertAmountOfOpenDetails(WebElement grid,
             int expectedAmount) {
-        waitUntil(driver -> grid.findElements(By.className("custom-details"))
-                .size() == expectedAmount);
+        waitUntil(driver ->
+                grid.findElements(By.className("custom-details")).size()
+                        == expectedAmount);
         Assert.assertEquals(expectedAmount,
                 grid.findElements(By.className("custom-details")).size());
     }
@@ -401,6 +398,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         executeScript("arguments[0].value = arguments[1];", idField, "1");
         executeScript("arguments[0].value = arguments[1];", nameField,
                 "SomeOtherName");
+        executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
         clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
@@ -409,6 +407,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         executeScript("arguments[0].value = arguments[1];", idField, "2");
         executeScript("arguments[0].value = arguments[1];", nameField,
                 "SomeOtherName2");
+        executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
         clickElementWithJs(getRow(grid, 1).findElement(By.tagName("td")));
@@ -450,10 +449,10 @@ public class GridViewIT extends TabbedComponentDemoTest {
     private void assertSortMessageEquals(List<QuerySortOrder> querySortOrders,
             boolean fromClient) {
         String sortOrdersString = querySortOrders.stream()
-                .map(querySortOrder -> String.format(
-                        "{sort property: %s, direction: %s}",
-                        querySortOrder.getSorted(),
-                        querySortOrder.getDirection()))
+                .map(querySortOrder -> String
+                        .format("{sort property: %s, direction: %s}",
+                                querySortOrder.getSorted(),
+                                querySortOrder.getDirection()))
                 .collect(Collectors.joining(", "));
         Assert.assertEquals(String.format(
                 "Current sort order: %s. Sort originates from the client: %s.",
@@ -531,8 +530,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
         WebElement firstHeader = getCell(grid, "Address");
 
         int index = cells.indexOf(firstHeader);
-        for (String header : Arrays.asList("Address", "Name", "Age",
-                "Postal Code")) {
+        for (String header : Arrays
+                .asList("Address", "Name", "Age", "Postal Code")) {
             Assert.assertEquals("Missing expected column header " + header,
                     header, cells.get(index).getText());
             index++;
@@ -581,14 +580,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     private static String getSelectionMessage(Object oldSelection,
             Object newSelection, boolean isFromClient) {
-        return String.format(
-                "Selection changed from %s to %s, selection is from client: %s",
-                oldSelection, newSelection, isFromClient);
+        return String
+                .format("Selection changed from %s to %s, selection is from client: %s",
+                        oldSelection, newSelection, isFromClient);
     }
 
     private void scroll(WebElement grid, int index) {
-        getCommandExecutor().executeScript(
-                "arguments[0].scrollToIndex(" + index + ")", grid);
+        getCommandExecutor()
+                .executeScript("arguments[0].scrollToIndex(" + index + ")",
+                        grid);
     }
 
     private void waitUntilCellHasText(WebElement grid, String text) {
@@ -672,13 +672,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertNotNull(layouts);
         Assert.assertEquals(2, layouts.size());
 
-
         Pattern pattern = Pattern
-                .compile("<label>Name:\\s?([\\w\\-0-9]*)</label>");
+                .compile("<label>Name:\\s?([\\w\\s]*)</label>");
         Matcher innerHTML = pattern
                 .matcher(layouts.get(0).getAttribute("innerHTML"));
-        Assert.assertTrue("No result found for " + pattern.toString(), innerHTML.lookingAt());
-        Assert.assertEquals("Expected name was not same as found one.", personName,innerHTML.group(1));
+        Assert.assertTrue("No result found for " + pattern.toString()
+                        + " when searching for name: " + personName,
+                innerHTML.lookingAt());
+        Assert.assertEquals("Expected name was not same as found one.",
+                personName, innerHTML.group(1));
     }
 
     private List<WebElement> getCells(WebElement grid) {
