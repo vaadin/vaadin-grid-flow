@@ -1086,6 +1086,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         selectionModel = model;
         getElement().callFunction("$connector.setSelectionMode",
                 selectionMode.name());
+
+        if (selectionMode.equals(SelectionMode.MULTI)) {
+            getElement().synchronizeProperty("selectAll", "mSync");
+            getElement().synchronizeProperty("deselectAll", "mSync");
+        } else {
+            getElement().removeSynchronizedProperty("selectAll");
+            getElement().removeSynchronizedProperty("deselectAll");
+        }
     }
 
     /**
