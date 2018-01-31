@@ -36,7 +36,7 @@ public class GridFilteringIT extends AbstractComponentIT {
         input.sendKeys("w");
 
         // Blur input to get value change
-        findElement(By.tagName("body")).click();
+        executeScript("arguments[0].click();", findElement(By.tagName("body")));
 
         WebElement grid = findElement(By.id("data-grid"));
         // empty Grid content
