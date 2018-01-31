@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -670,8 +672,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertNotNull(layouts);
         Assert.assertEquals(2, layouts.size());
 
-        Assert.assertTrue(layouts.get(0).getAttribute("innerHTML")
-                .contains("<label>Name: " + personName + "</label>"));
+
+        Pattern pattern = Pattern
+                .compile("<label>Name:\\s?([\\w\\-0-9]*)</label>");
+        Matcher innerHTML = pattern
+                .matcher(layouts.get(0).getAttribute("innerHTML"));
+        Assert.assertTrue("No result found for " + pattern.toString(), innerHTML.lookingAt());
+        Assert.assertEquals("Expected name was not same as found one.", personName,innerHTML.group(1));
     }
 
     private List<WebElement> getCells(WebElement grid) {
