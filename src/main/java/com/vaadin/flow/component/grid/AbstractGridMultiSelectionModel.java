@@ -15,9 +15,10 @@
  */
 package com.vaadin.flow.component.grid;
 
+import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +34,7 @@ import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.shared.Registration;
 
+import elemental.json.Json;
 import elemental.json.JsonObject;
 
 /**
@@ -111,11 +113,10 @@ public abstract class AbstractGridMultiSelectionModel<T>
         }
         doSelect(item, false);
         Set<T> selected = new LinkedHashSet<>();
-        if(item != null) {
+        if (item != null) {
             selected.add(item);
         }
-        doUpdateSelection(selected, Collections.emptySet(),
-                false);
+        doUpdateSelection(selected, Collections.emptySet(), false);
     }
 
     @Override
@@ -125,11 +126,10 @@ public abstract class AbstractGridMultiSelectionModel<T>
         }
         doDeselect(item, false);
         Set<T> deselected = new LinkedHashSet<>();
-        if(item != null) {
+        if (item != null) {
             deselected.add(item);
         }
-        doUpdateSelection(Collections.emptySet(), deselected,
-                false);
+        doUpdateSelection(Collections.emptySet(), deselected, false);
         selectionColumn.setSelectAllCheckboxState(false);
     }
 
@@ -311,8 +311,9 @@ public abstract class AbstractGridMultiSelectionModel<T>
         Set<T> oldSelection = new LinkedHashSet<>(selected);
         selected.removeAll(removedItems);
         selected.addAll(addedItems);
-        addedItems.forEach(getGrid().getDataCommunicator()::refresh);
-        removedItems.forEach(getGrid().getDataCommunicator()::refresh);
+
+        sendAddedItems(addedItems);
+        sendRemovedItems(removedItems);
 
         fireSelectionEvent(
                 new MultiSelectionEvent<>(getGrid(), getGrid().asMultiSelect(),
@@ -320,5 +321,45 @@ public abstract class AbstractGridMultiSelectionModel<T>
         if (!removedItems.isEmpty()) {
             selectionColumn.setSelectAllCheckboxState(false);
         }
+    }
+
+    private void sendAddedItems(Set<T> addedItems) {
+        if(addedItems.isEmpty()) {
+            return;
+        }
+
+        addedItems.forEach(getGrid().getDataCommunicator()::refresh);
+
+        Serializable[] values = new Serializable[addedItems.size() + 1];
+        List<Serializable> collect = addedItems.stream()
+                .map(item -> generateJson(item))
+                .map(item -> (Serializable) item).collect(Collectors.toList());
+        collect.add(1, false);
+        collect.toArray(values);
+        getGrid().getElement().callFunction("$connector.doSelection", values);
+    }
+
+    private void sendRemovedItems(Set<T> removedItems) {
+        if (removedItems.isEmpty()) {
+            return;
+        }
+
+        removedItems.forEach(getGrid().getDataCommunicator()::refresh);
+
+        Serializable[] values = new Serializable[removedItems.size() + 1];
+        List<Serializable> collect = removedItems.stream()
+                .map(item -> generateJson(item))
+                .map(item -> (Serializable) item).collect(Collectors.toList());
+        collect.add(1, false);
+        collect.toArray(values);
+        getGrid().getElement().callFunction("$connector.doDeselection", values);
+    }
+
+    private JsonObject generateJson(T item) {
+        JsonObject json = Json.createObject();
+        json.put("key",
+                getGrid().getDataCommunicator().getKeyMapper().key(item));
+
+        return json;
     }
 }

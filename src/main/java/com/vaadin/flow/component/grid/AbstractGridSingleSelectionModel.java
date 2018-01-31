@@ -25,8 +25,10 @@ import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.data.selection.SingleSelectionEvent;
 import com.vaadin.flow.data.selection.SingleSelectionListener;
+import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.shared.Registration;
 
+import elemental.json.Json;
 import elemental.json.JsonObject;
 
 /**
@@ -69,6 +71,12 @@ public abstract class AbstractGridSingleSelectionModel<T> extends
         }
         T oldItem = selectedItem;
         doSelect(item, false);
+
+        JsonObject json = Json.createObject();
+        json.put("key", getGrid().getDataCommunicator().getKeyMapper().key(item));
+
+        getGrid().getElement().callFunction("$connector.doSelection",
+                json, false);
         if(oldItem != null) {
             getGrid().getDataCommunicator().refresh(oldItem);
         }

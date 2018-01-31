@@ -34,10 +34,16 @@ window.gridConnector = {
       grid.selectItem(item);
       selectedKeys[item.key] = item;
       if (userOriginated) {
-        item.selected = true;
-        grid.$server.select(item.key);
+          item.selected = true;
+          grid.$server.select(item.key);
       }
       grid.fire('select', {item: item, userOriginated: userOriginated});
+
+      if (selectionMode === 'MULTI' && arguments.length > 2) {
+          for (i = 2; i < arguments.length; i++) {
+              grid.$connector.doSelection(arguments[i], userOriginated);
+          }
+      }
     };
 
     grid.$connector.doDeselection = function(item, userOriginated) {
@@ -49,6 +55,12 @@ window.gridConnector = {
           grid.$server.deselect(item.key);
         }
         grid.fire('deselect', {item: item, userOriginated: userOriginated});
+      }
+
+      if (selectionMode === 'MULTI' && arguments.length > 2) {
+          for (i = 2; i < arguments.length; i++) {
+              grid.$connector.doDeselection(arguments[i], userOriginated);
+          }
       }
     };
 
