@@ -398,6 +398,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         executeScript("arguments[0].value = arguments[1];", idField, "1");
         executeScript("arguments[0].value = arguments[1];", nameField,
                 "SomeOtherName");
+        executeScript("arguments[0].blur();", idField);
         executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
@@ -407,6 +408,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         executeScript("arguments[0].value = arguments[1];", idField, "2");
         executeScript("arguments[0].value = arguments[1];", nameField,
                 "SomeOtherName2");
+        executeScript("arguments[0].blur();", idField);
         executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
