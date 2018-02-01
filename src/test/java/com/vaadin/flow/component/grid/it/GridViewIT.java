@@ -82,43 +82,59 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertEquals(
                 getSelectionMessage(null, GridView.items.get(0), false),
                 messageDiv.getText());
-        Assert.assertTrue(isRowSelected(grid, 0));
+        Assert.assertTrue("Person 1 was not marked as selected",
+                isRowSelected(grid, 0));
         clickElementWithJs(toggleButton);
         Assert.assertEquals(
                 getSelectionMessage(GridView.items.get(0), null, false),
                 messageDiv.getText());
-        Assert.assertFalse(isRowSelected(grid, 0));
+        Assert.assertFalse("Person 1 was marked as selected",
+                isRowSelected(grid, 0));
 
         // should be the cell in the first column's second row
         clickElementWithJs(getCell(grid, "Person 2"));
-        Assert.assertTrue(isRowSelected(grid, 1));
+        Assert.assertTrue("Person 2 was not marked as selected",
+                isRowSelected(grid, 1));
         Assert.assertEquals(
                 getSelectionMessage(null, GridView.items.get(1), true),
                 messageDiv.getText());
         clickElementWithJs(getCell(grid, "Person 2"));
-        Assert.assertFalse(isRowSelected(grid, 1));
+        Assert.assertFalse("Person 2 was marked as selected",
+                isRowSelected(grid, 1));
 
         clickElementWithJs(getCell(grid, "Person 2"));
         clickElementWithJs(toggleButton);
-        Assert.assertTrue(isRowSelected(grid, 0));
-        Assert.assertFalse(isRowSelected(grid, 1));
+        Assert.assertTrue("Person 1 was not marked as selected",
+                isRowSelected(grid, 0));
+        Assert.assertFalse("Person 2 was marked as selected",
+                isRowSelected(grid, 1));
         Assert.assertEquals(getSelectionMessage(GridView.items.get(1),
                 GridView.items.get(0), false), messageDiv.getText());
         clickElementWithJs(toggleButton);
-        Assert.assertFalse(isRowSelected(grid, 0));
+        Assert.assertFalse("Person 1 was marked as selected",
+                isRowSelected(grid, 0));
 
         // scroll to bottom
         scroll(grid, 495);
         waitUntilCellHasText(grid, "Person 499");
         // select item that is not in cache
         clickElementWithJs(toggleButton);
-        // scroll back up
-        scroll(grid, 0);
-        waitUntilCellHasText(grid, "Person 1");
-        waitUntil(driver -> isRowSelected(grid, 0));
         Assert.assertEquals(
                 getSelectionMessage(null, GridView.items.get(0), false),
                 messageDiv.getText());
+        // scroll back up
+        scroll(grid, 100);
+        WebElement table = findInShadowRoot(grid, By.id("table")).get(0);
+        // Actually scroll up to have grid do a correct event.
+        while (!getCells(grid).stream()
+                .filter(cell -> "Person 1".equals(cell.getText())).findFirst()
+                .isPresent()) {
+            executeScript("arguments[0].scrollTop -= 1000;", table);
+        }
+        // scroll the first row so it is visible.
+        scroll(grid, 0);
+        Assert.assertTrue("Person 1 was not marked as selected",
+                isRowSelected(grid, 0));
 
         Assert.assertFalse(
                 getLogEntries(Level.SEVERE).stream().findAny().isPresent());
