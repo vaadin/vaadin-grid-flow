@@ -86,6 +86,11 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doSelect(item, true);
+        Set<T> selected = new LinkedHashSet<>();
+        if (item != null) {
+            selected.add(item);
+        }
+        doUpdateSelection(selected, Collections.emptySet(), false);
     }
 
     @Override
@@ -94,6 +99,12 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doDeselect(item, true);
+        Set<T> deselected = new LinkedHashSet<>();
+        if (item != null) {
+            deselected.add(item);
+        }
+        doUpdateSelection(Collections.emptySet(), deselected, false);
+        selectionColumn.setSelectAllCheckboxState(false);
     }
 
     @Override
