@@ -58,7 +58,7 @@ public class GridMultiSelectionColumnPageIT extends AbstractComponentIT {
         Assert.assertNull(selectAllCheckbox.getAttribute("checked"));
         Assert.assertEquals(
                 "Selected item count: "
-                        + (GridMultiSelectionColumnPage.ITEM_COUNT - 1),
+                        + (GridMultiSelectionColumnPage.ITEM_COUNT),
                 message.getText());
     }
 
