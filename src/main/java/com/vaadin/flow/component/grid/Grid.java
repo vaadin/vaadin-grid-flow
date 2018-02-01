@@ -770,7 +770,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
-        getElement().synchronizeProperty("size", "mSync");
+        getElement().addSynchronizedProperty("size");
 
         getElement().getNode()
                 .runWhenAttached(ui -> ui.getPage().executeJavaScript(
@@ -1088,8 +1088,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 selectionMode.name());
 
         if (selectionMode.equals(SelectionMode.MULTI)) {
-            getElement().synchronizeProperty("selectAll", "mSync");
-            getElement().synchronizeProperty("deselectAll", "mSync");
+            getElement().addSynchronizedProperty("selectAll");
+            getElement().addSynchronizedProperty("deselectAll");
         } else {
             getElement().removeSynchronizedProperty("selectAll");
             getElement().removeSynchronizedProperty("deselectAll");

@@ -199,7 +199,7 @@ window.gridConnector = {
           let item = slice[j]
           if (item.selected && !selectedKeys[item.key]) {
             grid.$connector.doSelection(item);
-          } else if (selectedKeys[item.key]) {
+          } else if (!item.selected && selectedKeys[item.key]) {
             grid.$connector.doDeselection(item);
           }
         }
