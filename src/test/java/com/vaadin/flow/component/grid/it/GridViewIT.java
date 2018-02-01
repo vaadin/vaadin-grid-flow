@@ -29,6 +29,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 import com.vaadin.flow.component.grid.demo.GridView;
@@ -360,20 +361,18 @@ public class GridViewIT extends TabbedComponentDemoTest {
         WebElement updateButton = findElement(
                 By.id("component-renderer-update-button"));
 
-        executeScript("arguments[0].value = arguments[1];", idField, "1");
-        executeScript("arguments[0].value = arguments[1];", nameField,
-                "SomeOtherName");
+        idField.sendKeys("1");
         executeScript("arguments[0].blur();", idField);
+        nameField.sendKeys("SomeOtherName");
         executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
         waitUntil(driver -> hasComponentRendereredCell(grid,
-                "<div>Hi, I'm SomeOtherName!</div>"));
+                "<div>Hi, I'm SomeOtherName!</div>"), 3);
 
-        executeScript("arguments[0].value = arguments[1];", idField, "2");
-        executeScript("arguments[0].value = arguments[1];", nameField,
-                "SomeOtherName2");
+        idField.sendKeys(Keys.BACK_SPACE, "2");
         executeScript("arguments[0].blur();", idField);
+        nameField.sendKeys("2");
         executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
@@ -399,20 +398,18 @@ public class GridViewIT extends TabbedComponentDemoTest {
         WebElement updateButton = findElement(
                 By.id("component-renderer-update-button"));
 
-        executeScript("arguments[0].value = arguments[1];", idField, "1");
-        executeScript("arguments[0].value = arguments[1];", nameField,
-                "SomeOtherName");
+        idField.sendKeys("1");
         executeScript("arguments[0].blur();", idField);
+        nameField.sendKeys("SomeOtherName");
         executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
         clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
         assertComponentRendereredDetails(grid, 0, "SomeOtherName");
 
-        executeScript("arguments[0].value = arguments[1];", idField, "2");
-        executeScript("arguments[0].value = arguments[1];", nameField,
-                "SomeOtherName2");
+        idField.sendKeys(Keys.BACK_SPACE, "2");
         executeScript("arguments[0].blur();", idField);
+        nameField.sendKeys("2");
         executeScript("arguments[0].blur();", nameField);
         clickElementWithJs(updateButton);
 
