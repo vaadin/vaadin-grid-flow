@@ -1670,7 +1670,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         // TODO: if !userOriginated update client sort indicators. Should be
         // implemented together with server side sorting (issue #2818).
 
-        if (listsAreEqual(order, sortOrder)) {
+        if (sortOrder.equals(order)) {
             return;
         }
 
@@ -1720,29 +1720,5 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return sortOrder.stream().map(
                 order -> order.getSorted().getComparator(order.getDirection()))
                 .reduce(operator).orElse(null);
-    }
-
-    private static boolean listsAreEqual(final List<?> list1,
-            final List<?> list2) {
-        if (list1 == list2) {
-            return true;
-        }
-        if (list1 == null || list2 == null || list1.size() != list2.size()) {
-            return false;
-        }
-
-        final Iterator<?> it1 = list1.iterator();
-        final Iterator<?> it2 = list2.iterator();
-
-        while (it1.hasNext() && it2.hasNext()) {
-            Object obj1 = it1.next();
-            Object obj2 = it2.next();
-
-            if (!(obj1 == null ? obj2 == null : obj1.equals(obj2))) {
-                return false;
-            }
-        }
-
-        return !(it1.hasNext() || it2.hasNext());
     }
 }
