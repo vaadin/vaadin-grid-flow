@@ -17,6 +17,7 @@ package com.vaadin.flow.component.grid;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -86,7 +87,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doSelect(item, true);
-        Set<T> selected = new LinkedHashSet<>();
+        Set<T> selected = new HashSet<>();
         if (item != null) {
             selected.add(item);
         }
@@ -99,7 +100,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doDeselect(item, true);
-        Set<T> deselected = new LinkedHashSet<>();
+        Set<T> deselected = new HashSet<>();
         if (item != null) {
             deselected.add(item);
         }
@@ -123,7 +124,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doSelect(item, false);
-        Set<T> selected = new LinkedHashSet<>();
+        Set<T> selected = new HashSet<>();
         if (item != null) {
             selected.add(item);
         }
@@ -136,7 +137,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
             return;
         }
         doDeselect(item, false);
-        Set<T> deselected = new LinkedHashSet<>();
+        Set<T> deselected = new HashSet<>();
         if (item != null) {
             deselected.add(item);
         }
