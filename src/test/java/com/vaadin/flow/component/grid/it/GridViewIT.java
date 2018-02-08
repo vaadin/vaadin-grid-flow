@@ -585,19 +585,22 @@ public class GridViewIT extends TabbedComponentDemoTest {
         assertCellContent("$ 72.76", cells.get(1));
         assertCellContent("1/10/18 11:19:11 AM", cells.get(2));
         assertCellContent("Jan 25, 2018", cells.get(3));
-        assertCellContent(
-                "<flow-grid-component-renderer appid=\"ROOT\"><div><label>$$$</label></div></flow-grid-component-renderer>",
-                cells.get(4));
+        assertRendereredContent("$$$", cells.get(4));
         assertCellContent("<button>Remove</button>", cells.get(5));
 
         assertCellContent("Item 2", cells.get(6));
         assertCellContent("$ 30.87", cells.get(7));
         assertCellContent("1/10/18 11:14:54 AM", cells.get(8));
         assertCellContent("Jan 19, 2018", cells.get(9));
-        assertCellContent(
-                "<flow-grid-component-renderer appid=\"ROOT\"><div><label>$</label></div></flow-grid-component-renderer>",
-                cells.get(10));
+        assertRendereredContent("$", cells.get(10));
         assertCellContent("<button>Remove</button>", cells.get(11));
+    }
+
+    private void assertRendereredContent(String expected, WebElement cell) {
+        Assert.assertThat(cell.getAttribute("innerHTML"), CoreMatchers.allOf(
+                CoreMatchers.startsWith("<flow-grid-component-renderer"),
+                CoreMatchers.containsString(expected),
+                CoreMatchers.endsWith("</flow-grid-component-renderer>")));
     }
 
     private void assertCellContent(String expected, WebElement cell) {
