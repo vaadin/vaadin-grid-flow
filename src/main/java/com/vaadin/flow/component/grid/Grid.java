@@ -535,17 +535,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         @Override
-        protected Column<T> setHeader(Renderer<?> renderer) {
-            Rendering<?> rendering = renderer.render(getElement(), null);
-            rendering.getTemplateElement().get().setAttribute("class",
-                    "header");
+        protected Rendering<?> renderHeader(Renderer<?> renderer) {
+            Rendering<?> rendering = super.renderHeader(renderer);
 
             headerTemplate = rendering.getTemplateElement().get();
             rawHeaderTemplate = headerTemplate.getProperty("innerHTML");
             if (isSortable()) {
                 headerTemplate.setProperty("innerHTML", addGridSorter());
             }
-            return this;
+            return rendering;
         }
 
         private String addGridSorter() {

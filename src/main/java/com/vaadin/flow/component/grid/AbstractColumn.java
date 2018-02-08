@@ -82,33 +82,40 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
 
     @Override
     public T setHeader(String labelText) {
-        return setHeader(TemplateRenderer.of(HtmlUtils.escape(labelText)));
+        renderHeader(TemplateRenderer.of(HtmlUtils.escape(labelText)));
+        return (T) this;
     }
 
     @Override
     public T setFooter(String labelText) {
-        return setFooter(TemplateRenderer.of(HtmlUtils.escape(labelText)));
+        renderFooter(TemplateRenderer.of(HtmlUtils.escape(labelText)));
+        return (T) this;
     }
 
     @Override
     public T setHeader(Component headerComponent) {
-        return setHeader(new ComponentRenderer<>(() -> headerComponent));
+        renderHeader(new ComponentRenderer<>(() -> headerComponent));
+        return (T) this;
     }
 
     @Override
     public T setFooter(Component footerComponent) {
-        return setFooter(new ComponentRenderer<>(() -> footerComponent));
-    }
-
-    protected T setHeader(Renderer<?> renderer) {
-        Rendering<?> rendering = renderer.render(getElement(), null);
-        rendering.getTemplateElement().get().setAttribute("class", "header");
+        renderFooter(new ComponentRenderer<>(() -> footerComponent));
         return (T) this;
     }
 
-    protected T setFooter(Renderer<?> renderer) {
+    protected Rendering<?> renderHeader(Renderer<?> renderer) {
+        return renderAndSetClass(renderer, "header");
+    }
+
+    protected Rendering<?> renderFooter(Renderer<?> renderer) {
+        return renderAndSetClass(renderer, "footer");
+    }
+
+    private Rendering<?> renderAndSetClass(Renderer<?> renderer,
+            String className) {
         Rendering<?> rendering = renderer.render(getElement(), null);
-        rendering.getTemplateElement().get().setAttribute("class", "footer");
-        return (T) this;
+        rendering.getTemplateElement().get().setAttribute("class", className);
+        return rendering;
     }
 }
