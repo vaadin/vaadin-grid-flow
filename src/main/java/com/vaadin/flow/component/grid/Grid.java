@@ -1006,15 +1006,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Sets the page size.
-     * <p>
-     * This method is private at the moment because the Grid doesn't support
-     * changing the pageSize after the initial load.
      *
      * @param pageSize
      *            the maximum number of items sent per request. Should be
      *            greater than zero
      */
-    private void setPageSize(int pageSize) {
+    public void setPageSize(int pageSize) {
         if (pageSize <= 0) {
             throw new IllegalArgumentException(
                     "The pageSize should be greater than zero. Was "
