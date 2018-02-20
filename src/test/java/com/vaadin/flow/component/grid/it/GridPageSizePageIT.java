@@ -16,6 +16,7 @@
 package com.vaadin.flow.component.grid.it;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -29,16 +30,48 @@ import com.vaadin.flow.testutil.TestPath;
 @TestPath("grid-page-size")
 public class GridPageSizePageIT extends AbstractComponentIT {
 
+    @Before
+    public void init() {
+        open();
+        waitForElementPresent(By.tagName("vaadin-grid"));
+    }
+
     @Test
     public void gridWithPageSize10() {
-        open();
-
-        waitForElementPresent(By.tagName("vaadin-grid"));
         WebElement grid = findElement(By.tagName("vaadin-grid"));
 
-        Object pageSize = executeScript("return arguments[0].pageSize", grid);
-        Assert.assertEquals("The pageSize of the webcomponent should be 10", 10,
-                Integer.parseInt(String.valueOf(pageSize)));
+        assertPageSize(grid, 10);
+    }
+
+    @Test
+    public void gridWithPageSize10_changeTo80_revertBackTo10() {
+        WebElement grid = findElement(By.tagName("vaadin-grid"));
+
+        assertPageSize(grid, 10);
+
+        WebElement input = findElement(By.id("size-input"));
+        WebElement button = findElement(By.id("size-submit"));
+
+        input.sendKeys("80");
+        blur();
+        button.click();
+
+        assertPageSize(grid, 80);
+
+        input.clear();
+        input.sendKeys("10");
+        blur();
+        button.click();
+
+        assertPageSize(grid, 10);
+    }
+
+    private void assertPageSize(WebElement grid, int pageSize) {
+        Object pageSizeFromGrid = executeScript("return arguments[0].pageSize",
+                grid);
+        Assert.assertEquals(
+                "The pageSize of the webcomponent should be " + pageSize,
+                pageSize, Integer.parseInt(String.valueOf(pageSizeFromGrid)));
     }
 
 }

@@ -1,6 +1,6 @@
 window.gridConnector = {
   initLazy: function(grid) {
-    const extraPageBuffer = 2;
+    const extraPageBuffer = 1;
     const pageCallbacks = {};
     const cache = {};
     let lastRequestedRange = [0, 0];
@@ -116,7 +116,7 @@ window.gridConnector = {
       let firstNeededPage = Math.min(page, grid._getPageForIndex(grid._virtualStart + grid._vidxOffset));
       let lastNeededPage = Math.max(page, grid._getPageForIndex(grid._virtualEnd + grid._vidxOffset));
 
-      let first = Math.max(0,  firstNeededPage - extraPageBuffer);
+      let first = Math.max(0,  firstNeededPage);
       let last = Math.min(lastNeededPage + extraPageBuffer, Math.floor(grid.size / grid.pageSize) + 1);
 
       if (lastRequestedRange[0] != first || lastRequestedRange[1] != last) {
@@ -237,6 +237,9 @@ window.gridConnector = {
     };
 
     grid.$connector.clear = function(index, length) {
+      if (Object.keys(cache).length === 0){
+        return;
+      }
       if (index % grid.pageSize != 0) {
         throw 'Got cleared data for index ' + index + ' which is not aligned with the page size of ' + grid.pageSize;
       }
@@ -257,6 +260,21 @@ window.gridConnector = {
         updateGridCache(page);
       }
     };
+
+    grid.$connector.reset = function() {
+      grid.size = 0;
+      deleteObjectContents(cache);
+      deleteObjectContents(grid._cache.items);
+      lastRequestedRange = [0, 0];
+      grid._assignModels();
+    };
+
+    const deleteObjectContents = function(obj) {
+      let props = Object.keys(obj);
+      for (let i = 0; i < props.length; i++) {
+        delete obj[props[i]];
+      }
+    }
 
     grid.$connector.updateSize = function(newSize) {
       grid.size = newSize;
