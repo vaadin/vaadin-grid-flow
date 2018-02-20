@@ -5,7 +5,7 @@ window.gridConnector = {
     if (grid.$connector){
       return;
     }
-    const extraPageBuffer = 2;
+    const extraPageBuffer = 1;
     const pageCallbacks = {};
     const cache = {};
     let lastRequestedRange = [0, 0];
@@ -121,7 +121,7 @@ window.gridConnector = {
       let firstNeededPage = Math.min(page, grid._getPageForIndex(grid._virtualStart + grid._vidxOffset));
       let lastNeededPage = Math.max(page, grid._getPageForIndex(grid._virtualEnd + grid._vidxOffset));
 
-      let first = Math.max(0,  firstNeededPage - extraPageBuffer);
+      let first = Math.max(0,  firstNeededPage);
       let last = Math.min(lastNeededPage + extraPageBuffer, Math.floor(grid.size / grid.pageSize) + 1);
 
       if (lastRequestedRange[0] != first || lastRequestedRange[1] != last) {
