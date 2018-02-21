@@ -1,11 +1,10 @@
 window.gridConnector = {
-  initLazy: function(grid) {
-    
+  initLazy: function(grid) {    
     // Check whether the connector was already initialized for the grid
     if (grid.$connector){
       return;
     }
-    const extraPageBuffer = 1;
+    const visibleCountMultiplier = 1;
     const pageCallbacks = {};
     const cache = {};
     let lastRequestedRange = [0, 0];
@@ -118,15 +117,20 @@ window.gridConnector = {
       }
       // Determine what to fetch based on scroll position and not only
       // what grid asked for
-      let firstNeededPage = Math.min(page, grid._getPageForIndex(grid._virtualStart + grid._vidxOffset));
-      let lastNeededPage = Math.max(page, grid._getPageForIndex(grid._virtualEnd + grid._vidxOffset));
+      let visibleCount = grid._virtualEnd - grid._virtualStart;
+      let buffer = visibleCount * visibleCountMultiplier;
+      let firstNeededIndex = Math.max(0, grid._virtualStart + grid._vidxOffset - buffer);
+      let lastNeededIndex = Math.min(grid._virtualEnd + grid._vidxOffset + buffer, grid.size);
+
+      let firstNeededPage = Math.min(page, grid._getPageForIndex(firstNeededIndex));
+      let lastNeededPage = Math.max(page, grid._getPageForIndex(lastNeededIndex));
 
       let first = Math.max(0,  firstNeededPage);
-      let last = Math.min(lastNeededPage + extraPageBuffer, Math.floor(grid.size / grid.pageSize) + 1);
+      let last = Math.min(lastNeededPage, Math.floor(grid.size / grid.pageSize) + 1);
 
       if (lastRequestedRange[0] != first || lastRequestedRange[1] != last) {
         lastRequestedRange = [first, last];
-        let count = Math.max(1, last - first);
+        let count = last - first + 1;
         grid.$server.setRequestedRange(first * grid.pageSize, count * grid.pageSize);
       }
     }
