@@ -1252,9 +1252,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         Optional<DataGenerator<T>> dataGenerator = rendering.getDataGenerator();
+        if (itemDetailsDataGenerator != null) {
+            gridDataGenerator.removeDataGenerator(itemDetailsDataGenerator);
+        }
 
         if (dataGenerator.isPresent()) {
             itemDetailsDataGenerator = dataGenerator.get();
+            gridDataGenerator.addDataGenerator(itemDetailsDataGenerator);
         }
     }
 
