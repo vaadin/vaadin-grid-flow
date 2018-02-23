@@ -296,11 +296,7 @@ public class GridView extends DemoView {
                     .set("padding", "10px").set("boxSizing", "border-box")
                     .set("width", "100%");
 
-            NativeButton button = new NativeButton("Update", event -> {
-                layout1.add(new Label("Whatever"));
-            });
-
-            this.add(hlayout, button);
+            this.add(hlayout);
         }
     }
     // end-source-example
