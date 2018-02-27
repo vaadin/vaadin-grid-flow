@@ -256,19 +256,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertNotEquals("true",
                 grid.getAttribute("columnReorderingAllowed"));
 
-        String idColumnFrozenStatusScript = "return arguments[0].frozen";
-        WebElement toggleIdColumnFrozen = findElement(
-                By.id("toggle-id-column-frozen"));
-        WebElement idColumn = grid
-                .findElements(By.tagName("vaadin-grid-column")).get(0);
-        Assert.assertEquals(false, getCommandExecutor()
-                .executeScript(idColumnFrozenStatusScript, idColumn));
-        clickElementWithJs(toggleIdColumnFrozen);
-        Assert.assertEquals(true, getCommandExecutor()
-                .executeScript(idColumnFrozenStatusScript, idColumn));
-        clickElementWithJs(toggleIdColumnFrozen);
-        Assert.assertEquals(false, getCommandExecutor()
-                .executeScript(idColumnFrozenStatusScript, idColumn));
+        String frozenStatusScript = "return arguments[0].frozen";
+        assertFrozenColumn(grid, frozenStatusScript, "toggle-id-column-frozen",
+                "vaadin-grid-column");
+        assertFrozenColumn(grid, frozenStatusScript,
+                "toggle-selection-column-frozen",
+                "vaadin-grid-flow-selection-column");
     }
 
     @Test
@@ -715,6 +708,20 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     private List<WebElement> getCells(WebElement grid) {
         return grid.findElements(By.tagName("vaadin-grid-cell-content"));
+    }
+
+    private void assertFrozenColumn(WebElement grid, String frozenStatusScript,
+            String buttonId, String columnTag) {
+        WebElement toggleIdColumnFrozen = findElement(By.id(buttonId));
+        WebElement idColumn = grid.findElements(By.tagName(columnTag)).get(0);
+        Assert.assertEquals(false, getCommandExecutor()
+                .executeScript(frozenStatusScript, idColumn));
+        clickElementWithJs(toggleIdColumnFrozen);
+        Assert.assertEquals(true, getCommandExecutor()
+                .executeScript(frozenStatusScript, idColumn));
+        clickElementWithJs(toggleIdColumnFrozen);
+        Assert.assertEquals(false, getCommandExecutor()
+                .executeScript(frozenStatusScript, idColumn));
     }
 
     @Override
