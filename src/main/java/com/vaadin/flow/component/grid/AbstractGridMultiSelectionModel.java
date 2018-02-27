@@ -42,7 +42,7 @@ import elemental.json.JsonObject;
  * Abstract implementation of a GridMultiSelectionModel.
  *
  * @param <T>
- *         the grid type
+ *            the grid type
  * @author Vaadin Ltd.
  */
 public abstract class AbstractGridMultiSelectionModel<T>
@@ -56,8 +56,8 @@ public abstract class AbstractGridMultiSelectionModel<T>
      * Constructor for passing a reference of the grid to this implementation.
      *
      * @param grid
-     *         reference to the grid for which this selection model is
-     *         created
+     *            reference to the grid for which this selection model is
+     *            created
      */
     public AbstractGridMultiSelectionModel(Grid<T> grid) {
         super(grid);
@@ -147,7 +147,8 @@ public abstract class AbstractGridMultiSelectionModel<T>
 
     @Override
     public void selectAll() {
-        updateSelection(getGrid().getDataCommunicator().getDataProvider()
+        updateSelection(
+                getGrid().getDataCommunicator().getDataProvider()
                         .fetch(new Query<>()).collect(Collectors.toSet()),
                 Collections.emptySet());
         selectionColumn.setSelectAllCheckboxState(true);
@@ -270,16 +271,27 @@ public abstract class AbstractGridMultiSelectionModel<T>
         deselectAll();
     }
 
+    @Override
+    public void setSelectionColumnFrozen(boolean frozen) {
+        selectionColumn.setFrozen(frozen);
+    }
+
+    @Override
+    public boolean isSelectionColumnFrozen() {
+        return selectionColumn.isFrozen();
+    }
+
     /**
      * Method for handling the firing of selection events.
      *
      * @param event
-     *         the selection event to fire
+     *            the selection event to fire
      */
     protected abstract void fireSelectionEvent(SelectionEvent<T> event);
 
     private void clientSelectAll() {
-        doUpdateSelection(getGrid().getDataCommunicator().getDataProvider()
+        doUpdateSelection(
+                getGrid().getDataCommunicator().getDataProvider()
                         .fetch(new Query<>()).collect(Collectors.toSet()),
                 Collections.emptySet(), true);
         selectionColumn.setSelectAllCheckboxState(true);
@@ -311,8 +323,8 @@ public abstract class AbstractGridMultiSelectionModel<T>
     private void doUpdateSelection(Set<T> addedItems, Set<T> removedItems,
             boolean userOriginated) {
         addedItems.removeIf(removedItems::remove);
-        if (selected.containsAll(addedItems) && Collections
-                .disjoint(selected, removedItems)) {
+        if (selected.containsAll(addedItems)
+                && Collections.disjoint(selected, removedItems)) {
             return;
         }
         Set<T> oldSelection = new LinkedHashSet<>(selected);
@@ -322,16 +334,15 @@ public abstract class AbstractGridMultiSelectionModel<T>
         sendAddedItems(addedItems);
         sendRemovedItems(removedItems);
 
-        fireSelectionEvent(
-                new MultiSelectionEvent<>(getGrid(), getGrid().asMultiSelect(),
-                        oldSelection, userOriginated));
+        fireSelectionEvent(new MultiSelectionEvent<>(getGrid(),
+                getGrid().asMultiSelect(), oldSelection, userOriginated));
         if (!removedItems.isEmpty()) {
             selectionColumn.setSelectAllCheckboxState(false);
         }
     }
 
     private void sendAddedItems(Set<T> addedItems) {
-        if(addedItems.isEmpty()) {
+        if (addedItems.isEmpty()) {
             return;
         }
 
