@@ -229,12 +229,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         Assert.assertEquals("First width is fixed", "75px",
                 getCommandExecutor().executeScript(
-                        "return arguments[0].shadowRoot.querySelectorAll('th')[0].style.width;",
+                        "return arguments[0].shadowRoot.querySelectorAll('th')[1].style.width;",
                         grid));
 
         WebElement toggleIdColumnVisibility = findElement(
                 By.id("toggle-id-column-visibility"));
-        String firstCellHiddenScript = "return arguments[0].shadowRoot.querySelectorAll('td')[0].hidden;";
+        String firstCellHiddenScript = "return arguments[0].shadowRoot.querySelectorAll('td')[1].hidden;";
         Assert.assertNotEquals(true, getCommandExecutor()
                 .executeScript(firstCellHiddenScript, grid));
         clickElementWithJs(toggleIdColumnVisibility);
