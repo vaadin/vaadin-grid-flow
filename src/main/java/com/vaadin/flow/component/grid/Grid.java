@@ -78,6 +78,7 @@ import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.internal.ExecutionContext;
 import com.vaadin.flow.internal.HtmlUtils;
 import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.internal.JsonUtils;
@@ -764,27 +765,30 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the page size. Must be greater than zero.
      */
     public Grid(int pageSize) {
-        getElement().addSynchronizedProperty("$connector");
+        getElement().getNode().runWhenAttached(this::initConnector);
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
 
         getElement().addAttachListener(event -> getElement().getNode()
-                .runWhenAttached(this::initConnector));
+                .runWhenAttached(ui -> ui.beforeClientResponse(this,
+                        this::resetWhenClientSideNotInitialized)));
+    }
+
+    private void resetWhenClientSideNotInitialized(ExecutionContext context) {
+        // If the client is already initialized, there's no need to reset
+        // everything
+        if (context.isClientSideInitialized()) {
+            return;
+        }
+        initConnector(context.getUI());
+        updateSelectionModeOnClient();
+        getDataCommunicator().reset();
     }
 
     private void initConnector(UI ui) {
         ui.getPage().executeJavaScript("window.gridConnector.initLazy($0)",
                 getElement());
-        ui.beforeClientResponse(this, context -> {
-            // If Grid was detached and reattached, there's no need to reset
-            // everything
-            if (context.wasAttached()) {
-                return;
-            }
-            updateSelectionModeOnClient();
-            getDataCommunicator().reset();
-        });
     }
 
     /**
@@ -1233,7 +1237,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         callSelectionFunctionForItems("doSelection", items);
     }
 
-    void doClientSideDesselection(Set<T> items) {
+    void doClientSideDeselection(Set<T> items) {
         callSelectionFunctionForItems("doDeselection", items);
     }
 

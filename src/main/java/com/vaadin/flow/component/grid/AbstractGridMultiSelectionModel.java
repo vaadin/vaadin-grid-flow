@@ -329,7 +329,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
         }
 
         addedItems.forEach(getGrid().getDataCommunicator()::refresh);
-        getGrid().doClientSideDesselection(addedItems);
+        getGrid().doClientSideSelection(addedItems);
     }
 
     private void sendRemovedItems(Set<T> removedItems) {
@@ -338,6 +338,6 @@ public abstract class AbstractGridMultiSelectionModel<T>
         }
 
         removedItems.forEach(getGrid().getDataCommunicator()::refresh);
-        getGrid().doClientSideDesselection(removedItems);
+        getGrid().doClientSideDeselection(removedItems);
     }
 }
