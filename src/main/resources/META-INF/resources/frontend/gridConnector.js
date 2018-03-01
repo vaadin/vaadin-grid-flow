@@ -4,7 +4,6 @@ window.gridConnector = {
     if (grid.$connector){
       return;
     }
-    const visibleCountMultiplier = 1;
     const pageCallbacks = {};
     const cache = {};
     let lastRequestedRange = [0, 0];
@@ -117,8 +116,12 @@ window.gridConnector = {
       }
       // Determine what to fetch based on scroll position and not only
       // what grid asked for
-      let visibleCount = grid._virtualEnd - grid._virtualStart;
-      let buffer = visibleCount * visibleCountMultiplier;
+
+      // The buffer size could be multiplied by some constant defined by the user,
+      // if he needs to reduce the number of items sent to the Grid to improve performance
+      // or to increase it to make Grid smoother when scrolling
+      let buffer = grid._virtualEnd - grid._virtualStart;
+      
       let firstNeededIndex = Math.max(0, grid._virtualStart + grid._vidxOffset - buffer);
       let lastNeededIndex = Math.min(grid._virtualEnd + grid._vidxOffset + buffer, grid.size);
 
