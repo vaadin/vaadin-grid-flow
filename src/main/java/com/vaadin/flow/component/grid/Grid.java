@@ -42,7 +42,6 @@ import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.data.binder.BeanPropertySet;
@@ -765,7 +764,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the page size. Must be greater than zero.
      */
     public Grid(int pageSize) {
-        getElement().getNode().runWhenAttached(this::initConnector);
+        getElement().getNode().runWhenAttached(
+                ui -> ui.beforeClientResponse(this, this::initConnector));
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
@@ -781,14 +781,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (context.isClientSideInitialized()) {
             return;
         }
-        initConnector(context.getUI());
+        initConnector(context);
         updateSelectionModeOnClient();
         getDataCommunicator().reset();
     }
 
-    private void initConnector(UI ui) {
-        ui.getPage().executeJavaScript("window.gridConnector.initLazy($0)",
-                getElement());
+    private void initConnector(ExecutionContext context) {
+        context.getUI().getPage().executeJavaScript(
+                "window.gridConnector.initLazy($0)", getElement());
     }
 
     /**
