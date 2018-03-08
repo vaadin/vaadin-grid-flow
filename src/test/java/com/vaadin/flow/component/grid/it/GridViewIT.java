@@ -33,6 +33,8 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 import com.vaadin.flow.component.grid.demo.GridView;
+import com.vaadin.flow.component.grid.testbench.GridElement;
+import com.vaadin.flow.component.grid.testbench.GridTHTDElement;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.demo.TabbedComponentDemoTest;
 
@@ -145,7 +147,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridAsMultiSelect() {
         openTabAndCheckForErrors("selection");
-        WebElement grid = findElement(By.id("multi-selection"));
+        GridElement grid = $(GridElement.class).id("multi-selection");
         scrollToElement(grid);
 
         WebElement selectBtn = findElement(By.id("multi-selection-button"));
@@ -158,20 +160,18 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 messageDiv.getText());
         assertRowsSelected(grid, 0, 5);
 
-        List<WebElement> checkboxes = grid
-                .findElements(By.tagName("vaadin-checkbox")).stream()
-                .filter(element -> "Select Row"
-                        .equals(element.getAttribute("aria-label")))
-                .collect(Collectors.toList());
-        checkboxes.get(0).click();
-        checkboxes.get(1).click();
+        WebElement checkbox = getCellContent(grid.getCell(0, 0));
+        checkbox.click();
+        checkbox = getCellContent(grid.getCell(1, 0));
+        checkbox.click();
         Assert.assertEquals(
                 getSelectionMessage(GridView.items.subList(1, 5),
                         GridView.items.subList(2, 5), true),
                 messageDiv.getText());
         assertRowsSelected(grid, 2, 5);
 
-        checkboxes.get(5).click();
+        checkbox = getCellContent(grid.getCell(5, 0));
+        checkbox.click();
         Assert.assertTrue(isRowSelected(grid, 5));
         clickElementWithJs(selectBtn);
         assertRowsSelected(grid, 0, 5);
@@ -301,33 +301,29 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridDetailsRowServerAPI() {
         openTabAndCheckForErrors("item-details");
-        WebElement grid = findElement(By.id("grid-with-details-row-2"));
+        GridElement grid = $(GridElement.class).id("grid-with-details-row-2");
         scrollToElement(grid);
 
-        clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
-
-        List<WebElement> toggleDetailsButtons = grid
-                .findElements(By.tagName("button"));
-
-        clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
         assertAmountOfOpenDetails(grid, 0);
 
-        clickElementWithJs(toggleDetailsButtons.get(1));
+        getCellContent(grid.getCell(1, 2)).click();
         assertAmountOfOpenDetails(grid, 1);
+        Assert.assertThat(
+                grid.findElement(By.className("custom-details"))
+                        .getAttribute("innerHTML"),
+                CoreMatchers.containsString("Hi! My name is <b>Person 2!</b>"));
 
-        Assert.assertTrue(grid.findElement(By.className("custom-details"))
-                .getAttribute("innerHTML")
-                .contains("Hi! My name is <b>Person 2!</b>"));
-
-        clickElementWithJs(toggleDetailsButtons.get(3));
+        getCellContent(grid.getCell(3, 2)).click();
         assertAmountOfOpenDetails(grid, 2);
 
-        clickElementWithJs(toggleDetailsButtons.get(1));
-        Assert.assertFalse(
+        getCellContent(grid.getCell(1, 2)).click();
+        getCellContent(grid.getCell(3, 2)).click();
+        Assert.assertThat(
                 "Details should be closed after clicking the button again",
                 grid.findElement(By.className("custom-details"))
-                        .getAttribute("innerHTML")
-                        .contains("Hi! My name is <b>Person 2!</b>"));
+                        .getAttribute("innerHTML"),
+                CoreMatchers.not(CoreMatchers
+                        .containsString("Hi! My name is <b>Person 2!</b>")));
     }
 
     private void assertAmountOfOpenDetails(WebElement grid,
@@ -576,19 +572,21 @@ public class GridViewIT extends TabbedComponentDemoTest {
         List<WebElement> cells = grid
                 .findElements(By.tagName("vaadin-grid-cell-content"));
 
-        assertCellContent("Item 1", cells.get(0));
-        assertCellContent("$ 72.76", cells.get(1));
-        assertCellContent("1/10/18 11:19:11 AM", cells.get(2));
-        assertCellContent("Jan 25, 2018", cells.get(3));
-        assertRendereredContent("$$$", cells.get(4));
-        assertCellContent("<button>Remove</button>", cells.get(5));
+        int offset = getCellsOffsetFromTheHeaders(grid, cells);
 
-        assertCellContent("Item 2", cells.get(6));
-        assertCellContent("$ 30.87", cells.get(7));
-        assertCellContent("1/10/18 11:14:54 AM", cells.get(8));
-        assertCellContent("Jan 19, 2018", cells.get(9));
-        assertRendereredContent("$", cells.get(10));
-        assertCellContent("<button>Remove</button>", cells.get(11));
+        assertCellContent("Item 1", cells.get(offset));
+        assertCellContent("$ 72.76", cells.get(offset + 1));
+        assertCellContent("1/10/18 11:19:11 AM", cells.get(offset + 2));
+        assertCellContent("Jan 25, 2018", cells.get(offset + 3));
+        assertRendereredContent("$$$", cells.get(offset + 4));
+        assertCellContent("<button>Remove</button>", cells.get(offset + 5));
+
+        assertCellContent("Item 2", cells.get(offset + 6));
+        assertCellContent("$ 30.87", cells.get(offset + 7));
+        assertCellContent("1/10/18 11:14:54 AM", cells.get(offset + 8));
+        assertCellContent("Jan 19, 2018", cells.get(offset + 9));
+        assertRendereredContent("$", cells.get(offset + 10));
+        assertCellContent("<button>Remove</button>", cells.get(offset + 11));
     }
 
     @Test
@@ -604,6 +602,28 @@ public class GridViewIT extends TabbedComponentDemoTest {
         List<WebElement> rows = getInShadowRoot(grid, By.id("items"))
                 .findElements(By.cssSelector("tr"));
         Assert.assertEquals("Grid should have 49 rows", 49, rows.size());
+    }
+
+    private WebElement getCellContent(GridTHTDElement cell) {
+        return (WebElement) executeScript(
+                "return arguments[0].firstElementChild.assignedNodes()[0].firstElementChild;",
+                cell);
+    }
+
+    private int getCellsOffsetFromTheHeaders(WebElement grid,
+            List<WebElement> cells) {
+        int numberOfColumns = grid
+                .findElements(By.tagName("vaadin-grid-column")).size();
+        for (int i = numberOfColumns; i < cells.size(); i++) {
+            WebElement cell = cells.get(i);
+            String content = cell.getAttribute("innerHTML");
+            if (!content.trim().isEmpty()
+                    && !content.startsWith("<flow-grid-component-renderer ")
+                    && !content.startsWith("<button>")) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     private void assertRendereredContent(String expected, WebElement cell) {
