@@ -34,7 +34,7 @@ public class GridTRElement extends TestBenchElement {
                 "const grid = arguments[0];" //
                         + "const columnId = arguments[1];" //
                         + "return Array.from(grid.children)."
-                        + "filter(function(cell) { return cell._column.__generatedTbId == columnId;})[0]",
+                        + "filter(function(cell) { return cell._column && cell._column.__generatedTbId == columnId;})[0]",
                 this, column.get__generatedId());
         return e.wrap(GridTHTDElement.class);
     }
