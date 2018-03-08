@@ -46,7 +46,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void dataIsShown() throws InterruptedException {
         openTabAndCheckForErrors("");
-        WebElement grid = findElement(By.id("basic"));
+        GridElement grid = $(GridElement.class).id("basic");
 
         Assert.assertTrue(hasCell(grid, "Name"));
 
@@ -60,7 +60,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void lazyDataIsShown() throws InterruptedException {
         openTabAndCheckForErrors("");
-        WebElement grid = findElement(By.id("lazy-loading"));
+        GridElement grid = $(GridElement.class).id("lazy-loading");
 
         scrollToElement(grid);
 
@@ -74,7 +74,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridAsSingleSelect() {
         openTabAndCheckForErrors("selection");
-        WebElement grid = findElement(By.id("single-selection"));
+        GridElement grid = $(GridElement.class).id("single-selection");
         scrollToElement(grid);
 
         WebElement toggleButton = findElement(By.id("single-selection-toggle"));
@@ -181,7 +181,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridWithDisabledSelection() {
         openTabAndCheckForErrors("selection");
-        WebElement grid = findElement(By.id("none-selection"));
+        GridElement grid = $(GridElement.class).id("none-selection");
         scrollToElement(grid);
         clickElementWithJs(grid
                 .findElements(By.tagName("vaadin-grid-cell-content")).get(3));
@@ -269,7 +269,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridDetailsRowTests() {
         openTabAndCheckForErrors("item-details");
-        WebElement grid = findElement(By.id("grid-with-details-row"));
+        GridElement grid = $(GridElement.class).id("grid-with-details-row");
         scrollToElement(grid);
 
         clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
@@ -429,7 +429,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridWidthSorting() {
         openTabAndCheckForErrors("sorting");
-        WebElement grid = findElement(By.id("grid-sortable-columns"));
+        GridElement grid = $(GridElement.class).id("grid-sortable-columns");
         scrollToElement(grid);
 
         WebElement nameColumnSorter = getCell(grid, "Name")
@@ -531,7 +531,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void beanGrid_columnsForPropertiesAddedWithCorrectHeaders() {
         openTabAndCheckForErrors("configuring-columns");
-        WebElement grid = findElement(By.id("bean-grid"));
+        GridElement grid = $(GridElement.class).id("bean-grid");
         scrollToElement(grid);
 
         Assert.assertEquals("Unexpected amount of columns", 4,
@@ -656,7 +656,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 .isPresent());
     }
 
-    private void assertRowsSelected(WebElement grid, int first, int last) {
+    private void assertRowsSelected(GridElement grid, int first, int last) {
         IntStream.range(first, last).forEach(
                 rowIndex -> Assert.assertTrue(isRowSelected(grid, rowIndex)));
     }
@@ -666,18 +666,16 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 .findElements(By.cssSelector("tr")).get(row);
     }
 
-    private boolean isRowSelected(WebElement grid, int row) {
-        return getRow(grid, row).getAttribute("selected") != null;
+    private boolean isRowSelected(GridElement grid, int row) {
+        return grid.getRow(row).isSelected();
     }
 
-    private boolean hasCell(WebElement grid, String text) {
+    private boolean hasCell(GridElement grid, String text) {
         return getCell(grid, text) != null;
     }
 
-    private WebElement getCell(WebElement grid, String text) {
-        return getCells(grid).stream()
-                .filter(cell -> text.equals(cell.getText())).findAny()
-                .orElse(null);
+    private WebElement getCell(GridElement grid, String text) {
+        return grid.getCell(text);
     }
 
     private boolean hasHtmlCell(WebElement grid, String html) {
