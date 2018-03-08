@@ -18,6 +18,7 @@ package com.vaadin.flow.component.grid.testbench;
 import java.util.List;
 
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.SearchContext;
 
 import com.vaadin.testbench.TestBenchElement;
 
@@ -34,6 +35,20 @@ public class GridTHTDElement extends TestBenchElement {
         // of the elements slots
         String text = (String) executeScript("var cell = arguments[0];"
                 + "return Array.from(cell.firstElementChild.assignedNodes()).map(function(node) { return node.textContent;}).join('');",
+                this);
+        if (text.trim().isEmpty()) {
+            return "";
+        } else {
+            return text;
+        }
+    }
+
+    public String getInnerHTML() {
+        // The first child element of a cell is a slot. The following JS finds
+        // the elements assigned to that slot and then joins the `innerHTML`
+        // of the elements slots
+        String text = (String) executeScript("var cell = arguments[0];"
+                + "return Array.from(cell.firstElementChild.assignedNodes()).map(function(node) { return node.innerHTML;}).join('');",
                 this);
         if (text.trim().isEmpty()) {
             return "";
@@ -96,5 +111,12 @@ public class GridTHTDElement extends TestBenchElement {
         return ((TestBenchElement) executeScript(
                 "return arguments[0].getRootNode().host", this))
                         .wrap(GridElement.class);
+    }
+
+    @Override
+    public SearchContext getContext() {
+        return (SearchContext) executeScript(
+                "return arguments[0].firstElementChild.assignedNodes()[0];",
+                this);
     }
 }

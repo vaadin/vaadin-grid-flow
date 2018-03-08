@@ -15,7 +15,6 @@
  */
 package com.vaadin.flow.component.grid.it;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +36,7 @@ import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.component.grid.testbench.GridTHTDElement;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.demo.TabbedComponentDemoTest;
+import com.vaadin.testbench.TestBenchElement;
 
 /**
  * Integration tests for the {@link GridView}.
@@ -48,27 +48,23 @@ public class GridViewIT extends TabbedComponentDemoTest {
         openTabAndCheckForErrors("");
         GridElement grid = $(GridElement.class).id("basic");
 
-        Assert.assertTrue(hasCell(grid, "Name"));
-
-        Assert.assertTrue(hasCell(grid, "Person 1"));
-
+        Assert.assertEquals("Name", grid.getHeaderCell(0).getText());
+        Assert.assertEquals("Person 1", grid.getCell(0, 0).getText());
         scroll(grid, 185);
-
-        waitUntil(driver -> hasCell(grid, "Person 189"));
+        waitUntil(driver -> grid.getFirstVisibleRowIndex() >= 185);
+        Assert.assertEquals("Person 186", grid.getCell(185, 0).getText());
     }
 
     @Test
     public void lazyDataIsShown() throws InterruptedException {
         openTabAndCheckForErrors("");
         GridElement grid = $(GridElement.class).id("lazy-loading");
-
         scrollToElement(grid);
 
-        Assert.assertTrue(hasCell(grid, "Name"));
-
+        Assert.assertEquals("Name", grid.getHeaderCell(0).getText());
         scroll(grid, 1010);
-
-        Assert.assertTrue(hasCell(grid, "Person 1020"));
+        waitUntil(driver -> grid.getFirstVisibleRowIndex() >= 1010);
+        Assert.assertEquals("Person 1011", grid.getCell(1010, 0).getText());
     }
 
     @Test
@@ -191,31 +187,35 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridWithColumnTemplate() {
         openTabAndCheckForErrors("using-templates");
-        WebElement grid = findElement(By.id("template-renderer"));
+        GridElement grid = $(GridElement.class).id("template-renderer");
         scrollToElement(grid);
-        Assert.assertTrue(hasHtmlCell(grid, "0"));
-        Assert.assertTrue(hasHtmlCell(grid,
-                "<div title=\"Person 1\">Person 1<br><small>23 years old</small></div>"));
-        Assert.assertTrue(hasHtmlCell(grid,
-                "<div>Street S, number 30<br><small>16142</small></div>"));
 
-        WebElement buttonsCell = getHtmlCell(grid,
-                "<button>Update</button><button>Remove</button>");
-        List<WebElement> buttons = buttonsCell
-                .findElements(By.tagName("button"));
+        Assert.assertEquals("0", grid.getCell(0, 0).getText());
+        Assert.assertEquals(
+                "<div title=\"Person 1\">Person 1<br><small>23 years old</small></div>",
+                grid.getCell(0, 1).getInnerHTML());
+        Assert.assertEquals(
+                "<div>Street S, number 30<br><small>16142</small></div>",
+                grid.getCell(0, 2).getInnerHTML());
+        Assert.assertEquals("<button>Update</button><button>Remove</button>",
+                grid.getCell(0, 3).getInnerHTML());
+
+        List<TestBenchElement> buttons = grid.getCell(0, 3).$("button").all();
         Assert.assertEquals(2, buttons.size());
 
-        clickElementWithJs(buttons.get(0));
-        waitUntil(driver -> hasHtmlCell(grid,
-                "<div title=\"Person 1 Updated\">Person 1 Updated<br><small>23 years old</small></div>"));
+        buttons.get(0).click();
+        Assert.assertEquals(
+                "<div title=\"Person 1 Updated\">Person 1 Updated<br><small>23 years old</small></div>",
+                grid.getCell(0, 1).getInnerHTML());
+        buttons.get(0).click();
+        Assert.assertEquals(
+                "<div title=\"Person 1 Updated Updated\">Person 1 Updated Updated<br><small>23 years old</small></div>",
+                grid.getCell(0, 1).getInnerHTML());
 
-        clickElementWithJs(buttons.get(0));
-        waitUntil(driver -> hasHtmlCell(grid,
-                "<div title=\"Person 1 Updated Updated\">Person 1 Updated Updated<br><small>23 years old</small></div>"));
-
-        clickElementWithJs(buttons.get(1));
-        waitUntilNot(driver -> hasHtmlCell(grid,
-                "<div title=\"Person 1 Updated Updated\">Person 1 Updated Updated<br><small>23 years old</small></div>"));
+        buttons.get(1).click();
+        Assert.assertEquals(
+                "<div title=\"Person 2\">Person 2<br><small>28 years old</small></div>",
+                grid.getCell(0, 1).getInnerHTML());
     }
 
     @Test
@@ -432,28 +432,21 @@ public class GridViewIT extends TabbedComponentDemoTest {
         GridElement grid = $(GridElement.class).id("grid-sortable-columns");
         scrollToElement(grid);
 
-        WebElement nameColumnSorter = getCell(grid, "Name")
-                .findElement(By.tagName("vaadin-grid-sorter"));
-        WebElement ageColumnSorter = getCell(grid, "Age")
-                .findElement(By.tagName("vaadin-grid-sorter"));
-        WebElement addressColumnSorter = getCell(grid, "Address")
-                .findElement(By.tagName("vaadin-grid-sorter"));
-
-        clickElementWithJs(nameColumnSorter);
+        getCellContent(grid.getHeaderCell(0)).click();
         assertSortMessageEquals(QuerySortOrder.asc("name").build(), true);
-        clickElementWithJs(addressColumnSorter);
+        getCellContent(grid.getHeaderCell(2)).click();
         assertSortMessageEquals(
                 QuerySortOrder.asc("street").thenAsc("number").build(), true);
-        clickElementWithJs(addressColumnSorter);
+        getCellContent(grid.getHeaderCell(2)).click();
         assertSortMessageEquals(
                 QuerySortOrder.desc("street").thenDesc("number").build(), true);
-        clickElementWithJs(addressColumnSorter);
+        getCellContent(grid.getHeaderCell(2)).click();
         assertSortMessageEquals(Collections.emptyList(), true);
 
         // enable multi sort
         clickElementWithJs(findElement(By.id("grid-multi-sort-toggle")));
-        clickElementWithJs(nameColumnSorter);
-        clickElementWithJs(ageColumnSorter);
+        getCellContent(grid.getHeaderCell(0)).click();
+        getCellContent(grid.getHeaderCell(1)).click();
         assertSortMessageEquals(
                 QuerySortOrder.asc("age").thenAsc("name").build(), true);
     }
@@ -537,17 +530,10 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertEquals("Unexpected amount of columns", 4,
                 grid.findElements(By.tagName("vaadin-grid-column")).size());
 
-        List<WebElement> cells = getCells(grid);
-
-        WebElement firstHeader = getCell(grid, "Address");
-
-        int index = cells.indexOf(firstHeader);
-        for (String header : Arrays.asList("Address", "Name", "Age",
-                "Postal Code")) {
-            Assert.assertEquals("Missing expected column header " + header,
-                    header, cells.get(index).getText());
-            index++;
-        }
+        Assert.assertEquals("Address", grid.getHeaderCell(0).getText());
+        Assert.assertEquals("Name", grid.getHeaderCell(1).getText());
+        Assert.assertEquals("Age", grid.getHeaderCell(2).getText());
+        Assert.assertEquals("Postal Code", grid.getHeaderCell(3).getText());
     }
 
     @Test
@@ -592,16 +578,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void heightByRows_allRowsAreFetched() {
         openTabAndCheckForErrors("height-by-rows");
-        WebElement grid = findElement(By.id("grid-height-by-rows"));
+        GridElement grid = $(GridElement.class).id("grid-height-by-rows");
         scrollToElement(grid);
-        waitUntilCellHasText(grid, "Person 49");
+        waitUntil(driver -> grid.getRowCount() == 49);
 
         Assert.assertEquals("Grid should have heightByRows set to true", "true",
                 grid.getAttribute("heightByRows"));
-
-        List<WebElement> rows = getInShadowRoot(grid, By.id("items"))
-                .findElements(By.cssSelector("tr"));
-        Assert.assertEquals("Grid should have 49 rows", 49, rows.size());
     }
 
     private WebElement getCellContent(GridTHTDElement cell) {
@@ -676,16 +658,6 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     private WebElement getCell(GridElement grid, String text) {
         return grid.getCell(text);
-    }
-
-    private boolean hasHtmlCell(WebElement grid, String html) {
-        return getHtmlCell(grid, html) != null;
-    }
-
-    private WebElement getHtmlCell(WebElement grid, String text) {
-        return getCells(grid).stream()
-                .filter(cell -> text.equals(cell.getAttribute("innerHTML")))
-                .findAny().orElse(null);
     }
 
     private boolean hasComponentRendereredCell(WebElement grid, String text) {
