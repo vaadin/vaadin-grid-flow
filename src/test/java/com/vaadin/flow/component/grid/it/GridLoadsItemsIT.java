@@ -34,6 +34,8 @@ public class GridLoadsItemsIT extends AbstractComponentIT {
     public void initialRender_twoQueries() {
         open();
 
+        // waits for Grid to fetch the items after it is loaded. This process is
+        // asynchronous - without this wait, the test might fail.
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
