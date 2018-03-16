@@ -431,7 +431,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 ValueProvider<T, V> keyExtractor) {
             Objects.requireNonNull(keyExtractor,
                     "Key extractor must not be null");
-            setComparator(Comparator.comparing(keyExtractor));
+            setComparator(Comparator.comparing(keyExtractor,
+                    Comparator.nullsFirst(Comparator.naturalOrder())));
             return this;
         }
 
@@ -819,8 +820,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link JsonSerializer#toJson(Object)}.
      * <p>
      * <em>NOTE:</em> For displaying components, see
-     * {@link #addComponentColumn(ValueProvider)}. For using build-in
-     * renderers, see {@link #addColumn(Renderer)}.
+     * {@link #addComponentColumn(ValueProvider)}. For using build-in renderers,
+     * see {@link #addColumn(Renderer)}.
      *
      * @param valueProvider
      *            the value provider
@@ -892,7 +893,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link #addComponentColumn(ValueProvider)}, but using
      * {@link ComponentRenderer} is not as efficient as the built in renderers
      * or using {@link TemplateRenderer}.
-     * 
+     *
      * @param renderer
      *            the renderer used to create the grid cell structure
      * @return the created column
