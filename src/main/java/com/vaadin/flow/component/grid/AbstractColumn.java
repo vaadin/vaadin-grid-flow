@@ -17,7 +17,6 @@ package com.vaadin.flow.component.grid;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.Rendering;
@@ -59,28 +58,13 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         return grid;
     }
 
-    /**
-     * Hides or shows the column. By default columns are visible before
-     * explicitly hiding them.
-     *
-     * @param visible
-     *            {@code false} to hide the column, {@code true} to show
-     */
     @Override
     public void setVisible(boolean visible) {
-        getElement().setProperty("hidden", !visible);
-    }
-
-    /**
-     * Returns whether this column is visible. Default is {@code true}.
-     *
-     * @return {@code false} if the column is currently hidden, {@code true}
-     *         otherwise
-     */
-    @Override
-    @Synchronize("hidden-changed")
-    public boolean isVisible() {
-        return !getElement().getProperty("hidden", false);
+        boolean wasVisible = isVisible();
+        super.setVisible(visible);
+        if (visible && !wasVisible) {
+            getGrid().getDataProvider().refreshAll();
+        }
     }
 
     @Override

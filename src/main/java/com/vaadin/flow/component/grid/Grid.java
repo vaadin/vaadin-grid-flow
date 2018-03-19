@@ -278,7 +278,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             if (dataGenerator.isPresent()) {
                 columnDataGeneratorRegistration = gridDataGenerator
-                        .addDataGenerator(dataGenerator.get());
+                        .addDataGenerator(new VisibilityAwareDataGenerator<>(
+                                this, dataGenerator.get()));
             }
         }
 
@@ -722,6 +723,51 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                     refresh(item);
                 }
             }
+        }
+    }
+
+    private static class VisibilityAwareDataGenerator<T>
+            implements DataGenerator<T> {
+
+        private Column<T> owner;
+        private DataGenerator<T> generator;
+
+        public VisibilityAwareDataGenerator(Column<T> owner,
+                DataGenerator<T> generator) {
+            this.owner = owner;
+            this.generator = generator;
+        }
+
+        @Override
+        public void generateData(T item, JsonObject jsonObject) {
+            if (isColumnVisible(owner)) {
+                generator.generateData(item, jsonObject);
+            }
+        }
+
+        private boolean isColumnVisible(Component component) {
+            if (!component.isVisible() || !component.getParent().isPresent()) {
+                return false;
+            }
+            if (component instanceof Grid) {
+                return component.isVisible();
+            }
+            return isColumnVisible(component.getParent().get());
+        }
+
+        @Override
+        public void destroyData(T item) {
+            generator.destroyData(item);
+        }
+
+        @Override
+        public void destroyAllData() {
+            generator.destroyAllData();
+        }
+
+        @Override
+        public void refreshData(T item) {
+            generator.refreshData(item);
         }
     }
 
