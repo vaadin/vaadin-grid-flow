@@ -414,6 +414,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
         clickElementWithJs(updateButton);
 
         clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
+        try {
+            // sleep for a while so we don't try to use a stale element.
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertComponentRendereredDetails(grid, 0, "SomeOtherName");
 
         idField.sendKeys(Keys.BACK_SPACE, "2");
