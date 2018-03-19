@@ -165,7 +165,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 return new AbstractGridSingleSelectionModel<T>(grid) {
 
                     @Override
-                    protected void fireSelectionEvent(SelectionEvent<T> event) {
+                    protected void fireSelectionEvent(
+                            SelectionEvent<Grid<T>, T> event) {
                         grid.fireEvent((ComponentEvent<Grid>) event);
                     }
                 };
@@ -184,7 +185,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 return new AbstractGridMultiSelectionModel<T>(grid) {
 
                     @Override
-                    protected void fireSelectionEvent(SelectionEvent<T> event) {
+                    protected void fireSelectionEvent(
+                            SelectionEvent<Grid<T>, T> event) {
                         grid.fireEvent((ComponentEvent<Grid<?>>) event);
                     }
                 };
@@ -1315,7 +1317,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *             if selection has been disabled with
      *             {@link SelectionMode#NONE}
      */
-    public Registration addSelectionListener(SelectionListener<T> listener) {
+    public Registration addSelectionListener(
+            SelectionListener<Grid<T>, T> listener) {
         return getSelectionModel().addSelectionListener(listener);
     }
 
