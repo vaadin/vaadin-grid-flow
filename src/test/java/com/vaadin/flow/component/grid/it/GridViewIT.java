@@ -416,7 +416,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
         try {
             // sleep for a while so we don't try to use a stale element.
-            Thread.sleep(500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
