@@ -181,7 +181,7 @@ public class GridSortingTest {
 
         SerializableComparator<Person> comparator = nameColumn
                 .getComparator(SortDirection.ASCENDING);
-        Assert.assertEquals(-1, comparator.compare(new Person(), person));
+        Assert.assertEquals(1, comparator.compare(new Person(), person));
     }
 
     @Test

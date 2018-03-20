@@ -434,7 +434,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             Objects.requireNonNull(keyExtractor,
                     "Key extractor must not be null");
             setComparator(Comparator.comparing(keyExtractor,
-                    Comparator.nullsFirst(Comparator.naturalOrder())));
+                    Comparator.nullsLast(Comparator.naturalOrder())));
             return this;
         }
 
