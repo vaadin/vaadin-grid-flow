@@ -609,10 +609,11 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     private void assertRendereredContent(String expected, WebElement cell) {
-        Assert.assertThat(cell.getAttribute("innerHTML"), CoreMatchers.allOf(
-                CoreMatchers.startsWith("<flow-grid-component-renderer"),
-                CoreMatchers.containsString(expected),
-                CoreMatchers.endsWith("</flow-grid-component-renderer>")));
+        Assert.assertThat(cell.getAttribute("innerHTML"),
+                CoreMatchers.allOf(
+                        CoreMatchers.startsWith("<flow-component-renderer"),
+                        CoreMatchers.containsString(expected),
+                        CoreMatchers.endsWith("</flow-component-renderer>")));
     }
 
     private void assertCellContent(String expected, WebElement cell) {
