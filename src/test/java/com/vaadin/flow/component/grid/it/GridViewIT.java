@@ -600,7 +600,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
             WebElement cell = cells.get(i);
             String content = cell.getAttribute("innerHTML");
             if (!content.trim().isEmpty()
-                    && !content.startsWith("<flow-grid-component-renderer ")
+                    && !content.startsWith("<flow-component-renderer ")
                     && !content.startsWith("<button>")) {
                 return i;
             }
@@ -663,7 +663,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     private boolean hasComponentRendereredCell(WebElement grid, String text) {
         return hasComponentRendereredCell(grid, text,
-                "flow-grid-component-renderer");
+                "flow-component-renderer");
     }
 
     private boolean hasComponentRendereredHeaderCell(WebElement grid,
