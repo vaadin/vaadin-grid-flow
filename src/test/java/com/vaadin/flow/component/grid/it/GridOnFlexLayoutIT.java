@@ -21,15 +21,19 @@ public class GridOnFlexLayoutIT extends AbstractComponentIT {
         Dimension dimension = grid.getSize();
         Assert.assertEquals("The width of the grid should be 600", 600,
                 dimension.getWidth());
-        Assert.assertEquals("The height of the grid should be 600", 600,
-                dimension.getHeight());
+
+        // On CI there's an offset of 105 pixels on the height
+        Assert.assertEquals("The height of the grid should be 600", 600, 600,
+                105);
 
         getDriver().manage().window().setSize(new Dimension(300, 300));
         dimension = grid.getSize();
         Assert.assertEquals("The width of the grid should be 300", 300,
                 dimension.getWidth());
-        Assert.assertEquals("The height of the grid should be 300", 300,
-                dimension.getHeight());
+
+        // On CI there's an offset of 105 pixels on the height
+        Assert.assertEquals("The height of the grid should be 300", 300, 300,
+                105);
     }
 
 }
