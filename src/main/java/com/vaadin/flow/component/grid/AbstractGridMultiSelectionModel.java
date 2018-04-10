@@ -203,7 +203,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
 
             @Override
             public Element getElement() {
-                return null;
+                return getComponent().getElement();
             }
 
         };

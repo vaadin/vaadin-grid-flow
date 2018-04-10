@@ -135,7 +135,7 @@ public abstract class AbstractGridSingleSelectionModel<T> extends
 
             @Override
             public Element getElement() {
-                return null;
+                return getComponent().getElement();
             }
         };
     }
