@@ -15,22 +15,28 @@
  */
 package com.vaadin.flow.component.grid.it;
 
-import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import java.util.Arrays;
+
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.polymertemplate.Id;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.templatemodel.TemplateModel;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.NoTheme;
 
-@Tag("grid-in-a-template")
-@HtmlImport("src/grid-in-a-template.html")
-public class GridInATemplate extends PolymerTemplate<TemplateModel> {
+@Route("grid-on-flex-layout")
+@NoTheme
+public class GridOnFlexLayoutPage extends FlexLayout {
 
-    @Id
-    Grid<String> grid;
+    public GridOnFlexLayoutPage() {
+        setSizeFull();
 
-    public Grid<String> getGrid() {
-        return grid;
+        Grid<String> grid = new Grid<>();
+        grid.setId("full-size-grid");
+        grid.setItems(Arrays.asList("Item 1", "Item 2", "Item 3"));
+        grid.addColumn(ValueProvider.identity());
+        grid.setSizeFull();
+
+        add(grid);
     }
 
 }

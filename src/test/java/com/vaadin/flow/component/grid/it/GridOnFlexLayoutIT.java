@@ -15,22 +15,20 @@
  */
 package com.vaadin.flow.component.grid.it;
 
-import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.polymertemplate.Id;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.templatemodel.TemplateModel;
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-@Tag("grid-in-a-template")
-@HtmlImport("src/grid-in-a-template.html")
-public class GridInATemplate extends PolymerTemplate<TemplateModel> {
+import com.vaadin.flow.testutil.TestPath;
 
-    @Id
-    Grid<String> grid;
+@TestPath("grid-on-flex-layout")
+public class GridOnFlexLayoutIT extends GridSizeIT {
 
-    public Grid<String> getGrid() {
-        return grid;
+    @Test
+    public void gridOccupies100PercentOfThePage() {
+        open();
+        WebElement grid = findElement(By.id("full-size-grid"));
+        assertGridOccupies100PercentOfThePage(grid);
     }
 
 }
