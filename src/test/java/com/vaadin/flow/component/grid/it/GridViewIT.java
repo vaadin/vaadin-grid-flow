@@ -593,7 +593,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
         scrollToElement(grid);
         waitUntil(driver -> grid.getAllColumns().size() == 11);
 
-        Assert.assertEquals("the first header should be Company in the Grid",
+        Assert.assertEquals(
+                "The first header should be \"Company\" in the Grid",
                 "Company", grid.getHeaderCell(0).getInnerHTML());
     }
 
