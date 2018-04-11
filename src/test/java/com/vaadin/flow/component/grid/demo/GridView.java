@@ -915,10 +915,8 @@ public class GridView extends DemoView {
         // source-example-heading: Gird Basic Features Demo
         Grid<CompanyBudgetHistory> grid = new Grid<>();
         ListDataProvider<CompanyBudgetHistory> list = CompanyBudgetHistory
-                .getBudgetDataProvider(
-                baseYear, numberOfYears);
-        
-        // grid.setHeightByRows(true);
+                .getBudgetDataProvider(baseYear, numberOfYears);
+
         grid.setColumnReorderingAllowed(true);
 
         grid.setDataProvider(list);
@@ -949,7 +947,7 @@ public class GridView extends DemoView {
                     .setHeader("H1")
                     .setFooter(dollarFormat.format(firstHalfSum))
              .setComparator((p1, p2) -> p1.getFirstHalfOfYear(year)
-             .compareTo(p2.getFirstHalfOfYear(year)));
+                            .compareTo(p2.getFirstHalfOfYear(year)));
 
             Column<?> secondHalfColumn = grid
                     .addColumn(
@@ -965,8 +963,6 @@ public class GridView extends DemoView {
             grid.mergeColumns(firstHalfColumn, secondHalfColumn)
                     .setHeader(year + "");
         });
-
-
         // end-source-example
 
         grid.setId("grid-height-by-rows");
@@ -1063,6 +1059,11 @@ public class GridView extends DemoView {
             "Ceoracee", "Kewivu", "Weikiyo", "Meeevee", "Eeurodel", "Yeakitude",
             "Oeyovee", "Ceisic", "Terufix", "Meistijo", "Iedeofix", "Sekazu" };
     
+    // begin-source-example
+    // source-example-heading: Gird Basic Features Demo
+    /**
+     * Example Object for Basic Features Demo
+     */
     public static class YearlyBudgetInfo {
         BigDecimal firstHalf;
         BigDecimal secondHalf;
@@ -1089,6 +1090,9 @@ public class GridView extends DemoView {
         }
     }
 
+    /**
+     * Example Object for Basic Features Demo
+     */
     public static class CompanyBudgetHistory {
         String company;
         Map<Integer, YearlyBudgetInfo> budgetHistory;
@@ -1139,4 +1143,5 @@ public class GridView extends DemoView {
                     100 + Math.random() * 100 + Math.random() * 10000);
         }
     }
+    // end-source-example
 }
