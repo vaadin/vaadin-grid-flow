@@ -910,9 +910,9 @@ public class GridView extends DemoView {
         final int baseYear = 2015;
         final int numberOfYears = 5;
 
-        DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00");
         // begin-source-example
         // source-example-heading: Gird Basic Features Demo
+        DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00");
         Grid<CompanyBudgetHistory> grid = new Grid<>();
         ListDataProvider<CompanyBudgetHistory> list = CompanyBudgetHistory
                 .getBudgetDataProvider(baseYear, numberOfYears);
@@ -920,8 +920,7 @@ public class GridView extends DemoView {
         grid.setColumnReorderingAllowed(true);
 
         grid.setDataProvider(list);
-        grid.addColumn(CompanyBudgetHistory::getCompany).setHeader("Company")
-                .setId("CompanyNameColumn");
+        grid.addColumn(CompanyBudgetHistory::getCompany).setHeader("Company");
 
         grid.setSelectionMode(SelectionMode.SINGLE);
 
@@ -965,8 +964,8 @@ public class GridView extends DemoView {
         });
         // end-source-example
 
-        grid.setId("grid-height-by-rows");
-        addCard("Basic Features", "Gird Basic Features Demo", grid);
+        grid.setId("grid-basic-feature");
+        addCard("Basic Features", "Grid Basic Features Demo", grid);
     }
 
     private List<Person> getItems() {
