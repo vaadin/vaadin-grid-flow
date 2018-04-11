@@ -958,7 +958,7 @@ public class GridView extends DemoView {
                     .setFooter(dollarFormat.format(secondHalfSum))
                     .setComparator((p1, p2) -> p1.getSecondHalfOfYear(year)
                             .compareTo(p2.getSecondHalfOfYear(year)));
-            
+
             grid.mergeColumns(firstHalfColumn, secondHalfColumn)
                     .setHeader(year + "");
         });
