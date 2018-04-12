@@ -74,6 +74,7 @@ import com.vaadin.flow.data.selection.SelectionModel;
 import com.vaadin.flow.data.selection.SelectionModel.Single;
 import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.data.selection.SingleSelectionListener;
+import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.ValueProvider;
@@ -1662,12 +1663,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return item;
     }
 
-    @ClientDelegate
+    @ClientDelegate(DisabledUpdateMode.ALWAYS)
     private void confirmUpdate(int id) {
         getDataCommunicator().confirmUpdate(id);
     }
 
-    @ClientDelegate
+    @ClientDelegate(DisabledUpdateMode.ALWAYS)
     private void setRequestedRange(int start, int length) {
         getDataCommunicator().setRequestedRange(start, length);
     }
@@ -1682,7 +1683,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    @ClientDelegate
+    @ClientDelegate(DisabledUpdateMode.ALWAYS)
     private void sortersChanged(JsonArray sorters) {
         GridSortOrderBuilder<T> sortOrderBuilder = new GridSortOrderBuilder<>();
         for (int i = 0; i < sorters.length(); ++i) {
@@ -1795,5 +1796,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     @Synchronize("height-by-rows-changed")
     public boolean isHeightByRows() {
         return getElement().getProperty("heightByRows", false);
+    }
+
+    @Override
+    public void onEnabledStateChange(boolean enabled) {
+        super.onEnabledStateChange(enabled);
+        getDataCommunicator().reset();
     }
 }
