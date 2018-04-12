@@ -1801,6 +1801,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     @Override
     public void onEnabledStateChange(boolean enabled) {
         super.onEnabledStateChange(enabled);
+
+        /*
+         * The DataCommunicator needs to be reset so components rendered inside
+         * the cells can be updated to the new enabled state. The enabled state
+         * is passed as a property to the client via DataGenerators.
+         */
         getDataCommunicator().reset();
     }
 }
