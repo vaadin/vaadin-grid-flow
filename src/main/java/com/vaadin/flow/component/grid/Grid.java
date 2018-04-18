@@ -18,7 +18,6 @@ package com.vaadin.flow.component.grid;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -779,7 +778,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
+        layers.add(defaultLayer);
+        defaultLayer.asHeaderRow();
     }
+
+    private List<ColumnLayer> layers = new ArrayList<>();
+    private ColumnLayer defaultLayer = new ColumnLayer(this);
 
     private void initConnector() {
         getUI().orElseThrow(() -> new IllegalStateException(
@@ -905,9 +909,98 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         Column<T> column = new Column<>(this, columnId, renderer);
         idToColumnMap.put(columnId, column);
-        getElement().appendChild(column.getElement());
+
+        layers.get(0).addColumn(column);
+        AbstractColumn<?> current = column;
+        for (int i = 1; i < layers.size(); i++) {
+            ColumnGroup group = new ColumnGroup(this, current);
+            layers.get(i).addColumn(group);
+            current = group;
+        }
+        getElement().appendChild(current.getElement());
 
         return column;
+    }
+
+    public HeaderRow prependHeaderRow() {
+        int layerInsertIndex = getLastHeaderLayerIndex() + 1;
+
+        if (layerInsertIndex > 0 && layers.size() >= layerInsertIndex + 1) {
+            ColumnLayer layer = layers.get(layerInsertIndex);
+            ColumnLayer lowerLayer = layers.get(layerInsertIndex - 1);
+            if (layer.getColumns().size() == lowerLayer.getColumns().size()) {
+                // We can add header-templates to the existing layer of
+                // column-groups that has the same structure as the previously
+                // top-most header-layer.
+                return layer.asHeaderRow();
+            }
+        }
+
+        return insertColumnLayer(layerInsertIndex).asHeaderRow();
+    }
+
+    public List<HeaderRow> getHeaderRows() {
+        return layers.stream().filter(ColumnLayer::isHeaderRow)
+                .map(ColumnLayer::asHeaderRow).collect(Collectors.toList());
+    }
+
+    public List<FooterRow> getFooterRows() {
+        return layers.stream().filter(ColumnLayer::isFooterRow)
+                .map(ColumnLayer::asFooterRow).collect(Collectors.toList());
+    }
+
+    /**
+     * Creates a new layer containing same amount of column-groups as the next
+     * inner layer, adds it to layers list and returns the layer
+     */
+    private ColumnLayer insertColumnLayer(int index) {
+        assert index > 0;
+
+        ColumnLayer innerLayer = layers.get(index - 1);
+        List<AbstractColumn<?>> groups = innerLayer.getColumns().stream()
+                .map(this::wrapInColumnGroup).collect(Collectors.toList());
+
+        ColumnLayer layer = new ColumnLayer(this, groups);
+        layers.add(index, layer);
+
+        return layer;
+    }
+
+    /**
+     * Wraps the given column inside a column group and places this wrapper
+     * group to the original column's place.
+     */
+    protected ColumnGroup wrapInColumnGroup(AbstractColumn<?> col) {
+
+        Element parent = col.getElement().getParent();
+        int index = parent.indexOfChild(col.getElement());
+
+        col.getElement().removeFromParent();
+
+        ColumnGroup group = new ColumnGroup(this, col);
+        parent.insertChild(index, group.getElement());
+
+        return group;
+    }
+
+    protected ColumnGroup wrapInColumnGroup(AbstractColumn<?>... cols) {
+        ColumnGroup group = wrapInColumnGroup(cols[0]);
+        for (int i = 1; i < cols.length; i++) {
+            group.getElement().appendChild(cols[i].getElement());
+        }
+        return group;
+    }
+
+    /**
+     * Gets the last index of a column layer that is a header layer
+     */
+    private int getLastHeaderLayerIndex() {
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            if (layers.get(i).isHeaderRow()) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -1384,66 +1477,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             getElement().setProperty("columnReorderingAllowed",
                     columnReorderingAllowed);
         }
-    }
-
-    /**
-     * Merges two or more columns into a {@link ColumnGroup}.
-     *
-     * @param firstColumn
-     *            the first column to merge
-     * @param secondColumn
-     *            the second column to merge
-     * @param additionalColumns
-     *            optional additional columns to merge
-     * @return the column group that contains the merged columns
-     */
-    public ColumnGroup mergeColumns(ColumnBase<?> firstColumn,
-            ColumnBase<?> secondColumn, ColumnBase<?>... additionalColumns) {
-        List<ColumnBase<?>> toMerge = new ArrayList<>();
-        toMerge.add(firstColumn);
-        toMerge.add(secondColumn);
-        toMerge.addAll(Arrays.asList(additionalColumns));
-        return mergeColumns(toMerge);
-    }
-
-    /**
-     * Merges two or more columns into a {@link ColumnGroup}.
-     *
-     * @param columnsToMerge
-     *            the columns to merge, not {@code null} and size must be
-     *            greater than 1
-     * @return the column group that contains the merged columns
-     */
-    public ColumnGroup mergeColumns(Collection<ColumnBase<?>> columnsToMerge) {
-        List<ColumnBase<?>> topLevelColumns = getTopLevelColumns();
-
-        Objects.requireNonNull(columnsToMerge,
-                "Columns to merge cannot be null");
-        if (columnsToMerge.size() < 2) {
-            throw new IllegalArgumentException(
-                    "Cannot merge less than two columns");
-        }
-        if (columnsToMerge.contains(null)) {
-            throw new NullPointerException(
-                    "Columns to merge cannot contain null values");
-        }
-        if (columnsToMerge.stream()
-                .anyMatch(column -> !topLevelColumns.contains(column))) {
-            throw new IllegalArgumentException(
-                    "Cannot merge a column that already belongs to a column group");
-        }
-
-        int insertIndex = topLevelColumns
-                .indexOf(columnsToMerge.iterator().next());
-
-        columnsToMerge.forEach(column -> {
-            getElement().removeChild(column.getElement());
-        });
-
-        ColumnGroup columnGroup = new ColumnGroup(this, columnsToMerge);
-        getElement().insertChild(insertIndex, columnGroup.getElement());
-
-        return columnGroup;
     }
 
     /**

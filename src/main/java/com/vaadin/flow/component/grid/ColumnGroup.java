@@ -42,7 +42,7 @@ public class ColumnGroup extends AbstractColumn<ColumnGroup> {
      * @param columns
      *            the columns to group
      */
-    public ColumnGroup(Grid<?> grid, ColumnBase<?>... columns) {
+    public ColumnGroup(Grid<?> grid, AbstractColumn<?>... columns) {
         this(grid, Arrays.asList(columns));
     }
 
@@ -55,7 +55,7 @@ public class ColumnGroup extends AbstractColumn<ColumnGroup> {
      * @param columns
      *            the columns to group
      */
-    public ColumnGroup(Grid<?> grid, Collection<ColumnBase<?>> columns) {
+    public ColumnGroup(Grid<?> grid, Collection<AbstractColumn<?>> columns) {
         super(grid);
         columns.forEach(
                 column -> getElement().appendChild(column.getElement()));
@@ -66,11 +66,12 @@ public class ColumnGroup extends AbstractColumn<ColumnGroup> {
      *
      * @return the child columns of this column group
      */
-    public List<ColumnBase<?>> getChildColumns() {
+    public List<AbstractColumn<?>> getChildColumns() {
         return getElement().getChildren()
-                .filter(element -> element.getComponent().isPresent()
-                        && element.getComponent().get() instanceof ColumnBase)
-                .map(element -> (ColumnBase<?>) element.getComponent().get())
+                .filter(element -> element.getComponent().isPresent() && element
+                        .getComponent().get() instanceof AbstractColumn)
+                .map(element -> (AbstractColumn<?>) element.getComponent()
+                        .get())
                 .collect(Collectors.toList());
     }
 
