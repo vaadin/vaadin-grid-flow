@@ -126,5 +126,4 @@ class GridSorterComponentRenderer<SOURCE>
             return Optional.of(this);
         }
     }
-
 }
