@@ -31,7 +31,7 @@ import com.vaadin.flow.dom.Element;
  */
 @HtmlImport("frontend://bower_components/vaadin-grid/vaadin-grid-column-group.html")
 @Tag("vaadin-grid-column-group")
-public class ColumnGroup extends AbstractColumn<ColumnGroup> {
+class ColumnGroup extends AbstractColumn<ColumnGroup> {
 
     /**
      * Constructs a new column group with the given header and grouping the

@@ -16,8 +16,8 @@
 package com.vaadin.flow.component.grid;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
+import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
 
 /**
  * @author Vaadin Ltd.
@@ -32,12 +32,12 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
 
         @Override
         public void setText(String text) {
-            getColumn().setHeader(text);
+            getColumn().renderHeader(text);
         }
 
         @Override
         public void setComponent(Component component) {
-            getColumn().setHeader(component);
+            getColumn().renderHeader(component);
         }
 
     }

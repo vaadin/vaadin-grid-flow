@@ -39,6 +39,8 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
     protected final Grid<?> grid;
     protected Element headerTemplate;
     protected Element footerTemplate;
+    private Renderer<?> headerRenderer;
+    private Renderer<?> footerRenderer;
 
     /**
      * Base constructor with the destination Grid.
@@ -83,33 +85,13 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         return !getElement().getProperty("hidden", false);
     }
 
-    @Override
-    public T setHeader(String labelText) {
-        renderHeader(TemplateRenderer.of(HtmlUtils.escape(labelText)));
-        return (T) this;
-    }
-
-    @Override
-    public T setFooter(String labelText) {
-        renderFooter(TemplateRenderer.of(HtmlUtils.escape(labelText)));
-        return (T) this;
-    }
-
-    @Override
-    public T setHeader(Component headerComponent) {
-        renderHeader(new ComponentRenderer<>(() -> headerComponent));
-        return (T) this;
-    }
-
-    @Override
-    public T setFooter(Component footerComponent) {
-        renderFooter(new ComponentRenderer<>(() -> footerComponent));
-        return (T) this;
-    }
-
-    protected Rendering<?> renderHeader(Renderer<?> renderer) {
+    protected Rendering<?> setHeaderRenderer(Renderer<?> renderer) {
+        this.headerRenderer = renderer;
         if (headerTemplate != null) {
-            return renderer.render(getElement(), null, headerTemplate);
+            getElement().removeChild(headerTemplate);
+        }
+        if (renderer == null) {
+            return null;
         }
         Rendering<?> rendering = renderer.render(getElement(), null);
         headerTemplate = rendering.getTemplateElement();
@@ -117,13 +99,42 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         return rendering;
     }
 
-    protected Rendering<?> renderFooter(Renderer<?> renderer) {
+    protected Rendering<?> setFooterRenderer(Renderer<?> renderer) {
+        this.footerRenderer = renderer;
         if (footerTemplate != null) {
-            return renderer.render(getElement(), null, headerTemplate);
+            getElement().removeChild(footerTemplate);
+        }
+        if (renderer == null) {
+            return null;
         }
         Rendering<?> rendering = renderer.render(getElement(), null);
         footerTemplate = rendering.getTemplateElement();
         footerTemplate.setAttribute("class", "footer");
         return rendering;
     }
+
+    protected void renderHeader(String text) {
+        setHeaderRenderer(TemplateRenderer.of(HtmlUtils.escape(text)));
+    }
+
+    protected void renderFooter(String text) {
+        setFooterRenderer(TemplateRenderer.of(HtmlUtils.escape(text)));
+    }
+
+    protected void renderHeader(Component component) {
+        setHeaderRenderer(new ComponentRenderer<>(() -> component));
+    }
+
+    protected void renderFooter(Component component) {
+        setFooterRenderer(new ComponentRenderer<>(() -> component));
+    }
+
+    protected Renderer<?> getHeaderRenderer() {
+        return headerRenderer;
+    }
+
+    protected Renderer<?> getFooterRenderer() {
+        return footerRenderer;
+    }
+
 }

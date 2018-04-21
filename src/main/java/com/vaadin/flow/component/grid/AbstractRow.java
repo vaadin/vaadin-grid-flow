@@ -17,10 +17,12 @@ package com.vaadin.flow.component.grid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.Component;
@@ -51,6 +53,10 @@ abstract class AbstractRow<CELL extends AbstractCell> {
             this.columnComponent = column;
         }
 
+        protected void setColumn(AbstractColumn<?> column) {
+            this.columnComponent = column;
+        }
+
         protected AbstractColumn<?> getColumn() {
             return columnComponent;
         }
@@ -68,9 +74,27 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
     AbstractRow(ColumnLayer layer, Function<AbstractColumn<?>, CELL> cellCtor) {
         this.layer = layer;
-        this.cells = layer.getColumns().stream().map(cellCtor)
-                .collect(Collectors.toList());
         this.cellCtor = cellCtor;
+        cells = layer.getColumns().stream().map(cellCtor)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Change the cells to wrap the given columns
+     * 
+     * @param columns
+     *            new column components for the cells
+     */
+    protected void setColumns(List<AbstractColumn<?>> columns) {
+        assert columns.size() == cells.size();
+
+        IntStream.range(0, columns.size()).forEach(i -> {
+            cells.get(i).setColumn(columns.get(i));
+        });
+    }
+
+    protected void addCell(AbstractColumn<?> column) {
+        cells.add(cellCtor.apply(column));
     }
 
     public List<CELL> getCells() {
@@ -96,15 +120,49 @@ abstract class AbstractRow<CELL extends AbstractCell> {
     }
 
     public CELL join(CELL... cells) {
-        // TODO assert that this is the out-most row and all given cells belong
-        // to this row
+        return join(Arrays.asList(cells));
+    }
+
+    /**
+     * Replaces the given cells with a new cell that takes the full space of the
+     * joined cells.
+     * <p>
+     * The cells to join must be adjacent cells in this row, and this row must
+     * be the out-most row.
+     * 
+     * @param cells
+     *            the cells to join
+     * @return the joined cell
+     */
+    public CELL join(Collection<CELL> cells) {
+        Grid<?> grid = layer.getGrid();
+        if (!isOutMostRow()) {
+            throw new IllegalArgumentException(
+                    "Cells can be joined only on the out-most row");
+        }
+        if (cells.size() < 2) {
+            throw new IllegalArgumentException("Cannot join less than 2 cells");
+        }
+        if (!this.cells.containsAll(cells)) {
+            throw new IllegalArgumentException(
+                    "Cannot join cells that don't belong to this row");
+        }
+
+        Stream<AbstractColumn<?>> columns = cells.stream().map(CELL::getColumn);
+
+        cells.stream().forEach(cell -> {
+            if (!Helpers.isOnOutmostRow(cell, grid)) {
+                throw new IllegalArgumentException(
+                        "Cannot join cells that are not on the out-most row");
+            }
+        });
 
         List<AbstractColumn<?>> childColumns = new ArrayList<>();
-        Stream.of(cells).map(CELL::getColumn).forEach(column -> {
+        cells.stream().map(CELL::getColumn).forEach(column -> {
             childColumns.addAll(((ColumnGroup) column).getChildColumns());
         });
 
-        ColumnGroup group = new ColumnGroup(layer.getGrid(), childColumns);
+        ColumnGroup group = new ColumnGroup(grid, childColumns);
         layer.getGrid().getElement().appendChild(group.getElement());
         // TODO insert to correct place
 
@@ -114,5 +172,18 @@ abstract class AbstractRow<CELL extends AbstractCell> {
         CELL cell = cellCtor.apply(group);
         this.cells.add(cell);
         return cell;
+    }
+
+    private boolean isOutMostRow() {
+        List<ColumnLayer> layers = layer.getGrid().getLayers();
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            ColumnLayer layer = layers.get(i);
+            if (this instanceof HeaderRow && layer.isHeaderRow()) {
+                return this == layer.asHeaderRow();
+            } else if (this instanceof FooterRow && layer.isFooterRow()) {
+                return this == layer.asFooterRow();
+            }
+        }
+        return false;
     }
 }

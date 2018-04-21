@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.ClientDelegate;
@@ -536,9 +537,81 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return sortingEnabled;
         }
 
+        /**
+         * Sets a header text to the column.
+         * <p>
+         * If there are no header rows when calling this method, the first
+         * header row will be created. If there are header rows, the header will
+         * be set on the bottom header row and it will override any existing
+         * header.
+         *
+         * @param labelText
+         *            the text to be shown at the column header
+         * @return this column, for method chaining
+         */
+        public Column<T> setHeader(String labelText) {
+            getGrid().getLayers().get(0).asHeaderRow().getCell(this)
+                    .setText(labelText);
+            return this;
+        }
+
+        /**
+         * Sets a footer text to the column.
+         * <p>
+         * If there are no footer rows when calling this method, the first
+         * footer row will be created. If there are footer rows, the footer will
+         * be set on the bottom footer row and it will override any existing
+         * footer.
+         *
+         * @param labelText
+         *            the text to be shown at the column footer
+         * @return this column, for method chaining
+         */
+        public Column<T> setFooter(String labelText) {
+            getGrid().getLayers().get(0).asFooterRow().getCell(this)
+                    .setText(labelText);
+            return this;
+        }
+
+        /**
+         * Sets a header component to the column.
+         * <p>
+         * If there are no header rows when calling this method, the first
+         * header row will be created. If there are header rows, the header will
+         * be set on the bottom header row and it will override any existing
+         * header.
+         *
+         * @param headerComponent
+         *            the component to be used in the header of the column
+         * @return this column, for method chaining
+         */
+        public Column<T> setHeader(Component headerComponent) {
+            getGrid().getLayers().get(0).asHeaderRow().getCell(this)
+                    .setComponent(headerComponent);
+            return this;
+        }
+
+        /**
+         * Sets a footer component to the column.
+         * <p>
+         * If there are no footer rows when calling this method, the first
+         * footer row will be created. If there are footer rows, the footer will
+         * be set on the bottom footer row and it will override any existing
+         * footer.
+         *
+         * @param footerComponent
+         *            the component to be used in the footer of the column
+         * @return this column, for method chaining
+         */
+        public Column<T> setFooter(Component footerComponent) {
+            getGrid().getLayers().get(0).asFooterRow().getCell(this)
+                    .setComponent(footerComponent);
+            return this;
+        }
+
         @Override
-        protected Rendering<?> renderHeader(Renderer<?> renderer) {
-            Rendering<?> rendering = super.renderHeader(renderer);
+        protected Rendering<?> setHeaderRenderer(Renderer<?> renderer) {
+            Rendering<?> rendering = super.setHeaderRenderer(renderer);
 
             headerTemplate = rendering.getTemplateElement();
             rawHeaderTemplate = headerTemplate.getProperty("innerHTML");
@@ -778,12 +851,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
-        layers.add(defaultLayer);
-        defaultLayer.asHeaderRow();
+        layers.add(new ColumnLayer(this));
     }
 
     private List<ColumnLayer> layers = new ArrayList<>();
-    private ColumnLayer defaultLayer = new ColumnLayer(this);
 
     private void initConnector() {
         getUI().orElseThrow(() -> new IllegalStateException(
@@ -910,8 +981,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         Column<T> column = new Column<>(this, columnId, renderer);
         idToColumnMap.put(columnId, column);
 
-        layers.get(0).addColumn(column);
         AbstractColumn<?> current = column;
+        layers.get(0).addColumn(column);
+
         for (int i = 1; i < layers.size(); i++) {
             ColumnGroup group = new ColumnGroup(this, current);
             layers.get(i).addColumn(group);
@@ -923,20 +995,33 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     public HeaderRow prependHeaderRow() {
-        int layerInsertIndex = getLastHeaderLayerIndex() + 1;
-
-        if (layerInsertIndex > 0 && layers.size() >= layerInsertIndex + 1) {
-            ColumnLayer layer = layers.get(layerInsertIndex);
-            ColumnLayer lowerLayer = layers.get(layerInsertIndex - 1);
-            if (layer.getColumns().size() == lowerLayer.getColumns().size()) {
-                // We can add header-templates to the existing layer of
-                // column-groups that has the same structure as the previously
-                // top-most header-layer.
-                return layer.asHeaderRow();
-            }
+        // int layerInsertIndex = getLastHeaderLayerIndex() + 1;
+        //
+        // if (layerInsertIndex > 0 && layers.size() >= layerInsertIndex + 1) {
+        // ColumnLayer layer = layers.get(layerInsertIndex);
+        // ColumnLayer lowerLayer = layers.get(layerInsertIndex - 1);
+        // if (layer.getColumns().size() == lowerLayer.getColumns().size()) {
+        // // We can add header-templates to the existing layer of
+        // // column-groups that has the same structure as the previously
+        // // top-most header-layer.
+        // return layer.asHeaderRow();
+        // }
+        // }
+        if (getHeaderRows().size() == 0) {
+            return layers.get(0).asHeaderRow();
         }
+        return insertColumnLayer(layers.size()).asHeaderRow();
+    }
 
-        return insertColumnLayer(layerInsertIndex).asHeaderRow();
+    public HeaderRow appendHeaderRow() {
+        if (getHeaderRows().size() == 0) {
+            return layers.get(0).asHeaderRow();
+        }
+        return insertColumnLayer(0).asHeaderRow();
+    }
+
+    protected List<ColumnLayer> getLayers() {
+        return layers;
     }
 
     public List<HeaderRow> getHeaderRows() {
@@ -951,14 +1036,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Creates a new layer containing same amount of column-groups as the next
-     * inner layer, adds it to layers list and returns the layer
+     * inner layer, adds it to layers list and returns the layer.
      */
     private ColumnLayer insertColumnLayer(int index) {
-        assert index > 0;
+        if (index == 0) {
+            return insertInmostColumnLayer();
+        }
 
         ColumnLayer innerLayer = layers.get(index - 1);
-        List<AbstractColumn<?>> groups = innerLayer.getColumns().stream()
-                .map(this::wrapInColumnGroup).collect(Collectors.toList());
+        List<AbstractColumn<?>> groups = Helpers
+                .wrapInSeparateColumnGroups(innerLayer.getColumns(), this);
 
         ColumnLayer layer = new ColumnLayer(this, groups);
         layers.add(index, layer);
@@ -966,29 +1053,32 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return layer;
     }
 
-    /**
-     * Wraps the given column inside a column group and places this wrapper
-     * group to the original column's place.
+    /*
+     * Moves templates from columns to column-groups
      */
-    protected ColumnGroup wrapInColumnGroup(AbstractColumn<?> col) {
+    private ColumnLayer insertInmostColumnLayer() {
+        ColumnLayer bottomLayer = layers.get(0);
+        List<AbstractColumn<?>> columns = bottomLayer.getColumns();
 
-        Element parent = col.getElement().getParent();
-        int index = parent.indexOfChild(col.getElement());
+        List<AbstractColumn<?>> groups = Helpers
+                .wrapInSeparateColumnGroups(columns, this);
 
-        col.getElement().removeFromParent();
+        ColumnLayer newBottomLayer = new ColumnLayer(this, columns);
 
-        ColumnGroup group = new ColumnGroup(this, col);
-        parent.insertChild(index, group.getElement());
+        IntStream.range(0, groups.size()).forEach(i -> {
+            groups.get(i).setFooterRenderer(columns.get(i).getFooterRenderer());
+            groups.get(i).setHeaderRenderer(columns.get(i).getHeaderRenderer());
+        });
+        bottomLayer.setColumns(groups);
 
-        return group;
-    }
+        columns.forEach(col -> {
+            col.setHeaderRenderer(null);
+            col.setFooterRenderer(null);
+        });
 
-    protected ColumnGroup wrapInColumnGroup(AbstractColumn<?>... cols) {
-        ColumnGroup group = wrapInColumnGroup(cols[0]);
-        for (int i = 1; i < cols.length; i++) {
-            group.getElement().appendChild(cols[i].getElement());
-        }
-        return group;
+        layers.add(0, newBottomLayer);
+
+        return newBottomLayer;
     }
 
     /**

@@ -46,17 +46,19 @@ class ColumnLayer {
     public void addColumn(AbstractColumn<?> column) {
         this.columns.add(column);
         if (isHeaderRow()) {
-            column.setHeader("");
+            column.renderHeader("");
+            headerRow.addCell(column);
         }
         if (isFooterRow()) {
-            column.setFooter("");
+            column.renderFooter("");
+            footerRow.addCell(column);
         }
     }
 
     public HeaderRow asHeaderRow() {
         if (headerRow == null) {
             headerRow = new HeaderRow(this);
-            columns.forEach(col -> col.setHeader(""));
+            columns.forEach(col -> col.renderHeader(""));
         }
         return headerRow;
     }
@@ -64,7 +66,7 @@ class ColumnLayer {
     public FooterRow asFooterRow() {
         if (footerRow == null) {
             footerRow = new FooterRow(this);
-            columns.forEach(col -> col.setFooter(""));
+            columns.forEach(col -> col.renderFooter(""));
         }
         return footerRow;
     }
@@ -79,6 +81,16 @@ class ColumnLayer {
 
     public Grid<?> getGrid() {
         return grid;
+    }
+
+    public void setColumns(List<AbstractColumn<?>> columns) {
+        this.columns = columns;
+        if (headerRow != null) {
+            headerRow.setColumns(columns);
+        }
+        if (footerRow != null) {
+            footerRow.setColumns(columns);
+        }
     }
 
     public List<AbstractColumn<?>> getColumns() {
