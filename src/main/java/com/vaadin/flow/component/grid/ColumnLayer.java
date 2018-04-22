@@ -44,7 +44,11 @@ class ColumnLayer {
     }
 
     public void addColumn(AbstractColumn<?> column) {
-        this.columns.add(column);
+        addColumn(this.columns.size(), column);
+    }
+
+    public void addColumn(int index, AbstractColumn<?> column) {
+        this.columns.add(index, column);
         if (isHeaderRow()) {
             column.renderHeader("");
             headerRow.addCell(column);

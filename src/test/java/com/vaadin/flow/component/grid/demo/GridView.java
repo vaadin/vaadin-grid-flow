@@ -30,6 +30,7 @@ import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
@@ -345,6 +346,12 @@ public class GridView extends DemoView {
         buttons.add(new NativeButton("add column", event -> {
             Column<Person> idCol = grid.addColumn(Person::getId)
                     .setHeader("id");
+        }));
+
+        buttons.add(new NativeButton("join", event -> {
+            HeaderRow topRow = grid.getHeaderRows()
+                    .get(grid.getHeaderRows().size() - 1);
+            topRow.join(topRow.getCells().get(0), topRow.getCells().get(1));
         }));
 
         // end-source-example

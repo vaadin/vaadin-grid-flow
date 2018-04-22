@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
@@ -140,6 +139,10 @@ abstract class AbstractRow<CELL extends AbstractCell> {
             throw new IllegalArgumentException(
                     "Cells can be joined only on the out-most row");
         }
+        if (grid.getLayers().size() == 1) {
+            throw new IllegalArgumentException(
+                    "Cells can not be joined on the bottom header row");
+        }
         if (cells.size() < 2) {
             throw new IllegalArgumentException("Cannot join less than 2 cells");
         }
@@ -148,29 +151,33 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                     "Cannot join cells that don't belong to this row");
         }
 
-        Stream<AbstractColumn<?>> columns = cells.stream().map(CELL::getColumn);
+        List<AbstractColumn<?>> columnsToJoin = cells.stream()
+                .map(CELL::getColumn).collect(Collectors.toList());
 
-        cells.stream().forEach(cell -> {
-            if (!Helpers.isOnOutmostRow(cell, grid)) {
-                throw new IllegalArgumentException(
-                        "Cannot join cells that are not on the out-most row");
-            }
-        });
+        int elementInsertIndex = columnsToJoin.stream()
+                .mapToInt(
+                        col -> grid.getElement().indexOfChild(col.getElement()))
+                .min().getAsInt();
+        columnsToJoin.forEach(col -> col.getElement().removeFromParent());
+
+        int cellInsertIndex = cells.stream().mapToInt(this.cells::indexOf).min()
+                .getAsInt();
 
         List<AbstractColumn<?>> childColumns = new ArrayList<>();
-        cells.stream().map(CELL::getColumn).forEach(column -> {
-            childColumns.addAll(((ColumnGroup) column).getChildColumns());
-        });
+        columnsToJoin.forEach(col -> childColumns
+                .addAll(((ColumnGroup) col).getChildColumns()));
 
         ColumnGroup group = new ColumnGroup(grid, childColumns);
-        layer.getGrid().getElement().appendChild(group.getElement());
-        // TODO insert to correct place
 
-        // TODO remove empty column groups
+        layer.getGrid().getElement().insertChild(elementInsertIndex,
+                group.getElement());
+        layer.addColumn(cellInsertIndex, group);
+
+        layer.getColumns().removeAll(columnsToJoin);
 
         this.cells.removeAll(Arrays.asList(cells));
         CELL cell = cellCtor.apply(group);
-        this.cells.add(cell);
+        this.cells.add(cellInsertIndex, cell);
         return cell;
     }
 
