@@ -1019,7 +1019,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (getHeaderRows().size() == 0) {
             return layers.get(0).asHeaderRow();
         }
-        return insertColumnLayer(0).asHeaderRow();
+        return insertInmostColumnLayer(true, false).asHeaderRow();
+    }
+
+    public FooterRow prependFooterRow() {
+        if (getFooterRows().size() == 0) {
+            return layers.get(0).asFooterRow();
+        }
+        return insertInmostColumnLayer(false, true).asFooterRow();
+    }
+
+    public FooterRow appendFooterRow() {
+        if (getFooterRows().size() == 0) {
+            return layers.get(0).asFooterRow();
+        }
+        return insertColumnLayer(1).asFooterRow();
     }
 
     protected List<ColumnLayer> getLayers() {
@@ -1039,11 +1053,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Creates a new layer containing same amount of column-groups as the next
      * inner layer, adds it to layers list and returns the layer.
+     * 
+     * @param index
+     *            index to insert to, must be > 0
      */
     private ColumnLayer insertColumnLayer(int index) {
-        if (index == 0) {
-            return insertInmostColumnLayer();
-        }
 
         ColumnLayer innerLayer = layers.get(index - 1);
         List<AbstractColumn<?>> groups = Helpers
@@ -1059,7 +1073,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Moves templates from columns to column-groups and update all the
      * references
      */
-    private ColumnLayer insertInmostColumnLayer() {
+    private ColumnLayer insertInmostColumnLayer(boolean forHeaderRow,
+            boolean forFooterRow) {
         ColumnLayer bottomLayer = layers.get(0);
         List<AbstractColumn<?>> columns = bottomLayer.getColumns();
 
@@ -1069,9 +1084,29 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         ColumnLayer newBottomLayer = new ColumnLayer(this, columns);
 
         IntStream.range(0, groups.size()).forEach(i -> {
-            groups.get(i).setFooterRenderer(columns.get(i).getFooterRenderer());
-            groups.get(i).setHeaderRenderer(columns.get(i).getHeaderRenderer());
+            if (forFooterRow) {
+                groups.get(i)
+                        .setFooterRenderer(columns.get(i).getFooterRenderer());
+                columns.get(i).setFooterRenderer(null);
+            }
+            if (forHeaderRow) {
+                groups.get(i)
+                        .setHeaderRenderer(columns.get(i).getHeaderRenderer());
+                columns.get(i).setHeaderRenderer(null);
+            }
         });
+
+        if (forFooterRow && bottomLayer.isHeaderRow()) {
+            // Keep headers in the inner-most layer
+            newBottomLayer.setHeaderRow(bottomLayer.asHeaderRow());
+            bottomLayer.setHeaderRow(null);
+        }
+        if (forHeaderRow && bottomLayer.isFooterRow()) {
+            // Keep footers in the inner-most layer
+            newBottomLayer.setFooterRow(bottomLayer.asFooterRow());
+            bottomLayer.setFooterRow(null);
+        }
+
         bottomLayer.setColumns(groups);
 
         layers.add(0, newBottomLayer);

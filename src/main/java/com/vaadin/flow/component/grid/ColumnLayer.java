@@ -75,6 +75,22 @@ class ColumnLayer {
         return footerRow;
     }
 
+    public void setHeaderRow(HeaderRow headerRow) {
+        this.headerRow = headerRow;
+        if (headerRow != null) {
+            headerRow.setLayer(this);
+            headerRow.setColumns(columns);
+        }
+    }
+
+    public void setFooterRow(FooterRow footerRow) {
+        this.footerRow = footerRow;
+        if (footerRow != null) {
+            footerRow.setLayer(this);
+            footerRow.setColumns(columns);
+        }
+    }
+
     public boolean isHeaderRow() {
         return headerRow != null;
     }

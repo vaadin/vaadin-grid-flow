@@ -78,6 +78,10 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 .collect(Collectors.toList());
     }
 
+    protected void setLayer(ColumnLayer layer) {
+        this.layer = layer;
+    }
+
     /**
      * Change the cells to wrap the given columns
      * 
@@ -139,7 +143,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
             throw new IllegalArgumentException(
                     "Cells can be joined only on the out-most row");
         }
-        if (grid.getLayers().size() == 1) {
+        if (grid.getLayers().indexOf(layer) == 0) {
             throw new IllegalArgumentException(
                     "Cells can not be joined on the bottom header row");
         }

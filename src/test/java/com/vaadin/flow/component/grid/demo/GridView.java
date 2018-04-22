@@ -331,6 +331,8 @@ public class GridView extends DemoView {
                 .setHeader("Name");
         Column<Person> ageCol = grid.addColumn(Person::getAge).setHeader("Age");
 
+        IntStream.range(0, 3).forEach(i -> grid.prependFooterRow());
+
         // HeaderRow row = grid.prependHeaderRow();
 
         // row.getCell(nameCol).setText("moi");
@@ -352,6 +354,14 @@ public class GridView extends DemoView {
             HeaderRow topRow = grid.getHeaderRows()
                     .get(grid.getHeaderRows().size() - 1);
             topRow.join(topRow.getCells().get(0), topRow.getCells().get(1));
+        }));
+
+        buttons.add(new NativeButton("prepend footer", event -> {
+            grid.prependFooterRow();
+        }));
+
+        buttons.add(new NativeButton("append footer", event -> {
+            grid.appendFooterRow();
         }));
 
         // end-source-example
