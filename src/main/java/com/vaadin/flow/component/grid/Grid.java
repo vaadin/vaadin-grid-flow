@@ -612,7 +612,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         @Override
         protected Rendering<?> setHeaderRenderer(Renderer<?> renderer) {
             Rendering<?> rendering = super.setHeaderRenderer(renderer);
-
+            if (rendering == null) {
+                return null;
+            }
             headerTemplate = rendering.getTemplateElement();
             rawHeaderTemplate = headerTemplate.getProperty("innerHTML");
             if (isSortable()) {
@@ -1054,7 +1056,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /*
-     * Moves templates from columns to column-groups
+     * Moves templates from columns to column-groups and update all the
+     * references
      */
     private ColumnLayer insertInmostColumnLayer() {
         ColumnLayer bottomLayer = layers.get(0);
@@ -1070,11 +1073,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             groups.get(i).setHeaderRenderer(columns.get(i).getHeaderRenderer());
         });
         bottomLayer.setColumns(groups);
-
-        columns.forEach(col -> {
-            col.setHeaderRenderer(null);
-            col.setFooterRenderer(null);
-        });
 
         layers.add(0, newBottomLayer);
 

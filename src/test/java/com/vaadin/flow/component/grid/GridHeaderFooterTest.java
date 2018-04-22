@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,13 +32,10 @@ import com.vaadin.flow.dom.Element;
 
 public class GridHeaderFooterTest {
 
-    // private static final String COLUMN_GROUP_TAG =
-    // "vaadin-grid-column-group";
-
-    private static final Predicate<Element> isColumn = element -> element
-            .getTag() == "vaadin-grid-column";
-    private static final Predicate<Element> isColumnGroup = element -> element
-            .getTag() == "vaadin-grid-column-group";
+    private static final Predicate<Element> isColumn = element -> "vaadin-grid-column"
+            .equals(element.getTag());
+    private static final Predicate<Element> isColumnGroup = element -> "vaadin-grid-column-group"
+            .equals(element.getTag());
 
     Grid<String> grid;
     Column<String> firstColumn;
@@ -75,6 +71,8 @@ public class GridHeaderFooterTest {
     @Test
     public void initGrid_noHeaderFooterTemplates() {
         List<List<Element>> layers = getColumnLayers();
+        Assert.assertTrue("Grid should one layer of columns",
+                layers.size() == 1);
         Assert.assertTrue(
                 "Grid columns should not have header or "
                         + "footer templates initially",
@@ -83,33 +81,66 @@ public class GridHeaderFooterTest {
                                 || getFooterTemplate(element).isPresent()));
     }
 
+    @Test
+    public void prependHeaderRow_headerLayerAdded() {
+        grid.prependHeaderRow();
+        List<List<Element>> layers = getColumnLayers();
+        Assert.assertTrue("Grid should one layer of columns",
+                layers.size() == 1);
+        Assert.assertTrue("Columns should have headers but no footers",
+                isHeaderRow(layers.get(0)) && !isFooterRow(layers.get(0)));
+    }
+
+    @Test
+    public void appendHeaderRow_headerLayerAdded() {
+        grid.appendHeaderRow();
+        List<List<Element>> layers = getColumnLayers();
+        Assert.assertTrue("Grid should one layer of columns",
+                layers.size() == 1);
+        Assert.assertTrue("Columns should have headers but no footers",
+                isHeaderRow(layers.get(0)) && !isFooterRow(layers.get(0)));
+    }
+
     private List<List<Element>> getColumnLayers() {
         List<List<Element>> layers = new ArrayList<List<Element>>();
-        Stream<Element> children = grid.getElement().getChildren();
-        while (children.anyMatch(isColumnGroup)) {
-            if (!children.allMatch(isColumnGroup)) {
+        List<Element> children = grid.getElement().getChildren()
+                .collect(Collectors.toList());
+        while (children.stream().anyMatch(isColumnGroup)) {
+            if (!children.stream().allMatch(isColumnGroup)) {
                 throw new IllegalStateException(
                         "All column-children on the same hierarchy level "
                                 + "should be either vaadin-grid-columns or "
                                 + "vaadin-grid-column-groups");
             }
-            layers.add(children.collect(Collectors.toList()));
-            children = children.flatMap(element -> element.getChildren());
+            layers.add(children);
+            children = children.stream()
+                    .flatMap(element -> element.getChildren())
+                    .collect(Collectors.toList());
         }
-        if (children.anyMatch(isColumn)) {
-            if (!children.allMatch(isColumn)) {
+        if (children.stream().anyMatch(isColumn)) {
+            if (!children.stream().allMatch(isColumn)) {
                 throw new IllegalStateException(
                         "All column-children on the same hierarchy level "
                                 + "should be either vaadin-grid-columns or "
                                 + "vaadin-grid-column-groups");
             }
-            layers.add(children.collect(Collectors.toList()));
+            layers.add(children);
         } else if (layers.size() > 0) {
             throw new IllegalStateException(
                     "If there are vaadin-grid-column-groups, there should "
                             + "also be vaadin-grid-columns inside them");
         }
         return layers;
+    }
+
+    private boolean isHeaderRow(List<Element> layer) {
+        return layer.stream()
+                .allMatch(element -> getHeaderTemplate(element).isPresent());
+    }
+
+    private boolean isFooterRow(List<Element> layer) {
+        return layer.stream()
+                .allMatch(element -> getFooterTemplate(element).isPresent());
     }
 
     private Optional<Element> getHeaderTemplate(Element element) {

@@ -89,6 +89,7 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         this.headerRenderer = renderer;
         if (headerTemplate != null) {
             getElement().removeChild(headerTemplate);
+            headerTemplate = null;
         }
         if (renderer == null) {
             return null;
@@ -103,6 +104,7 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         this.footerRenderer = renderer;
         if (footerTemplate != null) {
             getElement().removeChild(footerTemplate);
+            footerTemplate = null;
         }
         if (renderer == null) {
             return null;

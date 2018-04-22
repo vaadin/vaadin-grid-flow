@@ -326,8 +326,9 @@ public class GridView extends DemoView {
         // begin-source-example
         // source-example-heading: Grid Basics
 
-        Column<Person> nameCol = grid.addColumn(Person::getName);// .setHeader("Name");
-        Column<Person> ageCol = grid.addColumn(Person::getAge);// .setHeader("Age");
+        Column<Person> nameCol = grid.addColumn(Person::getName)
+                .setHeader("Name");
+        Column<Person> ageCol = grid.addColumn(Person::getAge).setHeader("Age");
 
         // HeaderRow row = grid.prependHeaderRow();
 
