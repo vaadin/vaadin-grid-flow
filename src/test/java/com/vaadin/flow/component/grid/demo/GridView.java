@@ -348,6 +348,10 @@ public class GridView extends DemoView {
         buttons.add(new NativeButton("add column", event -> {
             Column<Person> idCol = grid.addColumn(Person::getId)
                     .setHeader("id");
+            for (int i = 0; i < grid.getFooterRows().size(); i++) {
+                grid.getFooterRows().get(i).getCell(idCol).setText("" + i);
+            }
+
         }));
 
         buttons.add(new NativeButton("join", event -> {

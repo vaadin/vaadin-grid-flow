@@ -32,12 +32,12 @@ public class FooterRow extends AbstractRow<FooterCell> {
 
         @Override
         public void setText(String text) {
-            getColumn().renderHeader(text);
+            getColumn().renderFooter(text);
         }
 
         @Override
         public void setComponent(Component component) {
-            getColumn().renderHeader(component);
+            getColumn().renderFooter(component);
         }
 
     }

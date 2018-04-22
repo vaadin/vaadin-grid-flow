@@ -1033,7 +1033,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (getFooterRows().size() == 0) {
             return layers.get(0).asFooterRow();
         }
-        return insertColumnLayer(1).asFooterRow();
+        return insertColumnLayer(getLastFooterLayerIndex() + 1).asFooterRow();
     }
 
     protected List<ColumnLayer> getLayers() {
@@ -1120,6 +1120,18 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private int getLastHeaderLayerIndex() {
         for (int i = layers.size() - 1; i >= 0; i--) {
             if (layers.get(i).isHeaderRow()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Gets the last index of a column layer that is a footer layer
+     */
+    private int getLastFooterLayerIndex() {
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            if (layers.get(i).isFooterRow()) {
                 return i;
             }
         }
