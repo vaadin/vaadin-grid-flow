@@ -51,11 +51,11 @@ class ColumnLayer {
         this.columns.add(index, column);
         if (isHeaderRow()) {
             column.renderHeader("");
-            headerRow.addCell(column);
+            headerRow.addCell(index, column);
         }
         if (isFooterRow()) {
             column.renderFooter("");
-            footerRow.addCell(column);
+            footerRow.addCell(index, column);
         }
     }
 

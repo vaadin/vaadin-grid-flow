@@ -100,6 +100,10 @@ abstract class AbstractRow<CELL extends AbstractCell> {
         cells.add(cellCtor.apply(column));
     }
 
+    protected void addCell(int index, AbstractColumn<?> column) {
+        cells.add(index, cellCtor.apply(column));
+    }
+
     public List<CELL> getCells() {
         return cells;
     }
@@ -179,10 +183,9 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
         layer.getColumns().removeAll(columnsToJoin);
 
-        this.cells.removeAll(Arrays.asList(cells));
-        CELL cell = cellCtor.apply(group);
-        this.cells.add(cellInsertIndex, cell);
-        return cell;
+        this.cells.removeAll(cells);
+
+        return this.cells.get(cellInsertIndex);
     }
 
     private boolean isOutMostRow() {
