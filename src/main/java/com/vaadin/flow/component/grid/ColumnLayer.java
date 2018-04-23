@@ -50,11 +50,11 @@ class ColumnLayer {
     public void addColumn(int index, AbstractColumn<?> column) {
         this.columns.add(index, column);
         if (isHeaderRow()) {
-            column.renderHeader("");
+            column.setHeaderText("");
             headerRow.addCell(index, column);
         }
         if (isFooterRow()) {
-            column.renderFooter("");
+            column.setFooterText("");
             footerRow.addCell(index, column);
         }
     }
@@ -62,7 +62,7 @@ class ColumnLayer {
     public HeaderRow asHeaderRow() {
         if (headerRow == null) {
             headerRow = new HeaderRow(this);
-            columns.forEach(col -> col.renderHeader(""));
+            columns.forEach(col -> col.setHeaderText(""));
         }
         return headerRow;
     }
@@ -70,7 +70,7 @@ class ColumnLayer {
     public FooterRow asFooterRow() {
         if (footerRow == null) {
             footerRow = new FooterRow(this);
-            columns.forEach(col -> col.renderFooter(""));
+            columns.forEach(col -> col.setFooterText(""));
         }
         return footerRow;
     }

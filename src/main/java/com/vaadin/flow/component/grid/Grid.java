@@ -610,8 +610,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         @Override
-        protected Rendering<?> setHeaderRenderer(Renderer<?> renderer) {
-            Rendering<?> rendering = super.setHeaderRenderer(renderer);
+        protected Rendering<?> renderHeader(Renderer<?> renderer) {
+            Rendering<?> rendering = super.renderHeader(renderer);
             if (rendering == null) {
                 return null;
             }
@@ -1086,13 +1086,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         IntStream.range(0, groups.size()).forEach(i -> {
             if (forFooterRow) {
                 groups.get(i)
-                        .setFooterRenderer(columns.get(i).getFooterRenderer());
-                columns.get(i).setFooterRenderer(null);
+                        .renderFooter(columns.get(i).getFooterRenderer());
+                columns.get(i).renderFooter(null);
             }
             if (forHeaderRow) {
                 groups.get(i)
-                        .setHeaderRenderer(columns.get(i).getHeaderRenderer());
-                columns.get(i).setHeaderRenderer(null);
+                        .renderHeader(columns.get(i).getHeaderRenderer());
+                columns.get(i).renderHeader(null);
             }
         });
 

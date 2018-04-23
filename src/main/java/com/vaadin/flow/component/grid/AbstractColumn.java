@@ -85,7 +85,7 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         return !getElement().getProperty("hidden", false);
     }
 
-    protected Rendering<?> setHeaderRenderer(Renderer<?> renderer) {
+    protected Rendering<?> renderHeader(Renderer<?> renderer) {
         this.headerRenderer = renderer;
         if (headerTemplate != null) {
             getElement().removeChild(headerTemplate);
@@ -100,7 +100,7 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         return rendering;
     }
 
-    protected Rendering<?> setFooterRenderer(Renderer<?> renderer) {
+    protected Rendering<?> renderFooter(Renderer<?> renderer) {
         this.footerRenderer = renderer;
         if (footerTemplate != null) {
             getElement().removeChild(footerTemplate);
@@ -115,20 +115,20 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         return rendering;
     }
 
-    protected void renderHeader(String text) {
-        setHeaderRenderer(TemplateRenderer.of(HtmlUtils.escape(text)));
+    protected void setHeaderText(String text) {
+        renderHeader(TemplateRenderer.of(HtmlUtils.escape(text)));
     }
 
-    protected void renderFooter(String text) {
-        setFooterRenderer(TemplateRenderer.of(HtmlUtils.escape(text)));
+    protected void setFooterText(String text) {
+        renderFooter(TemplateRenderer.of(HtmlUtils.escape(text)));
     }
 
-    protected void renderHeader(Component component) {
-        setHeaderRenderer(new ComponentRenderer<>(() -> component));
+    protected void setHeaderComponent(Component component) {
+        renderHeader(new ComponentRenderer<>(() -> component));
     }
 
-    protected void renderFooter(Component component) {
-        setFooterRenderer(new ComponentRenderer<>(() -> component));
+    protected void setFooterComponent(Component component) {
+        renderFooter(new ComponentRenderer<>(() -> component));
     }
 
     protected Renderer<?> getHeaderRenderer() {

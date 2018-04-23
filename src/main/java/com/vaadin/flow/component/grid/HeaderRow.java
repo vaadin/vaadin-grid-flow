@@ -32,12 +32,12 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
 
         @Override
         public void setText(String text) {
-            getColumn().renderHeader(text);
+            getColumn().setHeaderText(text);
         }
 
         @Override
         public void setComponent(Component component) {
-            getColumn().renderHeader(component);
+            getColumn().setHeaderComponent(component);
         }
 
     }
