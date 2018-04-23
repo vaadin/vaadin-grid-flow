@@ -20,10 +20,17 @@ import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
 import com.vaadin.flow.component.grid.FooterRow.FooterCell;
 
 /**
+ * One row of {@link FooterCell}s in a Grid.
+ * 
  * @author Vaadin Ltd.
  */
 public class FooterRow extends AbstractRow<FooterCell> {
 
+    /**
+     * A footer cell in a Grid.
+     * 
+     * @author Vaadin Ltd.
+     */
     public static class FooterCell extends AbstractCell {
 
         FooterCell(AbstractColumn<?> column) {
@@ -42,7 +49,12 @@ public class FooterRow extends AbstractRow<FooterCell> {
 
     }
 
-    public FooterRow(ColumnLayer layer) {
+    /**
+     * Creates a new footer row from the layer of column elements.
+     * 
+     * @param layer
+     */
+    FooterRow(ColumnLayer layer) {
         super(layer, FooterCell::new);
     }
 }

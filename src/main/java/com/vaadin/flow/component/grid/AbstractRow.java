@@ -60,8 +60,25 @@ abstract class AbstractRow<CELL extends AbstractCell> {
             return columnComponent;
         }
 
+        /**
+         * Sets the text content of this cell.
+         * <p>
+         * This will remove a component set with
+         * {@link #setComponent(Component)}.
+         * 
+         * @param text
+         *            the text to be shown in this cell
+         */
         public abstract void setText(String text);
 
+        /**
+         * Sets the component as the content of this cell.
+         * <p>
+         * This will remove text set with {@link #setText(String)}.
+         * 
+         * @param component
+         *            the component to set
+         */
         public abstract void setComponent(Component component);
 
     }
@@ -126,6 +143,17 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 });
     }
 
+    /**
+     * Replaces the given cells with a new cell that takes the full space of the
+     * joined cells.
+     * <p>
+     * The cells to join must be adjacent cells in this row, and this row must
+     * be the out-most row.
+     * 
+     * @param cells
+     *            the cells to join
+     * @return the joined cell
+     */
     public CELL join(CELL... cells) {
         return join(Arrays.asList(cells));
     }

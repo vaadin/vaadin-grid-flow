@@ -16,16 +16,28 @@
 package com.vaadin.flow.component.grid;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
+import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 
 /**
+ * One row of {@link HeaderCell}s in a Grid.
+ * 
  * @author Vaadin Ltd.
  */
 public class HeaderRow extends AbstractRow<HeaderCell> {
 
+    /**
+     * A header cell in a Grid.
+     * 
+     * @author Vaadin Ltd.
+     */
     public static class HeaderCell extends AbstractCell {
 
+        /**
+         * Creates a new HeaderCell which wraps the given column element.
+         * 
+         * @param column
+         */
         HeaderCell(AbstractColumn<?> column) {
             super(column);
         }
@@ -42,7 +54,12 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
 
     }
 
-    public HeaderRow(ColumnLayer layer) {
+    /**
+     * Creates a new header row from the layer of column elements.
+     * 
+     * @param layer
+     */
+    HeaderRow(ColumnLayer layer) {
         super(layer, HeaderCell::new);
     }
 
