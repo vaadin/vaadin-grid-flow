@@ -97,9 +97,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
     /**
      * Change this row to wrap the given layer
-     * 
-     * @param layer
-     *            the layer to wrap
+     * @param layer the layer to wrap
      */
     protected void setLayer(ColumnLayer layer) {
         this.layer = layer;
@@ -207,7 +205,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
             throw new IllegalArgumentException(
                     "Cells can be joined only on the out-most row");
         }
-        if (grid.getLayers().indexOf(layer) == 0) {
+        if (grid.getColumnLayers().indexOf(layer) == 0) {
             throw new IllegalArgumentException(
                     "Cells can not be joined on the bottom header row");
         }
@@ -223,9 +221,9 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 .compare(this.cells.indexOf(c1), this.cells.indexOf(c2)))
                 .collect(Collectors.toList());
 
-        int firstCellIndex = this.cells.indexOf(sortedCells.get(0));
+        int cellInsertIndex = this.cells.indexOf(sortedCells.get(0));
         IntStream.range(0, sortedCells.size()).forEach(i -> {
-            if (this.cells.indexOf(sortedCells.get(i)) != firstCellIndex + i) {
+            if (this.cells.indexOf(sortedCells.get(i)) != cellInsertIndex + i) {
                 throw new IllegalArgumentException(
                         "Cannot join cells that are not adjacent");
             }
@@ -248,17 +246,17 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
         layer.getGrid().getElement().insertChild(elementInsertIndex,
                 group.getElement());
-        layer.addColumn(firstCellIndex, group);
+        layer.addColumn(cellInsertIndex, group);
 
         layer.getColumns().removeAll(columnsToJoin);
 
         this.cells.removeAll(cells);
 
-        return this.cells.get(firstCellIndex);
+        return this.cells.get(cellInsertIndex);
     }
 
     private boolean isOutMostRow() {
-        List<ColumnLayer> layers = layer.getGrid().getLayers();
+        List<ColumnLayer> layers = layer.getGrid().getColumnLayers();
         for (int i = layers.size() - 1; i >= 0; i--) {
             ColumnLayer layer = layers.get(i);
             if (this instanceof HeaderRow && layer.isHeaderRow()) {

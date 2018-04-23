@@ -557,7 +557,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @return this column, for method chaining
          */
         public Column<T> setHeader(String labelText) {
-            getGrid().getLayers().get(0).asHeaderRow().getCell(this)
+            getGrid().getColumnLayers().get(0).asHeaderRow().getCell(this)
                     .setText(labelText);
             return this;
         }
@@ -575,7 +575,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @return this column, for method chaining
          */
         public Column<T> setFooter(String labelText) {
-            getGrid().getLayers().get(0).asFooterRow().getCell(this)
+            getGrid().getColumnLayers().get(0).asFooterRow().getCell(this)
                     .setText(labelText);
             return this;
         }
@@ -593,7 +593,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @return this column, for method chaining
          */
         public Column<T> setHeader(Component headerComponent) {
-            getGrid().getLayers().get(0).asHeaderRow().getCell(this)
+            getGrid().getColumnLayers().get(0).asHeaderRow().getCell(this)
                     .setComponent(headerComponent);
             return this;
         }
@@ -611,7 +611,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @return this column, for method chaining
          */
         public Column<T> setFooter(Component footerComponent) {
-            getGrid().getLayers().get(0).asFooterRow().getCell(this)
+            getGrid().getColumnLayers().get(0).asFooterRow().getCell(this)
                     .setComponent(footerComponent);
             return this;
         }
@@ -884,10 +884,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
-        layers.add(new ColumnLayer(this));
+        columnLayers.add(new ColumnLayer(this));
     }
 
-    private List<ColumnLayer> layers = new ArrayList<>();
+    private List<ColumnLayer> columnLayers = new ArrayList<>();
 
     private void initConnector() {
         getUI().orElseThrow(() -> new IllegalStateException(
@@ -1015,11 +1015,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         idToColumnMap.put(columnId, column);
 
         AbstractColumn<?> current = column;
-        layers.get(0).addColumn(column);
+        columnLayers.get(0).addColumn(column);
 
-        for (int i = 1; i < layers.size(); i++) {
+        for (int i = 1; i < columnLayers.size(); i++) {
             ColumnGroup group = new ColumnGroup(this, current);
-            layers.get(i).addColumn(group);
+            columnLayers.get(i).addColumn(group);
             current = group;
         }
         getElement().appendChild(current.getElement());
@@ -1036,9 +1036,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public HeaderRow prependHeaderRow() {
         if (getHeaderRows().size() == 0) {
-            return layers.get(0).asHeaderRow();
+            return columnLayers.get(0).asHeaderRow();
         }
-        return insertColumnLayer(layers.size()).asHeaderRow();
+        return insertColumnLayer(columnLayers.size()).asHeaderRow();
     }
 
     /**
@@ -1050,7 +1050,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public HeaderRow appendHeaderRow() {
         if (getHeaderRows().size() == 0) {
-            return layers.get(0).asHeaderRow();
+            return columnLayers.get(0).asHeaderRow();
         }
         return insertInmostColumnLayer(true, false).asHeaderRow();
     }
@@ -1064,7 +1064,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public FooterRow prependFooterRow() {
         if (getFooterRows().size() == 0) {
-            return layers.get(0).asFooterRow();
+            return columnLayers.get(0).asFooterRow();
         }
         return insertInmostColumnLayer(false, true).asFooterRow();
     }
@@ -1078,13 +1078,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public FooterRow appendFooterRow() {
         if (getFooterRows().size() == 0) {
-            return layers.get(0).asFooterRow();
+            return columnLayers.get(0).asFooterRow();
         }
         return insertColumnLayer(getLastFooterLayerIndex() + 1).asFooterRow();
     }
 
-    protected List<ColumnLayer> getLayers() {
-        return layers;
+    protected List<ColumnLayer> getColumnLayers() {
+        return columnLayers;
     }
 
     /**
@@ -1093,7 +1093,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the header rows of the Grid
      */
     public List<HeaderRow> getHeaderRows() {
-        return layers.stream().filter(ColumnLayer::isHeaderRow)
+        return columnLayers.stream().filter(ColumnLayer::isHeaderRow)
                 .map(ColumnLayer::asHeaderRow).collect(Collectors.toList());
     }
 
@@ -1103,7 +1103,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the footer rows of the Grid
      */
     public List<FooterRow> getFooterRows() {
-        return layers.stream().filter(ColumnLayer::isFooterRow)
+        return columnLayers.stream().filter(ColumnLayer::isFooterRow)
                 .map(ColumnLayer::asFooterRow).collect(Collectors.toList());
     }
 
@@ -1116,19 +1116,19 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     private ColumnLayer insertColumnLayer(int index) {
 
-        ColumnLayer innerLayer = layers.get(index - 1);
+        ColumnLayer innerLayer = columnLayers.get(index - 1);
         List<AbstractColumn<?>> groups = ColumnGroupHelpers
                 .wrapInSeparateColumnGroups(innerLayer.getColumns(), this);
 
         ColumnLayer layer = new ColumnLayer(this, groups);
-        layers.add(index, layer);
+        columnLayers.add(index, layer);
 
         return layer;
     }
 
     private ColumnLayer insertInmostColumnLayer(boolean forHeaderRow,
             boolean forFooterRow) {
-        ColumnLayer bottomLayer = layers.get(0);
+        ColumnLayer bottomLayer = columnLayers.get(0);
         List<AbstractColumn<?>> columns = bottomLayer.getColumns();
 
         List<AbstractColumn<?>> groups = ColumnGroupHelpers
@@ -1161,7 +1161,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         bottomLayer.setColumns(groups);
 
-        layers.add(0, newBottomLayer);
+        columnLayers.add(0, newBottomLayer);
 
         return newBottomLayer;
     }
@@ -1170,8 +1170,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Gets the last index of a column layer that is a header layer
      */
     private int getLastHeaderLayerIndex() {
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            if (layers.get(i).isHeaderRow()) {
+        for (int i = columnLayers.size() - 1; i >= 0; i--) {
+            if (columnLayers.get(i).isHeaderRow()) {
                 return i;
             }
         }
@@ -1182,8 +1182,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Gets the last index of a column layer that is a footer layer
      */
     private int getLastFooterLayerIndex() {
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            if (layers.get(i).isFooterRow()) {
+        for (int i = columnLayers.size() - 1; i >= 0; i--) {
+            if (columnLayers.get(i).isFooterRow()) {
                 return i;
             }
         }

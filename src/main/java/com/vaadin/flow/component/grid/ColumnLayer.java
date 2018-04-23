@@ -22,6 +22,10 @@ import java.util.List;
  * Represents a group of {@code <vaadin-grid-column>} or
  * {@code <vaadin-grid-column-group>} components that are on the same hierarchy
  * level. It can be used for a header row or a footer row or both.
+ * <p>
+ * The bottom-most layer contains {@code <vaadin-grid-column>} elements, the
+ * second layer their parent {@code <vaadin-grid-column-group>} elements and so
+ * on.
  * 
  * @author Vaadin Ltd.
  */
@@ -33,21 +37,21 @@ class ColumnLayer {
     private HeaderRow headerRow;
     private FooterRow footerRow;
 
-    public ColumnLayer(Grid<?> grid) {
+    ColumnLayer(Grid<?> grid) {
         this.grid = grid;
         this.columns = new ArrayList<>();
     }
 
-    public ColumnLayer(Grid<?> grid, List<AbstractColumn<?>> columns) {
+    ColumnLayer(Grid<?> grid, List<AbstractColumn<?>> columns) {
         this.grid = grid;
         this.columns = columns;
     }
 
-    public void addColumn(AbstractColumn<?> column) {
+    protected void addColumn(AbstractColumn<?> column) {
         addColumn(this.columns.size(), column);
     }
 
-    public void addColumn(int index, AbstractColumn<?> column) {
+    protected void addColumn(int index, AbstractColumn<?> column) {
         this.columns.add(index, column);
         if (isHeaderRow()) {
             column.setHeaderText("");
@@ -59,7 +63,7 @@ class ColumnLayer {
         }
     }
 
-    public HeaderRow asHeaderRow() {
+    protected HeaderRow asHeaderRow() {
         if (headerRow == null) {
             headerRow = new HeaderRow(this);
             columns.forEach(col -> col.setHeaderText(""));
@@ -67,7 +71,7 @@ class ColumnLayer {
         return headerRow;
     }
 
-    public FooterRow asFooterRow() {
+    protected FooterRow asFooterRow() {
         if (footerRow == null) {
             footerRow = new FooterRow(this);
             columns.forEach(col -> col.setFooterText(""));
@@ -75,33 +79,33 @@ class ColumnLayer {
         return footerRow;
     }
 
-    public void setHeaderRow(HeaderRow headerRow) {
+    protected void setHeaderRow(HeaderRow headerRow) {
         this.headerRow = headerRow;
         if (headerRow != null) {
             headerRow.setLayer(this);
         }
     }
 
-    public void setFooterRow(FooterRow footerRow) {
+    protected void setFooterRow(FooterRow footerRow) {
         this.footerRow = footerRow;
         if (footerRow != null) {
             footerRow.setLayer(this);
         }
     }
 
-    public boolean isHeaderRow() {
+    protected boolean isHeaderRow() {
         return headerRow != null;
     }
 
-    public boolean isFooterRow() {
+    protected boolean isFooterRow() {
         return footerRow != null;
     }
 
-    public Grid<?> getGrid() {
+    protected Grid<?> getGrid() {
         return grid;
     }
 
-    public void setColumns(List<AbstractColumn<?>> columns) {
+    protected void setColumns(List<AbstractColumn<?>> columns) {
         this.columns = columns;
         if (headerRow != null) {
             headerRow.setColumns(columns);
@@ -111,7 +115,7 @@ class ColumnLayer {
         }
     }
 
-    public List<AbstractColumn<?>> getColumns() {
+    protected List<AbstractColumn<?>> getColumns() {
         return columns;
     }
 
