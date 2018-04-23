@@ -121,10 +121,22 @@ abstract class AbstractRow<CELL extends AbstractCell> {
         cells.add(index, cellCtor.apply(column));
     }
 
+    /**
+     * Gets the cells that belong to this row.
+     * 
+     * @return the cells on this row
+     */
     public List<CELL> getCells() {
         return cells;
     }
 
+    /**
+     * Gets the cell on this row that is on the given column.
+     * 
+     * @param column
+     *            the column to find cell for
+     * @return the corresponding cell
+     */
     public CELL getCell(Column<?> column) {
         return getCellFor(column);
     }
@@ -144,6 +156,19 @@ abstract class AbstractRow<CELL extends AbstractCell> {
     }
 
     /**
+     * Joins the cells corresponding the given columns in the row.
+     * 
+     * @param columnsToMerge
+     *            the columns of the cells that should be merged
+     * @return the merged cell
+     * @see #join(Collection)
+     */
+    public CELL join(Column<?>... columnsToMerge) {
+        return join(Arrays.stream(columnsToMerge).map(this::getCell)
+                .collect(Collectors.toList()));
+    }
+
+    /**
      * Replaces the given cells with a new cell that takes the full space of the
      * joined cells.
      * <p>
@@ -152,7 +177,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
      * 
      * @param cells
      *            the cells to join
-     * @return the joined cell
+     * @return the merged cell
      */
     public CELL join(CELL... cells) {
         return join(Arrays.asList(cells));
@@ -167,7 +192,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
      * 
      * @param cells
      *            the cells to join
-     * @return the joined cell
+     * @return the merged cell
      */
     public CELL join(Collection<CELL> cells) {
         Grid<?> grid = layer.getGrid();
