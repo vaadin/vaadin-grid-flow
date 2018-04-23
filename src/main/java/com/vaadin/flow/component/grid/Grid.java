@@ -1035,18 +1035,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the created header row
      */
     public HeaderRow prependHeaderRow() {
-        // int layerInsertIndex = getLastHeaderLayerIndex() + 1;
-        //
-        // if (layerInsertIndex > 0 && layers.size() >= layerInsertIndex + 1) {
-        // ColumnLayer layer = layers.get(layerInsertIndex);
-        // ColumnLayer lowerLayer = layers.get(layerInsertIndex - 1);
-        // if (layer.getColumns().size() == lowerLayer.getColumns().size()) {
-        // // We can add header-templates to the existing layer of
-        // // column-groups that has the same structure as the previously
-        // // top-most header-layer.
-        // return layer.asHeaderRow();
-        // }
-        // }
         if (getHeaderRows().size() == 0) {
             return layers.get(0).asHeaderRow();
         }
@@ -1138,10 +1126,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return layer;
     }
 
-    /*
-     * Moves templates from columns to column-groups and update all the
-     * references
-     */
     private ColumnLayer insertInmostColumnLayer(boolean forHeaderRow,
             boolean forFooterRow) {
         ColumnLayer bottomLayer = layers.get(0);
@@ -1153,6 +1137,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         ColumnLayer newBottomLayer = new ColumnLayer(this, columns);
 
         IntStream.range(0, groups.size()).forEach(i -> {
+            // Move templates from columns to column-groups
             if (forFooterRow) {
                 groups.get(i).renderFooter(columns.get(i).getFooterRenderer());
                 columns.get(i).renderFooter(null);
