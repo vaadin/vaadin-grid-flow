@@ -39,6 +39,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
@@ -321,6 +322,7 @@ public class GridView extends DemoView {
         createBasicRenderers();
         createColumnTemplate();
         createColumnComponentRenderer();
+        createHeaderFooter();
         createItemDetails();
         createItemDetailsOpenedProgrammatically();
         createSorting();
@@ -567,6 +569,40 @@ public class GridView extends DemoView {
         addCard("Using components",
                 "Grid with columns using component renderer", grid, idField,
                 nameField, updateButton);
+    }
+
+    private void createHeaderFooter() {
+        // begin-source-example
+        // source-example-heading: Adding header and footer rows
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(createItems());
+
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setHeader("Name").setComparator((p1, p2) -> p1.getName()
+                        .compareToIgnoreCase(p2.getName()));
+        Column<Person> ageColumn = grid.addColumn(Person::getAge, "age")
+                .setHeader("Age");
+        Column<Person> streetColumn = grid
+                .addColumn(person -> person.getAddress().getStreet())
+                .setHeader("Street");
+        Column<Person> postalCodeColumn = grid
+                .addColumn(person -> person.getAddress().getPostalCode())
+                .setHeader("Postal Code");
+
+        HeaderRow topRow = grid.prependHeaderRow();
+
+        HeaderCell informationCell = topRow.join(nameColumn, ageColumn);
+        informationCell.setText("Basic Information");
+
+        HeaderCell addressCell = topRow.join(streetColumn, postalCodeColumn);
+        addressCell.setText("Address Information");
+
+        grid.appendFooterRow().getCell(nameColumn)
+                .setText("Total: " + getItems().size() + " people");
+        // end-source-example
+        addCard("Header and footer rows", "Adding header and footer rows",
+                grid);
+
     }
 
     private void createColumnApiExample() {
