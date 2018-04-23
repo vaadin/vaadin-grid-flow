@@ -19,16 +19,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
-import com.vaadin.flow.component.grid.FooterRow.FooterCell;
-import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.dom.Element;
 
 /**
  * @author Vaadin Ltd
  *
  */
-class Helpers {
+class ColumnGroupHelpers {
 
     public static List<AbstractColumn<?>> wrapInSeparateColumnGroups(
             Collection<AbstractColumn<?>> cols, Grid<?> grid) {
@@ -61,18 +58,6 @@ class Helpers {
         parent.insertChild(index, group.getElement());
 
         return group;
-    }
-
-    public static boolean isOnOutmostRow(AbstractCell cell, Grid<?> grid) {
-        for (int i = grid.getLayers().size() - 1; i >= 0; i--) {
-            ColumnLayer layer = grid.getLayers().get(i);
-            if (cell instanceof HeaderCell && layer.isHeaderRow()) {
-                return layer.asHeaderRow().getCells().contains(cell);
-            } else if (cell instanceof FooterCell && layer.isFooterRow()) {
-                return layer.asFooterRow().getCells().contains(cell);
-            }
-        }
-        return false;
     }
 
 }

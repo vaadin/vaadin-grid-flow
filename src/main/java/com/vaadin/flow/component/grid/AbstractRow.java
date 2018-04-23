@@ -95,8 +95,15 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Change this row to wrap the given layer
+     * 
+     * @param layer
+     *            the layer to wrap
+     */
     protected void setLayer(ColumnLayer layer) {
         this.layer = layer;
+        setColumns(layer.getColumns());
     }
 
     /**
@@ -216,9 +223,9 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 .compare(this.cells.indexOf(c1), this.cells.indexOf(c2)))
                 .collect(Collectors.toList());
 
-        int cellInsertIndex = this.cells.indexOf(sortedCells.get(0));
+        int firstCellIndex = this.cells.indexOf(sortedCells.get(0));
         IntStream.range(0, sortedCells.size()).forEach(i -> {
-            if (this.cells.indexOf(sortedCells.get(i)) != cellInsertIndex + i) {
+            if (this.cells.indexOf(sortedCells.get(i)) != firstCellIndex + i) {
                 throw new IllegalArgumentException(
                         "Cannot join cells that are not adjacent");
             }
@@ -241,13 +248,13 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
         layer.getGrid().getElement().insertChild(elementInsertIndex,
                 group.getElement());
-        layer.addColumn(cellInsertIndex, group);
+        layer.addColumn(firstCellIndex, group);
 
         layer.getColumns().removeAll(columnsToJoin);
 
         this.cells.removeAll(cells);
 
-        return this.cells.get(cellInsertIndex);
+        return this.cells.get(firstCellIndex);
     }
 
     private boolean isOutMostRow() {

@@ -33,7 +33,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.dom.Element;
 
-public class GridHeaderFooterTest {
+public class HeaderFooterTest {
 
     private static final Predicate<Element> isColumn = element -> "vaadin-grid-column"
             .equals(element.getTag());

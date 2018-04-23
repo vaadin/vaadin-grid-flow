@@ -79,7 +79,6 @@ class ColumnLayer {
         this.headerRow = headerRow;
         if (headerRow != null) {
             headerRow.setLayer(this);
-            headerRow.setColumns(columns);
         }
     }
 
@@ -87,7 +86,6 @@ class ColumnLayer {
         this.footerRow = footerRow;
         if (footerRow != null) {
             footerRow.setLayer(this);
-            footerRow.setColumns(columns);
         }
     }
 

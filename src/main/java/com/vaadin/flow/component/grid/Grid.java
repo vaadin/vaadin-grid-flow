@@ -1117,7 +1117,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private ColumnLayer insertColumnLayer(int index) {
 
         ColumnLayer innerLayer = layers.get(index - 1);
-        List<AbstractColumn<?>> groups = Helpers
+        List<AbstractColumn<?>> groups = ColumnGroupHelpers
                 .wrapInSeparateColumnGroups(innerLayer.getColumns(), this);
 
         ColumnLayer layer = new ColumnLayer(this, groups);
@@ -1131,7 +1131,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         ColumnLayer bottomLayer = layers.get(0);
         List<AbstractColumn<?>> columns = bottomLayer.getColumns();
 
-        List<AbstractColumn<?>> groups = Helpers
+        List<AbstractColumn<?>> groups = ColumnGroupHelpers
                 .wrapInSeparateColumnGroups(columns, this);
 
         ColumnLayer newBottomLayer = new ColumnLayer(this, columns);
