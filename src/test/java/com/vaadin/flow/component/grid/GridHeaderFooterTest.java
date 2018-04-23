@@ -18,7 +18,9 @@ package com.vaadin.flow.component.grid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,8 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.dom.Element;
 
 public class GridHeaderFooterTest {
@@ -35,6 +38,8 @@ public class GridHeaderFooterTest {
     private static final Predicate<Element> isColumn = element -> "vaadin-grid-column"
             .equals(element.getTag());
     private static final Predicate<Element> isColumnGroup = element -> "vaadin-grid-column-group"
+            .equals(element.getTag());
+    private static final Predicate<Element> isTemplate = element -> "template"
             .equals(element.getTag());
 
     Grid<String> grid;
@@ -48,6 +53,10 @@ public class GridHeaderFooterTest {
     @Before
     public void init() {
         grid = new Grid<>();
+        addColumns();
+    }
+
+    private void addColumns() {
         firstColumn = grid.addColumn(str -> str);
         secondColumn = grid.addColumn(str -> str);
         thirdColumn = grid.addColumn(str -> str);
@@ -70,9 +79,7 @@ public class GridHeaderFooterTest {
 
     @Test
     public void initGrid_noHeaderFooterTemplates() {
-        List<List<Element>> layers = getColumnLayers();
-        Assert.assertTrue("Grid should one layer of columns",
-                layers.size() == 1);
+        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
         Assert.assertTrue(
                 "Grid columns should not have header or "
                         + "footer templates initially",
@@ -84,9 +91,7 @@ public class GridHeaderFooterTest {
     @Test
     public void prependHeaderRow_headerLayerAdded() {
         grid.prependHeaderRow();
-        List<List<Element>> layers = getColumnLayers();
-        Assert.assertTrue("Grid should one layer of columns",
-                layers.size() == 1);
+        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
         Assert.assertTrue("Columns should have headers but no footers",
                 isHeaderRow(layers.get(0)) && !isFooterRow(layers.get(0)));
     }
@@ -94,23 +99,231 @@ public class GridHeaderFooterTest {
     @Test
     public void appendHeaderRow_headerLayerAdded() {
         grid.appendHeaderRow();
-        List<List<Element>> layers = getColumnLayers();
-        Assert.assertTrue("Grid should one layer of columns",
-                layers.size() == 1);
+        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
         Assert.assertTrue("Columns should have headers but no footers",
                 isHeaderRow(layers.get(0)) && !isFooterRow(layers.get(0)));
     }
 
+    @Test
+    public void addHeaderAndFooterRow_oneLayerWithBothTemplatesAdded() {
+        grid.appendHeaderRow();
+        grid.appendFooterRow();
+        assertOneLayerWithHeaderAndFooter();
+
+        init();
+        grid.prependHeaderRow();
+        grid.prependFooterRow();
+        assertOneLayerWithHeaderAndFooter();
+    }
+
+    private void assertOneLayerWithHeaderAndFooter() {
+        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
+        Assert.assertTrue("Columns should have headers but no footers",
+                isHeaderRow(layers.get(0)) && isFooterRow(layers.get(0)));
+    }
+
+    @Test
+    public void appendHeaderRows_firstOnTop() {
+        HeaderRow first = grid.appendHeaderRow();
+        HeaderRow second = grid.appendHeaderRow();
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(2);
+        assertRowWrapsLayer(first, layers.get(1));
+        assertRowWrapsLayer(second, layers.get(0));
+    }
+
+    @Test
+    public void prependHeaderRows_firstOnBottom() {
+        HeaderRow first = grid.prependHeaderRow();
+        HeaderRow second = grid.prependHeaderRow();
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(2);
+        assertRowWrapsLayer(first, layers.get(0));
+        assertRowWrapsLayer(second, layers.get(1));
+    }
+
+    @Test
+    public void appendFooterRows_firstOnTop() {
+        FooterRow first = grid.appendFooterRow();
+        FooterRow second = grid.appendFooterRow();
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(2);
+        assertRowWrapsLayer(first, layers.get(0));
+        assertRowWrapsLayer(second, layers.get(1));
+    }
+
+    @Test
+    public void prependFooterRows_firstOnBottom() {
+        FooterRow first = grid.prependFooterRow();
+        FooterRow second = grid.prependFooterRow();
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(2);
+        assertRowWrapsLayer(first, layers.get(1));
+        assertRowWrapsLayer(second, layers.get(0));
+    }
+
+    @Test
+    public void addHeaderRows_addFooterRows_footersOnLowerLayer() {
+        HeaderRow h1 = grid.prependHeaderRow();
+        HeaderRow h2 = grid.prependHeaderRow();
+
+        FooterRow f1 = grid.appendFooterRow();
+        FooterRow f2 = grid.appendFooterRow();
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(3);
+
+        // bottom layer is used by both headers and footers
+        assertRowWrapsLayer(h1, layers.get(0));
+        assertRowWrapsLayer(f1, layers.get(0));
+
+        assertRowWrapsLayer(f2, layers.get(1));
+        assertRowWrapsLayer(h2, layers.get(2));
+    }
+
+    @Test
+    public void addFooterRows_addHeaderRows_footersOnLowerLayer() {
+        FooterRow f1 = grid.appendFooterRow();
+        FooterRow f2 = grid.appendFooterRow();
+
+        HeaderRow h1 = grid.prependHeaderRow();
+        HeaderRow h2 = grid.prependHeaderRow();
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(3);
+
+        // bottom layer is used by both headers and footers
+        assertRowWrapsLayer(h1, layers.get(0));
+        assertRowWrapsLayer(f1, layers.get(0));
+
+        assertRowWrapsLayer(f2, layers.get(1));
+        assertRowWrapsLayer(h2, layers.get(2));
+    }
+
+    @Test
+    public void addHeaderAndFooterRows_addColumns_rowsUpdatedToWrapCorrectElements() {
+        grid = new Grid<>();
+
+        HeaderRow h1 = grid.prependHeaderRow();
+        HeaderRow h2 = grid.prependHeaderRow();
+
+        FooterRow f1 = grid.appendFooterRow();
+        FooterRow f2 = grid.appendFooterRow();
+
+        addColumns();
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(3);
+
+        // bottom layer is used by both headers and footers
+        assertRowWrapsLayer(h1, layers.get(0));
+        assertRowWrapsLayer(f1, layers.get(0));
+
+        assertRowWrapsLayer(f2, layers.get(1));
+        assertRowWrapsLayer(h2, layers.get(2));
+    }
+
+    @Test
+    public void joinTwoFirstHeaderCells() {
+        HeaderRow bottom = grid.prependHeaderRow();
+        HeaderRow top = grid.prependHeaderRow();
+        HeaderCell lastCell = top.getCells().get(2);
+        HeaderCell joined = top.join(firstColumn, secondColumn);
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(2);
+        assertRowWrapsLayer(bottom, layers.get(0));
+        assertRowWrapsLayer(top, layers.get(1));
+
+        Assert.assertEquals(
+                "HeaderRow should have two cells after joining two of three cells",
+                2, top.getCells().size());
+        Assert.assertEquals(
+                "The joined cell should be the first cell of the row after joining two first cells",
+                joined, top.getCells().get(0));
+        Assert.assertEquals(
+                "The last cell should not be affected after joining two first cells",
+                lastCell, top.getCells().get(1));
+    }
+
+    @Test
+    public void joinTwoLastHeaderCells() {
+        HeaderRow bottom = grid.prependHeaderRow();
+        HeaderRow top = grid.prependHeaderRow();
+        HeaderCell firstCell = top.getCells().get(0);
+        HeaderCell joined = top.join(secondColumn, thirdColumn);
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(2);
+        assertRowWrapsLayer(bottom, layers.get(0));
+        assertRowWrapsLayer(top, layers.get(1));
+
+        Assert.assertEquals(
+                "HeaderRow should have two cells after joining two of three cells",
+                2, top.getCells().size());
+        Assert.assertEquals(
+                "The joined cell should be the last cell of the row after joining two last cells",
+                joined, top.getCells().get(1));
+        Assert.assertEquals(
+                "The first cell should not be affected after joining two last cells",
+                firstCell, top.getCells().get(0));
+    }
+
+    @Test
+    public void joinNonAdjacentHeaderCells_throws() {
+        grid.prependHeaderRow();
+        HeaderRow top = grid.prependHeaderRow();
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("not adjacent");
+        top.join(firstColumn, thirdColumn);
+    }
+
+    private void assertRowWrapsLayer(AbstractRow<?> row, List<Element> layer) {
+        List<Element> cellWrappedElements = row.getCells().stream()
+                .map(cell -> cell.getColumn().getElement())
+                .collect(Collectors.toList());
+
+        Assert.assertEquals(
+                "The row contains unexpected amount of column elements",
+                layer.size(), cellWrappedElements.size());
+
+        IntStream.range(0, layer.size()).forEach(i -> {
+            Assert.assertEquals(
+                    "The row is not referring to expected column elements",
+                    layer.get(i), cellWrappedElements.get(i));
+        });
+    }
+
+    private List<List<Element>> getColumnLayersAndAssertCount(
+            int expectedAmountOfLayers) {
+        List<List<Element>> layers = getColumnLayers();
+        assertLayerCount(layers, expectedAmountOfLayers);
+        return layers;
+    }
+
+    private void assertLayerCount(List<List<Element>> layers,
+            int expectedCount) {
+        Assert.assertEquals("Unexpected amount of column layers", expectedCount,
+                layers.size());
+    }
+
+    /**
+     * Gets all the layers of column-elements in the column-hierarchy of the
+     * Grid. The order is from in-most to out-most. So the first layer consists
+     * of the vaadin-grid-column elements, and the second layer consists of
+     * vaadin-grid-column-group elements that are their parents, and so on.
+     * 
+     * @see ColumnLayer
+     */
     private List<List<Element>> getColumnLayers() {
         List<List<Element>> layers = new ArrayList<List<Element>>();
         List<Element> children = grid.getElement().getChildren()
                 .collect(Collectors.toList());
         while (children.stream().anyMatch(isColumnGroup)) {
+            children = children.stream().filter(isTemplate.negate())
+                    .collect(Collectors.toList());
             if (!children.stream().allMatch(isColumnGroup)) {
                 throw new IllegalStateException(
                         "All column-children on the same hierarchy level "
                                 + "should be either vaadin-grid-columns or "
-                                + "vaadin-grid-column-groups");
+                                + "vaadin-grid-column-groups. All of the tags on this layer are:\n"
+                                + children.stream().map(Element::getTag)
+                                        .reduce("", (a, b) -> (a + " " + b)));
             }
             layers.add(children);
             children = children.stream()
@@ -118,11 +331,15 @@ public class GridHeaderFooterTest {
                     .collect(Collectors.toList());
         }
         if (children.stream().anyMatch(isColumn)) {
+            children = children.stream().filter(isTemplate.negate())
+                    .collect(Collectors.toList());
             if (!children.stream().allMatch(isColumn)) {
                 throw new IllegalStateException(
                         "All column-children on the same hierarchy level "
                                 + "should be either vaadin-grid-columns or "
-                                + "vaadin-grid-column-groups");
+                                + "vaadin-grid-column-groups. All of the tags on this layer are:\n"
+                                + children.stream().map(Element::getTag)
+                                        .reduce("", (a, b) -> (a + " " + b)));
             }
             layers.add(children);
         } else if (layers.size() > 0) {
@@ -130,7 +347,9 @@ public class GridHeaderFooterTest {
                     "If there are vaadin-grid-column-groups, there should "
                             + "also be vaadin-grid-columns inside them");
         }
-        return layers;
+        // reverse to have the same order as in the implementation code:
+        // from inner-most to out-most
+        return Lists.reverse(layers);
     }
 
     private boolean isHeaderRow(List<Element> layer) {
@@ -152,9 +371,8 @@ public class GridHeaderFooterTest {
     }
 
     private Optional<Element> getTemplate(Element element, String className) {
-        return element.getChildren()
-                .filter(child -> child.getTag() == "template"
-                        && child.getClassList().contains(className))
+        return element.getChildren().filter(isTemplate)
+                .filter(template -> template.getClassList().contains(className))
                 .findFirst();
     }
 }

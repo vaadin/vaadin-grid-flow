@@ -212,6 +212,18 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                     "Cannot join cells that don't belong to this row");
         }
 
+        List<CELL> sortedCells = cells.stream().sorted((c1, c2) -> Integer
+                .compare(this.cells.indexOf(c1), this.cells.indexOf(c2)))
+                .collect(Collectors.toList());
+
+        int cellInsertIndex = this.cells.indexOf(sortedCells.get(0));
+        IntStream.range(0, sortedCells.size()).forEach(i -> {
+            if (this.cells.indexOf(sortedCells.get(i)) != cellInsertIndex + i) {
+                throw new IllegalArgumentException(
+                        "Cannot join cells that are not adjacent");
+            }
+        });
+
         List<AbstractColumn<?>> columnsToJoin = cells.stream()
                 .map(CELL::getColumn).collect(Collectors.toList());
 
@@ -220,9 +232,6 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                         col -> grid.getElement().indexOfChild(col.getElement()))
                 .min().getAsInt();
         columnsToJoin.forEach(col -> col.getElement().removeFromParent());
-
-        int cellInsertIndex = cells.stream().mapToInt(this.cells::indexOf).min()
-                .getAsInt();
 
         List<AbstractColumn<?>> childColumns = new ArrayList<>();
         columnsToJoin.forEach(col -> childColumns

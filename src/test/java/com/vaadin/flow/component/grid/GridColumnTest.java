@@ -15,9 +15,6 @@
  */
 package com.vaadin.flow.component.grid;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -127,15 +124,6 @@ public class GridColumnTest {
         firstColumn.setKey("first");
         grid.removeColumn(firstColumn);
         grid.removeColumn(firstColumn);
-    }
-
-    private List<ColumnBase<?>> getTopLevelColumns() {
-        return grid.getElement().getChildren()
-                .map(element -> element.getComponent())
-                .filter(component -> component.isPresent()
-                        && component.get() instanceof ColumnBase<?>)
-                .map(component -> (ColumnBase<?>) component.get())
-                .collect(Collectors.toList());
     }
 
     private void expectNullPointerException(String message) {
