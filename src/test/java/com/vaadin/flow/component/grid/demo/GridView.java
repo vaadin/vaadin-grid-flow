@@ -38,6 +38,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridSelectionModel;
+import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
@@ -816,6 +817,8 @@ public class GridView extends DemoView {
 
         grid.setSelectionMode(SelectionMode.SINGLE);
 
+        HeaderRow topHeader = grid.prependHeaderRow();
+
         IntStream.range(baseYear, baseYear + numberOfYears).forEach(year -> {
             BigDecimal firstHalfSum = list.fetch(new Query<>())
                     .collect(Collectors.toList()).stream()
@@ -851,8 +854,8 @@ public class GridView extends DemoView {
                     .setComparator((p1, p2) -> p1.getSecondHalfOfYear(year)
                             .compareTo(p2.getSecondHalfOfYear(year)));
 
-            grid.mergeColumns(firstHalfColumn, secondHalfColumn)
-                    .setHeader(year + "");
+            topHeader.join(firstHalfColumn, secondHalfColumn)
+                    .setText(year + "");
         });
         // end-source-example
 
