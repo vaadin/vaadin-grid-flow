@@ -322,10 +322,11 @@ public class GridView extends DemoView {
         createBasicRenderers();
         createColumnTemplate();
         createColumnComponentRenderer();
-        createHeaderFooter();
         createItemDetails();
         createItemDetailsOpenedProgrammatically();
         createSorting();
+        createHeaderFooter();
+        createHeaderAndFooterUsingComponents();
         createBeanGrid();
         createHeightByRows();
         createBasicFeatures();
@@ -600,9 +601,43 @@ public class GridView extends DemoView {
         grid.appendFooterRow().getCell(nameColumn)
                 .setText("Total: " + getItems().size() + " people");
         // end-source-example
+        grid.setId("grid-with-header-and-footer-rows");
         addCard("Header and footer rows", "Adding header and footer rows",
                 grid);
+    }
 
+    private void createHeaderAndFooterUsingComponents() {
+        // begin-source-example
+        // source-example-heading: Header and footer using components
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(getItems());
+
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setHeader(new Label("Name")).setComparator((p1, p2) -> p1
+                        .getName().compareToIgnoreCase(p2.getName()));
+        Column<Person> ageColumn = grid.addColumn(Person::getAge, "age")
+                .setHeader(new Label("Age"));
+        Column<Person> streetColumn = grid
+                .addColumn(person -> person.getAddress().getStreet())
+                .setHeader(new Label("Street"));
+        Column<Person> postalCodeColumn = grid
+                .addColumn(person -> person.getAddress().getPostalCode())
+                .setHeader(new Label("Postal Code"));
+
+        HeaderRow topRow = grid.prependHeaderRow();
+
+        HeaderCell informationCell = topRow.join(nameColumn, ageColumn);
+        informationCell.setComponent(new Label("Basic Information"));
+
+        HeaderCell addressCell = topRow.join(streetColumn, postalCodeColumn);
+        addressCell.setComponent(new Label("Address Information"));
+
+        grid.appendFooterRow().getCell(nameColumn).setComponent(
+                new Label("Total: " + getItems().size() + " people"));
+        // end-source-example
+        grid.setId("grid-header-with-components");
+        addCard("Header and footer rows", "Header and footer using components",
+                grid);
     }
 
     private void createColumnApiExample() {
