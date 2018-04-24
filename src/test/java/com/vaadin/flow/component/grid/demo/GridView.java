@@ -325,7 +325,7 @@ public class GridView extends DemoView {
         createItemDetails();
         createItemDetailsOpenedProgrammatically();
         createSorting();
-        createHeaderFooter();
+        createGridWithHeaderAndFooterRows();
         createHeaderAndFooterUsingComponents();
         createBeanGrid();
         createHeightByRows();
@@ -572,7 +572,7 @@ public class GridView extends DemoView {
                 nameField, updateButton);
     }
 
-    private void createHeaderFooter() {
+    private void createGridWithHeaderAndFooterRows() {
         // begin-source-example
         // source-example-heading: Adding header and footer rows
         Grid<Person> grid = new Grid<>();

@@ -15,6 +15,7 @@
  */
 package com.vaadin.flow.component.grid;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -131,7 +132,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
      * @return the cells on this row
      */
     public List<CELL> getCells() {
-        return cells;
+        return Collections.unmodifiableList(cells);
     }
 
     /**
@@ -146,7 +147,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
     }
 
     private CELL getCellFor(AbstractColumn<?> column) {
-        return this.cells.stream().filter(cell -> cell.getColumn() == column)
+        return getCells().stream().filter(cell -> cell.getColumn() == column)
                 .findFirst().orElseGet(() -> {
                     Optional<Component> parent = column.getParent();
                     if (parent.isPresent()
