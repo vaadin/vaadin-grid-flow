@@ -273,6 +273,60 @@ public class HeaderFooterTest {
         top.join(firstColumn, thirdColumn);
     }
 
+    @Test
+    public void getHeaderRows_orderFromTopToBottom() {
+        HeaderRow row1 = grid.prependHeaderRow();
+        assertHeaderRowOrder(row1);
+
+        HeaderRow row2 = grid.prependHeaderRow();
+        assertHeaderRowOrder(row2, row1);
+
+        HeaderRow row3 = grid.appendHeaderRow();
+        assertHeaderRowOrder(row2, row1, row3);
+
+        grid.appendFooterRow();
+        grid.prependFooterRow();
+
+        assertHeaderRowOrder(row2, row1, row3);
+    }
+
+    @Test
+    public void getFooterRows_orderFromTopToBottom() {
+        FooterRow row1 = grid.prependFooterRow();
+        assertFooterRowOrder(row1);
+
+        FooterRow row2 = grid.prependFooterRow();
+        assertFooterRowOrder(row2, row1);
+
+        FooterRow row3 = grid.appendFooterRow();
+        assertFooterRowOrder(row2, row1, row3);
+
+        grid.appendHeaderRow();
+        grid.prependHeaderRow();
+
+        assertFooterRowOrder(row2, row1, row3);
+    }
+
+    private void assertHeaderRowOrder(HeaderRow... rows) {
+        Assert.assertEquals("Grid returned unexpected amount of header rows",
+                rows.length, grid.getHeaderRows().size());
+        IntStream.range(0, rows.length).forEach(i -> {
+            Assert.assertSame(
+                    "Grid did no return expected header rows in order from top to bottom",
+                    rows[i], grid.getHeaderRows().get(i));
+        });
+    }
+
+    private void assertFooterRowOrder(FooterRow... rows) {
+        Assert.assertEquals("Grid returned unexpected amount of footer rows",
+                rows.length, grid.getFooterRows().size());
+        IntStream.range(0, rows.length).forEach(i -> {
+            Assert.assertSame(
+                    "Grid did no return expected footer rows in order from top to bottom",
+                    rows[i], grid.getFooterRows().get(i));
+        });
+    }
+
     private void assertRowWrapsLayer(AbstractRow<?> row, List<Element> layer) {
         List<Element> cellWrappedElements = row.getCells().stream()
                 .map(cell -> cell.getColumn().getElement())

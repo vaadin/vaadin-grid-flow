@@ -887,6 +887,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         columnLayers.add(new ColumnLayer(this));
     }
 
+    /**
+     * Keeps track of the layers of column and column-group components. The
+     * layers are in order from innermost to outmost.
+     */
     private List<ColumnLayer> columnLayers = new ArrayList<>();
 
     private void initConnector() {
@@ -1089,13 +1093,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Gets all of the header rows in the Grid, in order from bottom to top.
+     * Gets all of the header rows in the Grid, in order from top to bottom.
      * 
      * @return the header rows of the Grid
      */
     public List<HeaderRow> getHeaderRows() {
-        return columnLayers.stream().filter(ColumnLayer::isHeaderRow)
-                .map(ColumnLayer::asHeaderRow).collect(Collectors.toList());
+        List<HeaderRow> rows = columnLayers.stream()
+                .filter(ColumnLayer::isHeaderRow).map(ColumnLayer::asHeaderRow)
+                .collect(Collectors.toList());
+        Collections.reverse(rows);
+        return rows;
     }
 
     /**
