@@ -31,6 +31,7 @@ import org.junit.rules.ExpectedException;
 import com.google.common.collect.Lists;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
+import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.Element;
 
 public class HeaderFooterTest {
@@ -288,6 +289,55 @@ public class HeaderFooterTest {
         grid.prependFooterRow();
 
         assertHeaderRowOrder(row2, row1, row3);
+    }
+
+    @Test
+    public void getCellByColumn_returnsCorrectCell() {
+        AbstractRow<?> row = grid.appendFooterRow();
+        assertGettingCellsByColumns(row);
+        row = grid.prependFooterRow();
+        assertGettingCellsByColumns(row);
+
+        row = grid.appendHeaderRow();
+        assertGettingCellsByColumns(row);
+        row = grid.prependHeaderRow();
+        assertGettingCellsByColumns(row);
+    }
+
+    private void assertGettingCellsByColumns(AbstractRow<?> row) {
+        IntStream.range(0, grid.getColumns().size()).forEach(i -> {
+            Assert.assertSame("getCell(Column) returned unexpected cell",
+                    row.getCells().get(i),
+                    row.getCell(grid.getColumns().get(i)));
+        });
+    }
+
+    @Test
+    public void getJoinedCellByColumn_worksWithEachChildColumn() {
+        grid.prependHeaderRow();
+        HeaderRow topRow = grid.prependHeaderRow();
+        HeaderCell joined = topRow.join(secondColumn, thirdColumn);
+
+        Assert.assertSame(
+                "Joined header cell was not found by its child column", joined,
+                topRow.getCell(secondColumn));
+        Assert.assertSame(
+                "Joined header cell was not found by its child column", joined,
+                topRow.getCell(thirdColumn));
+        Assert.assertSame(
+                "getCell(Column) returned unexpected cell after joining other cells",
+                topRow.getCells().get(0), topRow.getCell(firstColumn));
+    }
+
+    @Test
+    public void getCellByColumnNotBelongingToGrid_throws() {
+        HeaderRow row = grid.prependHeaderRow();
+        Column<?> mockColumn = new Column<>(new Grid<String>(), "",
+                TemplateRenderer.of(""));
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Cannot find a cell");
+        row.getCell(mockColumn);
     }
 
     @Test
