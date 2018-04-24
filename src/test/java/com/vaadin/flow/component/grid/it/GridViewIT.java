@@ -518,6 +518,23 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     @Test
+    public void gridWithFiltering() {
+        openTabAndCheckForErrors("filtering");
+
+        GridElement grid = $(GridElement.class).id("grid-with-filters");
+        scrollToElement(grid);
+
+        IntStream.range(0, 4).forEach(i -> {
+            GridTHTDElement headerCell = grid.getHeaderCell(i);
+            assertRendereredHeaderCell(headerCell, "<vaadin-text-field", true,
+                    false);
+        });
+
+        grid.findElement(By.tagName("vaadin-text-field")).sendKeys("6");
+        waitUntil(driver -> grid.getCell(0, 0).getText().contains("Person 6"));
+    }
+
+    @Test
     public void beanGrid_columnsForPropertiesAddedWithCorrectHeaders() {
         openTabAndCheckForErrors("configuring-columns");
         GridElement grid = $(GridElement.class).id("bean-grid");

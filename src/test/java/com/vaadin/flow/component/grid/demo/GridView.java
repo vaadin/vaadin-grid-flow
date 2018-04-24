@@ -25,12 +25,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
@@ -56,7 +59,9 @@ import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.demo.DemoView;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 
 /**
@@ -327,6 +332,7 @@ public class GridView extends DemoView {
         createSorting();
         createGridWithHeaderAndFooterRows();
         createHeaderAndFooterUsingComponents();
+        createGridWithFilters();
         createBeanGrid();
         createHeightByRows();
         createBasicFeatures();
@@ -638,6 +644,52 @@ public class GridView extends DemoView {
         grid.setId("grid-header-with-components");
         addCard("Header and footer rows", "Header and footer using components",
                 grid);
+    }
+
+    private void createGridWithFilters() {
+        // begin-source-example
+        // source-example-heading: Using text fields for filtering items
+        Grid<Person> grid = new Grid<>();
+        ListDataProvider<Person> dataProvider = new ListDataProvider<Person>(
+                createItems());
+        grid.setDataProvider(dataProvider);
+
+        List<ValueProvider<Person, String>> valueProviders = new ArrayList<>();
+        valueProviders.add(Person::getName);
+        valueProviders.add(person -> person.getAge() + "");
+        valueProviders.add(person -> person.getAddress().getStreet());
+        valueProviders.add(person -> person.getAddress().getPostalCode());
+
+        Iterator<ValueProvider<Person, String>> iterator = valueProviders
+                .iterator();
+
+        grid.addColumn(iterator.next()).setHeader("Name");
+        grid.addColumn(iterator.next()).setHeader("Age");
+        grid.addColumn(iterator.next()).setHeader("Street");
+        grid.addColumn(iterator.next()).setHeader("Postal Code");
+
+        HeaderRow filterRow = grid.appendHeaderRow();
+
+        Iterator<ValueProvider<Person, String>> iterator2 = valueProviders
+                .iterator();
+
+        grid.getColumns().forEach(column -> {
+            TextField field = new TextField();
+            ValueProvider<Person, String> valueProvider = iterator2.next();
+
+            field.addValueChangeListener(event -> dataProvider
+                    .addFilter(person -> StringUtils.containsIgnoreCase(
+                            valueProvider.apply(person), field.getValue())));
+
+            field.setValueChangeMode(ValueChangeMode.EAGER);
+
+            filterRow.getCell(column).setComponent(field);
+            field.setSizeFull();
+            field.setPlaceholder("Filter");
+        });
+        // end-source-example
+        grid.setId("grid-with-filters");
+        addCard("Filtering", "Using text fields for filtering items", grid);
     }
 
     private void createColumnApiExample() {
