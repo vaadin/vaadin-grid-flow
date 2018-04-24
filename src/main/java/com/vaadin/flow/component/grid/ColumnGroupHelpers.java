@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 import com.vaadin.flow.dom.Element;
 
 /**
+ * Helper methods for wrapping {@code <vaadin-grid-column>} elements inside
+ * {@code <vaadin-grid-column-group>} elements.
+ * 
  * @author Vaadin Ltd
  *
  */

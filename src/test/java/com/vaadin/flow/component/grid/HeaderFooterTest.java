@@ -321,7 +321,8 @@ public class HeaderFooterTest {
                 throw new IllegalStateException(
                         "All column-children on the same hierarchy level "
                                 + "should be either vaadin-grid-columns or "
-                                + "vaadin-grid-column-groups. All of the tags on this layer are:\n"
+                                + "vaadin-grid-column-groups. "
+                                + "All of the tags on this layer are:\n"
                                 + children.stream().map(Element::getTag)
                                         .reduce("", (a, b) -> (a + " " + b)));
             }
@@ -337,7 +338,8 @@ public class HeaderFooterTest {
                 throw new IllegalStateException(
                         "All column-children on the same hierarchy level "
                                 + "should be either vaadin-grid-columns or "
-                                + "vaadin-grid-column-groups. All of the tags on this layer are:\n"
+                                + "vaadin-grid-column-groups. "
+                                + "All of the tags on this layer are:\n"
                                 + children.stream().map(Element::getTag)
                                         .reduce("", (a, b) -> (a + " " + b)));
             }

@@ -97,7 +97,9 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
     /**
      * Change this row to wrap the given layer
-     * @param layer the layer to wrap
+     * 
+     * @param layer
+     *            the layer to wrap
      */
     protected void setLayer(ColumnLayer layer) {
         this.layer = layer;
@@ -155,7 +157,8 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                         return getCellFor((AbstractColumn<?>) parent.get());
                     } else {
                         throw new IllegalArgumentException(
-                                "Cannot find a cell from this row that would correspond to the given column");
+                                "Cannot find a cell from this row that would "
+                                        + "correspond to the given column");
                     }
                 });
     }
