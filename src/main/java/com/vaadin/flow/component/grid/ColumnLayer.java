@@ -37,20 +37,50 @@ class ColumnLayer {
     private HeaderRow headerRow;
     private FooterRow footerRow;
 
+    /**
+     * Creates a ColumnLayer for tracking one hierarchy layer of column
+     * components in a Grid.
+     * 
+     * @param grid
+     *            the grid that has the columns
+     */
     ColumnLayer(Grid<?> grid) {
         this.grid = grid;
         this.columns = new ArrayList<>();
     }
 
+    /**
+     * Creates a ColumnLayer for tracking one hierarchy layer of column
+     * components in a Grid.
+     * 
+     * @param grid
+     *            the grid that has the columns
+     * @param columns
+     *            the columns belonging to this layer
+     */
     ColumnLayer(Grid<?> grid, List<AbstractColumn<?>> columns) {
         this.grid = grid;
         this.columns = columns;
     }
 
+    /**
+     * Adds the given column to the end of this layer.
+     * 
+     * @param column
+     *            the column to add
+     */
     protected void addColumn(AbstractColumn<?> column) {
         addColumn(this.columns.size(), column);
     }
 
+    /**
+     * Inserts the given column to the provided index in this layer.
+     * 
+     * @param index
+     *            the index where to insert
+     * @param column
+     *            the column to insert
+     */
     protected void addColumn(int index, AbstractColumn<?> column) {
         this.columns.add(index, column);
         if (isHeaderRow()) {
@@ -63,6 +93,14 @@ class ColumnLayer {
         }
     }
 
+    /**
+     * Gets the HeaderRow representation of this ColumnLayer.
+     * <p>
+     * If this layer has not been used as a HeaderRow before, the HeaderRow will
+     * be instantiated by setting the header templates to the components.
+     * 
+     * @return the HeaderRow representation of this layer
+     */
     protected HeaderRow asHeaderRow() {
         if (headerRow == null) {
             headerRow = new HeaderRow(this);
@@ -71,6 +109,14 @@ class ColumnLayer {
         return headerRow;
     }
 
+    /**
+     * Gets the FooterRow representation of this ColumnLayer.
+     * <p>
+     * If this layer has not been used as a FooterRow before, the FooterRow will
+     * be instantiated by setting the footer templates to the components.
+     * 
+     * @return the FooterRow representation of this layer
+     */
     protected FooterRow asFooterRow() {
         if (footerRow == null) {
             footerRow = new FooterRow(this);
@@ -79,6 +125,12 @@ class ColumnLayer {
         return footerRow;
     }
 
+    /**
+     * Binds the given HeaderRow to the column components on this layer.
+     * 
+     * @param headerRow
+     *            the HeaderRow to update to use the columns on this layer
+     */
     protected void setHeaderRow(HeaderRow headerRow) {
         this.headerRow = headerRow;
         if (headerRow != null) {
@@ -86,6 +138,12 @@ class ColumnLayer {
         }
     }
 
+    /**
+     * Binds the given FooterRow to the column components on this layer.
+     * 
+     * @param footerRow
+     *            the FooterRow to update to use the columns on this layer
+     */
     protected void setFooterRow(FooterRow footerRow) {
         this.footerRow = footerRow;
         if (footerRow != null) {
@@ -93,18 +151,42 @@ class ColumnLayer {
         }
     }
 
+    /**
+     * Gets whether this layer has a HeaderRow representation instantiated
+     * (whether the columns on this layer have header templates).
+     * 
+     * @return whether the column components on this layer have headers or not
+     */
     protected boolean isHeaderRow() {
         return headerRow != null;
     }
 
+    /**
+     * Gets whether this layer has a FooterRow representation instantiated
+     * (whether the columns on this layer have footer templates).
+     * 
+     * @return whether the column components on this layer have footers or not
+     */
     protected boolean isFooterRow() {
         return footerRow != null;
     }
 
+    /**
+     * Gets the Grid that owns this layer of columns.
+     * 
+     * @return the grid that owns this layer
+     */
     protected Grid<?> getGrid() {
         return grid;
     }
 
+    /**
+     * Bind this layer and the related HeaderRow and FooterRow representations
+     * to the given column components.
+     * 
+     * @param columns
+     *            the column components to use for this layer
+     */
     protected void setColumns(List<AbstractColumn<?>> columns) {
         this.columns = columns;
         if (headerRow != null) {
@@ -115,6 +197,11 @@ class ColumnLayer {
         }
     }
 
+    /**
+     * Gets the column components that belong to this layer.
+     * 
+     * @return the column components of this layer
+     */
     protected List<AbstractColumn<?>> getColumns() {
         return columns;
     }
