@@ -27,17 +27,37 @@ import com.vaadin.flow.dom.Element;
  */
 class ColumnGroupHelpers {
 
+    /**
+     * Wraps each of the given columns inside a column group and places those
+     * wrapper groups in the original columns' places.
+     * 
+     * @param cols
+     *            the columns to wrap
+     * @param grid
+     *            the grid that has the columns
+     * @return the new column groups that wrap the given columns
+     */
     public static List<AbstractColumn<?>> wrapInSeparateColumnGroups(
             Collection<AbstractColumn<?>> cols, Grid<?> grid) {
         return cols.stream().map(col -> wrapSingleColumn(col, grid))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Wraps the given columns inside a column group and places this wrapper on
+     * the first wrapped column's place.
+     * 
+     * @param grid
+     *            the grid that has the columns
+     * @param columns
+     *            the columns to wrap
+     * @return the new column group that wraps the given columns
+     */
     public static ColumnGroup wrapInColumnGroup(Grid<?> grid,
-            AbstractColumn<?>... cols) {
-        ColumnGroup group = wrapSingleColumn(cols[0], grid);
-        for (int i = 1; i < cols.length; i++) {
-            group.getElement().appendChild(cols[i].getElement());
+            AbstractColumn<?>... columns) {
+        ColumnGroup group = wrapSingleColumn(columns[0], grid);
+        for (int i = 1; i < columns.length; i++) {
+            group.getElement().appendChild(columns[i].getElement());
         }
         return group;
     }
@@ -45,16 +65,22 @@ class ColumnGroupHelpers {
     /**
      * Wraps the given column inside a column group and places this wrapper
      * group to the original column's place.
+     * 
+     * @param column
+     *            the column to wrap
+     * @param grid
+     *            the grid that has the column
+     * @return the new column group that wraps the column
      */
-    private static ColumnGroup wrapSingleColumn(AbstractColumn<?> col,
+    private static ColumnGroup wrapSingleColumn(AbstractColumn<?> column,
             Grid<?> grid) {
 
-        Element parent = col.getElement().getParent();
-        int index = parent.indexOfChild(col.getElement());
+        Element parent = column.getElement().getParent();
+        int index = parent.indexOfChild(column.getElement());
 
-        col.getElement().removeFromParent();
+        column.getElement().removeFromParent();
 
-        ColumnGroup group = new ColumnGroup(grid, col);
+        ColumnGroup group = new ColumnGroup(grid, column);
         parent.insertChild(index, group.getElement());
 
         return group;
