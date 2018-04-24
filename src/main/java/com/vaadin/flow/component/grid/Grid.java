@@ -617,7 +617,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         @Override
-        public void setHeaderComponent(Component headerComponent) {
+        protected void setHeaderComponent(Component headerComponent) {
             /*
              * Uses the special renderer to take care of the vaadin-grid-sorter.
              */

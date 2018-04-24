@@ -112,7 +112,7 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
      */
     public HeaderCell join(Collection<HeaderCell> cells) {
         Grid<?> grid = layer.getGrid();
-        if (!isOutMostRow()) {
+        if (!isOutmostRow()) {
             throw new IllegalArgumentException(
                     "Cells can be joined only on the out-most row");
         }
@@ -167,13 +167,13 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
     }
 
     @Override
-    protected boolean isOutMostRow() {
+    protected boolean isOutmostRow() {
         List<ColumnLayer> layers = layer.getGrid().getColumnLayers();
 
         for (int i = layers.size() - 1; i >= 0; i--) {
             ColumnLayer layer = layers.get(i);
             if (layer.isHeaderRow()) {
-                return this == layer.asHeaderRow();
+                return equals(layer.asHeaderRow());
             }
         }
         return false;

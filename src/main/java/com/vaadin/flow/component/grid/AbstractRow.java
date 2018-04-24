@@ -127,7 +127,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
     }
 
     /**
-     * Gets the cells that belong to this row.
+     * Gets the cells that belong to this row as an unmodifiable list.
      * 
      * @return the cells on this row
      */
@@ -141,6 +141,8 @@ abstract class AbstractRow<CELL extends AbstractCell> {
      * @param column
      *            the column to find cell for
      * @return the corresponding cell
+     * @throws IllegalArgumentException
+     *             if the column does not belong to the same grid as this row
      */
     public CELL getCell(Column<?> column) {
         return getCellFor(column);
@@ -164,7 +166,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
     /**
      * Gets whether this is the top-most HeaderRow or the bottom-most FooterRow.
      * 
-     * @return whether this is the out-most row
+     * @return whether this is the outmost row
      */
-    protected abstract boolean isOutMostRow();
+    protected abstract boolean isOutmostRow();
 }
