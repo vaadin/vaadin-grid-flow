@@ -15,6 +15,8 @@
  */
 package com.vaadin.flow.component.grid;
 
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
 import com.vaadin.flow.component.grid.FooterRow.FooterCell;
@@ -56,5 +58,18 @@ public class FooterRow extends AbstractRow<FooterCell> {
      */
     FooterRow(ColumnLayer layer) {
         super(layer, FooterCell::new);
+    }
+
+    @Override
+    protected boolean isOutMostRow() {
+        List<ColumnLayer> layers = layer.getGrid().getColumnLayers();
+
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            ColumnLayer layer = layers.get(i);
+            if (layer.isFooterRow()) {
+                return this == layer.asFooterRow();
+            }
+        }
+        return false;
     }
 }

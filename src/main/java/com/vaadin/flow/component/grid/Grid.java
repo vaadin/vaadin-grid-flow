@@ -1089,7 +1089,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     protected List<ColumnLayer> getColumnLayers() {
-        return columnLayers;
+        return Collections.unmodifiableList(columnLayers);
     }
 
     /**

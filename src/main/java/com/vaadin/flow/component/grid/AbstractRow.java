@@ -161,16 +161,10 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 });
     }
 
-    protected boolean isOutMostRow() {
-        List<ColumnLayer> layers = layer.getGrid().getColumnLayers();
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            ColumnLayer layer = layers.get(i);
-            if (this instanceof HeaderRow && layer.isHeaderRow()) {
-                return this == layer.asHeaderRow();
-            } else if (this instanceof FooterRow && layer.isFooterRow()) {
-                return this == layer.asFooterRow();
-            }
-        }
-        return false;
-    }
+    /**
+     * Gets whether this is the top-most HeaderRow or the bottom-most FooterRow.
+     * 
+     * @return whether this is the out-most row
+     */
+    protected abstract boolean isOutMostRow();
 }

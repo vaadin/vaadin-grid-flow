@@ -166,4 +166,17 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
         return this.cells.get(cellInsertIndex);
     }
 
+    @Override
+    protected boolean isOutMostRow() {
+        List<ColumnLayer> layers = layer.getGrid().getColumnLayers();
+
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            ColumnLayer layer = layers.get(i);
+            if (layer.isHeaderRow()) {
+                return this == layer.asHeaderRow();
+            }
+        }
+        return false;
+    }
+
 }
