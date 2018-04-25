@@ -20,6 +20,7 @@ import java.util.Comparator;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.function.ValueProvider;
@@ -70,6 +71,16 @@ public class GridHeaderFooterRowPage extends Div {
         button = new NativeButton("Append header without setting content",
                 event -> grid.appendHeaderRow());
         button.setId("append-header-without-content");
+        add(button);
+
+        button = new NativeButton("Set multiselect",
+                event -> grid.setSelectionMode(SelectionMode.MULTI));
+        button.setId("set-multiselect");
+        add(button);
+
+        button = new NativeButton("Disable selection",
+                event -> grid.setSelectionMode(SelectionMode.NONE));
+        button.setId("disable-selection");
         add(button);
     }
 

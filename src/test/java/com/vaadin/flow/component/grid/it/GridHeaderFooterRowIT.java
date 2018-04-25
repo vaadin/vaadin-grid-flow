@@ -91,6 +91,34 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
         assertBottomHeaderHasGridSorter();
     }
 
+    @Test
+    public void addHeaderRow_setMultiselect_disableSelection() {
+        clickButton("prepend-header");
+        clickButton("set-multiselect");
+        List<WebElement> headerCells = getHeaderCells();
+        Assert.assertEquals(
+                "There should be one header cell for multiselection checkbox "
+                        + "and another for the header",
+                2, headerCells.size());
+        Assert.assertThat(
+                "The first header cell should contain the multiselection checkbox",
+                headerCells.get(0).getAttribute("innerHTML"),
+                CoreMatchers.containsString("vaadin-checkbox"));
+        Assert.assertEquals(
+                "The second header cell should contain the set text", "0",
+                headerCells.get(1).getText());
+
+        clickButton("disable-selection");
+        headerCells = getHeaderCells();
+
+        Assert.assertEquals(
+                "There should be only one header cell after removing selection column",
+                1, headerCells.size());
+        Assert.assertEquals(
+                "The remaining header cell should be the one set with HeaderRow API",
+                "0", headerCells.get(0).getText());
+    }
+
     private void assertBottomHeaderHasGridSorter() {
         List<WebElement> headerCells = getHeaderCells();
         WebElement bottomCell = headerCells.get(headerCells.size() - 1);
