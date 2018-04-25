@@ -863,6 +863,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private DataGenerator<T> itemDetailsDataGenerator;
 
     /**
+     * Keeps track of the layers of column and column-group components. The
+     * layers are in order from innermost to outmost.
+     */
+    private List<ColumnLayer> columnLayers = new ArrayList<>();
+
+    /**
      * Creates a new instance, with page size of 50.
      */
     public Grid() {
@@ -886,12 +892,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 SelectionMode.SINGLE);
         columnLayers.add(new ColumnLayer(this));
     }
-
-    /**
-     * Keeps track of the layers of column and column-group components. The
-     * layers are in order from innermost to outmost.
-     */
-    private List<ColumnLayer> columnLayers = new ArrayList<>();
 
     private void initConnector() {
         getUI().orElseThrow(() -> new IllegalStateException(
@@ -1030,6 +1030,135 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getElement().appendChild(current.getElement());
 
         return column;
+    }
+
+    /**
+     * Adds a new text column to this {@link Grid} with a template renderer and
+     * sorting properties. The values inside the renderer are converted to JSON
+     * values by using {@link JsonSerializer#toJson(Object)}.
+     * <p>
+     * <em>NOTE:</em> You can add component columns easily using the
+     * {@link #addComponentColumn(ValueProvider)}, but using
+     * {@link ComponentRenderer} is not as efficient as the built in renderers
+     * or using {@link TemplateRenderer}.
+     * <p>
+     * This constructor attempts to automatically configure both in-memory and
+     * backend sorting using the given sorting properties and matching those
+     * with the property names used in the given renderer.
+     * <p>
+     * <strong>Note:</strong> if a property of the renderer that is used as a
+     * sorting property does not extend Comparable, no in-memory sorting is
+     * configured for it.
+     *
+     * @param renderer
+     *            the renderer used to create the grid cell structure
+     * @param sortingProperties
+     *            the sorting properties to use for this column
+     * @return the created column
+     */
+    public Column<T> addColumn(Renderer<T> renderer,
+            String... sortingProperties) {
+        Column<T> column = addColumn(renderer);
+
+        Map<String, ValueProvider<T, ?>> valueProviders = renderer
+                .getValueProviders();
+        Set<String> valueProvidersKeySet = valueProviders.keySet();
+        List<String> matchingSortingProperties = Arrays
+                .stream(sortingProperties)
+                .filter(valueProvidersKeySet::contains)
+                .collect(Collectors.toList());
+
+        column.setSortProperty(matchingSortingProperties
+                .toArray(new String[matchingSortingProperties.size()]));
+        Comparator<T> combinedComparator = (a, b) -> 0;
+        Comparator nullsLastComparator = Comparator
+                .nullsLast(Comparator.naturalOrder());
+        for (String sortProperty : matchingSortingProperties) {
+            ValueProvider<T, ?> provider = valueProviders.get(sortProperty);
+            combinedComparator = combinedComparator.thenComparing((a, b) -> {
+                Object aa = provider.apply(a);
+                if (!(aa instanceof Comparable)) {
+                    return 0;
+                }
+                Object bb = provider.apply(b);
+                return nullsLastComparator.compare(aa, bb);
+            });
+        }
+        column.setComparator(combinedComparator);
+        return column;
+    }
+
+    /**
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
+     * <p>
+     * Adds a new column for the given property name. The property values are
+     * converted to Strings in the grid cells. The property's full name will be
+     * used as the {@link Column#setKey(String) column key} and the property
+     * caption will be used as the {@link Column#setHeader(String) column
+     * header}.
+     * <p>
+     * You can add columns for nested properties with dot notation, eg.
+     * <code>"property.nestedProperty"</code>
+     *
+     * @param propertyName
+     *            the property name of the new column, not <code>null</code>
+     * @return the created column
+     */
+    public Column<T> addColumn(String propertyName) {
+        if (propertySet == null) {
+            throw new UnsupportedOperationException(
+                    "This method can't be used for a Grid that isn't constructed from a bean type");
+        }
+        Objects.requireNonNull(propertyName, "Property name can't be null");
+
+        PropertyDefinition<T, ?> property;
+        try {
+            property = propertySet.getProperty(propertyName).get();
+        } catch (NoSuchElementException | IllegalArgumentException exception) {
+            throw new IllegalArgumentException("Can't resolve property name '"
+                    + propertyName + "' from '" + propertySet + "'");
+        }
+        return addColumn(property);
+    }
+
+    private Column<T> addColumn(PropertyDefinition<T, ?> property) {
+        Column<T> column = addColumn(
+                item -> String.valueOf(property.getGetter().apply(item)))
+                        .setHeader(property.getCaption());
+        try {
+            return column.setKey(property.getName());
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException(
+                    "Multiple columns for the same property: "
+                            + property.getName());
+        }
+    }
+
+    /**
+     * Sets a user-defined identifier for given column.
+     *
+     * @see Column#setKey(String)
+     *
+     * @param column
+     *            the column
+     * @param key
+     *            the user-defined identifier
+     */
+    protected void setColumnKey(String key, Column column) {
+        if (keyToColumnMap.containsKey(key)) {
+            throw new IllegalArgumentException(
+                    "Duplicate key for columns: " + key);
+        }
+        keyToColumnMap.put(key, column);
+    }
+
+    private String createColumnId(boolean increment) {
+        int id = nextColumnId;
+        if (increment) {
+            nextColumnId++;
+        }
+        return "col" + id;
     }
 
     /**
@@ -1196,135 +1325,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
         }
         return -1;
-    }
-
-    /**
-     * Adds a new text column to this {@link Grid} with a template renderer and
-     * sorting properties. The values inside the renderer are converted to JSON
-     * values by using {@link JsonSerializer#toJson(Object)}.
-     * <p>
-     * <em>NOTE:</em> You can add component columns easily using the
-     * {@link #addComponentColumn(ValueProvider)}, but using
-     * {@link ComponentRenderer} is not as efficient as the built in renderers
-     * or using {@link TemplateRenderer}.
-     * <p>
-     * This constructor attempts to automatically configure both in-memory and
-     * backend sorting using the given sorting properties and matching those
-     * with the property names used in the given renderer.
-     * <p>
-     * <strong>Note:</strong> if a property of the renderer that is used as a
-     * sorting property does not extend Comparable, no in-memory sorting is
-     * configured for it.
-     *
-     * @param renderer
-     *            the renderer used to create the grid cell structure
-     * @param sortingProperties
-     *            the sorting properties to use for this column
-     * @return the created column
-     */
-    public Column<T> addColumn(Renderer<T> renderer,
-            String... sortingProperties) {
-        Column<T> column = addColumn(renderer);
-
-        Map<String, ValueProvider<T, ?>> valueProviders = renderer
-                .getValueProviders();
-        Set<String> valueProvidersKeySet = valueProviders.keySet();
-        List<String> matchingSortingProperties = Arrays
-                .stream(sortingProperties)
-                .filter(valueProvidersKeySet::contains)
-                .collect(Collectors.toList());
-
-        column.setSortProperty(matchingSortingProperties
-                .toArray(new String[matchingSortingProperties.size()]));
-        Comparator<T> combinedComparator = (a, b) -> 0;
-        Comparator nullsLastComparator = Comparator
-                .nullsLast(Comparator.naturalOrder());
-        for (String sortProperty : matchingSortingProperties) {
-            ValueProvider<T, ?> provider = valueProviders.get(sortProperty);
-            combinedComparator = combinedComparator.thenComparing((a, b) -> {
-                Object aa = provider.apply(a);
-                if (!(aa instanceof Comparable)) {
-                    return 0;
-                }
-                Object bb = provider.apply(b);
-                return nullsLastComparator.compare(aa, bb);
-            });
-        }
-        column.setComparator(combinedComparator);
-        return column;
-    }
-
-    /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
-     * Adds a new column for the given property name. The property values are
-     * converted to Strings in the grid cells. The property's full name will be
-     * used as the {@link Column#setKey(String) column key} and the property
-     * caption will be used as the {@link Column#setHeader(String) column
-     * header}.
-     * <p>
-     * You can add columns for nested properties with dot notation, eg.
-     * <code>"property.nestedProperty"</code>
-     *
-     * @param propertyName
-     *            the property name of the new column, not <code>null</code>
-     * @return the created column
-     */
-    public Column<T> addColumn(String propertyName) {
-        if (propertySet == null) {
-            throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid that isn't constructed from a bean type");
-        }
-        Objects.requireNonNull(propertyName, "Property name can't be null");
-
-        PropertyDefinition<T, ?> property;
-        try {
-            property = propertySet.getProperty(propertyName).get();
-        } catch (NoSuchElementException | IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Can't resolve property name '"
-                    + propertyName + "' from '" + propertySet + "'");
-        }
-        return addColumn(property);
-    }
-
-    private Column<T> addColumn(PropertyDefinition<T, ?> property) {
-        Column<T> column = addColumn(
-                item -> String.valueOf(property.getGetter().apply(item)))
-                        .setHeader(property.getCaption());
-        try {
-            return column.setKey(property.getName());
-        } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException(
-                    "Multiple columns for the same property: "
-                            + property.getName());
-        }
-    }
-
-    /**
-     * Sets a user-defined identifier for given column.
-     *
-     * @see Column#setKey(String)
-     *
-     * @param column
-     *            the column
-     * @param key
-     *            the user-defined identifier
-     */
-    protected void setColumnKey(String key, Column column) {
-        if (keyToColumnMap.containsKey(key)) {
-            throw new IllegalArgumentException(
-                    "Duplicate key for columns: " + key);
-        }
-        keyToColumnMap.put(key, column);
-    }
-
-    private String createColumnId(boolean increment) {
-        int id = nextColumnId;
-        if (increment) {
-            nextColumnId++;
-        }
-        return "col" + id;
     }
 
     @Override
