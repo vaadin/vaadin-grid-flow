@@ -650,13 +650,13 @@ public class GridView extends DemoView {
         // begin-source-example
         // source-example-heading: Using text fields for filtering items
         Grid<Person> grid = new Grid<>();
-        ListDataProvider<Person> dataProvider = new ListDataProvider<Person>(
+        ListDataProvider<Person> dataProvider = new ListDataProvider<>(
                 createItems());
         grid.setDataProvider(dataProvider);
 
         List<ValueProvider<Person, String>> valueProviders = new ArrayList<>();
         valueProviders.add(Person::getName);
-        valueProviders.add(person -> person.getAge() + "");
+        valueProviders.add(person -> String.valueOf(person.getAge()));
         valueProviders.add(person -> person.getAddress().getStreet());
         valueProviders.add(person -> person.getAddress().getPostalCode());
 
