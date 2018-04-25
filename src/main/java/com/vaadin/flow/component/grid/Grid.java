@@ -865,7 +865,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         Column<T> column = addColumn(TemplateRenderer
                 .<T> of("[[item." + columnId + "]]").withProperty(columnId,
                         value -> String.valueOf(valueProvider.apply(value))));
-        column.setComparator((a, b) -> compareMaybeComparables(
+        column.comparator = ((a, b) -> compareMaybeComparables(
                 valueProvider.apply(a), valueProvider.apply(b)));
         return column;
     }
