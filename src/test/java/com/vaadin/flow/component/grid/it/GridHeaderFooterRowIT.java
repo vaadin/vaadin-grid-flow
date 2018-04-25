@@ -45,21 +45,21 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
     @Test
     public void addHeadersAfterGridIsRendered_cellsAreRenderedInCorrectOrder() {
         clickButton("append-header");
-        assertHeaderOrder("0");
+        assertHeaderOrder(0);
         clickButton("append-header");
-        assertHeaderOrder("01");
+        assertHeaderOrder(0, 1);
         clickButton("prepend-header");
-        assertHeaderOrder("201");
+        assertHeaderOrder(2, 0, 1);
     }
 
     @Test
     public void addFootersAfterGridIsRendered_cellsAreRenderedInCorrectOrder() {
         clickButton("append-footer");
-        assertFooterOrder("0");
+        assertFooterOrder(0);
         clickButton("append-footer");
-        assertFooterOrder("01");
+        assertFooterOrder(0, 1);
         clickButton("prepend-footer");
-        assertFooterOrder("201");
+        assertFooterOrder(2, 0, 1);
     }
 
     @Test
@@ -126,13 +126,13 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
                 CoreMatchers.containsString("vaadin-grid-sorter"));
     }
 
-    private void assertHeaderOrder(String numbers) {
+    private void assertHeaderOrder(int... numbers) {
         List<WebElement> headerCells = getHeaderCells();
-        Assert.assertEquals("Unexpected amount of header cells",
-                numbers.length(), headerCells.size());
-        IntStream.range(0, numbers.length()).forEach(i -> {
+        Assert.assertEquals("Unexpected amount of header cells", numbers.length,
+                headerCells.size());
+        IntStream.range(0, numbers.length).forEach(i -> {
             Assert.assertEquals("Unexpected header cell content",
-                    numbers.charAt(i) + "", headerCells.get(i).getText());
+                    String.valueOf(numbers[i]), headerCells.get(i).getText());
         });
     }
 
@@ -152,13 +152,14 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
         return headerCells;
     }
 
-    private void assertFooterOrder(String numbers) {
+    private void assertFooterOrder(int... numbers) {
         List<WebElement> footerCells = getFooterCells();
-        Assert.assertEquals("Unexpected amount of footer cells",
-                numbers.length(), footerCells.size());
-        IntStream.range(0, numbers.length()).forEach(i -> {
+        Assert.assertEquals("Unexpected amount of footer cells", numbers.length,
+                footerCells.size());
+        IntStream.range(0, numbers.length).forEach(i -> {
             Assert.assertEquals("Unexpected footer cell content",
-                    numbers.charAt(i) + "", footerCells.get(i).getText());
+                    String.valueOf(numbers[i]) + "",
+                    footerCells.get(i).getText());
         });
     }
 
