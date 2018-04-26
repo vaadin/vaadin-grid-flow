@@ -15,21 +15,15 @@
  */
 package com.vaadin.flow.component.grid;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.vaadin.flow.component.grid.ColumnBase;
-import com.vaadin.flow.component.grid.ColumnGroup;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.function.SerializableComparator;
 
 public class GridColumnTest {
 
@@ -67,33 +61,6 @@ public class GridColumnTest {
     public void duplicateKey_throws() {
         firstColumn.setKey("foo");
         secondColumn.setKey("foo");
-    }
-
-    @Test
-    public void merged_column_order() {
-        Assert.assertEquals(
-                Arrays.asList(firstColumn, secondColumn, thirdColumn),
-                getTopLevelColumns());
-        ColumnGroup merged = grid.mergeColumns(firstColumn, thirdColumn);
-        Assert.assertEquals(Arrays.asList(merged, secondColumn),
-                getTopLevelColumns());
-        ColumnGroup secondMerge = grid.mergeColumns(merged, secondColumn);
-        Assert.assertEquals(Arrays.asList(secondMerge), getTopLevelColumns());
-        Assert.assertEquals(
-                Arrays.asList(firstColumn, thirdColumn, secondColumn),
-                grid.getColumns());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void cant_merge_columns_not_in_grid() {
-        Column<String> otherColumn = new Grid<String>().addColumn(str -> str);
-        grid.mergeColumns(firstColumn, otherColumn);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void cant_merge_already_merged_columns() {
-        grid.mergeColumns(firstColumn, secondColumn);
-        grid.mergeColumns(firstColumn, thirdColumn);
     }
 
     @Test
@@ -162,55 +129,39 @@ public class GridColumnTest {
     }
 
     @Test
-    public void removeMergedColumn() {
-        ColumnGroup merged = grid.mergeColumns(firstColumn, secondColumn);
+    public void addColumn_defaultComparator() {
+        Grid<Person> grid = new Grid<>();
 
-        firstColumn.setKey("first");
-        grid.removeColumn(firstColumn);
+        Column<Person> nameColumn = grid.addColumn(Person::getName);
+        SerializableComparator<Person> nameComparator = nameColumn
+                .getComparator(SortDirection.ASCENDING);
 
-        Assert.assertThat(merged.getChildColumns(),
-                CoreMatchers.not(CoreMatchers.hasItem(firstColumn)));
-        Assert.assertNull(grid.getColumnByKey("first"));
-    }
+        Person person1 = new Person("a", 1970);
+        Person person2 = new Person("b", 1960);
+        int result = nameComparator.compare(person1, person2);
 
-    @Test
-    public void removeMergedColumns_columnGroupIsRemoved() {
-        ColumnGroup merged = grid.mergeColumns(firstColumn, secondColumn);
-        Assert.assertEquals(grid.getElement(), merged.getElement().getParent());
+        Assert.assertEquals(
+                "The first person name should be less than the name of the second person",
+                -1, result);
 
-        grid.removeColumn(firstColumn);
-        grid.removeColumn(secondColumn);
+        Column<Person> ageColumn = grid.addColumn(Person::getBorn);
+        SerializableComparator<Person> ageComparator = ageColumn
+                .getComparator(SortDirection.ASCENDING);
+        result = ageComparator.compare(person1, person2);
 
-        Assert.assertEquals(0, merged.getChildColumns().size());
-        Assert.assertNull(merged.getElement().getParent());
-    }
+        Assert.assertEquals(
+                "The first person year of born should be greater than the year of born of the second person",
+                1, result);
 
-    @Test
-    public void removeAllMergedColumns_columnGroupsAreRemoved() {
-        ColumnGroup merged = grid.mergeColumns(firstColumn, thirdColumn);
-        ColumnGroup secondMerge = grid.mergeColumns(merged, secondColumn);
-        Assert.assertEquals(secondMerge.getElement(),
-                merged.getElement().getParent());
-        Assert.assertEquals(grid.getElement(),
-                secondMerge.getElement().getParent());
+        // comparator which uses toString
+        Column<Person> identityColumn = grid.addColumn(person -> person);
+        SerializableComparator<Person> personComparator = identityColumn
+                .getComparator(SortDirection.ASCENDING);
+        result = personComparator.compare(person1, person2);
 
-        grid.removeColumn(firstColumn);
-        grid.removeColumn(secondColumn);
-        grid.removeColumn(thirdColumn);
-
-        Assert.assertEquals(0, merged.getChildColumns().size());
-        Assert.assertNull(merged.getElement().getParent());
-        Assert.assertEquals(0, secondMerge.getChildColumns().size());
-        Assert.assertNull(secondMerge.getElement().getParent());
-    }
-
-    private List<ColumnBase<?>> getTopLevelColumns() {
-        return grid.getElement().getChildren()
-                .map(element -> element.getComponent())
-                .filter(component -> component.isPresent()
-                        && component.get() instanceof ColumnBase<?>)
-                .map(component -> (ColumnBase<?>) component.get())
-                .collect(Collectors.toList());
+        Assert.assertEquals(
+                "The first person toString() result greater than the the second person toString() result",
+                -1, result);
     }
 
     private void expectNullPointerException(String message) {
