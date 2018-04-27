@@ -15,6 +15,9 @@
  */
 package com.vaadin.flow.component.grid;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,7 @@ import java.util.stream.IntStream;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.dom.Element;
 
 /**
  * Base class for header and footer rows
@@ -161,6 +165,178 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                                         + "correspond to the given column");
                     }
                 });
+    }
+
+    /**
+     * Joins the cells corresponding the given columns in the row.
+     * 
+     * @param columnsToMerge
+     *            the columns of the cells that should be merged
+     * @return the merged cell
+     * @see #join(Collection)
+     */
+    public CELL join(Column<?>... columnsToMerge) {
+        return join(Arrays.stream(columnsToMerge).map(this::getCell)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Replaces the given cells with a new cell that takes the full space of the
+     * joined cells.
+     * <p>
+     * The cells to join must be adjacent cells in this row, and this row must
+     * be the out-most row.
+     * 
+     * @param cells
+     *            the cells to join
+     * @return the merged cell
+     */
+    public CELL join(CELL... cells) {
+        return join(Arrays.asList(cells));
+    }
+
+    /**
+     * Replaces the given cells with a new cell that takes the full space of the
+     * joined cells.
+     * <p>
+     * The cells to join must be adjacent cells in this row, and this row must
+     * be the out-most row.
+     * 
+     * @param cells
+     *            the cells to join
+     * @return the merged cell
+     */
+    public CELL join(Collection<CELL> cells) {
+        Grid<?> grid = layer.getGrid();
+        if (!isOutmostRow()) {
+            throw new IllegalArgumentException(
+                    "Cells can be joined only on the out-most row");
+        }
+        if (cells.size() < 2) {
+            throw new IllegalArgumentException("Cannot join less than 2 cells");
+        }
+        if (!this.cells.containsAll(cells)) {
+            throw new IllegalArgumentException(
+                    "Cannot join cells that don't belong to this row");
+        }
+
+        List<CELL> sortedCells = cells.stream().sorted((c1, c2) -> Integer
+                .compare(this.cells.indexOf(c1), this.cells.indexOf(c2)))
+                .collect(Collectors.toList());
+
+        int cellInsertIndex = this.cells.indexOf(sortedCells.get(0));
+        IntStream.range(0, sortedCells.size()).forEach(i -> {
+            if (this.cells.indexOf(sortedCells.get(i)) != cellInsertIndex + i) {
+                throw new IllegalArgumentException(
+                        "Cannot join cells that are not adjacent");
+            }
+        });
+
+        List<AbstractColumn<?>> columnsToJoin = sortedCells.stream()
+                .map(CELL::getColumn).collect(Collectors.toList());
+
+        List<Column<?>> bottomColumnsToJoin = columnsToJoin.stream()
+                .flatMap(col -> col.getBottomColumnChildren().stream())
+                .collect(Collectors.toList());
+
+        List<ColumnLayer> layers = grid.getColumnLayers();
+
+        if (layers.indexOf(layer) != layers.size() - 1) {
+            // This is not the out-most layer. We might need to move the layer
+            // upwards.
+            int layerInsertIndex = findFirstPossibleInsertIndex(columnsToJoin,
+                    layers);
+            if (layerInsertIndex == layers.indexOf(layer) + 1) {
+                System.out.println("### NO need to move layer");
+            } else {
+                System.out.println("#### need to move layer");
+                grid.removeColumnLayer(layer);
+
+                ColumnLayer lowerLayer = layers.get(layerInsertIndex - 1);
+                List<AbstractColumn<?>> childColumns = lowerLayer.getColumns()
+                        .stream()
+                        .filter(col -> bottomColumnsToJoin
+                                .containsAll(col.getBottomColumnChildren()))
+                        .collect(Collectors.toList());
+
+                assert childColumns.size() > 0;
+                childColumns.forEach(childColumn -> {
+                    assert childColumn.getParent().get()
+                            .equals(childColumns.get(0).getParent().get());
+                });
+
+                List<AbstractColumn<?>> newColumns = new ArrayList<AbstractColumn<?>>();
+                ColumnGroup group = null;
+
+                for (int i = 0; i < lowerLayer.getColumns().size(); i++) {
+                    AbstractColumn<?> col = lowerLayer.getColumns().get(i);
+                    if (childColumns.contains(col)) {
+                        if (group == null) {
+                            group = ColumnGroupHelpers.wrapInColumnGroup(grid,
+                                    childColumns);
+                            newColumns.add(group);
+                        }
+                    } else {
+                        newColumns.add(ColumnGroupHelpers
+                                .wrapInColumnGroup(grid, col));
+                    }
+                }
+                ColumnLayer newLayer = grid.insertColumnLayer(layerInsertIndex,
+                        newColumns);
+                addCell(cellInsertIndex, group);
+                this.cells.removeAll(cells);
+                this.setLayer(newLayer);
+            }
+        }
+
+        Element parent = columnsToJoin.get(0).getElement().getParent();
+        int elementInsertIndex = columnsToJoin.stream()
+                .mapToInt(col -> parent.indexOfChild(col.getElement())).min()
+                .getAsInt();
+        columnsToJoin.forEach(col -> col.getElement().removeFromParent());
+
+        List<AbstractColumn<?>> childColumns = new ArrayList<>();
+        columnsToJoin.forEach(col -> childColumns
+                .addAll(((ColumnGroup) col).getChildColumns()));
+
+        ColumnGroup group = new ColumnGroup(grid, childColumns);
+
+        parent.insertChild(elementInsertIndex, group.getElement());
+        layer.addColumn(cellInsertIndex, group);
+
+        layer.getColumns().removeAll(columnsToJoin);
+
+        this.cells.removeAll(cells);
+
+        return this.cells.get(cellInsertIndex);
+    }
+
+    private int findFirstPossibleInsertIndex(
+            List<AbstractColumn<?>> columnsToJoin, List<ColumnLayer> layers) {
+
+        List<AbstractColumn<?>> restColumns = layer.getColumns().stream()
+                .filter(column -> !columnsToJoin.contains(column))
+                .collect(Collectors.toList());
+
+        for (int i = layers.indexOf(layer) + 1; i < layers.size(); i++) {
+            ColumnLayer possibleParentLayer = layers.get(i);
+
+            boolean hasCommonParentColumnForColumnsToJoin = possibleParentLayer
+                    .getColumns().stream()
+                    .anyMatch(column -> column.getChildren()
+                            .collect(Collectors.toList())
+                            .containsAll(columnsToJoin));
+            if (hasCommonParentColumnForColumnsToJoin) {
+                return i;
+            }
+            if (restColumns.stream()
+                    .anyMatch(AbstractColumn::hasColumnSiblings)) {
+                throw new IllegalArgumentException(
+                        "This set of cells can not be joined because of the hierarchical "
+                                + "column group structure of the client-side web component.");
+            }
+        }
+        return layers.size();
     }
 
     /**

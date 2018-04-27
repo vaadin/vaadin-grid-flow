@@ -35,7 +35,9 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -319,42 +321,54 @@ public class GridView extends DemoView {
     @Override
     protected void initView() {
         createBasicUsage();
-        createCallBackDataProvider();
-        createSingleSelect();
-        createMultiSelect();
-        createNoneSelect();
-        createColumnApiExample();
-        createBasicRenderers();
-        createColumnTemplate();
-        createColumnComponentRenderer();
-        createItemDetails();
-        createItemDetailsOpenedProgrammatically();
-        createSorting();
-        createGridWithHeaderAndFooterRows();
-        createHeaderAndFooterUsingComponents();
-        createGridWithFilters();
-        createBeanGrid();
-        createHeightByRows();
-        createBasicFeatures();
-        createDisabledGrid();
+        // createCallBackDataProvider();
+        // createSingleSelect();
+        // createMultiSelect();
+        // createNoneSelect();
+        // createColumnApiExample();
+        // createBasicRenderers();
+        // createColumnTemplate();
+        // createColumnComponentRenderer();
+        // createItemDetails();
+        // createItemDetailsOpenedProgrammatically();
+        // createSorting();
+        // createGridWithHeaderAndFooterRows();
+        // createHeaderAndFooterUsingComponents();
+        // createGridWithFilters();
+        // createBeanGrid();
+        // createHeightByRows();
+        // createBasicFeatures();
+        // createDisabledGrid();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
     }
 
     private void createBasicUsage() {
-        // begin-source-example
-        // source-example-heading: Grid Basics
+        Div buttons = new Div();
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
+        grid.getElement().setAttribute("theme", "column-borders");
+        // begin-source-example
+        // source-example-heading: Grid Basics
 
-        grid.addColumn(Person::getName).setHeader("Name");
-        grid.addColumn(Person::getAge).setHeader("Age");
+        Column<Person> nameCol = grid.addColumn(Person::getName)
+                .setHeader("Name").setFooter("name");
+        Column<Person> ageCol = grid.addColumn(Person::getAge).setHeader("Age")
+                .setFooter("age");
+
+        FooterRow footer = grid.appendFooterRow();
+        HeaderRow header = grid.prependHeaderRow();
+
+        buttons.add(
+                new Button("join header", e -> header.join(nameCol, ageCol)));
+        buttons.add(
+                new Button("join footer", e -> footer.join(nameCol, ageCol)));
 
         // end-source-example
         grid.setId("basic");
 
-        addCard("Grid Basics", grid);
+        addCard("Grid Basics", grid, buttons);
     }
 
     private void createCallBackDataProvider() {

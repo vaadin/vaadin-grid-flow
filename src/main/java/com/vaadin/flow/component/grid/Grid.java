@@ -1178,7 +1178,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (getHeaderRows().size() == 0) {
             return columnLayers.get(0).asHeaderRow();
         }
-        return insertColumnLayer(columnLayers.size()).asHeaderRow();
+        return insertColumnLayer(getLastHeaderLayerIndex() + 1).asHeaderRow();
     }
 
     /**
@@ -1267,6 +1267,67 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         columnLayers.add(index, layer);
 
         return layer;
+    }
+
+    /**
+     * Creates a new layer from the provided columns, inserts the layer into
+     * given index and returns the new layer.
+     * <p>
+     * The user of this method should make sure that the DOM corresponds the
+     * column layer structure.
+     * 
+     * @param index
+     *            the index to insert
+     * @param columns
+     *            the column components that the new layer will wrap
+     * @return the new layer
+     */
+    protected ColumnLayer insertColumnLayer(int index,
+            List<AbstractColumn<?>> columns) {
+        ColumnLayer layer = new ColumnLayer(this, columns);
+        columnLayers.add(index, layer);
+        return layer;
+    }
+
+    /**
+     * Inserts a new layer to the given index, removes the given layer and then
+     * copies its data to the new layer.
+     * 
+     * @param layer
+     *            the layer to move
+     * @param index
+     *            the index to move to
+     */
+    protected void moveColumnLayer(ColumnLayer layer, int index) {
+        ColumnLayer newLayer = insertColumnLayer(index);
+        removeColumnLayer(layer);
+        newLayer.setColumns(layer.getColumns());
+        if (layer.isHeaderRow()) {
+            newLayer.setHeaderRow(layer.asHeaderRow());
+        }
+        if (layer.isFooterRow()) {
+            newLayer.setFooterRow(layer.asFooterRow());
+        }
+    }
+
+    /**
+     * Removes the given layer and moves the columns on the lower level to
+     * 
+     * @param layer
+     *            the layer to remove, not the bottom layer
+     */
+    protected void removeColumnLayer(ColumnLayer layer) {
+        if (layer.equals(columnLayers.get(0))) {
+            throw new IllegalArgumentException(
+                    "The bottom column layer should not be removed");
+        }
+        layer.getColumns().forEach(column -> {
+            Element parent = column.getElement().getParent();
+            column.getElement().removeFromParent();
+            column.getElement().getChildren()
+                    .forEach(child -> parent.appendChild(parent));
+        });
+        columnLayers.remove(layer);
     }
 
     private ColumnLayer insertInmostColumnLayer(boolean forHeaderRow,

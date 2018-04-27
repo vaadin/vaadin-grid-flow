@@ -15,8 +15,12 @@
  */
 package com.vaadin.flow.component.grid;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Synchronize;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.Rendering;
@@ -112,6 +116,27 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
         footerTemplate = rendering.getTemplateElement();
         footerTemplate.setAttribute("class", "footer");
         return rendering;
+    }
+
+    /**
+     * Gets the child components of this component that are instances of Column.
+     * 
+     * @return the Column children of this component
+     */
+    protected List<Column<?>> getBottomColumnChildren() {
+        return getChildren().filter(child -> child instanceof Column<?>)
+                .map(child -> (Column<?>) child).collect(Collectors.toList());
+    }
+
+    /**
+     * Gets whether this column has either Column or ColumnGroup siblings.
+     * 
+     * @return whether this column has other column elements as siblings
+     */
+    protected boolean hasColumnSiblings() {
+        return getElement().getParent().getChildren().filter(
+                element -> element.getTag().contains("vaadin-grid-column"))
+                .count() > 1;
     }
 
     protected void setHeaderText(String text) {
