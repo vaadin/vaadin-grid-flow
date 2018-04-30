@@ -187,7 +187,8 @@ public abstract class AbstractGridMultiSelectionModel<T>
                 Objects.requireNonNull(listener, "listener cannot be null");
 
                 ComponentEventListener componentEventListener = event -> listener
-                        .valueChanged((MultiSelectionEvent) event);
+                        .valueChanged(
+                                (ComponentValueChangeEvent<Grid<T>, Set<T>>) event);
 
                 return getGrid().addListener(MultiSelectionEvent.class,
                         componentEventListener);

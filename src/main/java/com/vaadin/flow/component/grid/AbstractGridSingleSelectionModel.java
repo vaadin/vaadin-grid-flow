@@ -131,7 +131,8 @@ public abstract class AbstractGridSingleSelectionModel<T> extends
                     ValueChangeListener<? super ComponentValueChangeEvent<Grid<T>, T>> listener) {
                 Objects.requireNonNull(listener, "listener cannot be null");
                 ComponentEventListener componentEventListener = event -> listener
-                        .valueChanged((SingleSelectionEvent) event);
+                        .valueChanged(
+                                (ComponentValueChangeEvent<Grid<T>, T>) event);
 
                 return getGrid().addListener(SingleSelectionEvent.class,
                         componentEventListener);
