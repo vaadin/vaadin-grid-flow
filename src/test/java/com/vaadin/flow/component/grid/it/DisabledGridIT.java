@@ -30,7 +30,7 @@ import com.vaadin.testbench.TestBenchElement;
 
 @TestPath("disabled-grid")
 public class DisabledGridIT extends AbstractComponentIT {
-
+    //
     @Test
     public void gridIsDisabled_renderedButtonsAreDisabled() {
         open();
