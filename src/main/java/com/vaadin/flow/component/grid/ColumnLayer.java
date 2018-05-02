@@ -93,6 +93,13 @@ class ColumnLayer {
         }
     }
 
+    /**
+     * Updates this layer and corresponding header and footer rows when the
+     * given column is removed.
+     * 
+     * @param column
+     *            the component that is removed, must be on this layer
+     */
     protected void removeColumn(AbstractColumn<?> column) {
         columns.remove(column);
         if (isHeaderRow()) {
