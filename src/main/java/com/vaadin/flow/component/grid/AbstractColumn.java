@@ -110,7 +110,12 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
 
     protected void setFooterRenderer(Renderer<?> renderer) {
         footerRenderer = renderer;
-        renderFooter();
+        if (renderer instanceof ComponentRenderer<?, ?>) {
+            getElement().getNode().runWhenAttached(ui -> ui
+                    .beforeClientResponse(this, context -> renderFooter()));
+        } else {
+            renderFooter();
+        }
     }
 
     protected Rendering<?> renderFooter() {
