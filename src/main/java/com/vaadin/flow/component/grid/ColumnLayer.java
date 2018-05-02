@@ -93,6 +93,16 @@ class ColumnLayer {
         }
     }
 
+    protected void removeColumn(AbstractColumn<?> column) {
+        columns.remove(column);
+        if (isHeaderRow()) {
+            asHeaderRow().removeCell(column);
+        }
+        if (isFooterRow()) {
+            asFooterRow().removeCell(column);
+        }
+    }
+
     /**
      * Gets the HeaderRow representation of this ColumnLayer.
      * <p>

@@ -1282,7 +1282,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         IntStream.range(0, groups.size()).forEach(i -> {
             // Move templates from columns to column-groups
             if (forFooterRow) {
-                groups.get(i).setFooterRenderer(columns.get(i).getFooterRenderer());
+                groups.get(i)
+                        .setFooterRenderer(columns.get(i).getFooterRenderer());
                 columns.get(i).setFooterRenderer(null);
             }
             if (forHeaderRow) {
@@ -1774,17 +1775,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private void removeColumnAndColumnGroupsIfNeeded(Column<?> column) {
         Element parent = column.getElement().getParent();
         parent.removeChild(column.getElement());
+        columnLayers.get(0).removeColumn(column);
         if (!parent.equals(getElement())) {
-            removeEmptyColumnGroups(parent);
+            removeEmptyColumnGroups(parent, 1);
         }
     }
 
-    private void removeEmptyColumnGroups(Element columnGroup) {
+    private void removeEmptyColumnGroups(Element columnGroup,
+            int columnLayerIndex) {
         Element parent = columnGroup.getParent();
         if (columnGroup.getChildCount() == 0) {
             parent.removeChild(columnGroup);
+            columnLayers.get(columnLayerIndex).removeColumn(
+                    (AbstractColumn<?>) columnGroup.getComponent().get());
             if (!parent.equals(getElement())) {
-                removeEmptyColumnGroups(parent);
+                removeEmptyColumnGroups(parent, columnLayerIndex + 1);
             }
         }
     }
