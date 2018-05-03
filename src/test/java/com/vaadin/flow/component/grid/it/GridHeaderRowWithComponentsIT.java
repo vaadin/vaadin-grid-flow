@@ -61,6 +61,23 @@ public class GridHeaderRowWithComponentsIT extends AbstractComponentIT {
                 CoreMatchers.containsString("<label>bar</label>"));
     }
 
+    @Test
+    public void prependHeader_setText_setComponent_componentOverridesText() {
+        findElement(By.id("set-both-text-and-component")).click();
+        String headerContent = getHeaderCells().get(0)
+                .getAttribute("innerHTML");
+
+        Assert.assertThat(
+                "The header cell should not contain the text after "
+                        + "overriding it with a component",
+                headerContent,
+                CoreMatchers.not(CoreMatchers.containsString("this is text")));
+        Assert.assertThat(
+                "The header cell should contain the component which was last set",
+                headerContent, CoreMatchers
+                        .containsString("<label>this is component</label>"));
+    }
+
     private List<WebElement> getHeaderCells() {
         WebElement thead = findInShadowRoot(grid, By.id("header")).get(0);
         List<WebElement> headers = thead.findElements(By.tagName("th"));

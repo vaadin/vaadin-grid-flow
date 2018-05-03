@@ -1282,8 +1282,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         IntStream.range(0, groups.size()).forEach(i -> {
             // Move templates from columns to column-groups
             if (forFooterRow) {
-                groups.get(i)
-                        .setFooterRenderer(columns.get(i).getFooterRenderer());
+                groups.get(i).setFooterRenderer(columns.get(i).getFooterRenderer());
                 columns.get(i).setFooterRenderer(null);
             }
             if (forHeaderRow) {
