@@ -128,7 +128,8 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
     protected void removeCell(AbstractColumn<?> columnComponent) {
         CELL cellToRemove = cells.stream()
-                .filter(cell -> cell.getColumn() == columnComponent).findFirst()
+                .filter(cell -> cell.getColumn().equals(columnComponent))
+                .findFirst()
                 .orElseThrow(() -> new IllegalStateException(
                         "removeCell() should never be called for a column component "
                                 + "that doesn't have a corresponding cell in this row."));
