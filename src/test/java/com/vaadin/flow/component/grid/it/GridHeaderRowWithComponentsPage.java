@@ -22,6 +22,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
@@ -44,6 +45,16 @@ public class GridHeaderRowWithComponentsPage extends Div {
         row1.getCell(column).setComponent(new Label("foo"));
         HeaderRow row2 = grid.appendHeaderRow();
         row2.getCell(column).setComponent(new Label("bar"));
+
+        NativeButton button = new NativeButton(
+                "Prepend header, set first text and then component");
+        button.setId("set-both-text-and-component");
+        button.addClickListener(event -> {
+            HeaderRow topRow = grid.prependHeaderRow();
+            topRow.getCell(column).setText("this is text");
+            topRow.getCell(column).setComponent(new Label("this is component"));
+        });
+        add(button);
     }
 
 }
