@@ -86,12 +86,8 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
 
     protected void setHeaderRenderer(Renderer<?> renderer) {
         headerRenderer = renderer;
-        if (renderer instanceof ComponentRenderer<?, ?>) {
-            getElement().getNode().runWhenAttached(ui -> ui
-                    .beforeClientResponse(this, context -> renderHeader()));
-        } else {
-            renderHeader();
-        }
+        getElement().getNode().runWhenAttached(
+                ui -> ui.beforeClientResponse(this, context -> renderHeader()));
     }
 
     protected Rendering<?> renderHeader() {
@@ -110,12 +106,8 @@ public class AbstractColumn<T extends AbstractColumn<T>> extends Component
 
     protected void setFooterRenderer(Renderer<?> renderer) {
         footerRenderer = renderer;
-        if (renderer instanceof ComponentRenderer<?, ?>) {
-            getElement().getNode().runWhenAttached(ui -> ui
-                    .beforeClientResponse(this, context -> renderFooter()));
-        } else {
-            renderFooter();
-        }
+        getElement().getNode().runWhenAttached(
+                ui -> ui.beforeClientResponse(this, context -> renderFooter()));
     }
 
     protected Rendering<?> renderFooter() {
