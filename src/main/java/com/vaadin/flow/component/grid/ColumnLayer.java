@@ -94,6 +94,23 @@ class ColumnLayer {
     }
 
     /**
+     * Updates this layer and corresponding header and footer rows when the
+     * given column is removed.
+     * 
+     * @param column
+     *            the component that is removed, must be on this layer
+     */
+    protected void removeColumn(AbstractColumn<?> column) {
+        columns.remove(column);
+        if (isHeaderRow()) {
+            asHeaderRow().removeCell(column);
+        }
+        if (isFooterRow()) {
+            asFooterRow().removeCell(column);
+        }
+    }
+
+    /**
      * Gets the HeaderRow representation of this ColumnLayer.
      * <p>
      * If this layer has not been used as a HeaderRow before, the HeaderRow will
@@ -204,6 +221,19 @@ class ColumnLayer {
      */
     protected List<AbstractColumn<?>> getColumns() {
         return columns;
+    }
+
+    /**
+     * Sets whether components on this layer should display the sorting
+     * indicators if the underlying column is sortable.
+     * 
+     * @param sortingIndicators
+     *            {@code true} to make components on this layer to have the
+     *            sorting indicators if the column is sortable, {@code false} to
+     *            not have sorting indicators
+     */
+    protected void updateSortingIndicators(boolean sortingIndicators) {
+        columns.forEach(col -> col.updateSortingIndicators(sortingIndicators));
     }
 
 }

@@ -90,37 +90,23 @@ public class HeaderFooterTest {
     }
 
     @Test
-    public void prependHeaderRow_headerLayerAdded() {
-        grid.prependHeaderRow();
-        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
-        Assert.assertTrue("Columns should have headers but no footers",
-                isHeaderRow(layers.get(0)) && !isFooterRow(layers.get(0)));
+    public void setHeader_firstHeaderRowCreated() {
+        firstColumn.setHeader("foo");
+        Assert.assertEquals(
+                "There should be one HeaderRow after setting a header for a column",
+                1, grid.getHeaderRows().size());
+        assertRowWrapsLayer(grid.getHeaderRows().get(0),
+                getColumnLayersAndAssertCount(1).get(0));
     }
 
     @Test
-    public void appendHeaderRow_headerLayerAdded() {
-        grid.appendHeaderRow();
-        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
-        Assert.assertTrue("Columns should have headers but no footers",
-                isHeaderRow(layers.get(0)) && !isFooterRow(layers.get(0)));
-    }
-
-    @Test
-    public void addHeaderAndFooterRow_oneLayerWithBothTemplatesAdded() {
-        grid.appendHeaderRow();
-        grid.appendFooterRow();
-        assertOneLayerWithHeaderAndFooter();
-
-        init();
-        grid.prependHeaderRow();
-        grid.prependFooterRow();
-        assertOneLayerWithHeaderAndFooter();
-    }
-
-    private void assertOneLayerWithHeaderAndFooter() {
-        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
-        Assert.assertTrue("Columns should have headers but no footers",
-                isHeaderRow(layers.get(0)) && isFooterRow(layers.get(0)));
+    public void setFooter_firstFooterRowCreated() {
+        firstColumn.setFooter("foo");
+        Assert.assertEquals(
+                "There should be one FooterRow after setting a footer for a column",
+                1, grid.getFooterRows().size());
+        assertRowWrapsLayer(grid.getFooterRows().get(0),
+                getColumnLayersAndAssertCount(1).get(0));
     }
 
     @Test
@@ -355,6 +341,47 @@ public class HeaderFooterTest {
         grid.prependHeaderRow();
 
         assertFooterRowOrder(row2, row1, row3);
+    }
+
+    @Test
+    public void addHeadersAndFooters_removeColumn_cellsAreRemoved() {
+        HeaderRow header = grid.prependHeaderRow();
+        FooterRow footer = grid.appendFooterRow();
+        grid.removeColumn(secondColumn);
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(1);
+        assertRowWrapsLayer(header, layers.get(0));
+        assertRowWrapsLayer(footer, layers.get(0));
+
+        grid.removeColumn(thirdColumn);
+        layers = getColumnLayersAndAssertCount(1);
+        assertRowWrapsLayer(header, layers.get(0));
+        assertRowWrapsLayer(footer, layers.get(0));
+    }
+
+    @Test
+    public void addHeader_joinCells_removeColumn_joinedCellRemains() {
+        HeaderRow bottomHeader = grid.prependHeaderRow();
+        HeaderRow topHeader = grid.prependHeaderRow();
+
+        HeaderCell joinedCell = topHeader.join(firstColumn, secondColumn);
+        Assert.assertEquals(
+                "Top row should have two cells after joining two of three", 2,
+                topHeader.getCells().size());
+
+        grid.removeColumn(secondColumn);
+        Assert.assertEquals(
+                "The joined header cell should remain when only one of the child columns is removed",
+                2, topHeader.getCells().size());
+
+        Assert.assertSame(
+                "The joined cell should still be linked to the remaining child column, "
+                        + "after removing the other child column",
+                joinedCell, topHeader.getCell(firstColumn));
+
+        List<List<Element>> layers = getColumnLayersAndAssertCount(2);
+        assertRowWrapsLayer(bottomHeader, layers.get(0));
+        assertRowWrapsLayer(topHeader, layers.get(1));
     }
 
     private void assertHeaderRowOrder(HeaderRow... rows) {

@@ -65,12 +65,54 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
     HeaderRow(ColumnLayer layer) {
         super(layer, HeaderCell::new);
     }
-    
-    @Override
-    public HeaderCell join(Collection<HeaderCell> cells) { 
-        if (layer.getGrid().getColumnLayers().indexOf(layer) == 0) {
-            throw new IllegalArgumentException(
-                    "Cells can not be joined on the bottom header row");
+
+    /**
+     * Joins the cells corresponding the given columns in the row.
+     * 
+     * @param columnsToMerge
+     *            the columns of the cells that should be merged
+     * @return the merged cell
+     * @see #join(Collection)
+     */
+    public HeaderCell join(Column<?>... columnsToMerge) {
+        return join(Arrays.stream(columnsToMerge).map(this::getCell)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Replaces the given cells with a new cell that takes the full space of the
+     * joined cells.
+     * <p>
+     * The cells to join must be adjacent cells in this row, and this row must
+     * be the out-most row.
+     * 
+     * @param cells
+     *            the cells to join
+     * @return the merged cell
+     */
+    public HeaderCell join(HeaderCell... cells) {
+        return join(Arrays.asList(cells));
+    }
+
+    /**
+     * Replaces the given cells with a new cell that takes the full space of the
+     * joined cells.
+     * <p>
+     * The cells to join must be adjacent cells in this row, and this row must
+     * be the out-most row.
+     * 
+     * @param cells
+     *            the cells to join
+     * @return the merged cell
+     */
+    public HeaderCell join(Collection<HeaderCell> cells) {
+        Grid<?> grid = layer.getGrid();
+        if (equals(grid.getDefaultHeaderRow())) {
+            throw new UnsupportedOperationException(
+                    "Cells cannot be joined on the first created header row. "
+                            + "This row is used as the default row for setting column "
+                            + "headers and for displaying sorting indicators, so the cells "
+                            + "need to have 1-1 relationship with the columns.");
         }
         return super.join(cells);
     }
