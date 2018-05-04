@@ -1287,7 +1287,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Removes the given layer and moves the columns on the lower level to
+     * Removes the given layer and moves the columns on the lower level to its
+     * place.
      * 
      * @param layer
      *            the layer to remove, not the bottom layer
@@ -1299,9 +1300,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
         layer.getColumns().forEach(column -> {
             Element parent = column.getElement().getParent();
+            int insertIndex = parent.indexOfChild(column.getElement());
+            parent.insertChild(insertIndex,
+                    column.getElement().getChildren().toArray(Element[]::new));
             column.getElement().removeFromParent();
-            column.getElement().getChildren()
-                    .forEach(child -> parent.appendChild(parent));
         });
         columnLayers.remove(layer);
     }

@@ -169,27 +169,6 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
         return rendering;
     }
 
-    /**
-     * Gets the child components of this component that are instances of Column.
-     * 
-     * @return the Column children of this component
-     */
-    protected List<Column<?>> getBottomColumnChildren() {
-        return getChildren().filter(child -> child instanceof Column<?>)
-                .map(child -> (Column<?>) child).collect(Collectors.toList());
-    }
-
-    /**
-     * Gets whether this column has either Column or ColumnGroup siblings.
-     * 
-     * @return whether this column has other column elements as siblings
-     */
-    protected boolean hasColumnSiblings() {
-        return getElement().getParent().getChildren().filter(
-                element -> element.getTag().contains("vaadin-grid-column"))
-                .count() > 1;
-    }
-
     protected void setHeaderText(String text) {
         setHeaderRenderer(TemplateRenderer.of(HtmlUtils.escape(text)));
     }
@@ -282,5 +261,35 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
      * @return the bottom column component
      */
     protected abstract Column<?> getBottomLevelColumn();
+
+    /**
+     * Gets recursively the child components of this component that are
+     * instances of Column.
+     * 
+     * @return the Column children of this component
+     */
+    protected List<Column<?>> getBottomChildColumns() {
+        List<Column<?>> columnChildren = getChildren()
+                .filter(child -> child instanceof Column<?>)
+                .map(child -> (Column<?>) child).collect(Collectors.toList());
+        if (!columnChildren.isEmpty()) {
+            return columnChildren;
+        }
+        return getChildren().filter(child -> child instanceof ColumnGroup)
+                .flatMap(child -> ((ColumnGroup) child).getBottomChildColumns()
+                        .stream())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets whether this column has either Column or ColumnGroup siblings.
+     * 
+     * @return whether this column has other column elements as siblings
+     */
+    protected boolean hasColumnSiblings() {
+        return getElement().getParent().getChildren().filter(
+                element -> element.getTag().contains("vaadin-grid-column"))
+                .count() > 1;
+    }
 
 }

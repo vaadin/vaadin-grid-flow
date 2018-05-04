@@ -246,7 +246,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 .map(CELL::getColumn).collect(Collectors.toList());
 
         List<Column<?>> bottomColumnsToJoin = columnsToJoin.stream()
-                .flatMap(col -> col.getBottomColumnChildren().stream())
+                .flatMap(col -> col.getBottomChildColumns().stream())
                 .collect(Collectors.toList());
 
         List<ColumnLayer> layers = grid.getColumnLayers();
@@ -266,7 +266,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 List<AbstractColumn<?>> childColumns = lowerLayer.getColumns()
                         .stream()
                         .filter(col -> bottomColumnsToJoin
-                                .containsAll(col.getBottomColumnChildren()))
+                                .containsAll(col.getBottomChildColumns()))
                         .collect(Collectors.toList());
 
                 assert childColumns.size() > 0;
