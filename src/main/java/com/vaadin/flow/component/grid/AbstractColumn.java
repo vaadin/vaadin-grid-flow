@@ -103,6 +103,9 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
         headerRenderingScheduled = true;
         getElement().getNode().runWhenAttached(
                 ui -> ui.beforeClientResponse(this, context -> {
+                    if (!headerRenderingScheduled) {
+                        return;
+                    }
                     renderHeader();
                     headerRenderingScheduled = false;
                 }));
@@ -136,6 +139,9 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
         footerRenderingScheduled = true;
         getElement().getNode().runWhenAttached(
                 ui -> ui.beforeClientResponse(this, context -> {
+                    if (!footerRenderingScheduled) {
+                        return;
+                    }
                     renderFooter();
                     footerRenderingScheduled = false;
                 }));
