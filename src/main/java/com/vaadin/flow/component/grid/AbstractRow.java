@@ -261,6 +261,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
             } else {
                 System.out.println("#### need to move layer");
                 grid.removeColumnLayer(layer);
+                layerInsertIndex--;
 
                 ColumnLayer lowerLayer = layers.get(layerInsertIndex - 1);
                 List<AbstractColumn<?>> childColumns = lowerLayer.getColumns()
@@ -296,6 +297,7 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                 addCell(cellInsertIndex, group);
                 this.cells.removeAll(cells);
                 this.setLayer(newLayer);
+                return null;
             }
         }
 

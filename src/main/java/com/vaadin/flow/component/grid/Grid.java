@@ -1302,7 +1302,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             Element parent = column.getElement().getParent();
             int insertIndex = parent.indexOfChild(column.getElement());
             parent.insertChild(insertIndex,
-                    column.getElement().getChildren().toArray(Element[]::new));
+                    column.getElement().getChildren()
+                            .filter(child -> child.getTag()
+                                    .contains("vaadin-grid-column"))
+                            .toArray(Element[]::new));
             column.getElement().removeFromParent();
         });
         columnLayers.remove(layer);
