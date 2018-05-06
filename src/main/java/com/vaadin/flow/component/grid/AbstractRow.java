@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -253,9 +254,11 @@ abstract class AbstractRow<CELL extends AbstractCell> {
 
         if (layers.indexOf(layer) != layers.size() - 1) {
             // This is not the out-most layer. We might need to move the layer
-            // upwards.
-            int layerInsertIndex = findFirstPossibleInsertIndex(columnsToJoin,
-                    layers);
+            // upwards in the hierarchy.
+
+            int layerInsertIndex = findFirstPossibleInsertIndex(
+                    bottomColumnsToJoin, layers);
+
             if (layerInsertIndex == layers.indexOf(layer) + 1) {
                 System.out.println("### NO need to move layer");
             } else {
@@ -270,34 +273,43 @@ abstract class AbstractRow<CELL extends AbstractCell> {
                                 .containsAll(col.getBottomChildColumns()))
                         .collect(Collectors.toList());
 
-                assert childColumns.size() > 0;
-                childColumns.forEach(childColumn -> {
-                    assert childColumn.getParent().get()
-                            .equals(childColumns.get(0).getParent().get());
-                });
-
                 List<AbstractColumn<?>> newColumns = new ArrayList<AbstractColumn<?>>();
-                ColumnGroup group = null;
+                ColumnGroup groupForNewCell = null;
+
+                Iterator<AbstractColumn<?>> leftColumns = layer.getColumns()
+                        .stream()
+                        .filter(column -> !columnsToJoin.contains(column))
+                        .iterator();
 
                 for (int i = 0; i < lowerLayer.getColumns().size(); i++) {
                     AbstractColumn<?> col = lowerLayer.getColumns().get(i);
                     if (childColumns.contains(col)) {
-                        if (group == null) {
-                            group = ColumnGroupHelpers.wrapInColumnGroup(grid,
-                                    childColumns);
-                            newColumns.add(group);
+                        if (groupForNewCell == null) {
+                            groupForNewCell = ColumnGroupHelpers
+                                    .wrapInColumnGroup(grid, childColumns);
+                            newColumns.add(groupForNewCell);
                         }
                     } else {
-                        newColumns.add(ColumnGroupHelpers
-                                .wrapInColumnGroup(grid, col));
+                        ColumnGroup group = ColumnGroupHelpers
+                                .wrapInColumnGroup(grid, col);
+                        AbstractColumn<?> oldGroup = leftColumns.next();
+                        group.setHeaderRenderer(oldGroup.getHeaderRenderer());
+                        group.setFooterRenderer(oldGroup.getFooterRenderer());
+                        newColumns.add(group);
                     }
                 }
                 ColumnLayer newLayer = grid.insertColumnLayer(layerInsertIndex,
                         newColumns);
-                addCell(cellInsertIndex, group);
+                if (layer.isHeaderRow()) {
+                    newLayer.setHeaderRow(layer.asHeaderRow());
+                }
+                if (layer.isFooterRow()) {
+                    newLayer.setFooterRow(layer.asFooterRow());
+                }
+
+                addCell(cellInsertIndex, groupForNewCell);
                 this.cells.removeAll(cells);
-                this.setLayer(newLayer);
-                return null;
+                return this.cells.get(cellInsertIndex);
             }
         }
 
@@ -323,26 +335,33 @@ abstract class AbstractRow<CELL extends AbstractCell> {
         return this.cells.get(cellInsertIndex);
     }
 
+    /*
+     * Finds a place in the column-layers where the layer corresponding to this
+     * row could be inserted with the given columns joined.
+     */
     private int findFirstPossibleInsertIndex(
-            List<AbstractColumn<?>> columnsToJoin, List<ColumnLayer> layers) {
-
-        List<AbstractColumn<?>> restColumns = layer.getColumns().stream()
-                .filter(column -> !columnsToJoin.contains(column))
-                .collect(Collectors.toList());
+            List<Column<?>> bottomColumnsToJoin, List<ColumnLayer> layers) {
 
         for (int i = layers.indexOf(layer) + 1; i < layers.size(); i++) {
             ColumnLayer possibleParentLayer = layers.get(i);
 
             boolean hasCommonParentColumnForColumnsToJoin = possibleParentLayer
                     .getColumns().stream()
-                    .anyMatch(column -> column.getChildren()
-                            .collect(Collectors.toList())
-                            .containsAll(columnsToJoin));
+                    .anyMatch(column -> column.getBottomChildColumns()
+                            .containsAll(bottomColumnsToJoin));
             if (hasCommonParentColumnForColumnsToJoin) {
                 return i;
             }
-            if (restColumns.stream()
-                    .anyMatch(AbstractColumn::hasColumnSiblings)) {
+
+            List<AbstractColumn<?>> joinedColumns = possibleParentLayer
+                    .getColumns().stream().filter(col -> ((ColumnGroup) col)
+                            .getChildColumns().size() > 1)
+                    .collect(Collectors.toList());
+            boolean otherColumnsJoined = joinedColumns.stream()
+                    .flatMap(col -> col.getBottomChildColumns().stream())
+                    .anyMatch(col -> !bottomColumnsToJoin.contains(col));
+
+            if (otherColumnsJoined) {
                 throw new IllegalArgumentException(
                         "This set of cells can not be joined because of the hierarchical "
                                 + "column group structure of the client-side web component.");

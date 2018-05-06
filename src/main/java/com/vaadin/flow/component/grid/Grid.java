@@ -1266,27 +1266,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Inserts a new layer to the given index, removes the given layer and then
-     * copies its data to the new layer.
-     * 
-     * @param layer
-     *            the layer to move
-     * @param index
-     *            the index to move to
-     */
-    protected void moveColumnLayer(ColumnLayer layer, int index) {
-        ColumnLayer newLayer = insertColumnLayer(index);
-        removeColumnLayer(layer);
-        newLayer.setColumns(layer.getColumns());
-        if (layer.isHeaderRow()) {
-            newLayer.setHeaderRow(layer.asHeaderRow());
-        }
-        if (layer.isFooterRow()) {
-            newLayer.setFooterRow(layer.asFooterRow());
-        }
-    }
-
-    /**
      * Removes the given layer and moves the columns on the lower level to its
      * place.
      * 

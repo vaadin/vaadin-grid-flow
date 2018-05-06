@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.FooterRow;
+import com.vaadin.flow.component.grid.FooterRow.FooterCell;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -357,13 +358,46 @@ public class GridView extends DemoView {
         Column<Person> ageCol = grid.addColumn(Person::getAge).setHeader("Age")
                 .setFooter("age");
 
+        Column<Person> nameCol2 = grid.addColumn(Person::getName)
+                .setHeader("Name2").setFooter("name2");
+
         FooterRow footer = grid.appendFooterRow();
         HeaderRow header = grid.prependHeaderRow();
 
+        for (int i = 0; i < grid.getHeaderRows().size(); i++) {
+            List<HeaderCell> cells = grid.getHeaderRows().get(i).getCells();
+            for (int j = 0; j < cells.size(); j++) {
+                cells.get(j).setText(i + " " + j);
+            }
+        }
+        for (int i = 0; i < grid.getFooterRows().size(); i++) {
+            List<FooterCell> cells = grid.getFooterRows().get(i).getCells();
+            for (int j = 0; j < cells.size(); j++) {
+                cells.get(j).setText(i + " " + j);
+            }
+        }
+
         buttons.add(
-                new Button("join header", e -> header.join(nameCol, ageCol)));
+                new Button("join header",
+                        e -> header
+                                .join(header.getCells().get(2),
+                                        header.getCells().get(1))
+                                .setText("moi")));
         buttons.add(
                 new Button("join footer", e -> footer.join(nameCol, ageCol)));
+
+        buttons.add(new Button("set header text",
+                e -> header.getCells().get(0).setText("JEE")));
+
+        buttons.add(new Button("print header rows", e -> {
+            System.out.println("--- header rows ---");
+            grid.getHeaderRows().forEach(row -> System.out.println(row));
+            // System.out.println("--- column layers ---");
+            // System.out.println(grid.getColumnLayers().size());
+        }));
+
+        grid.getElement().getChildren()
+                .forEach(c -> System.out.println(c.getTag()));
 
         // end-source-example
         grid.setId("basic");
