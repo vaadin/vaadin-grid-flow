@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.AbstractRow.AbstractCell;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 
 /**
@@ -46,6 +46,9 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
          */
         HeaderCell(AbstractColumn<?> column) {
             super(column);
+            if (column.getHeaderRenderer() == null) {
+                column.setHeaderText("");
+            }
         }
 
         @Override
@@ -80,21 +83,6 @@ public class HeaderRow extends AbstractRow<HeaderCell> {
     public HeaderCell join(Column<?>... columnsToMerge) {
         return join(Arrays.stream(columnsToMerge).map(this::getCell)
                 .collect(Collectors.toList()));
-    }
-
-    /**
-     * Replaces the given cells with a new cell that takes the full space of the
-     * joined cells.
-     * <p>
-     * The cells to join must be adjacent cells in this row, and this row must
-     * be the out-most row.
-     * 
-     * @param cells
-     *            the cells to join
-     * @return the merged cell
-     */
-    public HeaderCell join(HeaderCell... cells) {
-        return join(Arrays.asList(cells));
     }
 
     /**

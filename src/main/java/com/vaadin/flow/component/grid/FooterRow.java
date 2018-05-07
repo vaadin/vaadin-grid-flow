@@ -38,6 +38,9 @@ public class FooterRow extends AbstractRow<FooterCell> {
 
         FooterCell(AbstractColumn<?> column) {
             super(column);
+            if (column.getFooterRenderer() == null) {
+                column.setFooterText("");
+            }
         }
 
         @Override

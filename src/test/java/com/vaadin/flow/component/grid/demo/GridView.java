@@ -52,7 +52,6 @@ import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -322,7 +321,7 @@ public class GridView extends DemoView {
     @Override
     protected void initView() {
         createBasicUsage();
-        // createCallBackDataProvider();
+        createCallBackDataProvider();
         // createSingleSelect();
         // createMultiSelect();
         // createNoneSelect();
@@ -410,22 +409,16 @@ public class GridView extends DemoView {
         // source-example-heading: Grid with lazy loading
         Grid<Person> grid = new Grid<>();
 
-        /*
-         * This Data Provider doesn't load all items into the memory right away.
-         * Grid will request only the data that should be shown in its current
-         * view "window". The Data Provider will use callbacks to load only a
-         * portion of the data.
-         */
-        Random random = new Random(0);
-        grid.setDataProvider(DataProvider.fromCallbacks(
-                query -> IntStream
-                        .range(query.getOffset(),
-                                query.getOffset() + query.getLimit())
-                        .mapToObj(index -> createPerson(index + 1, random)),
-                query -> 100 * 1000 * 1000));
+        grid.appendFooterRow();
+        grid.appendFooterRow();
 
-        grid.addColumn(Person::getName).setHeader("Name");
-        grid.addColumn(Person::getAge).setHeader("Age");
+        grid.prependHeaderRow();
+        HeaderRow row = grid.prependHeaderRow();
+
+        Column<Person> n = grid.addColumn(Person::getName).setHeader("Name");
+        Column<Person> h = grid.addColumn(Person::getAge).setHeader("Age");
+
+        row.join(n, h);
 
         // end-source-example
 
