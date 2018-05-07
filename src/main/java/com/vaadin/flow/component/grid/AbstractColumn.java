@@ -281,15 +281,4 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets whether this column has either Column or ColumnGroup siblings.
-     * 
-     * @return whether this column has other column elements as siblings
-     */
-    protected boolean hasColumnSiblings() {
-        return getElement().getParent().getChildren().filter(
-                element -> element.getTag().contains("vaadin-grid-column"))
-                .count() > 1;
-    }
-
 }
