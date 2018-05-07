@@ -35,10 +35,7 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.grid.FooterRow;
-import com.vaadin.flow.component.grid.FooterRow.FooterCell;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -52,6 +49,7 @@ import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -322,86 +320,41 @@ public class GridView extends DemoView {
     protected void initView() {
         createBasicUsage();
         createCallBackDataProvider();
-        // createSingleSelect();
-        // createMultiSelect();
-        // createNoneSelect();
-        // createColumnApiExample();
-        // createBasicRenderers();
-        // createColumnTemplate();
-        // createColumnComponentRenderer();
-        // createItemDetails();
-        // createItemDetailsOpenedProgrammatically();
-        // createSorting();
-        // createGridWithHeaderAndFooterRows();
-        // createHeaderAndFooterUsingComponents();
-        // createGridWithFilters();
-        // createBeanGrid();
-        // createHeightByRows();
-        // createBasicFeatures();
-        // createDisabledGrid();
+        createSingleSelect();
+        createMultiSelect();
+        createNoneSelect();
+        createColumnApiExample();
+        createBasicRenderers();
+        createColumnTemplate();
+        createColumnComponentRenderer();
+        createItemDetails();
+        createItemDetailsOpenedProgrammatically();
+        createSorting();
+        createGridWithHeaderAndFooterRows();
+        createHeaderAndFooterUsingComponents();
+        createGridWithFilters();
+        createBeanGrid();
+        createHeightByRows();
+        createBasicFeatures();
+        createDisabledGrid();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
     }
 
     private void createBasicUsage() {
-        Div buttons = new Div();
-        Grid<Person> grid = new Grid<>();
-        grid.setItems(getItems());
-        grid.getElement().setAttribute("theme", "column-borders");
         // begin-source-example
         // source-example-heading: Grid Basics
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(getItems());
 
-        Column<Person> nameCol = grid.addColumn(Person::getName)
-                .setHeader("Name").setFooter("name");
-        Column<Person> ageCol = grid.addColumn(Person::getAge).setHeader("Age")
-                .setFooter("age");
-
-        Column<Person> nameCol2 = grid.addColumn(Person::getName)
-                .setHeader("Name2").setFooter("name2");
-
-        FooterRow footer = grid.appendFooterRow();
-        HeaderRow header = grid.prependHeaderRow();
-
-        for (int i = 0; i < grid.getHeaderRows().size(); i++) {
-            List<HeaderCell> cells = grid.getHeaderRows().get(i).getCells();
-            for (int j = 0; j < cells.size(); j++) {
-                cells.get(j).setText(i + " " + j);
-            }
-        }
-        for (int i = 0; i < grid.getFooterRows().size(); i++) {
-            List<FooterCell> cells = grid.getFooterRows().get(i).getCells();
-            for (int j = 0; j < cells.size(); j++) {
-                cells.get(j).setText(i + " " + j);
-            }
-        }
-
-        buttons.add(
-                new Button("join header",
-                        e -> header
-                                .join(header.getCells().get(2),
-                                        header.getCells().get(1))
-                                .setText("moi")));
-        buttons.add(
-                new Button("join footer", e -> footer.join(nameCol, ageCol)));
-
-        buttons.add(new Button("set header text",
-                e -> header.getCells().get(0).setText("JEE")));
-
-        buttons.add(new Button("print header rows", e -> {
-            System.out.println("--- header rows ---");
-            grid.getHeaderRows().forEach(row -> System.out.println(row));
-            // System.out.println("--- column layers ---");
-            // System.out.println(grid.getColumnLayers().size());
-        }));
-
-        grid.getElement().getChildren()
-                .forEach(c -> System.out.println(c.getTag()));
+        grid.addColumn(Person::getName).setHeader("Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
 
         // end-source-example
         grid.setId("basic");
 
-        addCard("Grid Basics", grid, buttons);
+        addCard("Grid Basics", grid);
     }
 
     private void createCallBackDataProvider() {
@@ -409,16 +362,22 @@ public class GridView extends DemoView {
         // source-example-heading: Grid with lazy loading
         Grid<Person> grid = new Grid<>();
 
-        grid.appendFooterRow();
-        grid.appendFooterRow();
+        /*
+         * This Data Provider doesn't load all items into the memory right away.
+         * Grid will request only the data that should be shown in its current
+         * view "window". The Data Provider will use callbacks to load only a
+         * portion of the data.
+         */
+        Random random = new Random(0);
+        grid.setDataProvider(DataProvider.fromCallbacks(
+                query -> IntStream
+                        .range(query.getOffset(),
+                                query.getOffset() + query.getLimit())
+                        .mapToObj(index -> createPerson(index + 1, random)),
+                query -> 100 * 1000 * 1000));
 
-        grid.prependHeaderRow();
-        HeaderRow row = grid.prependHeaderRow();
-
-        Column<Person> n = grid.addColumn(Person::getName).setHeader("Name");
-        Column<Person> h = grid.addColumn(Person::getAge).setHeader("Age");
-
-        row.join(n, h);
+        grid.addColumn(Person::getName).setHeader("Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
 
         // end-source-example
 
