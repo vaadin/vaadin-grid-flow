@@ -38,6 +38,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Synchronize;
@@ -1275,15 +1276,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     protected void removeColumnLayer(ColumnLayer layer) {
         if (layer.equals(columnLayers.get(0))) {
             throw new IllegalArgumentException(
-                    "The bottom column layer should not be removed");
+                    "The bottom column layer cannot be removed");
         }
         layer.getColumns().forEach(column -> {
             Element parent = column.getElement().getParent();
             int insertIndex = parent.indexOfChild(column.getElement());
             parent.insertChild(insertIndex,
-                    column.getElement().getChildren()
-                            .filter(child -> child.getTag()
-                                    .contains("vaadin-grid-column"))
+                    ((ColumnGroup) column).getChildColumns().stream()
+                            .map(HasElement::getElement)
                             .toArray(Element[]::new));
             column.getElement().removeFromParent();
         });

@@ -269,27 +269,35 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
 
         clickButton("join-headers-01");
         assertHeaderOrder(16, 6, 7, 0, 1, 2, 3);
+        assertFooterOrder(8, 9, 10, 11, 12, 13, 14, 15);
 
         clickButton("join-headers-12");
         assertHeaderOrder(16, 17, 0, 1, 2, 3);
+        assertFooterOrder(8, 9, 10, 11, 12, 13, 14, 15);
 
         clickButton("join-footers-23");
         assertFooterOrder(8, 9, 10, 11, 12, 13, 18);
+        assertHeaderOrder(16, 17, 0, 1, 2, 3);
 
         clickButton("join-footers-01");
         assertFooterOrder(8, 9, 10, 11, 19, 18);
+        assertHeaderOrder(16, 17, 0, 1, 2, 3);
 
         clickButton("prepend-header-2");
         assertHeaderOrder(20, 21, 16, 17, 0, 1, 2, 3);
+        assertFooterOrder(8, 9, 10, 11, 19, 18);
 
         clickButton("append-footer-2");
         assertFooterOrder(8, 9, 10, 11, 19, 18, 22, 23);
+        assertHeaderOrder(20, 21, 16, 17, 0, 1, 2, 3);
 
         clickButton("join-footers-01");
         assertFooterOrder(8, 9, 10, 11, 19, 18, 24);
+        assertHeaderOrder(20, 21, 16, 17, 0, 1, 2, 3);
 
         clickButton("join-headers-01");
         assertHeaderOrder(25, 16, 17, 0, 1, 2, 3);
+        assertFooterOrder(8, 9, 10, 11, 19, 18, 24);
     }
 
     private void assertHeaderHasGridSorter(int headerIndexFromTop) {

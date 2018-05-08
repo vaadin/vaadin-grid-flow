@@ -467,7 +467,7 @@ public class HeaderFooterTest {
     }
 
     @Test
-    public void joinCellsOnBothRows_addAndJoinMore() {
+    public void addHeaderRow_joinHeaderCells_addFooterRow_joinFooterCells_repeat() {
         FooterRow footer0 = grid.appendFooterRow();
         HeaderRow header0 = grid.prependHeaderRow();
 
@@ -632,7 +632,7 @@ public class HeaderFooterTest {
                 rows.length, grid.getHeaderRows().size());
         IntStream.range(0, rows.length).forEach(i -> {
             Assert.assertSame(
-                    "Grid did no return expected header rows in order from top to bottom",
+                    "Grid did not return expected header rows in order from top to bottom",
                     rows[i], grid.getHeaderRows().get(i));
         });
     }
@@ -642,7 +642,7 @@ public class HeaderFooterTest {
                 rows.length, grid.getFooterRows().size());
         IntStream.range(0, rows.length).forEach(i -> {
             Assert.assertSame(
-                    "Grid did no return expected footer rows in order from top to bottom",
+                    "Grid did not return expected footer rows in order from top to bottom",
                     rows[i], grid.getFooterRows().get(i));
         });
     }

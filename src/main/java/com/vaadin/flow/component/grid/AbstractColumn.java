@@ -272,13 +272,13 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
         List<Column<?>> columnChildren = getChildren()
                 .filter(child -> child instanceof Column<?>)
                 .map(child -> (Column<?>) child).collect(Collectors.toList());
-        if (!columnChildren.isEmpty()) {
-            return columnChildren;
-        }
-        return getChildren().filter(child -> child instanceof ColumnGroup)
-                .flatMap(child -> ((ColumnGroup) child).getBottomChildColumns()
-                        .stream())
-                .collect(Collectors.toList());
+
+        columnChildren.addAll(
+                getChildren().filter(child -> child instanceof ColumnGroup)
+                        .flatMap(child -> ((ColumnGroup) child)
+                                .getBottomChildColumns().stream())
+                        .collect(Collectors.toList()));
+        return columnChildren;
     }
 
 }
