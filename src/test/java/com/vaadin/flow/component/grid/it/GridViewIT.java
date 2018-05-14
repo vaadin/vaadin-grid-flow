@@ -31,6 +31,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.grid.demo.GridView;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.component.grid.testbench.GridTHTDElement;
@@ -608,7 +609,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         TestBenchElement filteringField = grid
                 .findElement(By.tagName("vaadin-text-field"));
-        filteringField.sendKeys("sek");
+        filteringField.sendKeys("sek" + Key.ENTER);
 
         Assert.assertThat(
                 "The first company name should contain the applied filter string",
