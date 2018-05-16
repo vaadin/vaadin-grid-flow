@@ -24,6 +24,7 @@ import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +50,7 @@ import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
@@ -71,6 +73,7 @@ import com.vaadin.flow.router.Route;
 public class GridView extends DemoView {
 
     public static List<Person> items = new ArrayList<>();
+    public static int id = 0;
     static {
         items = createItems();
     }
@@ -85,6 +88,7 @@ public class GridView extends DemoView {
         private int age;
         private String name;
         private Address address;
+        private int level;
 
         public int getId() {
             return id;
@@ -116,6 +120,14 @@ public class GridView extends DemoView {
 
         public void setAddress(Address address) {
             this.address = address;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
         }
 
         @Override
@@ -337,6 +349,7 @@ public class GridView extends DemoView {
         createHeightByRows();
         createBasicFeatures();
         createDisabledGrid();
+        createBasicTreeGridUsage();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -1050,6 +1063,33 @@ public class GridView extends DemoView {
         addCard("Disabled grid", grid, div);
     }
 
+    private Map<Person, List<Person>> childMap;
+
+    private void createBasicTreeGridUsage() {
+        childMap = new HashMap<>();
+        // begin-source-example
+        // source-example-heading: TreeGrid Basics
+        TreeGrid<Person> grid = new TreeGrid<>();
+        grid.setItems(getItems(), item -> {
+            if (item.getLevel() > 0)
+                return Collections.emptyList();
+            if (!childMap.containsKey(item))
+                childMap.put(item, createItems(100, item.getLevel() + 1));
+            return childMap.get(item);
+        });
+        // grid.setItems(getItems(),
+        // item -> createItems(Math.max(1, item.getId()) * 1000,
+        // (Math.max(1, item.getId()) * 1000) + 5));
+        grid.addHierarchyColumn(Person::getName).setHeader("Hierarchy");
+        // grid.addColumn(Person::getName).setHeader("Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
+
+        // end-source-example
+        grid.setId("treegridbasic");
+
+        addCard("TreeGrid Basics", grid);
+    }
+
     private List<Person> getItems() {
         return items;
     }
@@ -1059,17 +1099,26 @@ public class GridView extends DemoView {
     }
 
     private static List<Person> createItems(int number) {
+        return createItems(number, 0);
+    }
+
+    private static List<Person> createItems(int number, int level) {
         Random random = new Random(0);
         return IntStream.range(1, number)
-                .mapToObj(index -> createPerson(index, random))
+                .mapToObj(index -> createPerson(index, random, level))
                 .collect(Collectors.toList());
     }
 
     private static Person createPerson(int index, Random random) {
+        return createPerson(index, random, 0);
+    }
+
+    private static Person createPerson(int index, Random random, int level) {
         Person person = new Person();
-        person.setId(index);
+        person.setId(id++);
         person.setName("Person " + index);
         person.setAge(13 + random.nextInt(50));
+        person.setLevel(level);
 
         Address address = new Address();
         address.setStreet("Street " + ((char) ('A' + random.nextInt(26))));
