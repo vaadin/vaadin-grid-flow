@@ -78,10 +78,12 @@ import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableComparator;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.ReflectTools;
+import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.Json;
@@ -108,7 +110,7 @@ import elemental.json.JsonValue;
 public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
 
-    private final class UpdateQueue implements Update {
+    public final class UpdateQueue implements Update {
         private List<Runnable> queue = new ArrayList<>();
 
         private UpdateQueue(int size) {
@@ -138,7 +140,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             queue.clear();
         }
 
-        private void enqueue(String name, Serializable... arguments) {
+        public void enqueue(String name, Serializable... arguments) {
             queue.add(() -> getElement().callFunction(name, arguments));
         }
     }
@@ -792,9 +794,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    private final ArrayUpdater arrayUpdater = new ArrayUpdater() {
+    protected final ArrayUpdater arrayUpdater = new ArrayUpdater() {
         @Override
-        public Update startUpdate(int sizeChange) {
+        public UpdateQueue startUpdate(int sizeChange) {
             return new UpdateQueue(sizeChange);
         }
 
@@ -806,10 +808,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     };
 
     private final CompositeDataGenerator<T> gridDataGenerator = new CompositeDataGenerator<>();
-    private final DataCommunicator<T> dataCommunicator = new DataCommunicator<>(
-            gridDataGenerator, arrayUpdater,
-            data -> getElement().callFunction("$connector.updateData", data),
-            getElement().getNode());
+    private final DataCommunicator<T> dataCommunicator;
 
     private int nextColumnId = 0;
 
@@ -855,11 +854,23 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the page size. Must be greater than zero.
      */
     public Grid(int pageSize) {
+        dataCommunicator = createDataCommunicator(gridDataGenerator,
+                arrayUpdater, data -> getElement()
+                        .callFunction("$connector.updateData", data),
+                getElement().getNode());
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
 
         columnLayers.add(new ColumnLayer(this));
+    }
+
+    protected DataCommunicator<T> createDataCommunicator(
+            CompositeDataGenerator<T> gridDataGenerator,
+            ArrayUpdater arrayUpdater,
+            SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode) {
+        return new DataCommunicator<>(
+                gridDataGenerator, arrayUpdater, dataUpdater, stateNode);
     }
 
     private void initConnector() {
@@ -1160,7 +1171,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         keyToColumnMap.put(key, column);
     }
 
-    private String createColumnId(boolean increment) {
+    protected String createColumnId(boolean increment) {
         int id = nextColumnId;
         if (increment) {
             nextColumnId++;
@@ -2122,7 +2133,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getDataCommunicator().reset();
     }
 
-    private static int compareMaybeComparables(Object a, Object b) {
+    protected static int compareMaybeComparables(Object a, Object b) {
         if (hasCommonComparableBaseType(a, b)) {
             return compareComparables(a, b);
         }
