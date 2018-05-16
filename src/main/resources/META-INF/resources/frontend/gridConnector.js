@@ -5,6 +5,7 @@ window.Vaadin.Flow.gridConnector = {
       return;
     }
     const pageCallbacks = {};
+    const treePageCallbacks = {};
     const cache = {};
     let lastRequestedRange = [0, 0];
 
@@ -104,6 +105,20 @@ window.Vaadin.Flow.gridConnector = {
       }
 
       const page = params.page;
+
+      if(params.parentItem) {
+        if(!treePageCallbacks[params.parentItem.key]) {
+          treePageCallbacks[params.parentItem.key] = {};
+        }
+        treePageCallbacks[params.parentItem.key][page] = callback;
+        grid.$server.setParentRequestedRange(page, grid.pageSize, params.parentItem.key);
+        // grid.$server.setRequestedRange(first * grid.pageSize, count * grid.pageSize);
+        //
+        // callback(pageItems, treeLevelSize);
+        return;
+      }
+
+
       if (cache[page]) {
         callback(cache[page]);
       } else {
@@ -252,7 +267,7 @@ window.Vaadin.Flow.gridConnector = {
         throw 'Got cleared data for index ' + index + ' which is not aligned with the page size of ' + grid.pageSize;
       }
 
-      let firstPage = index / grid.pageSize;
+      let firstPage = Math.floor(index / grid.pageSize);
       let updatedPageCount = Math.ceil(length / grid.pageSize);
 
       for (let i = 0; i < updatedPageCount; i++) {
@@ -297,6 +312,18 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.$connector.updateSize = function(newSize) {
       grid.size = newSize;
+    };
+
+    grid.$connector.confirmLevel = function(parentKey, page, items, levelSize) {
+      if(!treePageCallbacks[parentKey]) {
+        return;
+      }
+      let callback = treePageCallbacks[parentKey][page];
+      if(callback) {
+        let pageitems = items.slice(0, grid.pageSize);
+        delete treePageCallbacks[parentKey][page];
+        callback(pageitems, levelSize);
+      }
     };
 
     grid.$connector.confirm = function(id) {
