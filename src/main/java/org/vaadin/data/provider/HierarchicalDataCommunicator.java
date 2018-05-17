@@ -15,13 +15,13 @@
  */
 package org.vaadin.data.provider;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.vaadin.data.TreeData;
 
 import com.vaadin.flow.component.grid.Grid.UpdateQueue;
@@ -31,6 +31,7 @@ import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.internal.ExecutionContext;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.internal.StateNode;
@@ -53,6 +54,7 @@ import elemental.json.JsonValue;
 public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
     private final ArrayUpdater arrayUpdater;
+    private final StateNode stateNode;
     private HierarchyMapper<T, ?> mapper;
     private DataGenerator<T> dataGenerator;
 
@@ -80,7 +82,21 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         super(dataGenerator, arrayUpdater, dataUpdater, stateNode);
         this.dataGenerator = dataGenerator;
         this.arrayUpdater = arrayUpdater;
+        this.stateNode = stateNode;
         setDataProvider(new TreeDataProvider<>(new TreeData<>()), null);
+    }
+
+
+    private void requestFlush(UpdateQueue update) {
+        SerializableConsumer<ExecutionContext> flushRequest = context -> {
+            flush(update);
+        };
+        stateNode.runWhenAttached(ui -> ui.getInternals().getStateTree()
+                .beforeClientResponse(stateNode, flushRequest));
+    }
+
+    private void flush(UpdateQueue update) {
+        update.commit();
     }
 
     @Override
@@ -94,24 +110,14 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         UpdateQueue update = (UpdateQueue) arrayUpdater
                 .startUpdate(getDataProviderSize());
 
-        update.enqueue("$connector.confirmLevel",
+        update.enqueue("$connector.confirmTreeLevel",
                 getKeyMapper().key(parentItem), page,
                 mapper.fetchChildItems(parentItem,
                         Range.withLength(page * length, length))
                         .map(this::generateJson).collect(JsonUtils.asArray()),
                 mapper.countChildItems(parentItem));
 
-        int updateId;
-        try {
-            // TODO make nextUpdateId protected
-            updateId = (int) FieldUtils.readField(this, "nextUpdateId", true);
-            FieldUtils.writeField(this, "nextUpdateId", updateId + 1, true);
-
-            update.commit(updateId);
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        requestFlush(update);
     }
 
     @Override
@@ -211,54 +217,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         collapse(item, true);
     }
 
-    /**
-     * Collapses the given item and removes its sub-hierarchy. Calling this
-     * method will have no effect if the row is already collapsed.
-     * {@code syncAndRefresh} indicates whether the changes should be
-     * synchronised to the client and the data provider be notified.
-     *
-     * @param item
-     *            the item to collapse
-     * @param syncAndRefresh
-     *            {@code true} if the changes should be synchronised to the
-     *            client and the data provider should be notified of the
-     *            changes, {@code false} otherwise.
-     */
-    public void collapse(T item, boolean syncAndRefresh) {
-        Integer index = syncAndRefresh ? mapper.getIndexOf(item).orElse(null)
-                : null;
-        doCollapse(item, index, syncAndRefresh);
-    }
-
-    /**
-     * Collapses the given item and removes its sub-hierarchy. Calling this
-     * method will have no effect if the row is already collapsed.
-     *
-     * @param item
-     *            the item to collapse
-     * @param index
-     *            the index of the item
-     */
-    public void collapse(T item, Integer index) {
-        doCollapse(item, index, true);
-    }
-
-    /**
-     * Collapses given item and removes its sub-hierarchy. Calling this method
-     * will have no effect if the row is already collapsed. The index is
-     * provided by the client-side or calculated from a full data request.
-     *
-     *
-     * @param item
-     *            the item to collapse
-     * @param index
-     *            the index of the item
-     * @deprecated Use {@link #collapse(Object, Integer)} instead.
-     */
-    @Deprecated
-    public void doCollapse(T item, Optional<Integer> index) {
-        doCollapse(item, index.orElse(null), true);
-    }
 
     /**
      * Collapses the given item and removes its sub-hierarchy. Calling this
@@ -267,23 +225,32 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      * {@code syncAndRefresh} indicates whether the changes should be
      * synchronised to the client and the data provider be notified.
      *
-     * @param item
-     *            the item to collapse
-     * @param index
-     *            the index of the item
+     * @param items
+     *            items to collapse
      * @param syncAndRefresh
      *            {@code true} if the changes should be synchronised to the
      *            client and the data provider should be notified of the
      *            changes, {@code false} otherwise.
      */
-    private void doCollapse(T item, Integer index, boolean syncAndRefresh) {
-        Range removedRows = mapper.collapse(item, index);
+    public void collapse(T item, boolean syncAndRefresh) {
+        doCollapse(Arrays.asList(item), syncAndRefresh);
+    }
+
+    public void collapse(Collection<T> items, boolean syncAndRefresh) {
+        doCollapse(items, syncAndRefresh);
+    }
+
+    private void doCollapse(Collection<T> items,
+            boolean syncAndRefresh) {
+        items.forEach(item -> {
+            mapper.collapse(item);
+        });
         if (syncAndRefresh) {
-            /*-if (!reset && !removedRows.isEmpty()) {
-                getClientRpc().removeRows(removedRows.getStart(),
-                        removedRows.length());
-            }-*/
-            refresh(item);
+            UpdateQueue update = (UpdateQueue) arrayUpdater
+                    .startUpdate(getDataProviderSize());
+            update.enqueue("$connector.collapseItems", items.stream()
+                    .map(this::generateJson).collect(JsonUtils.asArray()));
+            requestFlush(update);
         }
     }
 
@@ -300,83 +267,41 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
     /**
      * Expands the given item. Calling this method will have no effect if the
-     * item is already expanded or if it has no children. {@code syncAndRefresh}
-     * indicates whether the changes should be synchronised to the client and
-     * the data provider be notified.
-     *
-     * @param item
-     *            the item to expand
-     * @param syncAndRefresh
-     *            {@code true} if the changes should be synchronised to the
-     *            client and the data provider should be notified of the
-     *            changes, {@code
-     *         false} otherwise.
-     */
-    public void expand(T item, int pageSize, boolean syncAndRefresh) {
-        Integer index = syncAndRefresh ? mapper.getIndexOf(item).orElse(null)
-                : null;
-        doExpand(item, index, pageSize, syncAndRefresh);
-    }
-
-    /**
-     * Expands the given item at the given index. Calling this method will have
-     * no effect if the item is already expanded.
-     *
-     * @param item
-     *            the item to expand
-     * @param index
-     *            the index of the item
-     */
-    public void expand(T item, Integer index, int pageSize) {
-        doExpand(item, index, pageSize, true);
-    }
-
-    /**
-     * Expands the given item. Calling this method will have no effect if the
      * item is already expanded or if it has no children. The index is provided
      * by the client-side or calculated from a full data request.
      * {@code syncAndRefresh} indicates whether the changes should be
      * synchronised to the client and the data provider be notified.
      *
-     * @param item
-     *            the item to expand
-     * @param index
-     *            the index of the item
+     * @param items
+     *            items to expand
      * @param syncAndRefresh
      *            {@code true} if the changes should be synchronised to the
      *            client and the data provider should be notified of the
      *            changes, {@code false} otherwise.
      */
-    private void doExpand(T item, Integer index, int pageSize,
+    public void expand(T item, int pageSize,
             boolean syncAndRefresh) {
-        Range addedRows = mapper.expand(item, index);
-        /*-if (syncAndRefresh) {
-            if (!reset && !addedRows.isEmpty()) {
-                getClientRpc().insertRows(addedRows.getStart(),
-                        addedRows.length());
-                Stream<T> children = mapper.fetchItems(item,
-                        Range.withLength(0, addedRows.length()));
-                pushData(addedRows.getStart(),
-                        children.collect(Collectors.toList()));
-            }
-        }-*/
+        doExpand(Arrays.asList(item), pageSize, syncAndRefresh);
     }
 
-    /**
-     * Expands the given item at given index. Calling this method will have no
-     * effect if the row is already expanded. The index is provided by the
-     * client-side or calculated from a full data request.
-     *
-     * @param item
-     *            the item to expand
-     * @param index
-     *            the index of the item
-     * @see #expand(Object)
-     * @deprecated use {@link #expand(Object, Integer)} instead
-     */
-    @Deprecated
-    public void doExpand(T item, Optional<Integer> index) {
-        expand(item, index.orElse(null));
+    public void expand(Collection<T> items, int pageSize,
+            boolean syncAndRefresh) {
+        doExpand(items, pageSize, syncAndRefresh);
+    }
+
+    private void doExpand(Collection<T> items, int pageSize,
+            boolean syncAndRefresh) {
+        items.forEach(item -> {
+            mapper.expand(item);
+        });
+        if (syncAndRefresh) {
+            UpdateQueue update = (UpdateQueue) arrayUpdater
+                    .startUpdate(getDataProviderSize());
+            update.enqueue("$connector.expandItems",
+                    items.stream().map(this::generateJson)
+                            .collect(JsonUtils.asArray()));
+            requestFlush(update);
+        }
     }
 
     /**
