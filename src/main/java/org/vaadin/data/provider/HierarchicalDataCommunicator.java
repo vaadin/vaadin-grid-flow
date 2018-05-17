@@ -15,6 +15,7 @@
  */
 package org.vaadin.data.provider;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -236,22 +237,26 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         doCollapse(Arrays.asList(item), syncAndRefresh);
     }
 
-    public void collapse(Collection<T> items, boolean syncAndRefresh) {
-        doCollapse(items, syncAndRefresh);
+    public Collection<T> collapse(Collection<T> items, boolean syncAndRefresh) {
+        return doCollapse(items, syncAndRefresh);
     }
 
-    private void doCollapse(Collection<T> items,
+    private Collection<T> doCollapse(Collection<T> items,
             boolean syncAndRefresh) {
+        List<T> collapsedItems = new ArrayList<>();
         items.forEach(item -> {
-            mapper.collapse(item);
+            if (mapper.collapse(item)) {
+                collapsedItems.add(item);
+            }
         });
         if (syncAndRefresh) {
             UpdateQueue update = (UpdateQueue) arrayUpdater
                     .startUpdate(getDataProviderSize());
-            update.enqueue("$connector.collapseItems", items.stream()
+            update.enqueue("$connector.collapseItems", collapsedItems.stream()
                     .map(this::generateJson).collect(JsonUtils.asArray()));
             requestFlush(update);
         }
+        return collapsedItems;
     }
 
     /**
@@ -284,24 +289,28 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         doExpand(Arrays.asList(item), pageSize, syncAndRefresh);
     }
 
-    public void expand(Collection<T> items, int pageSize,
+    public Collection<T> expand(Collection<T> items, int pageSize,
             boolean syncAndRefresh) {
-        doExpand(items, pageSize, syncAndRefresh);
+        return doExpand(items, pageSize, syncAndRefresh);
     }
 
-    private void doExpand(Collection<T> items, int pageSize,
+    private Collection<T> doExpand(Collection<T> items, int pageSize,
             boolean syncAndRefresh) {
+        List<T> expandedItems = new ArrayList<>();
         items.forEach(item -> {
-            mapper.expand(item);
+            if (mapper.expand(item)) {
+                expandedItems.add(item);
+            }
         });
         if (syncAndRefresh) {
             UpdateQueue update = (UpdateQueue) arrayUpdater
                     .startUpdate(getDataProviderSize());
             update.enqueue("$connector.expandItems",
-                    items.stream().map(this::generateJson)
+                    expandedItems.stream().map(this::generateJson)
                             .collect(JsonUtils.asArray()));
             requestFlush(update);
         }
+        return expandedItems;
     }
 
     /**
