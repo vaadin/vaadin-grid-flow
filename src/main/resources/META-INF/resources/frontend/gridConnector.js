@@ -1,5 +1,5 @@
 window.Vaadin.Flow.gridConnector = {
-  initLazy: function(grid) {    
+  initLazy: function(grid) {
     // Check whether the connector was already initialized for the grid
     if (grid.$connector){
       return;
@@ -112,9 +112,6 @@ window.Vaadin.Flow.gridConnector = {
         }
         treePageCallbacks[params.parentItem.key][page] = callback;
         grid.$server.setParentRequestedRange(page, grid.pageSize, params.parentItem.key);
-        // grid.$server.setRequestedRange(first * grid.pageSize, count * grid.pageSize);
-        //
-        // callback(pageItems, treeLevelSize);
         return;
       }
 
@@ -314,7 +311,19 @@ window.Vaadin.Flow.gridConnector = {
       grid.size = newSize;
     };
 
-    grid.$connector.confirmLevel = function(parentKey, page, items, levelSize) {
+    grid.$connector.updateUniqueItemIdPath = function(path) {
+      grid.itemIdPath = path;
+    }
+
+    grid.$connector.expandItems = function(items) {
+      items.forEach(item => grid.expandItem(item));
+    }
+
+    grid.$connector.collapseItems = function(items) {
+      items.forEach(item => grid.collapseItem(item));
+    }
+
+    grid.$connector.confirmTreeLevel = function(parentKey, page, items, levelSize) {
       if(!treePageCallbacks[parentKey]) {
         return;
       }
