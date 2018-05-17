@@ -29,6 +29,8 @@ import org.vaadin.data.provider.HierarchicalDataProvider;
 import org.vaadin.data.provider.HierarchicalQuery;
 
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.ArrayUpdater;
@@ -41,6 +43,7 @@ import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.StateNode;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.ui.ItemCollapseAllowedProvider;
 
 import elemental.json.JsonArray;
@@ -101,22 +104,7 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     private void registerTreeGridRpc() {
-        /*-registerRpc((NodeCollapseRpc) (rowKey, rowIndex, collapse,
-                userOriginated) -> {
-            T item = getDataCommunicator().getKeyMapper().get(rowKey);
-            if (collapse && getDataCommunicator().isExpanded(item)) {
-                getDataCommunicator().collapse(item, rowIndex);
-                fireCollapseEvent(
-                        getDataCommunicator().getKeyMapper().get(rowKey),
-                        userOriginated);
-            } else if (!collapse && !getDataCommunicator().isExpanded(item)) {
-                getDataCommunicator().expand(item, rowIndex);
-                fireExpandEvent(
-                        getDataCommunicator().getKeyMapper().get(rowKey),
-                        userOriginated);
-            }
-        });
-        
+        /*-
         registerRpc((FocusParentRpc) (rowKey, cellIndex) -> {
             Integer parentIndex = getDataCommunicator().getParentIndex(
                     getDataCommunicator().getKeyMapper().get(rowKey));
@@ -159,7 +147,7 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     /**
-     * Adds an ExpandListener to this TreeGrid.
+     * Adds an ExpandEvent listener to this TreeGrid.
      *
      * @see ExpandEvent
      *
@@ -167,13 +155,14 @@ public class TreeGrid<T> extends Grid<T>
      *            the listener to add
      * @return a registration for the listener
      */
-    /*-public Registration addExpandListener(ExpandListener<T> listener) {
-        return addListener(ExpandEvent.class, listener,
-                ExpandListener.EXPAND_METHOD);
-    }-*/
+    public Registration addExpandListener(
+            ComponentEventListener<ExpandEvent<T, TreeGrid<T>>> listener) {
+        return ComponentUtil.addListener(this, ExpandEvent.class,
+                (ComponentEventListener) listener);
+    }
 
     /**
-     * Adds a CollapseListener to this TreeGrid.
+     * Adds a CollapseEvent listener to this TreeGrid.
      *
      * @see CollapseEvent
      *
@@ -181,10 +170,11 @@ public class TreeGrid<T> extends Grid<T>
      *            the listener to add
      * @return a registration for the listener
      */
-    /*-public Registration addCollapseListener(CollapseListener<T> listener) {
-        return addListener(CollapseEvent.class, listener,
-                CollapseListener.COLLAPSE_METHOD);
-    }-*/
+    public Registration addCollapseListener(
+            ComponentEventListener<CollapseEvent<T, TreeGrid<T>>> listener) {
+        return ComponentUtil.addListener(this, CollapseEvent.class,
+                (ComponentEventListener) listener);
+    }
 
     @Override
     public void setDataProvider(DataProvider<T, ?> dataProvider) {
@@ -192,7 +182,6 @@ public class TreeGrid<T> extends Grid<T>
             throw new IllegalArgumentException(
                     "TreeGrid only accepts hierarchical data providers");
         }
-        // getRpcProxy(TreeGridClientRpc.class).clearPendingExpands();
         super.setDataProvider(dataProvider);
     }
 
@@ -307,12 +296,6 @@ public class TreeGrid<T> extends Grid<T>
         getDataCommunicator().setItemCollapseAllowedProvider(provider);
     }
 
-    /*-@ClientCallable
-    private void expand(String key) {
-        T item = getDataCommunicator().getKeyMapper().get(String.valueOf(key));
-        Optional.ofNullable(item).ifPresent(this::expand);
-    }-*/
-
     @ClientCallable(DisabledUpdateMode.ALWAYS)
     private void setParentRequestedRange(int page, int length,
             String parentKey) {
@@ -344,17 +327,15 @@ public class TreeGrid<T> extends Grid<T>
      *            the items to expand
      */
     public void expand(Collection<T> items) {
-        expand(items, true);
+        expand(items, true, false);
     }
 
-    protected void expand(Collection<T> items, boolean syncAndRefresh) {
-        getDataCommunicator().expand(items, getPageSize(),
-                syncAndRefresh);
-        items.forEach(item -> {
-            if (!isExpanded(item) && getDataCommunicator().hasChildren(item)) {
-                // fireExpandEvent(item, false); TODO
-            }
-        });
+    protected void expand(Collection<T> items, boolean syncAndRefresh,
+            boolean userOriginated) {
+        Collection<T> expandedItems = getDataCommunicator().expand(items,
+                getPageSize(), syncAndRefresh);
+        fireEvent(new ExpandEvent<T, TreeGrid<T>>(this, userOriginated,
+                expandedItems));
     }
 
     /**
@@ -422,16 +403,15 @@ public class TreeGrid<T> extends Grid<T>
      *            the collection of items to collapse
      */
     public void collapse(Collection<T> items) {
-        collapse(items, true);
+        collapse(items, true, false);
     }
 
-    protected void collapse(Collection<T> items, boolean syncAndRefresh) {
-        getDataCommunicator().collapse(items, syncAndRefresh);
-        items.forEach(item -> {
-            if (isExpanded(item)) {
-                // fireCollapseEvent(item, false); TODO
-            }
-        });
+    protected void collapse(Collection<T> items, boolean syncAndRefresh,
+            boolean userOriginated) {
+        Collection<T> collapsedItems = getDataCommunicator().collapse(items,
+                syncAndRefresh);
+        fireEvent(new CollapseEvent<T, TreeGrid<T>>(this, userOriginated,
+                collapsedItems));
     }
     /**
      * Collapse the given items and their children recursively until the given
@@ -499,9 +479,9 @@ public class TreeGrid<T> extends Grid<T>
 
     protected void toggleExpandedState(T item) {
         if (isExpanded(item)) {
-            collapse(Arrays.asList(item), false);
+            collapse(Arrays.asList(item), false, true);
         } else {
-            expand(Arrays.asList(item), false);
+            expand(Arrays.asList(item), false, true);
         }
     }
 
@@ -528,32 +508,6 @@ public class TreeGrid<T> extends Grid<T>
         }
         return (HierarchicalDataProvider<T, ?>) super.getDataProvider();
     }
-
-    /**
-     * Emit an expand event.
-     *
-     * @param item
-     *            the item that was expanded
-     * @param userOriginated
-     *            whether the expand was triggered by a user interaction or the
-     *            server
-     */
-    /*-private void fireExpandEvent(T item, boolean userOriginated) {
-        fireEvent(new ExpandEvent<>(this, item, userOriginated));
-    }-*/
-
-    /**
-     * Emit a collapse event.
-     *
-     * @param item
-     *            the item that was collapsed
-     * @param userOriginated
-     *            whether the collapse was triggered by a user interaction or
-     *            the server
-     */
-    /*-private void fireCollapseEvent(T item, boolean userOriginated) {
-        fireEvent(new CollapseEvent<>(this, item, userOriginated));
-    }-*/
 
     /**
      * Gets the item collapse allowed provider.

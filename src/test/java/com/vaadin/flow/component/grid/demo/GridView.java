@@ -1081,6 +1081,11 @@ public class GridView extends DemoView {
         grid.addHierarchyColumn(Person::getName).setHeader("Hierarchy");
         grid.addColumn(Person::getAge).setHeader("Age");
 
+        grid.addExpandListener(event -> System.out.println(
+                String.format("Expanded %s item(s)", event.getItems().size())));
+        grid.addCollapseListener(event -> System.out.println(String
+                .format("Collapsed %s item(s)", event.getItems().size())));
+
         // end-source-example
         grid.setId("treegridbasic");
 

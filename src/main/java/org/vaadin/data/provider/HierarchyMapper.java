@@ -127,9 +127,11 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *
      * @param item
      *            the item to expand
+     * @return {@code true} if this method expanded the item, {@code false}
+     *         otherwise
      */
-    public void expand(T item) {
-        doExpand(item);
+    public boolean expand(T item) {
+        return doExpand(item);
     }
 
     /**
@@ -156,10 +158,12 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      * @param item
      *            the item to collapse
      */
-    public void collapse(T item) {
+    public boolean collapse(T item) {
         if (isExpanded(item)) {
             expandedItemIds.remove(getDataProvider().getId(item));
+            return true;
         }
+        return false;
     }
 
     @Override
