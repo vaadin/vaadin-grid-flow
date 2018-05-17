@@ -1071,23 +1071,87 @@ public class GridView extends DemoView {
         // source-example-heading: TreeGrid Basics
         TreeGrid<Person> grid = new TreeGrid<>();
         grid.setItems(getItems(), item -> {
-            if (item.getLevel() > 0)
+            if ((item.getLevel() == 0 && item.getId() > 10)
+                    || item.getLevel() > 1)
                 return Collections.emptyList();
             if (!childMap.containsKey(item))
-                childMap.put(item, createItems(100, item.getLevel() + 1));
+                childMap.put(item, createItems(81, item.getLevel() + 1));
             return childMap.get(item);
         });
-        // grid.setItems(getItems(),
-        // item -> createItems(Math.max(1, item.getId()) * 1000,
-        // (Math.max(1, item.getId()) * 1000) + 5));
         grid.addHierarchyColumn(Person::getName).setHeader("Hierarchy");
-        // grid.addColumn(Person::getName).setHeader("Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         // end-source-example
         grid.setId("treegridbasic");
 
-        addCard("TreeGrid Basics", grid);
+        NativeButton toggleFirstItem = new NativeButton("Toggle first item",
+                evt -> {
+                    if (grid.isExpanded(getItems().get(0))) {
+                        grid.collapse(getItems().get(0));
+                    } else {
+                        grid.expand(getItems().get(0));
+                    }
+                });
+        toggleFirstItem.setId("treegrid-toggle-first-item");
+        Div div1 = new Div(toggleFirstItem);
+        
+        NativeButton toggleSeveralItems = new NativeButton("Toggle first five items",
+                evt -> {
+                    List<Person> collapse = new ArrayList<>();
+                    List<Person> expand = new ArrayList<>();
+                    getItems().stream().limit(5).collect(Collectors.toList())
+                            .forEach(p -> {
+                        if (grid.isExpanded(p)) {
+                            collapse.add(p);
+                        } else {
+                            expand.add(p);
+                        }
+                    });
+                    if (!expand.isEmpty()) {
+                        grid.expand(expand);
+                    }
+                    if (!collapse.isEmpty()) {
+                        grid.collapse(collapse);
+                    }
+                });
+        toggleSeveralItems.setId("treegrid-toggle-first-five-item");
+        Div div2 = new Div(toggleSeveralItems);
+
+        NativeButton toggleRecursivelyFirstItem = new NativeButton(
+                "Toggle first item recursively", evt -> {
+                    if (grid.isExpanded(getItems().get(0))) {
+                        grid.collapseRecursively(getItems().stream().limit(1),
+                                2);
+                    } else {
+                        grid.expandRecursively(getItems().stream().limit(1), 2);
+                    }
+                });
+        toggleFirstItem.setId("treegrid-toggle-first-item-recur");
+        Div div3 = new Div(toggleRecursivelyFirstItem);
+
+        NativeButton toggleAllRecursively = new NativeButton(
+                "Toggle all recursively (slow)", evt -> {
+                    List<Person> collapse = new ArrayList<>();
+                    List<Person> expand = new ArrayList<>();
+                    getItems()
+                            .forEach(p -> {
+                                if (grid.isExpanded(p)) {
+                                    collapse.add(p);
+                                } else {
+                                    expand.add(p);
+                                }
+                            });
+                    if (!expand.isEmpty()) {
+                        grid.expandRecursively(expand, 2);
+                    }
+                    if (!collapse.isEmpty()) {
+                        grid.collapseRecursively(collapse, 2);
+                    }
+                });
+        toggleAllRecursively.setId("treegrid-toggle-all-recur");
+        Div div4 = new Div(toggleAllRecursively);
+
+        addCard("TreeGrid Basics", grid, div1, div2, div3, div4);
     }
 
     private List<Person> getItems() {
