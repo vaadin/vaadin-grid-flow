@@ -25,6 +25,7 @@ import com.vaadin.data.provider.HierarchicalDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.flow.data.binder.HasDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 
 /**
@@ -39,7 +40,7 @@ import com.vaadin.flow.function.ValueProvider;
  */
 public interface HasHierarchicalDataProvider<T> extends HasDataProvider<T> {
 
-    public HierarchicalDataProvider<T, ?> getDataProvider();
+    public HierarchicalDataProvider<T, SerializablePredicate<T>> getDataProvider();
 
     /**
      * Sets a new {@link TreeDataProvider} wrapping the given {@link TreeData}.
