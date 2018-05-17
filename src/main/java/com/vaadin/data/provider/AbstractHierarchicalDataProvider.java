@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License. 
  */
-package org.vaadin.data.provider;
+package com.vaadin.data.provider;
 
 import com.vaadin.flow.data.provider.AbstractDataProvider;
 

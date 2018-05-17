@@ -13,15 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License. 
  */
-package org.vaadin.data.provider;
+package com.vaadin.data.provider;
 
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.vaadin.data.TreeData;
-
+import com.vaadin.data.TreeData;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.DataProviderWrapper;
 import com.vaadin.flow.data.provider.InMemoryDataProvider;
