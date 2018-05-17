@@ -1,4 +1,4 @@
-package org.vaadin.data.provider;
+package com.vaadin.data.provider;
 
 import java.util.Comparator;
 import java.util.List;
