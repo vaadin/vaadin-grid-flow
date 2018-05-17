@@ -23,11 +23,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.vaadin.data.HasHierarchicalDataProvider;
-import org.vaadin.data.provider.HierarchicalDataCommunicator;
-import org.vaadin.data.provider.HierarchicalDataProvider;
-import org.vaadin.data.provider.HierarchicalQuery;
-
+import com.vaadin.data.HasHierarchicalDataProvider;
+import com.vaadin.data.provider.HierarchicalDataCommunicator;
+import com.vaadin.data.provider.HierarchicalDataProvider;
+import com.vaadin.data.provider.HierarchicalQuery;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
