@@ -15,9 +15,12 @@
  */
 package com.vaadin.flow.component.treegrid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.vaadin.data.HasHierarchicalDataProvider;
@@ -41,6 +44,7 @@ import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.ui.ItemCollapseAllowedProvider;
 
 import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 
 /**
  * A grid component for displaying hierarchical tabular data.
@@ -54,6 +58,8 @@ import elemental.json.JsonArray;
 @HtmlImport("frontend://bower_components/vaadin-grid/src/vaadin-grid-tree-toggle.html")
 public class TreeGrid<T> extends Grid<T>
         implements HasHierarchicalDataProvider<T> {
+
+    private ValueProvider<T, String> uniqueKeyProvider;
 
     /**
      * Creates a new {@code TreeGrid} without support for creating columns based
@@ -125,9 +131,31 @@ public class TreeGrid<T> extends Grid<T>
             CompositeDataGenerator<T> gridDataGenerator,
             ArrayUpdater arrayUpdater,
             SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode) {
+        uniqueKeyProperty = "uniquekey";
+        uniqueKeyProvider = item -> "" + item.hashCode();
+        gridDataGenerator
+                .addDataGenerator((T item, JsonObject jsonObject) -> jsonObject
+                        .put(uniqueKeyProperty, uniqueKeyProvider.apply(item)));
         return new HierarchicalDataCommunicator<>(gridDataGenerator,
                 arrayUpdater,
                 dataUpdater, stateNode);
+    }
+
+    /**
+     * Set unique key data provider. Given property name will be added to grid's
+     * generated row json data. Default property name is 'uniquekey' and value
+     * is bean object's hashCode.
+     * 
+     * @param propertyName
+     *            Property name in json data
+     * @param uniqueKeyProvider
+     *            Value provider for the target property in json data
+     */
+    public void setUniqueKeyDataGenerator(String propertyName,
+            ValueProvider<T, String> uniqueKeyProvider) {
+        this.uniqueKeyProperty = propertyName;
+        this.uniqueKeyProvider = uniqueKeyProvider;
+        getDataProvider().refreshAll();
     }
 
     /**
@@ -221,16 +249,15 @@ public class TreeGrid<T> extends Grid<T>
      */
     public Column<T> addHierarchyColumn(ValueProvider<T, ?> valueProvider) {
         String template = "<vaadin-grid-tree-toggle leaf=\"[[item.leaf]]\" expanded=\"{{expanded}}\""
-                + " level=\"[[level]]\">[[item.name]]</vaadin-grid-tree-toggle>";
+                + " level=\"[[level]]\" on-expanded-changed=\"onExpandedChange\">[[item.name]]</vaadin-grid-tree-toggle>";
         Column<T> column = addColumn(TemplateRenderer
                 .<T> of(template)
-                .withProperty("level",
-                        item -> "" + getDataCommunicator().getDepth(item))
                 .withProperty("leaf",
-                        item -> !getDataCommunicator().hasChildren(item)) // TODO
-                .withProperty("expanded", item -> isExpanded(item))
+                        item -> !getDataCommunicator().hasChildren(item))
                 .withProperty("name",
-                        value -> String.valueOf(valueProvider.apply(value))));
+                        value -> String.valueOf(valueProvider.apply(value)))
+                .withEventHandler("onExpandedChange",
+                        this::toggleExpandedState));
         column.setComparator(
                 ((a, b) -> compareMaybeComparables(valueProvider.apply(a),
                         valueProvider.apply(b))));
@@ -291,9 +318,6 @@ public class TreeGrid<T> extends Grid<T>
             String parentKey) {
         T item = getDataCommunicator().getKeyMapper()
                 .get(String.valueOf(parentKey));
-        // if (!isExpanded(item)) {
-        // Optional.ofNullable(item).ifPresent(this::expand);
-        // }
         getDataCommunicator().setParentRequestedRange(page, length, item);
     }
 
@@ -320,11 +344,14 @@ public class TreeGrid<T> extends Grid<T>
      *            the items to expand
      */
     public void expand(Collection<T> items) {
-        HierarchicalDataCommunicator<T> communicator = getDataCommunicator();
+        expand(items, true);
+    }
+
+    protected void expand(Collection<T> items, boolean syncAndRefresh) {
+        getDataCommunicator().expand(items, getPageSize(),
+                syncAndRefresh);
         items.forEach(item -> {
-            if (!communicator.isExpanded(item)
-                    && communicator.hasChildren(item)) {
-                communicator.expand(item, getPageSize());
+            if (!isExpanded(item) && getDataCommunicator().hasChildren(item)) {
                 // fireExpandEvent(item, false); TODO
             }
         });
@@ -347,8 +374,8 @@ public class TreeGrid<T> extends Grid<T>
      *            the maximum depth of recursion
      * @since 8.4
      */
-    public void expandRecursively(Collection<T> items, int depth) {
-        expandRecursively(items.stream(), depth);
+    public void expandRecursively(Stream<T> items, int depth) {
+        expandRecursively(items.collect(Collectors.toList()), depth);
     }
 
     /**
@@ -368,24 +395,10 @@ public class TreeGrid<T> extends Grid<T>
      *            the maximum depth of recursion
      * @since 8.4
      */
-    public void expandRecursively(Stream<T> items, int depth) {
-        if (depth < 0) {
-            return;
-        }
-
-        HierarchicalDataCommunicator<T> communicator = getDataCommunicator();
-        items.forEach(item -> {
-            if (communicator.hasChildren(item)) {
-                communicator.expand(item, getPageSize(), false);
-
-                expandRecursively(
-                        getDataProvider().fetchChildren(
-                                new HierarchicalQuery<>(null, item)),
-                        depth - 1);
-            }
-        });
-
-        getDataProvider().refreshAll();
+    public void expandRecursively(Collection<T> items, int depth) {
+        getDataCommunicator().expand(
+                getItemsWithChildrenRecursively(items, depth),
+                getPageSize(), true);
     }
 
     /**
@@ -409,13 +422,36 @@ public class TreeGrid<T> extends Grid<T>
      *            the collection of items to collapse
      */
     public void collapse(Collection<T> items) {
-        HierarchicalDataCommunicator<T> communicator = getDataCommunicator();
+        collapse(items, true);
+    }
+
+    protected void collapse(Collection<T> items, boolean syncAndRefresh) {
+        getDataCommunicator().collapse(items, syncAndRefresh);
         items.forEach(item -> {
-            if (communicator.isExpanded(item)) {
-                communicator.collapse(item);
+            if (isExpanded(item)) {
                 // fireCollapseEvent(item, false); TODO
             }
         });
+    }
+    /**
+     * Collapse the given items and their children recursively until the given
+     * depth.
+     * <p>
+     * {@code depth} describes the maximum distance between a given item and its
+     * descendant, meaning that {@code collapseRecursively(items, 0)} collapses
+     * only the given items while {@code collapseRecursively(items, 2)}
+     * collapses the given items as well as their children and grandchildren.
+     * <p>
+     * This method will <i>not</i> fire events for collapsed nodes.
+     *
+     * @param items
+     *            the items to collapse recursively
+     * @param depth
+     *            the maximum depth of recursion
+     * @since 8.4
+     */
+    public void collapseRecursively(Stream<T> items, int depth) {
+        collapseRecursively(items.collect(Collectors.toList()), depth);
     }
 
     /**
@@ -436,44 +472,37 @@ public class TreeGrid<T> extends Grid<T>
      * @since 8.4
      */
     public void collapseRecursively(Collection<T> items, int depth) {
-        collapseRecursively(items.stream(), depth);
+        getDataCommunicator().collapse(getItemsWithChildrenRecursively(items, depth),
+                true);
     }
 
-    /**
-     * Collapse the given items and their children recursively until the given
-     * depth.
-     * <p>
-     * {@code depth} describes the maximum distance between a given item and its
-     * descendant, meaning that {@code collapseRecursively(items, 0)} collapses
-     * only the given items while {@code collapseRecursively(items, 2)}
-     * collapses the given items as well as their children and grandchildren.
-     * <p>
-     * This method will <i>not</i> fire events for collapsed nodes.
-     *
-     * @param items
-     *            the items to collapse recursively
-     * @param depth
-     *            the maximum depth of recursion
-     * @since 8.4
-     */
-    public void collapseRecursively(Stream<T> items, int depth) {
+    protected Collection<T> getItemsWithChildrenRecursively(Collection<T> items,
+            int depth) {
+        List<T> itemsWithChildren = new ArrayList<>();
         if (depth < 0) {
-            return;
+            return itemsWithChildren;
         }
-
-        HierarchicalDataCommunicator<T> communicator = getDataCommunicator();
         items.forEach(item -> {
-            if (communicator.hasChildren(item)) {
-                collapseRecursively(
-                        getDataProvider().fetchChildren(
-                                new HierarchicalQuery<>(null, item)),
-                        depth - 1);
-
-                communicator.collapse(item, false);
+            if (getDataCommunicator().hasChildren(item)) {
+                itemsWithChildren.add(item);
+                itemsWithChildren
+                        .addAll(getItemsWithChildrenRecursively(
+                                getDataProvider()
+                                        .fetchChildren(new HierarchicalQuery<>(
+                                                null, item))
+                                        .collect(Collectors.toList()),
+                                depth - 1));
             }
         });
+        return itemsWithChildren;
+    }
 
-        getDataProvider().refreshAll();
+    protected void toggleExpandedState(T item) {
+        if (isExpanded(item)) {
+            collapse(Arrays.asList(item), false);
+        } else {
+            expand(Arrays.asList(item), false);
+        }
     }
 
     /**

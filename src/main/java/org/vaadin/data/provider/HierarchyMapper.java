@@ -127,32 +127,9 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *
      * @param item
      *            the item to expand
-     * @param position
-     *            the index of the item
-     * @return range of rows added by expanding the item
      */
-    public Range expand(T item, Integer position) {
-        if (doExpand(item) && position != null) {
-            return Range.withLength(position + 1,
-                    (int) getHierarchy(item, false).count());
-        }
-
-        return Range.withLength(0, 0);
-    }
-
-    /**
-     * Expands the given item.
-     *
-     * @param item
-     *            the item to expand
-     * @param position
-     *            the index of item
-     * @return range of rows added by expanding the item
-     * @deprecated Use {@link #expand(Object, Integer)} instead.
-     */
-    @Deprecated
-    public Range doExpand(T item, Optional<Integer> position) {
-        return expand(item, position.orElse(null));
+    public void expand(T item) {
+        doExpand(item);
     }
 
     /**
@@ -178,68 +155,15 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *
      * @param item
      *            the item to collapse
-     * @param position
-     *            the index of the item
-     *
-     * @return range of rows removed by collapsing the item
      */
-    public Range collapse(T item, Integer position) {
-        Range removedRows = Range.withLength(0, 0);
+    public void collapse(T item) {
         if (isExpanded(item)) {
-            if (position != null) {
-                removedRows = Range.withLength(position + 1,
-                        (int) getHierarchy(item, false).count());
-            }
             expandedItemIds.remove(getDataProvider().getId(item));
         }
-        return removedRows;
-    }
-
-    /**
-     * Collapses the given item.
-     *
-     * @param item
-     *            the item to collapse
-     * @param position
-     *            the index of item
-     *
-     * @return range of rows removed by collapsing the item
-     * @deprecated Use {@link #collapse(Object, Integer)} instead.
-     */
-    @Deprecated
-    public Range doCollapse(T item, Optional<Integer> position) {
-        return collapse(item, position.orElse(null));
     }
 
     @Override
     public void generateData(T item, JsonObject jsonObject) {
-        // JsonObject hierarchyData = Json.createObject();
-
-        int depth = getDepth(item);
-        if (depth >= 0) {
-            jsonObject.put("level",
-                    depth);
-        }
-
-        boolean isLeaf = !getDataProvider().hasChildren(item);
-        if (isLeaf) {
-            jsonObject.put("leaf",
-                    true);
-        } else {
-            jsonObject.put(
-                    "expanded", isExpanded(item));
-            jsonObject.put("leaf",
-                    false);
-            // TODO
-            /*-hierarchyData.put(
-                    HierarchicalDataCommunicatorConstants.ROW_COLLAPSE_ALLOWED,
-                    getItemCollapseAllowedProvider().test(item));-*/
-        }
-
-        // add hierarchy information to row as metadata
-        // jsonObject.put(
-        // HierarchicalDataCommunicatorConstants.ROW_HIERARCHY_DESCRIPTION,
-        // hierarchyData);
     }
 
     /**
