@@ -90,7 +90,8 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
 
     // TODO
     public int getRootSize() {
-        return (int) getDirectChildren(null).count();
+        return getDataProvider()
+                .getChildCount(new HierarchicalQuery<>(filter, null));
     }
 
     /**

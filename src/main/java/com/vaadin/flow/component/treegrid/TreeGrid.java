@@ -40,6 +40,7 @@ import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.shared.Registration;
@@ -501,11 +502,11 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     @Override
-    public HierarchicalDataProvider<T, ?> getDataProvider() {
+    public HierarchicalDataProvider<T, SerializablePredicate<T>> getDataProvider() {
         if (!(super.getDataProvider() instanceof HierarchicalDataProvider)) {
             return null;
         }
-        return (HierarchicalDataProvider<T, ?>) super.getDataProvider();
+        return (HierarchicalDataProvider<T, SerializablePredicate<T>>) super.getDataProvider();
     }
 
     /**
