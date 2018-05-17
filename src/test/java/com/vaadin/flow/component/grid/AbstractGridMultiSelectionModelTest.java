@@ -42,7 +42,7 @@ public class AbstractGridMultiSelectionModelTest {
     }
 
     @Test
-    public void select_singleItemSignature_selectFormClient_dontSendToCleintSide() {
+    public void select_singleItemSignature_selectFormClient_dontSendToClientSide() {
         Set<String> selected = new HashSet<>();
         Grid<String> grid = new Grid<String>() {
             @Override
@@ -75,7 +75,7 @@ public class AbstractGridMultiSelectionModelTest {
     }
 
     @Test
-    public void singleItemSignature_deselectFormClient_dontSendToCleintSide() {
+    public void singleItemSignature_deselectFormClient_dontSendToClientSide() {
         Set<String> deselected = new HashSet<>();
         Grid<String> grid = new Grid<String>() {
             @Override
