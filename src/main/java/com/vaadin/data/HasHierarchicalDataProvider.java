@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License. 
  */
-package org.vaadin.data;
+package com.vaadin.data;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,9 +21,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.vaadin.data.provider.HierarchicalDataProvider;
-import org.vaadin.data.provider.TreeDataProvider;
-
+import com.vaadin.data.provider.HierarchicalDataProvider;
+import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.flow.data.binder.HasDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.function.ValueProvider;
