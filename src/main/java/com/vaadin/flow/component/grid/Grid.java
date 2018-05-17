@@ -113,12 +113,18 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public final class UpdateQueue implements Update {
         private List<Runnable> queue = new ArrayList<>();
 
+        private UpdateQueue() {
+        }
+
         private UpdateQueue(int size) {
             // 'size' property is not synchronized by the web component since
             // there are no events for it, but we
             // need to sync it otherwise server will overwrite client value with
             // the old server one
             enqueue("$connector.updateSize", size);
+            if (uniqueKeyProperty != null) {
+                enqueue("$connector.updateUniqueItemIdPath", uniqueKeyProperty);
+            }
             getElement().setProperty("size", size);
         }
 
@@ -136,6 +142,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         @Override
         public void commit(int updateId) {
             enqueue("$connector.confirm", updateId);
+            commit();
+        }
+
+        public void commit() {
             queue.forEach(Runnable::run);
             queue.clear();
         }
@@ -800,12 +810,18 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return new UpdateQueue(sizeChange);
         }
 
+        public UpdateQueue startUpdate() {
+            return new UpdateQueue();
+        }
+
         @Override
         public void initialize() {
             initConnector();
             updateSelectionModeOnClient();
         }
     };
+
+    protected String uniqueKeyProperty;
 
     private final CompositeDataGenerator<T> gridDataGenerator = new CompositeDataGenerator<>();
     private final DataCommunicator<T> dataCommunicator;
