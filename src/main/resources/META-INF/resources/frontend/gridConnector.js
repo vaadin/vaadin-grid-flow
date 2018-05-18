@@ -187,6 +187,10 @@ window.Vaadin.Flow.gridConnector = {
         if (!items) {
           for (let idx = rangeStart; idx < rangeEnd; idx++) {
             delete grid._cache.items[idx];
+            if(grid._cache.itemCaches[idx]) {
+              // clears subcache
+              delete grid._cache.itemCaches[idx];
+            }
           }
         }
         else {
