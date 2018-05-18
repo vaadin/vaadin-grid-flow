@@ -352,8 +352,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         // Update hierarchy mapper
         mapper.setItemCollapseAllowedProvider(provider);
 
-        // getActiveDataHandler().getActiveData().values().forEach(this::refresh);
-        // TODO
+        getDataProvider().refreshAll();
     }
 
     /**
