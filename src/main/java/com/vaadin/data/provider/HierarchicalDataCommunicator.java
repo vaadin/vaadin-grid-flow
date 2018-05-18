@@ -21,16 +21,22 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.vaadin.data.TreeData;
 import com.vaadin.flow.component.grid.Grid.UpdateQueue;
 import com.vaadin.flow.data.provider.ArrayUpdater;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
+import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.ExecutionContext;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.Range;
@@ -57,6 +63,27 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     private final StateNode stateNode;
     private HierarchyMapper<T, ?> mapper;
     private DataGenerator<T> dataGenerator;
+    private final ValueProvider<T, String> uniqueKeyProvider;
+
+    private KeyMapper keyMapper = new KeyMapper<T>() {
+
+        private T object;
+
+        @Override
+        public String key(T o) {
+            this.object = o;
+            try {
+                return super.key(o);
+            } finally {
+                this.object = null;
+            }
+        }
+
+        @Override
+        protected String createKey() {
+            return uniqueKeyProvider.apply(object);
+        }
+    };
 
     /**
      * Collapse allowed provider used to allow/disallow collapsing nodes.
@@ -75,14 +102,24 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *            data updater strategy
      * @param stateNode
      *            the state node used to communicate for
+     * @param uniqueKeyProvider
      */
     public HierarchicalDataCommunicator(DataGenerator<T> dataGenerator,
             ArrayUpdater arrayUpdater,
-            SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode) {
+            SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode,
+            ValueProvider<T, String> uniqueKeyProvider) {
         super(dataGenerator, arrayUpdater, dataUpdater, stateNode);
         this.dataGenerator = dataGenerator;
         this.arrayUpdater = arrayUpdater;
         this.stateNode = stateNode;
+        this.uniqueKeyProvider = uniqueKeyProvider;
+        try {
+            // TODO get rid of this reflection
+            FieldUtils.writeField(this, "keyMapper", keyMapper, true);
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         setDataProvider(new TreeDataProvider<>(new TreeData<>()), null);
     }
 
@@ -111,7 +148,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                 .startUpdate(getDataProviderSize());
 
         update.enqueue("$connector.confirmTreeLevel",
-                getKeyMapper().key(parentItem), page,
+                uniqueKeyProvider.apply(parentItem), page,
                 mapper.fetchChildItems(parentItem,
                         Range.withLength(page * length, length))
                         .map(this::generateJson).collect(JsonUtils.asArray()),
@@ -364,6 +401,29 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      */
     public Integer getParentIndex(T item) {
         return mapper.getParentIndex(item);
+    }
+
+    /**
+     * Returns index for the row or {@code null}.
+     *
+     * @param item
+     *            the target item
+     * @return the index or {@code null} for top-level and non-existing items
+     */
+    public Integer getIndex(T item) {
+        return Optional.ofNullable(mapper.getIndex(item))
+                .filter(index -> index >= 0).orElse(null);
+    }
+
+    /**
+     * Returns parent item for the row or {@code null}.
+     *
+     * @param item
+     *            the item to find the parent of
+     * @return the parent item or {@code null} for top-level items
+     */
+    public T getParentItem(T item) {
+        return mapper.getParentOfItem(item);
     }
 
     // TODO javadoc
