@@ -109,6 +109,20 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
     }
 
     /**
+     * Finds the index of the item in active tree.
+     *
+     * @param item
+     *            the target item
+     * @return the index or a negative value if item is not found
+     *
+     */
+    public Integer getIndex(T item) {
+        // TODO: This can be optimized.
+        List<T> flatHierarchy = getHierarchy(null).collect(Collectors.toList());
+        return flatHierarchy.indexOf(item);
+    }
+
+    /**
      * Returns whether the given item is expanded.
      *
      * @param item
@@ -416,7 +430,7 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
     }
 
     /**
-     * Getst hte full hierarchy tree starting from given node. The starting node
+     * Gets the full hierarchy tree starting from given node. The starting node
      * can be omitted.
      *
      * @param parent
