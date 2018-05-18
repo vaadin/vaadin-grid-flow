@@ -1104,8 +1104,22 @@ public class GridView extends DemoView {
         // end-source-example
         grid.setId("treegridbasic");
 
+        TextField name = new TextField("Name of selected person");
+        grid.addSelectionListener(event -> name.setValue(
+                event.getFirstSelectedItem().map(Person::getName).orElse("")));
+        NativeButton save = new NativeButton("Save",
+                event -> {
+                    grid.getSelectionModel().getFirstSelectedItem().ifPresent(
+                            person -> person.setName(name.getValue()));
+                    grid.getSelectionModel().getFirstSelectedItem()
+                            .ifPresent(person -> grid.getDataProvider()
+                                    .refreshItem(person));
+                });
+        HorizontalLayout nameEditor = new HorizontalLayout(name, save);
+
         addCard("TreeGrid", "TreeGrid Basics",
-                withTreeGridToggleButtons(getItems(), grid, message));
+                withTreeGridToggleButtons(getItems(), grid, nameEditor,
+                        message));
     }
 
     private void createLazyLoadingTreeGridUsage() {

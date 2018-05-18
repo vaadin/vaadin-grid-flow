@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,11 +123,21 @@ public class TreeGrid<T> extends Grid<T>
         uniqueKeyProperty = "uniquekey";
         uniqueKeyProvider = item -> "" + item.hashCode();
         gridDataGenerator
-                .addDataGenerator((T item, JsonObject jsonObject) -> jsonObject
-                        .put(uniqueKeyProperty, uniqueKeyProvider.apply(item)));
+                .addDataGenerator((T item, JsonObject jsonObject) -> {
+                    jsonObject.put(uniqueKeyProperty,
+                            uniqueKeyProvider.apply(item));
+                    Optional.ofNullable(
+                            getDataCommunicator().getParentItem(item))
+                            .ifPresent(
+                                    parent -> jsonObject.put("parentUniqueKey",
+                                            uniqueKeyProvider.apply(parent)));
+                    Optional.ofNullable(getDataCommunicator().getIndex(item))
+                            .ifPresent(
+                                    idx -> jsonObject.put("scaledIndex", idx));
+
+                });
         return new HierarchicalDataCommunicator<>(gridDataGenerator,
-                arrayUpdater,
-                dataUpdater, stateNode);
+                arrayUpdater, dataUpdater, stateNode, item -> uniqueKeyProvider.apply(item));
     }
 
     /**
