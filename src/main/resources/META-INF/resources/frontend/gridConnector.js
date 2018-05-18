@@ -4,10 +4,11 @@ window.Vaadin.Flow.gridConnector = {
     if (grid.$connector){
       return;
     }
-    const pageCallbacks = {};
+    const rootPageCallbacks = {};
     const treePageCallbacks = {};
     const cache = {};
     let lastRequestedRange = [0, 0];
+    const root = 'null';
 
     const validSelectionModes = ['SINGLE', 'NONE', 'MULTI'];
     let selectedKeys = {};
@@ -107,19 +108,20 @@ window.Vaadin.Flow.gridConnector = {
       const page = params.page;
 
       if(params.parentItem) {
-        if(!treePageCallbacks[params.parentItem.key]) {
-          treePageCallbacks[params.parentItem.key] = {};
+        let parentUniquKey = grid.getItemId(params.parentItem);
+        if(!treePageCallbacks[parentUniquKey]) {
+          treePageCallbacks[parentUniquKey] = {};
         }
-        treePageCallbacks[params.parentItem.key][page] = callback;
+        treePageCallbacks[parentUniquKey][page] = callback;
         grid.$server.setParentRequestedRange(page, grid.pageSize, params.parentItem.key);
         return;
       }
 
 
-      if (cache[page]) {
-        callback(cache[page]);
+      if (cache[root] && cache[root][page]) {
+        callback(cache[root][page]);
       } else {
-        pageCallbacks[page] = callback;
+        rootPageCallbacks[page] = callback;
       }
       // Determine what to fetch based on scroll position and not only
       // what grid asked for
@@ -128,7 +130,7 @@ window.Vaadin.Flow.gridConnector = {
       // if he needs to reduce the number of items sent to the Grid to improve performance
       // or to increase it to make Grid smoother when scrolling
       let buffer = grid._virtualEnd - grid._virtualStart;
-      
+
       let firstNeededIndex = Math.max(0, grid._virtualStart + grid._vidxOffset - buffer);
       let lastNeededIndex = Math.min(grid._virtualEnd + grid._vidxOffset + buffer, grid.size);
 
@@ -178,25 +180,32 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    const updateGridCache = function(page) {
-      const items = cache[page];
+    const updateGridCache = function(page, scaledIndex, parentKey) {
+      if((parentKey || root) !== root) {
+        const items = cache[parentKey][page];
+        _updateGridCache(page, items,
+          treePageCallbacks[parentKey][page],
+          grid._cache.getCacheAndIndex(scaledIndex).cache);
+
+      } else {
+        const items = cache[root][page];
+        _updateGridCache(page, items, rootPageCallbacks[page], grid._cache);
+      }
+    }
+
+    const _updateGridCache = function(page, items, callback, levelcache) {
       // Force update unless there's a callback waiting
-      if (!pageCallbacks[page]) {
+      if(!callback) {
         let rangeStart = page * grid.pageSize;
         let rangeEnd = rangeStart + grid.pageSize;
         if (!items) {
           for (let idx = rangeStart; idx < rangeEnd; idx++) {
-            delete grid._cache.items[idx];
-            if(grid._cache.itemCaches[idx]) {
-              // clears subcache
-              delete grid._cache.itemCaches[idx];
-            }
+            delete levelcache.items[idx];
           }
-        }
-        else {
+        } else {
           for (let idx = rangeStart; idx < rangeEnd; idx++) {
-            if (grid._cache.items[idx]) {
-              grid._cache.items[idx] = items[idx - rangeStart];
+            if (levelcache.items[idx]) {
+              levelcache.items[idx] = items[idx - rangeStart];
             }
           }
           itemsUpdated(items);
@@ -220,7 +229,10 @@ window.Vaadin.Flow.gridConnector = {
       for (let i = 0; i < updatedPageCount; i++) {
         let page = firstPage + i;
         let slice = items.slice(i * grid.pageSize, (i + 1) * grid.pageSize);
-        cache[page] = slice;
+        if(!cache[root]) {
+          cache[root] = {};
+        }
+        cache[root][page] = slice;
         for(let j = 0; j < slice.length; j++) {
           let item = slice[j]
           if (item.selected && !isSelectedOnGrid(item)) {
@@ -233,11 +245,14 @@ window.Vaadin.Flow.gridConnector = {
       }
     };
 
-    const itemToCacheLocation = function(itemKey) {
-      for (let page in cache) {
-        for (let index in cache[page]) {
-          if (cache[page][index].key === itemKey) {
-            return {page: page, index: index};
+    const itemToCacheLocation = function(item) {
+      let parent = item.parentUniqueKey || root;
+      if(cache[parent]) {
+        for (let page in cache[parent]) {
+          for (let index in cache[parent][page]) {
+            if (grid.getItemId(cache[parent][page][index]) === grid.getItemId(item)) {
+              return {page: page, index: index, parentKey: parent, scaledIndex: item.scaledIndex};
+            }
           }
         }
       }
@@ -247,21 +262,23 @@ window.Vaadin.Flow.gridConnector = {
     grid.$connector.updateData = function(items) {
       let pagesToUpdate = [];
       for (let i = 0; i < items.length; i++) {
-        let cacheLocation = itemToCacheLocation(items[i].key);
+        let cacheLocation = itemToCacheLocation(items[i]);
         if (cacheLocation) {
-          cache[cacheLocation.page][cacheLocation.index] = items[i];
-          if (pagesToUpdate.indexOf(cacheLocation.page) === -1) {
-            pagesToUpdate.push(cacheLocation.page);
+          cache[cacheLocation.parentKey][cacheLocation.page][cacheLocation.index] = items[i];
+          let key = cacheLocation.parentKey+':'+cacheLocation.page;
+          if (!pagesToUpdate[key]) {
+            pagesToUpdate[key] = {scaledIndex: cacheLocation.scaledIndex, parentKey: cacheLocation.parentKey, page: cacheLocation.page};
           }
         }
       }
-      for (let page of pagesToUpdate) {
-        updateGridCache(page);
+      for (let key in pagesToUpdate) {
+        let pageToUpdate = pagesToUpdate[key];
+        updateGridCache(pageToUpdate.page, pageToUpdate.scaledIndex, pageToUpdate.parentKey);
       }
     };
 
     grid.$connector.clear = function(index, length) {
-      if (Object.keys(cache).length === 0){
+      if (Object.keys(cache[root]).length === 0){
         return;
       }
       if (index % grid.pageSize != 0) {
@@ -273,18 +290,18 @@ window.Vaadin.Flow.gridConnector = {
 
       for (let i = 0; i < updatedPageCount; i++) {
         let page = firstPage + i;
-        let items = cache[page];
+        let items = cache[root][page];
         for (let j = 0; j < items.length; j++) {
           let item = items[j];
           if (selectedKeys[item.key]) {
             grid.$connector.doDeselection(item);
           }
         }
-        delete cache[page];
+        delete cache[root][page];
         updateGridCache(page);
       }
     };
-    
+
     const isSelectedOnGrid = function(item) {
       const selectedItems = grid.selectedItems;
       for(let i = 0; i < selectedItems; i++) {
@@ -335,6 +352,10 @@ window.Vaadin.Flow.gridConnector = {
       if(callback) {
         let pageitems = items.slice(0, grid.pageSize);
         delete treePageCallbacks[parentKey][page];
+        if(!cache[parentKey]) {
+          cache[parentKey] = {};
+        }
+        cache[parentKey][page] = pageitems;
         callback(pageitems, levelSize);
       }
     };
@@ -342,14 +363,14 @@ window.Vaadin.Flow.gridConnector = {
     grid.$connector.confirm = function(id) {
       // We're done applying changes from this batch, resolve outstanding
       // callbacks
-      let outstandingRequests = Object.getOwnPropertyNames(pageCallbacks);
+      let outstandingRequests = Object.getOwnPropertyNames(rootPageCallbacks);
       for(let i = 0; i < outstandingRequests.length; i++) {
         let page = outstandingRequests[i];
         // Resolve if we have data or if we don't expect to get data
-        if (cache[page] || page < lastRequestedRange[0] || page > lastRequestedRange[1]) {
-          let callback = pageCallbacks[page];
-          delete pageCallbacks[page];
-          callback(cache[page] || new Array(grid.pageSize));
+        if ((cache[root] && cache[root][page]) || page < lastRequestedRange[0] || page > lastRequestedRange[1]) {
+          let callback = rootPageCallbacks[page];
+          delete rootPageCallbacks[page];
+          callback(cache[root][page] || new Array(grid.pageSize));
         }
       }
 
