@@ -216,9 +216,12 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     /**
-     * Adds a new text column to this {@link Grid} with a value provider. The
-     * value is converted to String when sent to the client by using
+     * Adds a new Hierarchy column to this {@link Grid} with a value provider.
+     * The value is converted to String when sent to the client by using
      * {@link String#valueOf(Object)}.
+     * <p>
+     * Hierarchy column is rendered by using 'vaadin-grid-tree-toggle' web
+     * component.
      * <p>
      * <em>NOTE:</em> For displaying components, see
      * {@link #addComponentColumn(ValueProvider)}. For using build-in renderers,
@@ -226,21 +229,22 @@ public class TreeGrid<T> extends Grid<T>
      *
      * @param valueProvider
      *            the value provider
-     * @return the created column
+     * @return the created hierarchy column
      * @see #addComponentColumn(ValueProvider)
      * @see #addColumn(Renderer)
      */
     public Column<T> addHierarchyColumn(ValueProvider<T, ?> valueProvider) {
         String template = "<vaadin-grid-tree-toggle leaf=\"[[item.leaf]]\" expanded=\"{{expanded}}\""
-                + " level=\"[[level]]\" on-expanded-changed=\"onExpandedChange\">[[item.name]]</vaadin-grid-tree-toggle>";
+                + " level=\"[[level]]\">[[item.name]]</vaadin-grid-tree-toggle>";
         Column<T> column = addColumn(TemplateRenderer
                 .<T> of(template)
                 .withProperty("leaf",
                         item -> !getDataCommunicator().hasChildren(item))
                 .withProperty("name",
                         value -> String.valueOf(valueProvider.apply(value)))
-                .withEventHandler("onExpandedChange",
-                        this::toggleExpandedState));
+        // .withEventHandler("onExpandedChange",
+        // this::toggleExpandedState)
+        );
         column.setComparator(
                 ((a, b) -> compareMaybeComparables(valueProvider.apply(a),
                         valueProvider.apply(b))));
@@ -254,6 +258,16 @@ public class TreeGrid<T> extends Grid<T>
         T item = getDataCommunicator().getKeyMapper()
                 .get(String.valueOf(parentKey));
         getDataCommunicator().setParentRequestedRange(page, length, item);
+    }
+
+    @ClientCallable(DisabledUpdateMode.ALWAYS)
+    private void updateExpandedState(String key, boolean expanded) {
+        T item = getDataCommunicator().getKeyMapper().get(String.valueOf(key));
+        if (expanded) {
+            expand(Arrays.asList(item), false, true);
+        } else {
+            collapse(Arrays.asList(item), false, true);
+        }
     }
 
     /**
