@@ -157,6 +157,18 @@ window.Vaadin.Flow.gridConnector = {
     }
     grid.addEventListener('sorter-changed', sorterChangeListener);
 
+    grid._expandedInstanceChangedCallback = function(inst, value) {
+      if (inst.item === undefined) {
+        return;
+      }
+      grid.$server.updateExpandedState(inst.item.key, value);
+      if (value) {
+        this.expandItem(inst.item);
+      } else {
+        this.collapseItem(inst.item);
+      }
+    }
+
     const itemsUpdated = function(items) {
       if (!items || !Array.isArray(items)) {
         throw 'Attempted to call itemsUpdated with an invalid value: ' + JSON.stringify(items);
