@@ -44,7 +44,6 @@ import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.ui.ItemCollapseAllowedProvider;
 
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
@@ -247,35 +246,6 @@ public class TreeGrid<T> extends Grid<T>
                         valueProvider.apply(b))));
 
         return column;
-    }
-
-    /**
-     * Sets the item collapse allowed provider for this TreeGrid. The provider
-     * should return {@code true} for any item that the user can collapse.
-     * <p>
-     * <strong>Note:</strong> This callback will be accessed often when sending
-     * data to the client. The callback should not do any costly operations.
-     * <p>
-     * This method is a shortcut to method with the same name in
-     * {@link HierarchicalDataCommunicator}.
-     *
-     * @param provider
-     *            the item collapse allowed provider, not {@code null}
-     *
-     * @see HierarchicalDataCommunicator#setItemCollapseAllowedProvider(ItemCollapseAllowedProvider)
-     */
-    public void setItemCollapseAllowedProvider(
-            ItemCollapseAllowedProvider<T> provider) {
-        getDataCommunicator().setItemCollapseAllowedProvider(provider);
-    }
-
-    /**
-     * Gets the item collapse allowed provider.
-     *
-     * @return the item collapse allowed provider
-     */
-    public ItemCollapseAllowedProvider<T> getItemCollapseAllowedProvider() {
-        return getDataCommunicator().getItemCollapseAllowedProvider();
     }
 
     @ClientCallable(DisabledUpdateMode.ALWAYS)
