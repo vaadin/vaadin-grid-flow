@@ -860,6 +860,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 SelectionMode.SINGLE);
 
         columnLayers.add(new ColumnLayer(this));
+        setSizeUndefined();
     }
 
     private void initConnector() {
