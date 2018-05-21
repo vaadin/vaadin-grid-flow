@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -81,7 +82,7 @@ import com.vaadin.flow.router.Route;
 public class GridView extends DemoView {
 
     public static List<Person> items = new ArrayList<>();
-    public static int id = 0;
+    public static AtomicInteger id = new AtomicInteger(0);
     static {
         items = createItems();
     }
@@ -1297,7 +1298,7 @@ public class GridView extends DemoView {
 
     private static Person createPerson(int index, Random random, int level) {
         Person person = new Person();
-        person.setId(id++);
+        person.setId(id.getAndIncrement());
         person.setName("Person " + index);
         person.setAge(13 + random.nextInt(50));
         person.setLevel(level);
