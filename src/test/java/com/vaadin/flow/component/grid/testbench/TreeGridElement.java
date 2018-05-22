@@ -17,7 +17,6 @@ package com.vaadin.flow.component.grid.testbench;
 
 import java.util.NoSuchElementException;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -97,7 +96,7 @@ public class TreeGridElement extends GridElement {
         WebElement expandElement = getExpandToggleElement(rowIndex,
                 hierarchyColumnIndex);
         return expandElement != null
-                && expandElement.getAttribute("expanded") != null;
+                && !"false".equals(expandElement.getAttribute("expanded"));
     }
 
     /**
@@ -143,7 +142,7 @@ public class TreeGridElement extends GridElement {
      */
     public WebElement getExpandToggleElement(int rowIndex, int hierarchyColumnIndex) {
         return getCell(rowIndex, hierarchyColumnIndex)
-                .findElement(By.tagName("vaadin-grid-tree-toggle"));
+                .$("vaadin-grid-tree-toggle").first();
 
     }
 }
