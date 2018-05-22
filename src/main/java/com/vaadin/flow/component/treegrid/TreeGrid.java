@@ -242,8 +242,6 @@ public class TreeGrid<T> extends Grid<T>
                         item -> !getDataCommunicator().hasChildren(item))
                 .withProperty("name",
                         value -> String.valueOf(valueProvider.apply(value)))
-        // .withEventHandler("onExpandedChange",
-        // this::toggleExpandedState)
         );
         column.setComparator(
                 ((a, b) -> compareMaybeComparables(valueProvider.apply(a),
