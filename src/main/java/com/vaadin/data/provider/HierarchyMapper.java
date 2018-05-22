@@ -150,6 +150,24 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
     }
 
     /**
+     * Expands the given item.
+     *
+     * @param item
+     *            the item to expand
+     * @param position
+     *            the index of the item
+     * @return range of rows added by expanding the item
+     */
+    public Range expand(T item, Integer position) {
+        if (doExpand(item) && position != null) {
+            return Range.withLength(position + 1,
+                    (int) getHierarchy(item, false).count());
+        }
+
+        return Range.withLength(0, 0);
+    }
+
+    /**
      * Expands the given item if it is collapsed and has children, and returns
      * whether this method expanded the item.
      *
@@ -179,6 +197,28 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Collapses the given item.
+     *
+     * @param item
+     *            the item to collapse
+     * @param position
+     *            the index of the item
+     *
+     * @return range of rows removed by collapsing the item
+     */
+    public Range collapse(T item, Integer position) {
+        Range removedRows = Range.withLength(0, 0);
+        if (isExpanded(item)) {
+            if (position != null) {
+                removedRows = Range.withLength(position + 1,
+                        (int) getHierarchy(item, false).count());
+            }
+            expandedItemIds.remove(getDataProvider().getId(item));
+        }
+        return removedRows;
     }
 
     @Override
