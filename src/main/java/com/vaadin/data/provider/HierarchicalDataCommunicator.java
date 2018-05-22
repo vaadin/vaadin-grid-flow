@@ -29,9 +29,9 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import com.vaadin.data.TreeData;
 import com.vaadin.flow.component.grid.Grid.UpdateQueue;
 import com.vaadin.flow.data.provider.ArrayUpdater;
+import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
-import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.QuerySortOrder;
@@ -81,7 +81,9 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
         @Override
         protected String createKey() {
-            return uniqueKeyProvider.apply(object);
+            return Optional.ofNullable(uniqueKeyProvider)
+                    .map(provider -> provider.apply(object))
+                    .orElse(super.createKey());
         }
     };
 
@@ -103,6 +105,8 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      * @param stateNode
      *            the state node used to communicate for
      * @param uniqueKeyProvider
+     *            Unique key provider for a row. If null, then using Grid's
+     *            default key generator.
      */
     public HierarchicalDataCommunicator(DataGenerator<T> dataGenerator,
             ArrayUpdater arrayUpdater,
@@ -286,11 +290,15 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             }
         });
         if (syncAndRefresh) {
-            UpdateQueue update = (UpdateQueue) arrayUpdater
+            Update update = arrayUpdater
                     .startUpdate(getDataProviderSize());
-            update.enqueue("$connector.collapseItems", collapsedItems.stream()
-                    .map(this::generateJson).collect(JsonUtils.asArray()));
-            requestFlush(update);
+            if (update instanceof UpdateQueue) {
+                UpdateQueue updateQueue = (UpdateQueue) update;
+                updateQueue.enqueue("$connector.collapseItems",
+                        collapsedItems.stream().map(this::generateJson)
+                                .collect(JsonUtils.asArray()));
+                requestFlush(updateQueue);
+            }
         }
         return collapsedItems;
     }
@@ -301,6 +309,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *
      * @param item
      *            the item to expand
+     * @param pageSize
      */
     public void expand(T item, int pageSize) {
         expand(item, pageSize, true);
@@ -315,6 +324,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *
      * @param items
      *            items to expand
+     * @param pageSize
      * @param syncAndRefresh
      *            {@code true} if the changes should be synchronised to the
      *            client and the data provider should be notified of the
@@ -339,12 +349,15 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             }
         });
         if (syncAndRefresh) {
-            UpdateQueue update = (UpdateQueue) arrayUpdater
+            Update update = arrayUpdater
                     .startUpdate(getDataProviderSize());
-            update.enqueue("$connector.expandItems",
-                    expandedItems.stream().map(this::generateJson)
-                            .collect(JsonUtils.asArray()));
-            requestFlush(update);
+            if(update instanceof UpdateQueue) {
+                UpdateQueue updateQueue = (UpdateQueue) update;
+                updateQueue.enqueue("$connector.expandItems",
+                        expandedItems.stream().map(this::generateJson)
+                                .collect(JsonUtils.asArray()));
+                requestFlush(updateQueue);
+            }
         }
         return expandedItems;
     }
