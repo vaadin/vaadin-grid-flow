@@ -192,6 +192,9 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *            the item to collapse
      */
     public boolean collapse(T item) {
+        if (item == null) {
+            return false;
+        }
         if (isExpanded(item)) {
             expandedItemIds.remove(getDataProvider().getId(item));
             return true;
@@ -578,5 +581,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
     public void destroyAllData() {
         childMap.clear();
         parentIdMap.clear();
+        expandedItemIds.clear();
     }
 }
