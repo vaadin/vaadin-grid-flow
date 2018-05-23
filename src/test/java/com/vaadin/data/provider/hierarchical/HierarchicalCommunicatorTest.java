@@ -15,6 +15,7 @@
  */
 package com.vaadin.data.provider.hierarchical;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.junit.Before;
@@ -24,8 +25,8 @@ import org.mockito.Mockito;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.HierarchicalDataCommunicator;
 import com.vaadin.data.provider.TreeDataProvider;
-import com.vaadin.flow.data.provider.ArrayUpdater;
-import com.vaadin.flow.data.provider.ArrayUpdater.Update;
+import com.vaadin.data.provider.TreeGridArrayUpdater;
+import com.vaadin.data.provider.TreeUpdate;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.internal.StateNode;
 
@@ -44,7 +45,7 @@ public class HierarchicalCommunicatorTest {
     private TreeData<String> treeData;
     private final int pageSize = 50;
 
-    private class UpdateQueue implements Update {
+    private class UpdateQueue implements TreeUpdate {
         @Override
         public void clear(int start, int length) {
         }
@@ -56,11 +57,19 @@ public class HierarchicalCommunicatorTest {
         @Override
         public void commit(int updateId) {
         }
+
+        @Override
+        public void commit() {
+        }
+
+        @Override
+        public void enqueue(String name, Serializable... arguments) {
+        }
     }
 
-    private final ArrayUpdater arrayUpdater = new ArrayUpdater() {
+    private final TreeGridArrayUpdater arrayUpdater = new TreeGridArrayUpdater() {
         @Override
-        public UpdateQueue startUpdate(int sizeChange) {
+        public TreeUpdate startUpdate(int sizeChange) {
             return new UpdateQueue();
         }
 
