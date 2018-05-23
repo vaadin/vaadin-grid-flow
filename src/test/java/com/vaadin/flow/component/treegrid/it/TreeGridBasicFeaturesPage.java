@@ -35,6 +35,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
@@ -50,18 +51,16 @@ public class TreeGridBasicFeaturesPage extends Div {
 
     public TreeGridBasicFeaturesPage() {
         initializeDataProviders();
-        grid = new TreeGrid<>();
+        grid = new TreeGrid<>(HierarchicalTestBean.class);
         grid.setWidth("100%");
-        grid
-                .addHierarchyColumn(HierarchicalTestBean::toString)
-                .setKey("id");
-        grid.addColumn(HierarchicalTestBean::getDepth).setKey("depth")
-                .setHeader("Depth");
-        grid.addColumn(HierarchicalTestBean::getIndex).setKey("index")
-                .setHeader("Index on this depth");
+        grid.setColumns("id", HierarchicalTestBean::toString,
+                Arrays.asList("id", "depth", "index"));
         grid.setDataProvider(new LazyHierarchicalDataProvider(3, 2));
 
         grid.setId("testComponent");
+
+        grid.getColumnByKey("depth").setHeader("Depth");
+        grid.getColumnByKey("index").setHeader("Index on this depth");
 
         log = new TextArea();
         log.setId("log");
@@ -144,15 +143,22 @@ public class TreeGridBasicFeaturesPage extends Div {
     }
 
     private void createHierarchyColumnSelect() {
-        LinkedHashMap<String, String> options = new LinkedHashMap<>();
-        grid.getColumns().stream()
-                .forEach(column -> options.put(column.getKey(),
-                        column.getKey()));
+        LinkedHashMap<String, ValueProvider<HierarchicalTestBean, ?>> options = new LinkedHashMap<>();
+        options.put("id", item -> item.toString());
+        options.put("depth", HierarchicalTestBean::getDepth);
+        options.put("index", HierarchicalTestBean::getIndex);
 
         options.entrySet().forEach(entry -> {
             addAction(
                     "Set hierarchy column - " + entry.getKey(),
-                    () -> grid.setHierarchyColumn(entry.getValue()));
+                    () -> {
+                        grid.setHierarchyColumn(entry.getKey(),
+                                entry.getValue());
+                        // reset headers
+                        grid.getColumnByKey("depth").setHeader("Depth");
+                        grid.getColumnByKey("index")
+                                .setHeader("Index on this depth");
+                    });
         });
     }
 
