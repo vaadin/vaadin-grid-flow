@@ -15,8 +15,7 @@
  */
 package com.vaadin.flow.component.grid.testbench;
 
-import java.util.NoSuchElementException;
-
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -123,9 +122,13 @@ public class TreeGridElement extends GridElement {
      * @return {@code true} if this cell has the expand toggle visible
      */
     public boolean hasExpandToggle(int rowIndex, int hierarchyColumnIndex) {
-        WebElement expandElement = getExpandToggleElement(rowIndex,
-                hierarchyColumnIndex);
-        return expandElement != null && expandElement.isDisplayed();
+        try {
+            WebElement expandElement = getExpandToggleElement(rowIndex,
+                    hierarchyColumnIndex);
+            return expandElement != null && expandElement.isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 
     /**
