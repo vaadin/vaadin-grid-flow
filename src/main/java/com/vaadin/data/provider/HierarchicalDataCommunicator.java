@@ -27,9 +27,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.vaadin.data.TreeData;
-import com.vaadin.flow.component.grid.Grid.UpdateQueue;
-import com.vaadin.flow.data.provider.ArrayUpdater;
-import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -59,7 +56,7 @@ import elemental.json.JsonValue;
  */
 public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
-    private final ArrayUpdater arrayUpdater;
+    private final TreeGridArrayUpdater arrayUpdater;
     private final StateNode stateNode;
     private HierarchyMapper<T, ?> mapper;
     private DataGenerator<T> dataGenerator;
@@ -109,7 +106,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *            default key generator.
      */
     public HierarchicalDataCommunicator(DataGenerator<T> dataGenerator,
-            ArrayUpdater arrayUpdater,
+            TreeGridArrayUpdater arrayUpdater,
             SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode,
             ValueProvider<T, String> uniqueKeyProvider) {
         super(dataGenerator, arrayUpdater, dataUpdater, stateNode);
@@ -128,7 +125,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     }
 
 
-    private void requestFlush(UpdateQueue update) {
+    private void requestFlush(TreeUpdate update) {
         SerializableConsumer<ExecutionContext> flushRequest = context -> {
             flush(update);
         };
@@ -136,7 +133,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                 .beforeClientResponse(stateNode, flushRequest));
     }
 
-    private void flush(UpdateQueue update) {
+    private void flush(TreeUpdate update) {
         update.commit();
     }
 
@@ -148,8 +145,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     }
 
     public void setParentRequestedRange(int page, int length, T parentItem) {
-        UpdateQueue update = (UpdateQueue) arrayUpdater
-                .startUpdate(getDataProviderSize());
+        TreeUpdate update = arrayUpdater.startUpdate(getDataProviderSize());
 
         update.enqueue("$connector.confirmTreeLevel",
                 uniqueKeyProvider.apply(parentItem), page,
@@ -290,15 +286,12 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             }
         });
         if (syncAndRefresh) {
-            Update update = arrayUpdater
+            TreeUpdate update = arrayUpdater
                     .startUpdate(getDataProviderSize());
-            if (update instanceof UpdateQueue) {
-                UpdateQueue updateQueue = (UpdateQueue) update;
-                updateQueue.enqueue("$connector.collapseItems",
+            update.enqueue("$connector.collapseItems",
                         collapsedItems.stream().map(this::generateJson)
                                 .collect(JsonUtils.asArray()));
-                requestFlush(updateQueue);
-            }
+            requestFlush(update);
         }
         return collapsedItems;
     }
@@ -349,15 +342,12 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             }
         });
         if (syncAndRefresh) {
-            Update update = arrayUpdater
+            TreeUpdate update = arrayUpdater
                     .startUpdate(getDataProviderSize());
-            if(update instanceof UpdateQueue) {
-                UpdateQueue updateQueue = (UpdateQueue) update;
-                updateQueue.enqueue("$connector.expandItems",
+            update.enqueue("$connector.expandItems",
                         expandedItems.stream().map(this::generateJson)
                                 .collect(JsonUtils.asArray()));
-                requestFlush(updateQueue);
-            }
+            requestFlush(update);
         }
         return expandedItems;
     }

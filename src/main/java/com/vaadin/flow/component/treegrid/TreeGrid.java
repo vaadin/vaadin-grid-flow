@@ -15,6 +15,7 @@
  */
 package com.vaadin.flow.component.treegrid;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,6 +30,8 @@ import com.vaadin.data.HasHierarchicalDataProvider;
 import com.vaadin.data.provider.HierarchicalDataCommunicator;
 import com.vaadin.data.provider.HierarchicalDataProvider;
 import com.vaadin.data.provider.HierarchicalQuery;
+import com.vaadin.data.provider.TreeGridArrayUpdater;
+import com.vaadin.data.provider.TreeUpdate;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
@@ -45,11 +48,13 @@ import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 /**
  * A grid component for displaying hierarchical tabular data.
@@ -64,10 +69,61 @@ import elemental.json.JsonObject;
 public class TreeGrid<T> extends Grid<T>
         implements HasHierarchicalDataProvider<T> {
 
+    private final class UpdateQueue implements TreeUpdate {
+        private List<Runnable> queue = new ArrayList<>();
+
+        private UpdateQueue() {
+        }
+
+        private UpdateQueue(int size) {
+            // 'size' property is not synchronized by the web component since
+            // there are no events for it, but we
+            // need to sync it otherwise server will overwrite client value with
+            // the old server one
+            enqueue("$connector.updateSize", size);
+            if (uniqueKeyProperty != null) {
+                enqueue("$connector.updateUniqueItemIdPath", uniqueKeyProperty);
+            }
+            getElement().setProperty("size", size);
+        }
+
+        @Override
+        public void set(int start, List<JsonValue> items) {
+            enqueue("$connector.set", start,
+                    items.stream().collect(JsonUtils.asArray()));
+        }
+
+        @Override
+        public void clear(int start, int length) {
+            enqueue("$connector.clear", start, length);
+        }
+
+        @Override
+        public void commit(int updateId) {
+            enqueue("$connector.confirm", updateId);
+            commit();
+        }
+
+        @Override
+        public void commit() {
+            queue.forEach(Runnable::run);
+            queue.clear();
+        }
+
+        @Override
+        public void enqueue(String name, Serializable... arguments) {
+            queue.add(() -> getElement().callFunction(name, arguments));
+        }
+    }
+
     private final ValueProvider<T, String> defaultUniqueKeyProvider = item -> ""
             + item.hashCode();
 
     private ValueProvider<T, String> uniqueKeyProvider;
+
+    private TreeGridArrayUpdater arrayUpdater;
+
+    protected String uniqueKeyProperty;
 
     /**
      * Creates a new {@code TreeGrid} without support for creating columns based
@@ -110,28 +166,49 @@ public class TreeGrid<T> extends Grid<T>
 
     @Override
     protected DataCommunicator<T> createDataCommunicator(
-            CompositeDataGenerator<T> gridDataGenerator,
-            ArrayUpdater arrayUpdater,
-            SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode) {
+            CompositeDataGenerator<T> defaultGridDataGenerator,
+            ArrayUpdater defaultArrayUpdater,
+            SerializableConsumer<JsonArray> defaultDataUpdater,
+            StateNode defaultStateNode) {
+        arrayUpdater = createArrayUpdater();
         uniqueKeyProperty = "uniquekey";
-        gridDataGenerator
+        defaultGridDataGenerator
                 .addDataGenerator((T item, JsonObject jsonObject) -> {
                     jsonObject.put(uniqueKeyProperty,
                             getUniqueKeyProvider().apply(item));
                     Optional.ofNullable(
                             getDataCommunicator().getParentItem(item))
-                            .ifPresent(
-                                    parent -> jsonObject.put("parentUniqueKey",
-                                            getUniqueKeyProvider()
-                                                    .apply(parent)));
+                            .ifPresent(parent -> jsonObject.put(
+                                    "parentUniqueKey",
+                                    getUniqueKeyProvider().apply(parent)));
                     Optional.ofNullable(getDataCommunicator().getIndex(item))
                             .ifPresent(
                                     idx -> jsonObject.put("scaledIndex", idx));
 
                 });
-        return new HierarchicalDataCommunicator<>(gridDataGenerator,
-                arrayUpdater, dataUpdater, stateNode,
+
+        return new HierarchicalDataCommunicator<>(defaultGridDataGenerator,
+                arrayUpdater, defaultDataUpdater, defaultStateNode,
                 item -> getUniqueKeyProvider().apply(item));
+    }
+
+    protected TreeGridArrayUpdater createArrayUpdater() {
+        return new TreeGridArrayUpdater() {
+            @Override
+            public UpdateQueue startUpdate(int sizeChange) {
+                return new UpdateQueue(sizeChange);
+            }
+
+            public UpdateQueue startUpdate() {
+                return new UpdateQueue();
+            }
+
+            @Override
+            public void initialize() {
+                initConnector();
+                updateSelectionModeOnClient();
+            }
+        };
     }
 
     /**
@@ -239,13 +316,11 @@ public class TreeGrid<T> extends Grid<T>
     public Column<T> addHierarchyColumn(ValueProvider<T, ?> valueProvider) {
         String template = "<vaadin-grid-tree-toggle leaf=\"[[item.leaf]]\" expanded=\"{{expanded}}\""
                 + " level=\"[[level]]\">[[item.name]]</vaadin-grid-tree-toggle>";
-        Column<T> column = addColumn(TemplateRenderer
-                .<T> of(template)
+        Column<T> column = addColumn(TemplateRenderer.<T> of(template)
                 .withProperty("leaf",
                         item -> !getDataCommunicator().hasChildren(item))
                 .withProperty("name",
-                        value -> String.valueOf(valueProvider.apply(value)))
-        );
+                        value -> String.valueOf(valueProvider.apply(value))));
         column.setComparator(
                 ((a, b) -> compareMaybeComparables(valueProvider.apply(a),
                         valueProvider.apply(b))));
@@ -400,18 +475,21 @@ public class TreeGrid<T> extends Grid<T>
     @ClientCallable(DisabledUpdateMode.ALWAYS)
     private void setParentRequestedRange(int page, int length,
             String parentKey) {
-        T item = getDataCommunicator().getKeyMapper()
-                .get(String.valueOf(parentKey));
-        getDataCommunicator().setParentRequestedRange(page, length, item);
+        T item = getDataCommunicator().getKeyMapper().get(parentKey);
+        if (item != null) {
+            getDataCommunicator().setParentRequestedRange(page, length, item);
+        }
     }
 
     @ClientCallable(DisabledUpdateMode.ALWAYS)
     private void updateExpandedState(String key, boolean expanded) {
         T item = getDataCommunicator().getKeyMapper().get(String.valueOf(key));
-        if (expanded) {
-            expand(Arrays.asList(item), false, true);
-        } else {
-            collapse(Arrays.asList(item), false, true);
+        if (item != null) {
+            if (expanded) {
+                expand(Arrays.asList(item), false, true);
+            } else {
+                collapse(Arrays.asList(item), false, true);
+            }
         }
     }
 
@@ -489,8 +567,8 @@ public class TreeGrid<T> extends Grid<T>
      */
     public void expandRecursively(Collection<T> items, int depth) {
         getDataCommunicator().expand(
-                getItemsWithChildrenRecursively(items, depth),
-                getPageSize(), true);
+                getItemsWithChildrenRecursively(items, depth), getPageSize(),
+                true);
     }
 
     /**
@@ -524,6 +602,7 @@ public class TreeGrid<T> extends Grid<T>
         fireEvent(new CollapseEvent<T, TreeGrid<T>>(this, userOriginated,
                 collapsedItems));
     }
+
     /**
      * Collapse the given items and their children recursively until the given
      * depth.
@@ -563,8 +642,8 @@ public class TreeGrid<T> extends Grid<T>
      * @since 8.4
      */
     public void collapseRecursively(Collection<T> items, int depth) {
-        getDataCommunicator().collapse(getItemsWithChildrenRecursively(items, depth),
-                true);
+        getDataCommunicator()
+                .collapse(getItemsWithChildrenRecursively(items, depth), true);
     }
 
     /**

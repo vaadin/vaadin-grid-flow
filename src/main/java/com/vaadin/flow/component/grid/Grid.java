@@ -122,9 +122,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             // need to sync it otherwise server will overwrite client value with
             // the old server one
             enqueue("$connector.updateSize", size);
-            if (uniqueKeyProperty != null) {
-                enqueue("$connector.updateUniqueItemIdPath", uniqueKeyProperty);
-            }
             getElement().setProperty("size", size);
         }
 
@@ -804,7 +801,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    protected final ArrayUpdater arrayUpdater = new ArrayUpdater() {
+    private final ArrayUpdater arrayUpdater = new ArrayUpdater() {
         @Override
         public UpdateQueue startUpdate(int sizeChange) {
             return new UpdateQueue(sizeChange);
@@ -820,8 +817,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             updateSelectionModeOnClient();
         }
     };
-
-    protected String uniqueKeyProperty;
 
     private final CompositeDataGenerator<T> gridDataGenerator = new CompositeDataGenerator<>();
     private final DataCommunicator<T> dataCommunicator;
@@ -889,7 +884,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 gridDataGenerator, arrayUpdater, dataUpdater, stateNode);
     }
 
-    private void initConnector() {
+    protected void initConnector() {
         getUI().orElseThrow(() -> new IllegalStateException(
                 "Connector can only be initialized for an attached Grid"))
                 .getPage().executeJavaScript(
@@ -1540,7 +1535,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         updateSelectionModeOnClient();
     }
 
-    private void updateSelectionModeOnClient() {
+    protected void updateSelectionModeOnClient() {
         getElement().callFunction("$connector.setSelectionMode",
                 selectionMode.name());
     }
