@@ -252,7 +252,7 @@ public class TreeGridBasicFeaturesIT extends AbstractComponentIT {
         assertFalse(grid.hasExpandToggle(0, 0));
         assertTrue(grid.hasExpandToggle(0, 1));
 
-        findElementByText("Set hierarchy column - string").click();
+        findElementByText("Set hierarchy column - id").click();
 
         assertTrue(grid.hasExpandToggle(0, 0));
         assertFalse(grid.hasExpandToggle(0, 1));

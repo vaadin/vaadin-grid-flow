@@ -264,6 +264,8 @@ public class TreeGrid<T> extends Grid<T>
      * the bean and {@link #addHierarchyColumn(String)} for the given
      * propertyName.
      * <p>
+     * Previous column order is preserved.
+     * <p>
      * You can add columns for nested properties with dot notation, eg.
      * <code>"property.nestedProperty"</code>
      * <p>
@@ -274,18 +276,39 @@ public class TreeGrid<T> extends Grid<T>
      * @return the created hierarchy column
      */
     public Column<T> setHierarchyColumn(String propertyName) {
+        return setHierarchyColumn(propertyName, null);
+    }
+
+    /**
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
+     * <p>
+     * Resets columns and their order based on bean properties.
+     * <p>
+     * This is a shortcut for removing all columns and then calling
+     * {@link #addColumn(String)} for each property except hierarchy column in
+     * the bean and {@link #addHierarchyColumn(String)} or
+     * {@link #addHierarchyColumn(ValueProvider)} for the given propertyName.
+     * <p>
+     * Previous column order is preserved.
+     * <p>
+     * You can add columns for nested properties with dot notation, eg.
+     * <code>"property.nestedProperty"</code>
+     * <p>
+     * Note that this also resets the headers and footers.
+     * 
+     * @param propertyName
+     *            a target hierarchy column property name
+     * @param valueProvider
+     *            optional value provider
+     * @return the created hierarchy column
+     */
+    public Column<T> setHierarchyColumn(String propertyName,
+            ValueProvider<T, ?> valueProvider) {
         List<String> currentPropertyList = getColumns().stream()
-                .map(Column::getKey)
-                .filter(Objects::nonNull)
+                .map(Column::getKey).filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        getColumns().forEach(this::removeColumn);
-        currentPropertyList.forEach(key -> {
-            if (key.equals(propertyName)) {
-                addHierarchyColumn(key);
-            } else {
-                addColumn(key);
-            }
-        });
+        resetColumns(propertyName, valueProvider, currentPropertyList);
         return getColumnByKey(propertyName);
     }
 
@@ -307,21 +330,35 @@ public class TreeGrid<T> extends Grid<T>
      * 
      * @param hierarchyPropertyName
      *            a target hierarchy column property name
+     * @param valueProvider
+     *            optional value provider
      * @param propertyNames
      *            set of properties to create columns for. Including given
      *            hierarchyPropertyName
      */
-    public void setColumns(String hierarchyPropertyName,
+    public Column<T> setColumns(String hierarchyPropertyName,
+            ValueProvider<T, ?> valueProvider,
             Collection<String> propertyNames) {
         if (propertySet == null) {
             throw new UnsupportedOperationException(
                     "This method can't be used for a Grid that isn't constructed from a bean type");
         }
+        resetColumns(hierarchyPropertyName, valueProvider, propertyNames);
+        return getColumnByKey(hierarchyPropertyName);
+    }
+
+    private void resetColumns(String hierarchyPropertyName,
+            ValueProvider<T, ?> valueProvider,
+            Collection<String> propertyList) {
         getColumns().forEach(this::removeColumn);
-        propertyNames.stream().distinct().filter(Objects::nonNull)
-                .forEach(key -> {
+        propertyList.stream().distinct().forEach(key -> {
             if (key.equals(hierarchyPropertyName)) {
-                addHierarchyColumn(key);
+                if (valueProvider != null) {
+                    addHierarchyColumn(valueProvider)
+                            .setKey(hierarchyPropertyName);
+                } else {
+                    addHierarchyColumn(key);
+                }
             } else {
                 addColumn(key);
             }
