@@ -840,7 +840,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private final List<GridSortOrder<T>> sortOrder = new ArrayList<>();
 
-    private PropertySet<T> propertySet;
+    protected PropertySet<T> propertySet;
 
     private DataGenerator<T> itemDetailsDataGenerator;
 
