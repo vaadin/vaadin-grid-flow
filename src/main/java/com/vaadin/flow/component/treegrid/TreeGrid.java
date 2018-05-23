@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,6 +34,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.data.binder.PropertyDefinition;
 import com.vaadin.flow.data.provider.ArrayUpdater;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
@@ -248,6 +251,113 @@ public class TreeGrid<T> extends Grid<T>
                         valueProvider.apply(b))));
 
         return column;
+    }
+
+    /**
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
+     * <p>
+     * Resets columns and their order based on bean properties.
+     * <p>
+     * This is a shortcut for removing all columns and then calling
+     * {@link #addColumn(String)} for each property except hierarchy column in
+     * the bean and {@link #addHierarchyColumn(String)} for the given
+     * propertyName.
+     * <p>
+     * You can add columns for nested properties with dot notation, eg.
+     * <code>"property.nestedProperty"</code>
+     * <p>
+     * Note that this also resets the headers and footers.
+     * 
+     * @param propertyName
+     *            a target hierarchy column property name
+     * @return the created hierarchy column
+     */
+    public Column<T> setHierarchyColumn(String propertyName) {
+        List<String> currentPropertyList = getColumns().stream()
+                .map(Column::getKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        getColumns().forEach(this::removeColumn);
+        currentPropertyList.forEach(key -> {
+            if (key.equals(propertyName)) {
+                addHierarchyColumn(key);
+            } else {
+                addColumn(key);
+            }
+        });
+        return getColumnByKey(propertyName);
+    }
+
+    /**
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
+     * <p>
+     * Sets the columns and their order based on the given properties.
+     * <p>
+     * This is a shortcut for removing all columns and then calling
+     * {@link #addColumn(String)} for each property except hierarchy property in
+     * the bean and {@link #addHierarchyColumn(String)} for the given
+     * hierarchyPropertyName.
+     * <p>
+     * You can add columns for nested properties with dot notation, eg.
+     * <code>"property.nestedProperty"</code>
+     * <p>
+     * Note that this also resets the headers and footers.
+     * 
+     * @param hierarchyPropertyName
+     *            a target hierarchy column property name
+     * @param propertyNames
+     *            set of properties to create columns for. Including given
+     *            hierarchyPropertyName
+     */
+    public void setColumns(String hierarchyPropertyName,
+            Collection<String> propertyNames) {
+        if (propertySet == null) {
+            throw new UnsupportedOperationException(
+                    "This method can't be used for a Grid that isn't constructed from a bean type");
+        }
+        getColumns().forEach(this::removeColumn);
+        propertyNames.stream().distinct().filter(Objects::nonNull)
+                .forEach(key -> {
+            if (key.equals(hierarchyPropertyName)) {
+                addHierarchyColumn(key);
+            } else {
+                addColumn(key);
+            }
+        });
+    }
+
+    private Column<T> addHierarchyColumn(String propertyName) {
+        if (propertySet == null) {
+            throw new UnsupportedOperationException(
+                    "This method can't be used for a Grid that isn't constructed from a bean type");
+        }
+        Objects.requireNonNull(propertyName,
+                "Hierarchy Property name can't be null");
+
+        PropertyDefinition<T, ?> property;
+        try {
+            property = propertySet.getProperty(propertyName).get();
+        } catch (NoSuchElementException | IllegalArgumentException exception) {
+            throw new IllegalArgumentException(
+                    "Can't resolve hierarchy property name '" + propertyName
+                            + "' from '" + propertySet + "'");
+        }
+        return addHierarchyColumn(property);
+    }
+
+    private Column<T> addHierarchyColumn(PropertyDefinition<T, ?> property) {
+        Column<T> column = addHierarchyColumn(
+                item -> String.valueOf(property.getGetter().apply(item)))
+                        .setHeader(property.getCaption());
+        try {
+            return column.setKey(property.getName());
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException(
+                    "Multiple columns for the same property: "
+                            + property.getName());
+        }
     }
 
     @ClientCallable(DisabledUpdateMode.ALWAYS)
