@@ -279,13 +279,18 @@ window.Vaadin.Flow.gridConnector = {
         let rangeStart = page * grid.pageSize;
         let rangeEnd = rangeStart + grid.pageSize;
         if (!items) {
-          for (let idx = rangeStart; idx < rangeEnd; idx++) {
-            delete levelcache.items[idx];
+          if(levelcache && levelcache.items) {
+            for (let idx = rangeStart; idx < rangeEnd; idx++) {
+              delete levelcache.items[idx];
+            }
           }
+
         } else {
-          for (let idx = rangeStart; idx < rangeEnd; idx++) {
-            if (levelcache.items[idx]) {
-              levelcache.items[idx] = items[idx - rangeStart];
+          if(levelcache && levelcache.items) {
+            for (let idx = rangeStart; idx < rangeEnd; idx++) {
+              if (levelcache.items[idx]) {
+                levelcache.items[idx] = items[idx - rangeStart];
+              }
             }
           }
           itemsUpdated(items);
