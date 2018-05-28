@@ -16,14 +16,30 @@
 package com.vaadin.data.provider;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.internal.JsonCodec;
 
+import elemental.json.JsonValue;
+
 public interface TreeUpdate extends Update {
 
     /**
-     * Commits changes given with {@link #enqueue(String, Serializable...)}
+     * Commits changes for the given {@code updateId} and parent key.
+     * 
+     * @param updateId
+     *            the update identifier of the commit for the target parentKey
+     * @param parentKey
+     *            target parent key
+     * @param levelSize
+     *            Total number of direct child items for the given parent key
+     */
+    void commit(int updateId, String parentKey, int levelSize);
+
+    /**
+     * Commits enqueued function calls added via
+     * {@link #enqueue(String, Serializable...)}.
      */
     void commit();
 
@@ -40,4 +56,35 @@ public interface TreeUpdate extends Update {
      *            {@link JsonCodec}
      */
     void enqueue(String name, Serializable... arguments);
+
+    /**
+     * Sets the {@code items} at the {@code start} position.
+     *
+     * @param start
+     *            the start index
+     * @param items
+     *            the items to set
+     * @param parentIndex
+     *            Index of the parent item in currently active hierarchical
+     *            order
+     * @param parentKey
+     *            Parent item key where given items belongs to
+     */
+    void set(int start, List<JsonValue> items, int parentIndex,
+            String parentKey);
+
+    /**
+     * Clears {@code length} elements in array from the {@code start} position.
+     *
+     * @param start
+     *            the start index
+     * @param length
+     *            the number of elements to clear
+     * @param parentIndex
+     *            Index of the parent item in currently active hierarchical
+     *            order
+     * @param parentKey
+     *            Parent item key that cleared range affects
+     */
+    void clear(int start, int length, int parentIndex, String parentKey);
 }

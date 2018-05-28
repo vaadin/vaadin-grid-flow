@@ -88,7 +88,11 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
         return (int) getHierarchy(null).count();
     }
 
-    // TODO
+    /**
+     * Returns the size of root level.
+     * 
+     * @return the amount of available root data
+     */
     public int getRootSize() {
         return getDataProvider()
                 .getChildCount(new HierarchicalQuery<>(filter, null));
@@ -103,7 +107,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *
      */
     public Integer getParentIndex(T item) {
-        // TODO: This can be optimized.
         List<T> flatHierarchy = getHierarchy(null).collect(Collectors.toList());
         return flatHierarchy.indexOf(getParentOfItem(item));
     }
@@ -117,7 +120,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *
      */
     public Integer getIndex(T item) {
-        // TODO: This can be optimized.
         List<T> flatHierarchy = getHierarchy(null).collect(Collectors.toList());
         return flatHierarchy.indexOf(item);
     }
@@ -582,5 +584,14 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
         childMap.clear();
         parentIdMap.clear();
         expandedItemIds.clear();
+    }
+
+    /**
+     * Returns true if there is any expanded items.
+     * 
+     * @return boolean true if there is any expanded items.
+     */
+    public boolean hasExpandedItems() {
+        return !expandedItemIds.isEmpty();
     }
 }
