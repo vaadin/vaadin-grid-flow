@@ -53,6 +53,7 @@ public class TreeGridBasicFeaturesPage extends Div {
         initializeDataProviders();
         grid = new TreeGrid<>(HierarchicalTestBean.class);
         grid.setWidth("100%");
+        grid.setSelectionMode(SelectionMode.SINGLE);
         grid.setColumns("id", HierarchicalTestBean::toString,
                 Arrays.asList("id", "depth", "index"));
         grid.setDataProvider(new LazyHierarchicalDataProvider(3, 2));
