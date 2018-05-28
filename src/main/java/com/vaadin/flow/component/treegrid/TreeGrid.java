@@ -94,13 +94,37 @@ public class TreeGrid<T> extends Grid<T>
         }
 
         @Override
+        public void set(int start, List<JsonValue> items, int parentIndex,
+                String parentKey) {
+            enqueue("$connector.set", start,
+                    items.stream().collect(JsonUtils.asArray()), parentIndex,
+                    parentKey);
+        }
+
+        @Override
         public void clear(int start, int length) {
+            if (!getDataCommunicator().hasExpandedItems()) {
+                enqueue("$connector.clearExpanded");
+            }
             enqueue("$connector.clear", start, length);
+        }
+
+        @Override
+        public void clear(int start, int length, int parentIndex,
+                String parentKey) {
+            enqueue("$connector.clear", start, length, parentIndex, parentKey);
         }
 
         @Override
         public void commit(int updateId) {
             enqueue("$connector.confirm", updateId);
+            commit();
+        }
+
+        @Override
+        public void commit(int updateId, String parentKey, int levelSize) {
+            enqueue("$connector.confirmParent", updateId, parentKey,
+                    levelSize);
             commit();
         }
 
@@ -114,6 +138,7 @@ public class TreeGrid<T> extends Grid<T>
         public void enqueue(String name, Serializable... arguments) {
             queue.add(() -> getElement().callFunction(name, arguments));
         }
+
     }
 
     private final ValueProvider<T, String> defaultUniqueKeyProvider = item -> ""
@@ -197,10 +222,6 @@ public class TreeGrid<T> extends Grid<T>
             @Override
             public UpdateQueue startUpdate(int sizeChange) {
                 return new UpdateQueue(sizeChange);
-            }
-
-            public UpdateQueue startUpdate() {
-                return new UpdateQueue();
             }
 
             @Override
@@ -473,17 +494,18 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     @ClientCallable(DisabledUpdateMode.ALWAYS)
-    private void setParentRequestedRange(int page, int length,
+    private void setParentRequestedRange(int page, int start, int length,
             String parentKey) {
         T item = getDataCommunicator().getKeyMapper().get(parentKey);
         if (item != null) {
-            getDataCommunicator().setParentRequestedRange(page, length, item);
+            getDataCommunicator().setParentRequestedRange(page, start, length,
+                    item);
         }
     }
 
     @ClientCallable(DisabledUpdateMode.ALWAYS)
     private void updateExpandedState(String key, boolean expanded) {
-        T item = getDataCommunicator().getKeyMapper().get(String.valueOf(key));
+        T item = getDataCommunicator().getKeyMapper().get(key);
         if (item != null) {
             if (expanded) {
                 expand(Arrays.asList(item), false, true);
@@ -491,6 +513,11 @@ public class TreeGrid<T> extends Grid<T>
                 collapse(Arrays.asList(item), false, true);
             }
         }
+    }
+
+    @ClientCallable(DisabledUpdateMode.ALWAYS)
+    private void confirmParentUpdate(int id, String parentKey) {
+        getDataCommunicator().confirmUpdate(id, parentKey);
     }
 
     /**
