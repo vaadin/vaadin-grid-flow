@@ -149,4 +149,9 @@ public class TreeGridElement extends GridElement {
                 .$("vaadin-grid-tree-toggle").first();
 
     }
+
+    public long getNumberOfExpandedRows() {
+        return (long) executeScript("return arguments[0].expandedItems.length;",
+                this);
+    }
 }
