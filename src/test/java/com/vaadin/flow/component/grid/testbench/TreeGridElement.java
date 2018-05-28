@@ -125,7 +125,8 @@ public class TreeGridElement extends GridElement {
         try {
             WebElement expandElement = getExpandToggleElement(rowIndex,
                     hierarchyColumnIndex);
-            return expandElement != null && expandElement.isDisplayed();
+            return expandElement != null && expandElement.isDisplayed()
+                    && "false".equals(expandElement.getAttribute("leaf"));
         } catch (NoSuchElementException e) {
             return false;
         }
