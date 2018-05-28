@@ -86,11 +86,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                     .map(provider -> provider.apply(object))
                     .orElse(super.createKey());
         }
-
-        @Override
-        public void remove(T removeobj) {
-            // TODO HierarchicalDataCommunicator needs to memorize all keys for now 
-        }
     };
 
     /**
