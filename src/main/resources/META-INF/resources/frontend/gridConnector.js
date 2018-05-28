@@ -381,7 +381,7 @@ window.Vaadin.Flow.gridConnector = {
           }
         }
         delete cache[pkey][page];
-        updateGridCache(page);
+        updateGridCache(page, parentIndex, parentKey);
       }
     };
 
