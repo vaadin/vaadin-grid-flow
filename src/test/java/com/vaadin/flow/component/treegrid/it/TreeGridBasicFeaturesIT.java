@@ -152,92 +152,93 @@ public class TreeGridBasicFeaturesIT extends AbstractComponentIT {
 
     @Test
     public void keyboard_navigation() {
-        grid.getCell(0, 0).click();
+        grid.getCell(0, 0).focus();
 
         // Should expand "0 | 0" without moving focus
-        new Actions(getDriver()).sendKeys(Keys.RIGHT).perform();
+        new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
+        waitUntil(b -> grid.getRowCount() != 3, 1);
         Assert.assertEquals(6, grid.getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
-        assertTrue(grid.getRow(0).hasClassName("v-treegrid-row-focused"));
-        assertFalse(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
 
-        // Should navigate 2 times down to "1 | 1"
+        // Should navigate 2 times down to "1 | 1" row
         new Actions(getDriver()).sendKeys(Keys.DOWN, Keys.DOWN).perform();
         Assert.assertEquals(6, grid.getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
-        assertFalse(grid.getRow(0).hasClassName("v-treegrid-row-focused"));
-        assertFalse(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
-        assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
 
         // Should expand "1 | 1" without moving focus
-        new Actions(getDriver()).sendKeys(Keys.RIGHT).perform();
+        new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
+        waitUntil(b -> grid.getRowCount() != 6, 1);
         Assert.assertEquals(9, grid.getRowCount());
         assertCellTexts(2, 0,
                 new String[] { "1 | 1", "2 | 0", "2 | 1", "2 | 2", "1 | 2" });
-        assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
 
         // Should collapse "1 | 1"
-        new Actions(getDriver()).sendKeys(Keys.LEFT).perform();
+        new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
+        waitUntil(b -> grid.getRowCount() != 9, 1);
         Assert.assertEquals(6, grid.getRowCount());
         assertCellTexts(2, 0, new String[] { "1 | 1", "1 | 2", "0 | 1" });
-        assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
 
         // Should navigate to "0 | 0"
-        new Actions(getDriver()).sendKeys(Keys.LEFT).perform();
+        new Actions(getDriver()).sendKeys(Keys.UP, Keys.UP)
+                .perform();
         Assert.assertEquals(6, grid.getRowCount());
         assertCellTexts(0, 0,
                 new String[] { "0 | 0", "1 | 0", "1 | 1", "1 | 2", "0 | 1" });
-        assertTrue(grid.getRow(0).hasClassName("v-treegrid-row-focused"));
 
         // Should collapse "0 | 0"
-        new Actions(getDriver()).sendKeys(Keys.LEFT).perform();
+        new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
+        waitUntil(b -> grid.getRowCount() != 6, 1);
         Assert.assertEquals(3, grid.getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
-        assertTrue(grid.getRow(0).hasClassName("v-treegrid-row-focused"));
 
         // Nothing should happen
         new Actions(getDriver()).sendKeys(Keys.LEFT).perform();
-        Assert.assertEquals(3, grid.getRowCount());
+        waitUntil(b -> grid.getRowCount() == 3, 1);
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
-        assertTrue(grid.getRow(0).hasClassName("v-treegrid-row-focused"));
 
         checkLogsForErrors();
     }
 
     @Test
     public void keyboard_selection() {
-        grid.getCell(0, 0).click();
+        grid.getCell(0, 0).focus();
 
         // Should expand "0 | 0" without moving focus
-        new Actions(getDriver()).sendKeys(Keys.RIGHT).perform();
-        Assert.assertEquals(6, grid.getRowCount());
-        assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
-
-        // Should navigate 2 times down to "1 | 1"
-        new Actions(getDriver()).sendKeys(Keys.DOWN, Keys.DOWN).perform();
-        Assert.assertEquals(6, grid.getRowCount());
-        assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
-        assertFalse(grid.getRow(0).hasClassName("v-treegrid-row-focused"));
-        assertFalse(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
-        assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
-
-        // Should select "1 | 1" without moving focus
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
+        waitUntil(b -> grid.getRowCount() != 3, 1);
+        Assert.assertEquals(6, grid.getRowCount());
+        assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
+
+        // Should navigate 1 time right and 2 times down to "1 | 1" row
+        new Actions(getDriver()).sendKeys(Keys.RIGHT, Keys.DOWN, Keys.DOWN)
+                .perform();
+        Assert.assertEquals(6, grid.getRowCount());
+        assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
+
+        // Should select "1 | 1"
+        new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
+        waitUntil(b -> grid.getRow(2).isSelected(), 1);
+        // assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
 
         // Should move focus but not selection
         new Actions(getDriver()).sendKeys(Keys.UP).perform();
-        assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
-        assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
-        assertFalse(grid.getRow(1).hasClassName("v-treegrid-row-selected"));
-        assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
+        // assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
+        // assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
+        assertFalse(grid.getRow(1).isSelected());
+        assertTrue(grid.getRow(2).isSelected());
+        // assertFalse(grid.getRow(1).hasClassName("v-treegrid-row-selected"));
+        // assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
+
 
         // Should select "1 | 0" without moving focus
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
-        assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
-        assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-selected"));
-        assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
+        waitUntil(b -> grid.getRow(1).isSelected(), 1);
+        // assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
+        // assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
+        // assertTrue(grid.getRow(1).isSelected());
+        assertFalse(grid.getRow(2).isSelected());
+        // assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-selected"));
+        // assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
 
         checkLogsForErrors();
     }
