@@ -59,11 +59,25 @@ public class HierarchicalCommunicatorTest {
         }
 
         @Override
-        public void commit() {
+        public void enqueue(String name, Serializable... arguments) {
         }
 
         @Override
-        public void enqueue(String name, Serializable... arguments) {
+        public void set(int start, List<JsonValue> items, int parentIndex,
+                String parentKey) {
+        }
+
+        @Override
+        public void clear(int start, int length, int parentIndex,
+                String parentKey) {
+        }
+
+        @Override
+        public void commit(int updateId, String parentKey, int levelSize) {
+        }
+
+        @Override
+        public void commit() {
         }
     }
 
