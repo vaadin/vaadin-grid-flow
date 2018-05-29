@@ -145,7 +145,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    grid.getItemCacheByKey = function(key) {
+    grid.getCacheByKey = function(key) {
       let cacheAndIndex = grid._cache.getCacheAndIndexByKey(key);
       if(cacheAndIndex) {
         return cacheAndIndex.cache;
@@ -163,7 +163,7 @@ window.Vaadin.Flow.gridConnector = {
       return undefined;
     }
 
-    grid.fetchPage = function(fetch, page, parentKey, parentIndex) {
+    grid.fetchPage = function(fetch, page, parentKey) {
       // Determine what to fetch based on scroll position and not only
       // what grid asked for
 
@@ -207,12 +207,12 @@ window.Vaadin.Flow.gridConnector = {
 
       if(params.parentItem) {
         let parentUniqueKey = grid.getItemId(params.parentItem);
-        let parentIndex = params.parentItem.index;
         if(!treePageCallbacks[parentUniqueKey]) {
           treePageCallbacks[parentUniqueKey] = {};
         }
 
-        let itemCache = grid.getItemCacheByKey(parentUniqueKey);
+        let parentCache = grid.getCacheByKey(parentUniqueKey);
+        let itemCache = (parentCache) ? parentCache.itemkeyCaches[parentUniqueKey] : undefined;
         if(cache[parentUniqueKey] && cache[parentUniqueKey][page] && itemCache) {
           // workaround: sometimes grid-element gives page index that overflows
           page = Math.min(page, Math.floor(itemCache.size / grid.pageSize));
@@ -222,7 +222,7 @@ window.Vaadin.Flow.gridConnector = {
           treePageCallbacks[parentUniqueKey][page] = callback;
         }
         grid.fetchPage((firstIndex, size) =>
-          grid.$server.setParentRequestedRange(page, firstIndex, size, params.parentItem.key), page, parentUniqueKey, parentIndex);
+          grid.$server.setParentRequestedRange(page, firstIndex, size, params.parentItem.key), page, parentUniqueKey);
 
       } else {
         // workaround: sometimes grid-element gives page index that overflows
@@ -258,7 +258,7 @@ window.Vaadin.Flow.gridConnector = {
         this.expandItem(inst.item);
       } else {
         delete cache[parentKey];
-        let parentCache = grid.getItemCacheByKey(parentKey);
+        let parentCache = grid.getCacheByKey(parentKey);
         if(parentCache && parentCache.itemkeyCaches[parentKey]) {
           parentCache.itemkeyCaches[parentKey].items = [];
         }
@@ -297,7 +297,7 @@ window.Vaadin.Flow.gridConnector = {
     const updateGridCache = function(page, parentKey) {
       if((parentKey || root) !== root) {
         const items = cache[parentKey][page];
-        let parentCache = grid.getItemCacheByKey(parentKey);
+        let parentCache = grid.getCacheByKey(parentKey);
         let _cache = parentCache.itemkeyCaches[parentKey];
         _updateGridCache(page, items,
           treePageCallbacks[parentKey][page],
@@ -464,11 +464,19 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     grid.$connector.expandItems = function(items) {
-      items.forEach(item => grid.expandItem(item));
+      let newExpandedItems = Array.from(grid.expandedItems);
+      items.filter(item => !grid._isExpanded(item))
+        .forEach(item =>
+          newExpandedItems.push(item));
+      grid.expandedItems = newExpandedItems;
     }
 
     grid.$connector.collapseItems = function(items) {
-      items.forEach(item => grid.collapseItem(item));
+      let newExpandedItems = Array.from(grid.expandedItems);
+      items.filter(item => grid._isExpanded(item))
+        .forEach(item =>
+          newExpandedItems.splice(grid._getItemIndexInArray(item, newExpandedItems), 1));
+      grid.expandedItems = newExpandedItems;
     }
 
     grid.$connector.confirmParent = function(id, parentKey, levelSize) {
