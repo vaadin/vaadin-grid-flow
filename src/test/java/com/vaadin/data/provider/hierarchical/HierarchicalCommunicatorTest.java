@@ -63,12 +63,12 @@ public class HierarchicalCommunicatorTest {
         }
 
         @Override
-        public void set(int start, List<JsonValue> items, int parentIndex,
+        public void set(int start, List<JsonValue> items,
                 String parentKey) {
         }
 
         @Override
-        public void clear(int start, int length, int parentIndex,
+        public void clear(int start, int length,
                 String parentKey) {
         }
 
