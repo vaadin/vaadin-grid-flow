@@ -40,9 +40,12 @@ import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
-@Route("treegrid-basic-features")
+@Route(TreeGridBasicFeaturesPage.VIEW)
 @NoTheme
 public class TreeGridBasicFeaturesPage extends Div {
+
+    public static final String VIEW = "treegrid-basic-features";
+
     private TreeGrid<HierarchicalTestBean> grid;
     private TreeDataProvider<HierarchicalTestBean> inMemoryDataProvider;
     private LazyHierarchicalDataProvider lazyDataProvider;
@@ -67,7 +70,9 @@ public class TreeGridBasicFeaturesPage extends Div {
         log.setId("log");
         log.setHeight("100px");
         log.setWidth("100%");
-        add(grid, new VerticalLayout(log));
+        add(grid, new VerticalLayout(setIdByText(
+                new NativeButton("Clear log", e -> log.clear())), log
+        ));
 
         createActions();
 
@@ -230,7 +235,8 @@ public class TreeGridBasicFeaturesPage extends Div {
         add(b);
     }
 
-    private void setIdByText(NativeButton button) {
+    private NativeButton setIdByText(NativeButton button) {
         button.setId(button.getText().replace(" ", ""));
+        return button;
     }
 }
