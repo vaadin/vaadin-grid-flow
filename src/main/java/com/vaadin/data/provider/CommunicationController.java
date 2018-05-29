@@ -180,10 +180,9 @@ public class CommunicationController<T> {
             update.set(effectiveRequested.getStart(),
                     getJsonItems(effectiveRequested));
         } else {
-            T parentItem = keyMapper.get(parentKey);
             update.set(effectiveRequested.getStart(),
                     getJsonItems(effectiveRequested),
-                    mapper.getIndex(parentItem), parentKey);
+                    parentKey);
         }
     }
 
@@ -191,8 +190,7 @@ public class CommunicationController<T> {
         if (parentKey == null) {
             update.clear(start, length);
         } else {
-            T parentItem = keyMapper.get(parentKey);
-            update.clear(start, length, mapper.getIndex(parentItem), parentKey);
+            update.clear(start, length, parentKey);
         }
     }
 
