@@ -1997,7 +1997,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private T findByKey(int key) {
         T item = getDataCommunicator().getKeyMapper().get(String.valueOf(key));
         if (item == null) {
-            throw new IllegalStateException("Unkonwn key: " + key);
+            throw new IllegalStateException("Unknown key: " + key);
         }
         return item;
     }

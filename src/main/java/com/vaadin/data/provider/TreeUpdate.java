@@ -64,13 +64,10 @@ public interface TreeUpdate extends Update {
      *            the start index
      * @param items
      *            the items to set
-     * @param parentIndex
-     *            Index of the parent item in currently active hierarchical
-     *            order
      * @param parentKey
      *            Parent item key where given items belongs to
      */
-    void set(int start, List<JsonValue> items, int parentIndex,
+    void set(int start, List<JsonValue> items,
             String parentKey);
 
     /**
@@ -80,11 +77,8 @@ public interface TreeUpdate extends Update {
      *            the start index
      * @param length
      *            the number of elements to clear
-     * @param parentIndex
-     *            Index of the parent item in currently active hierarchical
-     *            order
      * @param parentKey
      *            Parent item key that cleared range affects
      */
-    void clear(int start, int length, int parentIndex, String parentKey);
+    void clear(int start, int length, String parentKey);
 }

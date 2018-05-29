@@ -338,13 +338,22 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
                 .limit(range.length());
     }
 
+    /**
+     * Gets a stream of root items from the back-end and filter the wanted
+     * results from the list.
+     *
+     * @param parent
+     *            the parent item for the fetch
+     * @param range
+     *            the requested item range
+     * @return the stream of items
+     */
     public Stream<T> fetchRootItems(Range range) {
-        return getDirectChildren(null).skip(range.getStart())
-                .limit(range.length());
+        return getDirectChildren(null, range);
     }
 
     public Stream<T> fetchChildItems(T parent, Range range) {
-        return doFetchDirectChildren(parent, range);
+        return getChildrenStream(parent, range, false);
     }
 
     public int countChildItems(T parent) {
@@ -361,14 +370,30 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      * @param parent
      *            the parent
      * @param range
-     *            the range of direct children to return
+     *            the range of direct children to return. null means full range.
      * @return the requested children of the given parent
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Stream<T> doFetchDirectChildren(T parent, Range range) {
+        Range actualRange = (range == null)
+                ? Range.withLength(0, Integer.MAX_VALUE)
+                : range;
         return getDataProvider().fetchChildren(new HierarchicalQuery(
-                range.getStart(), range.length(), getBackEndSorting(),
+                actualRange.getStart(), actualRange.length(),
+                getBackEndSorting(),
                 getInMemorySorting(), getFilter(), parent));
+    }
+
+    /**
+     * Generic method for finding full range of direct children of a given
+     * parent.
+     *
+     * @param parent
+     *            the parent
+     * @return the all children of the given parent
+     */
+    private Stream<T> doFetchDirectChildren(T parent) {
+        return doFetchDirectChildren(parent, null);
     }
 
     /**
@@ -471,7 +496,7 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      */
     private Stream<T> getHierarchy(T parent, boolean includeParent) {
         return Stream.of(parent)
-                .flatMap(node -> getChildrenStream(node, includeParent));
+                .flatMap(node -> getFlatChildrenStream(node, includeParent));
     }
 
     /**
@@ -482,8 +507,19 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      * @return the stream of direct children
      */
     private Stream<T> getDirectChildren(T parent) {
-        return doFetchDirectChildren(parent, Range.between(0, getDataProvider()
-                .getChildCount(new HierarchicalQuery<>(filter, parent))));
+        return getChildrenStream(parent, null, false);
+    }
+
+    /**
+     * Gets the stream of direct children for given node.
+     *
+     * @param parent
+     *            the parent node
+     * @param range
+     * @return the stream of direct children
+     */
+    private Stream<T> getDirectChildren(T parent, Range range) {
+        return getChildrenStream(parent, range, false);
     }
 
     /**
@@ -495,8 +531,8 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *            the parent node
      * @return the stream of all children under the parent, includes the parent
      */
-    private Stream<T> getChildrenStream(T parent) {
-        return getChildrenStream(parent, true);
+    private Stream<T> getFlatChildrenStream(T parent) {
+        return getFlatChildrenStream(parent, true);
     }
 
     /**
@@ -511,10 +547,11 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *            {@code false} if not
      * @return the stream of all children under the parent
      */
-    private Stream<T> getChildrenStream(T parent, boolean includeParent) {
+    private Stream<T> getFlatChildrenStream(T parent, boolean includeParent) {
         List<T> childList = Collections.emptyList();
         if (isExpanded(parent)) {
-            childList = getDirectChildren(parent).collect(Collectors.toList());
+            childList = doFetchDirectChildren(parent)
+                    .collect(Collectors.toList());
             if (childList.isEmpty()) {
                 removeChildren(parent == null ? null
                         : getDataProvider().getId(parent));
@@ -523,9 +560,39 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
             }
         }
         return combineParentAndChildStreams(parent,
-                childList.stream().flatMap(this::getChildrenStream),
+                childList.stream().flatMap(this::getFlatChildrenStream),
                 includeParent);
     }
+
+    /**
+     * The method fetch the children of given parent.
+     *
+     * @param parent
+     *            the parent node
+     * @param range
+     * @param includeParent
+     *            {@code true} to include the parent in the stream;
+     *            {@code false} if not
+     * @return the stream of all direct children under the parent
+     */
+    private Stream<T> getChildrenStream(T parent, Range range,
+            boolean includeParent) {
+        List<T> childList = Collections.emptyList();
+        if (isExpanded(parent)) {
+            childList = doFetchDirectChildren(parent, range)
+                    .collect(Collectors.toList());
+            if (childList.isEmpty()) {
+                removeChildren(parent == null ? null
+                        : getDataProvider().getId(parent));
+            } else {
+                registerChildren(parent, childList);
+            }
+        }
+        return combineParentAndChildStreams(parent,
+                childList.stream(),
+                includeParent);
+    }
+
 
     /**
      * Register parent and children items into inner structures. May be
