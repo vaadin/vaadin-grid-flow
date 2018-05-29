@@ -25,19 +25,15 @@ import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
-import com.vaadin.flow.component.grid.testbench.TreeGridElement;
-import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @TestPath("treegrid-basic-features")
-public class TreeGridBasicFeaturesIT extends AbstractComponentIT {
-    private TreeGridElement grid;
+public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
 
     public void setDataProvider(String dataProviderString) {
         findElement(By.id(dataProviderString)).click();
@@ -52,11 +48,7 @@ public class TreeGridBasicFeaturesIT extends AbstractComponentIT {
     @Before
     public void before() {
         open();
-        grid = $(TreeGridElement.class).first();
-    }
-
-    private String id(String id) {
-        return id.replace(" ", "");
+        super.before();
     }
 
     @Test
@@ -318,23 +310,4 @@ public class TreeGridBasicFeaturesIT extends AbstractComponentIT {
         Assert.assertEquals(9, grid.getRowCount());
     }
 
-    private void assertCellTexts(int startRowIndex, int cellIndex,
-            String[] cellTexts) {
-        int index = startRowIndex;
-        for (String cellText : cellTexts) {
-            Assert.assertEquals(cellText,
-                    grid.getCell(index, cellIndex).getText());
-            index++;
-        }
-    }
-
-    private boolean logContainsText(String txt) {
-        String value = (String) executeScript("return arguments[0].value",
-                findElement(By.id("log")));
-        return value != null && value.contains(txt);
-    }
-
-    private WebElement findElementByText(String text) {
-        return findElement(By.id(id(text)));
-    }
 }
