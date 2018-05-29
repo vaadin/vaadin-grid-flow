@@ -18,11 +18,9 @@ package com.vaadin.data.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -34,13 +32,13 @@ import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.QuerySortOrder;
+import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.ExecutionContext;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.internal.StateNode;
-import com.vaadin.flow.ui.ItemCollapseAllowedProvider;
 
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -87,11 +85,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                     .orElse(super.createKey());
         }
     };
-
-    /**
-     * Collapse allowed provider used to allow/disallow collapsing nodes.
-     */
-    private ItemCollapseAllowedProvider<T> itemCollapseAllowedProvider = t -> true;
 
     /**
      * Construct a new hierarchical data communicator backed by a
@@ -226,7 +219,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         mapper.setBackEndSorting(getBackEndSorting());
         mapper.setInMemorySorting(getInMemorySorting());
         mapper.setFilter(getFilter());
-        mapper.setItemCollapseAllowedProvider(getItemCollapseAllowedProvider());
 
         return consumer;
     }
@@ -421,26 +413,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         return mapper.isExpanded(item);
     }
 
-    /**
-     * Sets the item collapse allowed provider for this
-     * HierarchicalDataCommunicator. The provider should return {@code true} for
-     * any item that the user can collapse.
-     * <p>
-     * <strong>Note:</strong> This callback will be accessed often when sending
-     * data to the client. The callback should not do any costly operations.
-     *
-     * @param provider
-     *            the item collapse allowed provider, not {@code null}
-     */
-    public void setItemCollapseAllowedProvider(
-            ItemCollapseAllowedProvider<T> provider) {
-        Objects.requireNonNull(provider, "Provider can't be null");
-        itemCollapseAllowedProvider = provider;
-        // Update hierarchy mapper
-        mapper.setItemCollapseAllowedProvider(provider);
-
-        getDataProvider().refreshAll();
-    }
 
     /**
      * Returns parent index for the row or {@code null}.
@@ -476,18 +448,15 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         return mapper.getParentOfItem(item);
     }
 
-    // TODO javadoc
+    /**
+     * Returns depth of item in the tree starting from zero representing a root.
+     * 
+     * @param item
+     *            Target item
+     * @return depth of item in the tree or -1 if item is null
+     */
     public int getDepth(T item) {
         return mapper.getDepth(item);
-    }
-
-    /**
-     * Gets the item collapse allowed provider.
-     *
-     * @return the item collapse allowed provider
-     */
-    public ItemCollapseAllowedProvider<T> getItemCollapseAllowedProvider() {
-        return itemCollapseAllowedProvider;
     }
 
     @Override
@@ -503,11 +472,11 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         super.setBackEndSorting(sortOrder);
     }
 
-    public void setInMemorySorting(Comparator<T> comparator) {
+    public void setInMemorySorting(SerializableComparator<T> comparator) {
         if (mapper != null) {
             mapper.setInMemorySorting(comparator);
         }
-        // super.setInMemorySorting(comparator);
+        super.setInMemorySorting(comparator);
     }
 
     protected <F> void setFilter(F filter) {
