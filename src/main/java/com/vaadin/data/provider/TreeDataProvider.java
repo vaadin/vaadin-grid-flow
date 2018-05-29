@@ -85,7 +85,11 @@ public class TreeDataProvider<T>
     @Override
     public int getChildCount(
             HierarchicalQuery<T, SerializablePredicate<T>> query) {
-        return (int) fetchChildren(query).count();
+        if (query.getParent() != null) {
+            return treeData.getChildren(query.getParent()).size();
+        } else {
+            return treeData.getRootItems().size();
+        }
     }
 
     @Override

@@ -94,10 +94,10 @@ public class TreeGrid<T> extends Grid<T>
         }
 
         @Override
-        public void set(int start, List<JsonValue> items, int parentIndex,
+        public void set(int start, List<JsonValue> items,
                 String parentKey) {
             enqueue("$connector.set", start,
-                    items.stream().collect(JsonUtils.asArray()), parentIndex,
+                    items.stream().collect(JsonUtils.asArray()),
                     parentKey);
         }
 
@@ -110,9 +110,8 @@ public class TreeGrid<T> extends Grid<T>
         }
 
         @Override
-        public void clear(int start, int length, int parentIndex,
-                String parentKey) {
-            enqueue("$connector.clear", start, length, parentIndex, parentKey);
+        public void clear(int start, int length, String parentKey) {
+            enqueue("$connector.clear", start, length, parentKey);
         }
 
         @Override
@@ -206,10 +205,6 @@ public class TreeGrid<T> extends Grid<T>
                             .ifPresent(parent -> jsonObject.put(
                                     "parentUniqueKey",
                                     getUniqueKeyProvider().apply(parent)));
-                    Optional.ofNullable(getDataCommunicator().getIndex(item))
-                            .ifPresent(
-                                    idx -> jsonObject.put("scaledIndex", idx));
-
                 });
 
         return new HierarchicalDataCommunicator<>(defaultGridDataGenerator,
