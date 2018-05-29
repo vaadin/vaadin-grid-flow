@@ -173,7 +173,7 @@ public class CommunicationController<T> {
     }
 
     private void set(Range effectiveRequested, TreeUpdate update) {
-        if (effectiveRequested.isEmpty()) {
+        if (effectiveRequested.isEmpty() || activeKeyOrder.isEmpty()) {
             return;
         }
         if (parentKey == null) {
@@ -187,6 +187,9 @@ public class CommunicationController<T> {
     }
 
     private void clear(int start, int length, TreeUpdate update) {
+        if (length == 0) {
+            return;
+        }
         if (parentKey == null) {
             update.clear(start, length);
         } else {
