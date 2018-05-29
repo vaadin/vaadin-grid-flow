@@ -24,12 +24,10 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import com.vaadin.flow.component.grid.testbench.TreeGridElement;
-import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 
 @TestPath("treegrid-expand-collapse-recursively")
-public class TreeGridExpandCollapseRecursivelyIT extends AbstractComponentIT {
+public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
 
     private static final int itemsPerLevel = 5;
     private static final int rowCount0 = itemsPerLevel;
@@ -41,7 +39,6 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractComponentIT {
     private static final int rowCount4 = rowCount3
             + (rowCount3 - rowCount2) * itemsPerLevel;
 
-    private TreeGridElement grid;
     private WebElement depthSelector;
     private WebElement expandButton;
     private WebElement collapseButton;
@@ -49,7 +46,8 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractComponentIT {
     @Before
     public void before() {
         open();
-        grid = $(TreeGridElement.class).first();
+        super.before();
+
         depthSelector = findElement(By.tagName("vaadin-radio-group"));
 
         List<WebElement> buttons = findElements(By.tagName("button"));
@@ -67,34 +65,47 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractComponentIT {
         waitUntil(input -> grid.getRowCount() == rowCount1, 2);
         Assert.assertEquals(itemsPerLevel, grid.getNumberOfExpandedRows());
 
+        assertCellTexts(0, 0,
+                new String[] { "Item-0", "Item-0-0", "Item-0-1" });
+
         selectDepth(1);
         expandButton.click();
 
         waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount1, 2);
+
+        assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-0-0",
+                "Item-0-0-1" });
 
         selectDepth(2);
         expandButton.click();
 
         waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount2, 2);
 
+        assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-0-0",
+                "Item-0-0-0-0", "Item-0-0-0-1" });
+
+
         selectDepth(3);
         expandButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount3, 5);
+        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount3, 2);
+
+        assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-0-0",
+                "Item-0-0-0-0", "Item-0-0-0-0-0", "Item-0-0-0-0-1" });
     }
 
-    @Test /* (timeout = 30000) */
+    @Test(timeout = 5000)
     public void expandAndCollapseAllItems() {
         Assert.assertEquals(rowCount0, grid.getRowCount());
 
         selectDepth(3);
         expandButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount3, 15);
+        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount3, 2);
 
         collapseButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == 0, 15);
+        waitUntil(input -> grid.getNumberOfExpandedRows() == 0, 2);
         Assert.assertEquals(rowCount0, grid.getRowCount());
     }
 
@@ -107,7 +118,7 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractComponentIT {
 
         final AtomicInteger expandedRows = new AtomicInteger(rowCount3);
         waitUntil(input -> grid.getNumberOfExpandedRows() == expandedRows.get(),
-                5);
+                2);
 
         selectDepth(1);
         collapseButton.click();
@@ -131,10 +142,10 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractComponentIT {
         expandedRows.addAndGet(1);
         waitUntil(input -> grid
                 .getNumberOfExpandedRows() == expandedRows.get(), 1);
-        Assert.assertEquals(
-                (rowCount1 + itemsPerLevel
-                        + (itemsPerLevel * itemsPerLevel * itemsPerLevel)),
-                grid.getRowCount());
+
+        assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-1",
+                "Item-0-1-0", "Item-0-1-0-0", "Item-0-1-0-0-0" });
+
     }
 
     private void selectDepth(int depth) {

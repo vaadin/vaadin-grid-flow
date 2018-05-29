@@ -17,7 +17,6 @@ package com.vaadin.flow.component.treegrid.it;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.logging.Level;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -112,8 +111,7 @@ public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
         Assert.assertEquals(6, grid.getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
-        Assert.assertFalse(
-                getLogEntries(Level.SEVERE).stream().findAny().isPresent());
+        checkLogsForErrors();
     }
 
     @Test
