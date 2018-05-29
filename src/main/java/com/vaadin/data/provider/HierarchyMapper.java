@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.internal.Range;
-import com.vaadin.flow.ui.ItemCollapseAllowedProvider;
 
 import elemental.json.JsonObject;
 
@@ -65,7 +64,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
     private F filter;
     private List<QuerySortOrder> backEndSorting;
     private Comparator<T> inMemorySorting;
-    private ItemCollapseAllowedProvider<T> itemCollapseAllowedProvider = t -> true;
 
     private Set<Object> expandedItemIds = new HashSet<>();
 
@@ -231,26 +229,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
     }
 
     /**
-     * Gets the current item collapse allowed provider.
-     *
-     * @return the item collapse allowed provider
-     */
-    public ItemCollapseAllowedProvider<T> getItemCollapseAllowedProvider() {
-        return itemCollapseAllowedProvider;
-    }
-
-    /**
-     * Sets the current item collapse allowed provider.
-     *
-     * @param itemCollapseAllowedProvider
-     *            the item collapse allowed provider
-     */
-    public void setItemCollapseAllowedProvider(
-            ItemCollapseAllowedProvider<T> itemCollapseAllowedProvider) {
-        this.itemCollapseAllowedProvider = itemCollapseAllowedProvider;
-    }
-
-    /**
      * Gets the current in-memory sorting.
      *
      * @return the in-memory sorting
@@ -393,6 +371,13 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
                 getInMemorySorting(), getFilter(), parent));
     }
 
+    /**
+     * Returns depth of item in the tree starting from zero representing a root.
+     * 
+     * @param item
+     *            Target item
+     * @return depth of item in the tree or -1 if item is null
+     */
     public int getDepth(T item) {
         int depth = -1;
         while (item != null) {
