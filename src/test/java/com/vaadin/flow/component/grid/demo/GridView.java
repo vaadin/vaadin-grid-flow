@@ -1257,7 +1257,7 @@ public class GridView extends DemoView {
         Div div3 = new Div(toggleRecursivelyFirstItem);
     
         NativeButton toggleAllRecursively = new NativeButton(
-                "Toggle all recursively (slow)", evt -> {
+                "Toggle all recursively", evt -> {
                     List<T> collapse = new ArrayList<>();
                     List<T> expand = new ArrayList<>();
                     roots
