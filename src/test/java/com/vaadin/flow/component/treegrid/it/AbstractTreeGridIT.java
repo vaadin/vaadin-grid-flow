@@ -30,7 +30,7 @@ public class AbstractTreeGridIT extends AbstractComponentIT {
     }
 
     protected void assertCellTexts(int startRowIndex, int cellIndex,
-            String[] cellTexts) {
+            String... cellTexts) {
         int index = startRowIndex;
         for (String cellText : cellTexts) {
             Assert.assertEquals(cellText,
