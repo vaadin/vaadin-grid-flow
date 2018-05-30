@@ -1,33 +1,34 @@
 package com.vaadin.data.provider;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataKeyMapper;
+import com.vaadin.flow.function.SerializableBiFunction;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.internal.Range;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-public class CommunicationController<T> {
+public class CommunicationController<T> implements Serializable {
 
     private final DataKeyMapper<T> keyMapper;
     private final DataGenerator<T> dataGenerator;
-    private final Function<Integer, TreeUpdate> startUpdate;
+    private final SerializableFunction<Integer, TreeUpdate> startUpdate;
     private final HierarchyMapper<T, ?> mapper;
-    private final BiFunction<String, Range, Stream<T>> fetchItems;
+    private final SerializableBiFunction<String, Range, Stream<T>> fetchItems;
 
     // position in tree this object controls child items for. null means root.
     private final String parentKey;
@@ -77,8 +78,8 @@ public class CommunicationController<T> {
             DataKeyMapper<T> keyMapper,
             HierarchyMapper<T, ?> mapper,
             DataGenerator<T> dataGenerator,
-            Function<Integer, TreeUpdate> startUpdate,
-            BiFunction<String, Range, Stream<T>> fetchItems) {
+            SerializableFunction<Integer, TreeUpdate> startUpdate,
+            SerializableBiFunction<String, Range, Stream<T>> fetchItems) {
         this.parentKey = parentKey;
         this.keyMapper = keyMapper;
         this.mapper = mapper;
