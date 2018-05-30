@@ -299,10 +299,12 @@ window.Vaadin.Flow.gridConnector = {
       if((parentKey || root) !== root) {
         const items = cache[parentKey][page];
         let parentCache = grid.getCacheByKey(parentKey);
-        let _cache = parentCache.itemkeyCaches[parentKey];
-        _updateGridCache(page, items,
-          treePageCallbacks[parentKey][page],
-          _cache);
+        if(parentCache) {
+          let _cache = parentCache.itemkeyCaches[parentKey];
+          _updateGridCache(page, items,
+            treePageCallbacks[parentKey][page],
+            _cache);
+        }
 
       } else {
         const items = cache[root][page];
