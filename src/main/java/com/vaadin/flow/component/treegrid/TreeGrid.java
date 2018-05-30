@@ -330,9 +330,10 @@ public class TreeGrid<T> extends Grid<T>
      * @see #addColumn(Renderer)
      */
     public Column<T> addHierarchyColumn(ValueProvider<T, ?> valueProvider) {
-        String template = "<vaadin-grid-tree-toggle leaf=\"[[item.leaf]]\" expanded=\"{{expanded}}\""
-                + " level=\"[[level]]\">[[item.name]]</vaadin-grid-tree-toggle>";
-        Column<T> column = addColumn(TemplateRenderer.<T> of(template)
+        Column<T> column = addColumn(TemplateRenderer
+                .<T> of("<vaadin-grid-tree-toggle "
+                        + "leaf='[[item.leaf]]' expanded='{{expanded}}' level='[[level]]'>[[item.name]]"
+                        + "</vaadin-grid-tree-toggle>")
                 .withProperty("leaf",
                         item -> !getDataCommunicator().hasChildren(item))
                 .withProperty("name",
