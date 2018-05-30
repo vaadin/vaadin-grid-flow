@@ -26,6 +26,9 @@ import com.vaadin.data.provider.HierarchicalDataProvider;
 import com.vaadin.data.provider.HierarchicalQuery;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel.SelectAllCheckboxVisibility;
+import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.flow.component.grid.HierarchicalTestBean;
 import com.vaadin.flow.component.grid.LazyHierarchicalDataProvider;
 import com.vaadin.flow.component.html.Div;
@@ -38,10 +41,8 @@ import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.NoTheme;
 
 @Route(TreeGridBasicFeaturesPage.VIEW)
-@NoTheme
 public class TreeGridBasicFeaturesPage extends Div {
 
     public static final String VIEW = "treegrid-basic-features";
@@ -224,7 +225,17 @@ public class TreeGridBasicFeaturesPage extends Div {
 
         options.entrySet().forEach(entry -> {
             addAction("Selection mode - " + entry.getKey(),
-                    () -> grid.setSelectionMode(entry.getValue()));
+                    () -> {
+                        grid.setSelectionMode(entry.getValue());
+                        if(entry.getValue() == SelectionMode.MULTI) {
+                            GridSelectionModel model = grid.getSelectionModel();
+                            if (model instanceof GridMultiSelectionModel) {
+                                ((GridMultiSelectionModel) model)
+                                        .setSelectAllCheckboxVisibility(
+                                                SelectAllCheckboxVisibility.VISIBLE);
+                            }
+                        }
+                    });
         });
     }
 
