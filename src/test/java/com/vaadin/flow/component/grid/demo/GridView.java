@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -82,9 +83,11 @@ import com.vaadin.flow.router.Route;
 public class GridView extends DemoView {
 
     public static List<Person> items = new ArrayList<>();
-    public static AtomicInteger id = new AtomicInteger(0);
+    public static List<PersonWithLevel> rootItems = new ArrayList<>();
+    public static AtomicInteger treeIds = new AtomicInteger(0);
     static {
         items = createItems();
+        rootItems = createRootItems();
     }
 
     // begin-source-example
@@ -97,7 +100,6 @@ public class GridView extends DemoView {
         private int age;
         private String name;
         private Address address;
-        private int level;
 
         public int getId() {
             return id;
@@ -131,14 +133,6 @@ public class GridView extends DemoView {
             this.address = address;
         }
 
-        public int getLevel() {
-            return level;
-        }
-
-        public void setLevel(int level) {
-            this.level = level;
-        }
-
         @Override
         public int hashCode() {
             return id;
@@ -161,6 +155,21 @@ public class GridView extends DemoView {
         }
     }
 
+    /**
+     * Example object.
+     */
+    public static class PersonWithLevel extends Person {
+        
+        private int level;
+        
+        public int getLevel() {
+            return level;
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
+        }
+    }
     /**
      * Example object.
      */
@@ -1073,7 +1082,7 @@ public class GridView extends DemoView {
         addCard("Disabled grid", grid, div);
     }
 
-    private Map<Person, List<Person>> childMap;
+    private Map<PersonWithLevel, List<PersonWithLevel>> childMap;
 
     private void createBasicTreeGridUsage() {
         childMap = new HashMap<>();
@@ -1083,13 +1092,13 @@ public class GridView extends DemoView {
 
         // begin-source-example
         // source-example-heading: TreeGrid Basics
-        TreeGrid<Person> grid = new TreeGrid<>();
-        grid.setItems(getItems(), item -> {
+        TreeGrid<PersonWithLevel> grid = new TreeGrid<>();
+        grid.setItems(getRootItems(), item -> {
             if ((item.getLevel() == 0 && item.getId() > 10)
                     || item.getLevel() > 1)
                 return Collections.emptyList();
             if (!childMap.containsKey(item))
-                childMap.put(item, createItems(81, item.getLevel() + 1));
+                childMap.put(item, createSubItems(81, item.getLevel() + 1));
             return childMap.get(item);
         });
         grid.addHierarchyColumn(Person::getName).setHeader("Hierarchy");
@@ -1119,7 +1128,7 @@ public class GridView extends DemoView {
         HorizontalLayout nameEditor = new HorizontalLayout(name, save);
 
         addCard("TreeGrid", "TreeGrid Basics",
-                withTreeGridToggleButtons(getItems(), grid, nameEditor,
+                withTreeGridToggleButtons(getRootItems(), grid, nameEditor,
                         message));
     }
 
@@ -1277,31 +1286,45 @@ public class GridView extends DemoView {
         return items;
     }
 
+    private List<PersonWithLevel> getRootItems() {
+        return rootItems;
+    }
+
     private static List<Person> createItems() {
         return createItems(500);
     }
 
-    private static List<Person> createItems(int number) {
-        return createItems(number, 0);
+    private static List<PersonWithLevel> createRootItems() {
+        return createSubItems(500, 0);
     }
 
-    private static List<Person> createItems(int number, int level) {
+    private static List<Person> createItems(int number) {
         Random random = new Random(0);
         return IntStream.range(1, number)
-                .mapToObj(index -> createPerson(index, random, level))
+                .mapToObj(index -> createPerson(index, random))
+                .collect(Collectors.toList());
+    }
+
+    private static List<PersonWithLevel> createSubItems(int number,
+            int level) {
+        Random random = new Random(0);
+        return IntStream.range(1, number)
+                .mapToObj(index -> createPersonWithLevel(index,
+                        random, level))
                 .collect(Collectors.toList());
     }
 
     private static Person createPerson(int index, Random random) {
-        return createPerson(index, random, 0);
+        return createPerson(Person::new, index, index, random);
     }
 
-    private static Person createPerson(int index, Random random, int level) {
-        Person person = new Person();
-        person.setId(id.getAndIncrement());
+    private static <T extends Person> T createPerson(Supplier<T> constructor,
+            int index, int id,
+            Random random) {
+        T person = constructor.get();
+        person.setId(id);
         person.setName("Person " + index);
         person.setAge(13 + random.nextInt(50));
-        person.setLevel(level);
 
         Address address = new Address();
         address.setStreet("Street " + ((char) ('A' + random.nextInt(26))));
@@ -1309,6 +1332,16 @@ public class GridView extends DemoView {
         address.setPostalCode(String.valueOf(10000 + random.nextInt(8999)));
         person.setAddress(address);
 
+        return person;
+    }
+
+    private static PersonWithLevel createPersonWithLevel(int index,
+            Random random,
+            int level) {
+        PersonWithLevel person = createPerson(PersonWithLevel::new, index,
+                treeIds.getAndIncrement(),
+                random);
+        person.setLevel(level);
         return person;
     }
 
