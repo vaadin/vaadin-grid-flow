@@ -51,6 +51,7 @@ window.Vaadin.Flow.gridConnector = {
     let detailsVisibleOnClick = true;
 
     grid.size = 0; // To avoid NaN here and there before we get proper data
+    grid.itemIdPath = 'key';
 
     grid.$connector = {};
 
