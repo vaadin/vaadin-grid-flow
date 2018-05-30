@@ -85,6 +85,13 @@ public class TreeDataProvider<T>
     @Override
     public int getChildCount(
             HierarchicalQuery<T, SerializablePredicate<T>> query) {
+        if (query.getFilter().isPresent()) {
+            Stream<T> childStream = getFilteredStream(
+                    treeData.getChildren(query.getParent()).stream(),
+                    query.getFilter());
+            return (int) childStream.skip(query.getOffset())
+                    .limit(query.getLimit()).count();
+        }
         if (query.getParent() != null) {
             return treeData.getChildren(query.getParent()).size();
         } else {

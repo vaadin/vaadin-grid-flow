@@ -483,7 +483,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         if (mapper != null) {
             mapper.setFilter(filter);
         }
-        // super.setFilter(filter);
     }
 
     public boolean hasExpandedItems() {
