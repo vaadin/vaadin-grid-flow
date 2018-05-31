@@ -208,27 +208,17 @@ public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
         // Should select "1 | 1"
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
         waitUntil(b -> grid.getRow(2).isSelected(), 1);
-        // assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
 
         // Should move focus but not selection
         new Actions(getDriver()).sendKeys(Keys.UP).perform();
-        // assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
-        // assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
         assertFalse(grid.getRow(1).isSelected());
         assertTrue(grid.getRow(2).isSelected());
-        // assertFalse(grid.getRow(1).hasClassName("v-treegrid-row-selected"));
-        // assertTrue(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
 
 
         // Should select "1 | 0" without moving focus
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
         waitUntil(b -> grid.getRow(1).isSelected(), 1);
-        // assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-focused"));
-        // assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-focused"));
-        // assertTrue(grid.getRow(1).isSelected());
         assertFalse(grid.getRow(2).isSelected());
-        // assertTrue(grid.getRow(1).hasClassName("v-treegrid-row-selected"));
-        // assertFalse(grid.getRow(2).hasClassName("v-treegrid-row-selected"));
 
         checkLogsForErrors();
     }
