@@ -280,6 +280,8 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     /**
      * Collapses the given item and removes its sub-hierarchy. Calling this
      * method will have no effect if the row is already collapsed.
+     * <p>
+     * Changes are synchronized to the client.
      *
      * @param item
      *            the item to collapse
@@ -291,28 +293,37 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
     /**
      * Collapses the given item and removes its sub-hierarchy. Calling this
-     * method will have no effect if the row is already collapsed. The index is
-     * provided by the client-side or calculated from a full data request.
+     * method will have no effect if the row is already collapsed.
      * {@code syncAndRefresh} indicates whether the changes should be
-     * synchronised to the client and the data provider be notified.
+     * synchronized to the client.
+     *
+     * @param item
+     *            the item to collapse
+     * @param syncClient
+     *            {@code true} if the changes should be synchronized to the
+     *            client, {@code false} otherwise.
+     */
+    public void collapse(T item, boolean syncClient) {
+        doCollapse(Arrays.asList(item), syncClient);
+    }
+
+    /**
+     * Collapses the given items and removes its sub-hierarchy. Calling this
+     * method will have no effect if the row is already collapsed.
+     * {@code syncAndRefresh} indicates whether the changes should be
+     * synchronized to the client.
      *
      * @param items
-     *            items to collapse
-     * @param syncAndRefresh
-     *            {@code true} if the changes should be synchronised to the
-     *            client and the data provider should be notified of the
-     *            changes, {@code false} otherwise.
+     *            the items to collapse
+     * @param syncClient
+     *            {@code true} if the changes should be synchronized to the
+     *            client, {@code false} otherwise.
      */
-    public void collapse(T item, boolean syncAndRefresh) {
-        doCollapse(Arrays.asList(item), syncAndRefresh);
+    public Collection<T> collapse(Collection<T> items, boolean syncClient) {
+        return doCollapse(items, syncClient);
     }
 
-    public Collection<T> collapse(Collection<T> items, boolean syncAndRefresh) {
-        return doCollapse(items, syncAndRefresh);
-    }
-
-    private Collection<T> doCollapse(Collection<T> items,
-            boolean syncAndRefresh) {
+    private Collection<T> doCollapse(Collection<T> items, boolean syncClient) {
         List<T> collapsedItems = new ArrayList<>();
         items.forEach(item -> {
             if (mapper.collapse(item)) {
@@ -324,7 +335,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                 }
             }
         });
-        if (syncAndRefresh) {
+        if (syncClient) {
             TreeUpdate update = arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.collapseItems",
@@ -338,10 +349,13 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     /**
      * Expands the given item. Calling this method will have no effect if the
      * item is already expanded or if it has no children.
-     *
+     * <p>
+     * Changes are synchronized to the client.
+     * 
      * @param item
      *            the item to expand
      * @param pageSize
+     *            size of the page
      */
     public void expand(T item, int pageSize) {
         expand(item, pageSize, true);
@@ -349,38 +363,48 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
     /**
      * Expands the given item. Calling this method will have no effect if the
-     * item is already expanded or if it has no children. The index is provided
-     * by the client-side or calculated from a full data request.
-     * {@code syncAndRefresh} indicates whether the changes should be
-     * synchronised to the client and the data provider be notified.
+     * item is already expanded or if it has no children. {@code syncClient}
+     * indicates whether the changes should be synchronized to the client.
      *
-     * @param items
-     *            items to expand
+     * @param item
+     *            the item to expand
      * @param pageSize
-     * @param syncAndRefresh
-     *            {@code true} if the changes should be synchronised to the
-     *            client and the data provider should be notified of the
-     *            changes, {@code false} otherwise.
+     *            size of the page
+     * @param syncClient
+     *            {@code true} if the changes should be synchronized to the
+     *            client, {@code false} otherwise.
      */
-    public void expand(T item, int pageSize,
-            boolean syncAndRefresh) {
-        doExpand(Arrays.asList(item), pageSize, syncAndRefresh);
+    public void expand(T item, int pageSize, boolean syncClient) {
+        doExpand(Arrays.asList(item), pageSize, syncClient);
     }
 
+    /**
+     * Expands the given items. Calling this method will have no effect if the
+     * item is already expanded or if it has no children. {@code syncClient}
+     * indicates whether the changes should be synchronized to the client.
+     *
+     * @param items
+     *            the items to expand
+     * @param pageSize
+     *            size of the page
+     * @param syncClient
+     *            {@code true} if the changes should be synchronized to the
+     *            client, {@code false} otherwise.
+     */
     public Collection<T> expand(Collection<T> items, int pageSize,
-            boolean syncAndRefresh) {
-        return doExpand(items, pageSize, syncAndRefresh);
+            boolean syncClient) {
+        return doExpand(items, pageSize, syncClient);
     }
 
     private Collection<T> doExpand(Collection<T> items, int pageSize,
-            boolean syncAndRefresh) {
+            boolean syncClient) {
         List<T> expandedItems = new ArrayList<>();
         items.forEach(item -> {
             if (mapper.expand(item)) {
                 expandedItems.add(item);
             }
         });
-        if (syncAndRefresh) {
+        if (syncClient) {
             TreeUpdate update = arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.expandItems",
@@ -485,6 +509,11 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         }
     }
 
+    /**
+     * Returns true if there is any expanded items.
+     * 
+     * @return {@code true} if there is any expanded items.
+     */
     public boolean hasExpandedItems() {
         return mapper.hasExpandedItems();
     }
