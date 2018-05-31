@@ -128,8 +128,8 @@ public class HierarchicalCommunicatorTest {
     }
 
     private void testItemRemove(String item, boolean refreshAll) {
-        communicator.expand(ROOT, pageSize);
-        communicator.expand(FOLDER, pageSize);
+        communicator.expand(ROOT);
+        communicator.expand(FOLDER);
         // Put the item into client queue
         communicator.refresh(item);
         treeData.removeItem(item);
@@ -143,8 +143,8 @@ public class HierarchicalCommunicatorTest {
     @Test
     public void testReplaceAll() {
         // Some modifications
-        communicator.expand(ROOT, pageSize);
-        communicator.expand(FOLDER, pageSize);
+        communicator.expand(ROOT);
+        communicator.expand(FOLDER);
         communicator.refresh(LEAF);
         // Replace dataprovider
         communicator.setDataProvider(new TreeDataProvider<>(new TreeData<>()),
