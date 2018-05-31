@@ -15,6 +15,7 @@
  */
 package com.vaadin.data.provider;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ import com.vaadin.flow.internal.Range;
  * @param <F>
  *            the filter type
  */
-public class HierarchyMapper<T, F> {
+public class HierarchyMapper<T, F> implements Serializable {
 
     // childMap is only used for finding parents of items and clean up on
     // removing children of expanded nodes.
