@@ -641,7 +641,7 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
     /**
      * Returns true if there is any expanded items.
      * 
-     * @return boolean true if there is any expanded items.
+     * @return {@code true} if there is any expanded items.
      */
     public boolean hasExpandedItems() {
         return !expandedItemIds.isEmpty();
