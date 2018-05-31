@@ -46,6 +46,7 @@ import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.StateNode;
@@ -69,7 +70,7 @@ public class TreeGrid<T> extends Grid<T>
         implements HasHierarchicalDataProvider<T> {
 
     private final class UpdateQueue implements TreeUpdate {
-        private List<Runnable> queue = new ArrayList<>();
+        private List<SerializableRunnable> queue = new ArrayList<>();
 
         private UpdateQueue() {
         }
@@ -144,8 +145,6 @@ public class TreeGrid<T> extends Grid<T>
 
     private ValueProvider<T, String> uniqueKeyProvider;
 
-    private TreeGridArrayUpdater arrayUpdater;
-
     protected String uniqueKeyProperty;
 
     /**
@@ -193,7 +192,7 @@ public class TreeGrid<T> extends Grid<T>
             ArrayUpdater defaultArrayUpdater,
             SerializableConsumer<JsonArray> defaultDataUpdater,
             StateNode defaultStateNode) {
-        arrayUpdater = createArrayUpdater();
+        TreeGridArrayUpdater arrayUpdater = createArrayUpdater();
         uniqueKeyProperty = "uniquekey";
         defaultGridDataGenerator.addDataGenerator(this::generateTreeData);
 
