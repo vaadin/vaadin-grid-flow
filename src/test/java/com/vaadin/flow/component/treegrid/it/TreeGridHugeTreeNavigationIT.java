@@ -94,6 +94,7 @@ public class TreeGridHugeTreeNavigationIT extends AbstractTreeGridIT {
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
         new Actions(getDriver()).sendKeys(Keys.DOWN, Keys.SPACE).perform();
         waitUntil(b -> grid.getNumberOfExpandedRows() == 2, 1);
+        waitUntil(b -> grid.getRowCount() > 6, 1);
         grid.scrollToRow(200);
         // Jump into view
         new Actions(getDriver()).sendKeys(Keys.RIGHT).perform();
