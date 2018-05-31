@@ -494,11 +494,11 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     @ClientCallable(DisabledUpdateMode.ALWAYS)
-    private void setParentRequestedRange(int page, int start, int length,
+    private void setParentRequestedRange(int start, int length,
             String parentKey) {
         T item = getDataCommunicator().getKeyMapper().get(parentKey);
         if (item != null) {
-            getDataCommunicator().setParentRequestedRange(page, start, length,
+            getDataCommunicator().setParentRequestedRange(start, length,
                     item);
         }
     }
@@ -561,7 +561,7 @@ public class TreeGrid<T> extends Grid<T>
     protected void expand(Collection<T> items, boolean syncClient,
             boolean userOriginated) {
         Collection<T> expandedItems = getDataCommunicator().expand(items,
-                getPageSize(), syncClient);
+                syncClient);
         fireEvent(new ExpandEvent<T, TreeGrid<T>>(this, userOriginated,
                 expandedItems));
     }
@@ -606,8 +606,7 @@ public class TreeGrid<T> extends Grid<T>
      */
     public void expandRecursively(Collection<T> items, int depth) {
         getDataCommunicator().expand(
-                getItemsWithChildrenRecursively(items, depth), getPageSize(),
-                true);
+                getItemsWithChildrenRecursively(items, depth), true);
     }
 
     /**

@@ -223,7 +223,7 @@ window.Vaadin.Flow.gridConnector = {
           treePageCallbacks[parentUniqueKey][page] = callback;
         }
         grid.fetchPage((firstIndex, size) =>
-          grid.$server.setParentRequestedRange(page, firstIndex, size, params.parentItem.key), page, parentUniqueKey);
+          grid.$server.setParentRequestedRange(firstIndex, size, params.parentItem.key), page, parentUniqueKey);
 
       } else {
         // workaround: sometimes grid-element gives page index that overflows
