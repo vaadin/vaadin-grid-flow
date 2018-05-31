@@ -115,7 +115,7 @@ public class TreeDataProvider<T>
 
         Optional<Comparator<T>> comparing = Stream
                 .of(query.getInMemorySorting(), sortOrder)
-                .filter(c -> c != null)
+                .filter(Objects::nonNull)
                 .reduce((c1, c2) -> c1.thenComparing(c2));
 
         if (comparing.isPresent()) {
