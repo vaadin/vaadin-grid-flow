@@ -123,17 +123,15 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
 
     private void requestFlush(TreeUpdate update) {
-        SerializableConsumer<ExecutionContext> flushRequest = context -> {
-            update.commit();
-        };
+        SerializableConsumer<ExecutionContext> flushRequest = context -> update
+                .commit();
         stateNode.runWhenAttached(ui -> ui.getInternals().getStateTree()
                 .beforeClientResponse(stateNode, flushRequest));
     }
 
     private void requestFlush(CommunicationController<T> update) {
-        SerializableConsumer<ExecutionContext> flushRequest = context -> {
-            update.flush();
-        };
+        SerializableConsumer<ExecutionContext> flushRequest = context -> update
+                .flush();
         stateNode.runWhenAttached(ui -> ui.getInternals().getStateTree()
                 .beforeClientResponse(stateNode, flushRequest));
     }
@@ -166,20 +164,17 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         return mapper.fetchRootItems(Range.withLength(offset, limit));
     }
 
-    public void setParentRequestedRange(int page, int start, int length,
+    public void setParentRequestedRange(int start, int length,
             T parentItem) {
         String parentKey = uniqueKeyProvider.apply(parentItem);
 
-        CommunicationController<T> controller = dataControllers.get(parentKey);
-        if (controller == null) {
-            controller = new CommunicationController<>(parentKey,
-                    getKeyMapper(), mapper, dataGenerator,
-                    size -> arrayUpdater.startUpdate(getDataProviderSize()),
-                    (pkey, range) -> mapper
-                            .fetchChildItems(getKeyMapper().get(pkey),
-                            range));
-            dataControllers.put(parentKey, controller);
-        }
+        CommunicationController<T> controller = dataControllers.computeIfAbsent(
+                parentKey,
+                key -> new CommunicationController<>(parentKey, getKeyMapper(),
+                        mapper, dataGenerator,
+                        size -> arrayUpdater.startUpdate(getDataProviderSize()),
+                        (pkey, range) -> mapper.fetchChildItems(
+                                getKeyMapper().get(pkey), range)));
 
         controller.setRequestRange(start, length);
         requestFlush(controller);
@@ -339,7 +334,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             TreeUpdate update = arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.collapseItems",
-                        collapsedItems.stream().map(this::generateJson)
+                        collapsedItems.stream().map(this::generateJsonForExpandedOrCollapsedItem)
                                 .collect(JsonUtils.asArray()));
             requestFlush(update);
         }
@@ -357,8 +352,8 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      * @param pageSize
      *            size of the page
      */
-    public void expand(T item, int pageSize) {
-        expand(item, pageSize, true);
+    public void expand(T item) {
+        expand(item, true);
     }
 
     /**
@@ -368,14 +363,12 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *
      * @param item
      *            the item to expand
-     * @param pageSize
-     *            size of the page
      * @param syncClient
      *            {@code true} if the changes should be synchronized to the
      *            client, {@code false} otherwise.
      */
-    public void expand(T item, int pageSize, boolean syncClient) {
-        doExpand(Arrays.asList(item), pageSize, syncClient);
+    public void expand(T item, boolean syncClient) {
+        doExpand(Arrays.asList(item), syncClient);
     }
 
     /**
@@ -385,18 +378,15 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *
      * @param items
      *            the items to expand
-     * @param pageSize
-     *            size of the page
      * @param syncClient
      *            {@code true} if the changes should be synchronized to the
      *            client, {@code false} otherwise.
      */
-    public Collection<T> expand(Collection<T> items, int pageSize,
-            boolean syncClient) {
-        return doExpand(items, pageSize, syncClient);
+    public Collection<T> expand(Collection<T> items, boolean syncClient) {
+        return doExpand(items, syncClient);
     }
 
-    private Collection<T> doExpand(Collection<T> items, int pageSize,
+    private Collection<T> doExpand(Collection<T> items,
             boolean syncClient) {
         List<T> expandedItems = new ArrayList<>();
         items.forEach(item -> {
@@ -408,7 +398,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             TreeUpdate update = arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.expandItems",
-                        expandedItems.stream().map(this::generateJson)
+                        expandedItems.stream().map(this::generateJsonForExpandedOrCollapsedItem)
                                 .collect(JsonUtils.asArray()));
             requestFlush(update);
         }
@@ -496,6 +486,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         super.setBackEndSorting(sortOrder);
     }
 
+    @Override
     public void setInMemorySorting(SerializableComparator<T> comparator) {
         if (mapper != null) {
             mapper.setInMemorySorting(comparator);
@@ -527,7 +518,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         return mapper;
     }
 
-    private JsonValue generateJson(T item) {
+    private JsonValue generateJsonForExpandedOrCollapsedItem(T item) {
         JsonObject json = Json.createObject();
         json.put("key", getKeyMapper().key(item));
         dataGenerator.generateData(item, json);
