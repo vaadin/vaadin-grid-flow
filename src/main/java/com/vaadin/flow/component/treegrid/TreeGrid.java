@@ -42,7 +42,6 @@ import com.vaadin.flow.data.provider.ArrayUpdater;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.function.SerializableConsumer;
@@ -140,8 +139,8 @@ public class TreeGrid<T> extends Grid<T>
 
     }
 
-    private final ValueProvider<T, String> defaultUniqueKeyProvider = item -> ""
-            + item.hashCode();
+    private final ValueProvider<T, String> defaultUniqueKeyProvider = item -> String
+            .valueOf(item.hashCode());
 
     private ValueProvider<T, String> uniqueKeyProvider;
 
@@ -196,22 +195,19 @@ public class TreeGrid<T> extends Grid<T>
             StateNode defaultStateNode) {
         arrayUpdater = createArrayUpdater();
         uniqueKeyProperty = "uniquekey";
-        defaultGridDataGenerator
-                .addDataGenerator((T item, JsonObject jsonObject) -> {
-                    jsonObject.put(uniqueKeyProperty,
-                            getUniqueKeyProvider().apply(item));
-                    Optional.ofNullable(
-                            getDataCommunicator().getParentItem(item))
-                            .ifPresent(parent -> jsonObject.put(
-                                    "parentUniqueKey",
-                                    getUniqueKeyProvider().apply(parent)));
-                });
+        defaultGridDataGenerator.addDataGenerator(this::generateTreeData);
 
         return new HierarchicalDataCommunicator<>(defaultGridDataGenerator,
                 arrayUpdater, defaultDataUpdater, defaultStateNode,
                 item -> getUniqueKeyProvider().apply(item));
     }
 
+    /**
+     * Creates Array update strategy aware object that handles initialization
+     * and creation of update of array on client side.
+     * 
+     * @return new TreeGridArrayUpdater object
+     */
     protected TreeGridArrayUpdater createArrayUpdater() {
         return new TreeGridArrayUpdater() {
             @Override
@@ -225,6 +221,21 @@ public class TreeGrid<T> extends Grid<T>
                 updateSelectionModeOnClient();
             }
         };
+    }
+
+    /**
+     * Generates TreeGrid specific data for row sent to client.
+     * 
+     * @param item
+     *            Target item
+     * @param jsonObject
+     *            Target json object to fill with TreeGrid specific data
+     */
+    protected void generateTreeData(T item, JsonObject jsonObject) {
+        jsonObject.put(uniqueKeyProperty, getUniqueKeyProvider().apply(item));
+        Optional.ofNullable(getDataCommunicator().getParentItem(item))
+                .ifPresent(parent -> jsonObject.put("parentUniqueKey",
+                        getUniqueKeyProvider().apply(parent)));
     }
 
     /**
@@ -318,16 +329,10 @@ public class TreeGrid<T> extends Grid<T>
      * <p>
      * Hierarchy column is rendered by using 'vaadin-grid-tree-toggle' web
      * component.
-     * <p>
-     * <em>NOTE:</em> For displaying components, see
-     * {@link #addComponentColumn(ValueProvider)}. For using build-in renderers,
-     * see {@link #addColumn(Renderer)}.
      *
      * @param valueProvider
      *            the value provider
      * @return the created hierarchy column
-     * @see #addComponentColumn(ValueProvider)
-     * @see #addColumn(Renderer)
      */
     public Column<T> addHierarchyColumn(ValueProvider<T, ?> valueProvider) {
         Column<T> column = addColumn(TemplateRenderer
@@ -542,10 +547,22 @@ public class TreeGrid<T> extends Grid<T>
         expand(items, true, false);
     }
 
-    protected void expand(Collection<T> items, boolean syncAndRefresh,
+    /**
+     * Expands the given items.
+     * 
+     * @param items
+     *            the items to expand
+     * @param syncClient
+     *            {@code true} if the changes should be synchronised to the
+     *            client, {@code false} otherwise.
+     * @param userOriginated
+     *            {@code true} if a {@link ExpandEvent} triggered by this
+     *            operation is user originated, {@code false} otherwise.
+     */
+    protected void expand(Collection<T> items, boolean syncClient,
             boolean userOriginated) {
         Collection<T> expandedItems = getDataCommunicator().expand(items,
-                getPageSize(), syncAndRefresh);
+                getPageSize(), syncClient);
         fireEvent(new ExpandEvent<T, TreeGrid<T>>(this, userOriginated,
                 expandedItems));
     }
@@ -618,10 +635,22 @@ public class TreeGrid<T> extends Grid<T>
         collapse(items, true, false);
     }
 
-    protected void collapse(Collection<T> items, boolean syncAndRefresh,
+    /**
+     * Collapse the given items.
+     * 
+     * @param items
+     *            the collection of items to collapse
+     * @param syncClient
+     *            {@code true} if the changes should be synchronized to the
+     *            client, {@code false} otherwise.
+     * @param userOriginated
+     *            {@code true} if a {@link CollapseEvent} triggered by this
+     *            operation is user originated, {@code false} otherwise.
+     */
+    protected void collapse(Collection<T> items, boolean syncClient,
             boolean userOriginated) {
         Collection<T> collapsedItems = getDataCommunicator().collapse(items,
-                syncAndRefresh);
+                syncClient);
         fireEvent(new CollapseEvent<T, TreeGrid<T>>(this, userOriginated,
                 collapsedItems));
     }
@@ -680,8 +709,11 @@ public class TreeGrid<T> extends Grid<T>
      * </p>
      * 
      * @param items
+     *            the items to expand recursively
      * @param depth
-     * @return
+     *            the maximum depth of recursion
+     * @return collection of given items and their children recursively until
+     *         the given depth
      */
     protected Collection<T> getItemsWithChildrenRecursively(Collection<T> items,
             int depth) {
@@ -704,7 +736,12 @@ public class TreeGrid<T> extends Grid<T>
         return itemsWithChildren;
     }
 
-    /** Expands or collapses given item depending its current state. */
+    /**
+     * Expands or collapses given item depending on its current state.
+     * 
+     * @param item
+     *            the target item to expand or collapse
+     */
     protected void toggleExpandedState(T item) {
         if (isExpanded(item)) {
             collapse(Arrays.asList(item), false, true);
