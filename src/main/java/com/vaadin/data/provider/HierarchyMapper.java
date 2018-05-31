@@ -29,11 +29,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.internal.Range;
-
-import elemental.json.JsonObject;
 
 /**
  * Mapper for hierarchical data.
@@ -53,7 +50,7 @@ import elemental.json.JsonObject;
  * @param <F>
  *            the filter type
  */
-public class HierarchyMapper<T, F> implements DataGenerator<T> {
+public class HierarchyMapper<T, F> {
 
     // childMap is only used for finding parents of items and clean up on
     // removing children of expanded nodes.
@@ -224,9 +221,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
         return removedRows;
     }
 
-    @Override
-    public void generateData(T item, JsonObject jsonObject) {
-    }
 
     /**
      * Gets the current in-memory sorting.
@@ -504,17 +498,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
      *
      * @param parent
      *            the parent node
-     * @return the stream of direct children
-     */
-    private Stream<T> getDirectChildren(T parent) {
-        return getChildrenStream(parent, null, false);
-    }
-
-    /**
-     * Gets the stream of direct children for given node.
-     *
-     * @param parent
-     *            the parent node
      * @param range
      * @return the stream of direct children
      */
@@ -631,7 +614,6 @@ public class HierarchyMapper<T, F> implements DataGenerator<T> {
         return Stream.concat(parentStream, children);
     }
 
-    @Override
     public void destroyAllData() {
         childMap.clear();
         parentIdMap.clear();
