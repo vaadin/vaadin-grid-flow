@@ -26,5 +26,6 @@ public interface TreeGridArrayUpdater extends ArrayUpdater {
      *            the size of the array where changes happened
      * @return array update strategy
      */
+    // TODO parameterize return value
     TreeUpdate startUpdate(int sizeChange);
 }
