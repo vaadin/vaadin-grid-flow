@@ -78,12 +78,10 @@ import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableComparator;
-import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.ReflectTools;
-import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.Json;
@@ -112,9 +110,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     public final class UpdateQueue implements Update {
         private List<Runnable> queue = new ArrayList<>();
-
-        private UpdateQueue() {
-        }
 
         private UpdateQueue(int size) {
             // 'size' property is not synchronized by the web component since
@@ -801,24 +796,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    private final ArrayUpdater arrayUpdater = new ArrayUpdater() {
-        @Override
-        public UpdateQueue startUpdate(int sizeChange) {
-            return new UpdateQueue(sizeChange);
-        }
+    private final ArrayUpdater arrayUpdater;
 
-        public UpdateQueue startUpdate() {
-            return new UpdateQueue();
-        }
-
-        @Override
-        public void initialize() {
-            initConnector();
-            updateSelectionModeOnClient();
-        }
-    };
-
-    private final CompositeDataGenerator<T> gridDataGenerator = new CompositeDataGenerator<>();
+    private final CompositeDataGenerator<T> gridDataGenerator;
     private final DataCommunicator<T> dataCommunicator;
 
     private int nextColumnId = 0;
@@ -826,7 +806,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private GridSelectionModel<T> selectionModel;
     private SelectionMode selectionMode;
 
-    private final DetailsManager detailsManager = new DetailsManager(this);
+    private final DetailsManager detailsManager;
     private Element detailsTemplate;
     private boolean detailsVisibleOnClick = true;
 
@@ -835,7 +815,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private final List<GridSortOrder<T>> sortOrder = new ArrayList<>();
 
-    protected PropertySet<T> propertySet;
+    private PropertySet<T> propertySet;
 
     private DataGenerator<T> itemDetailsDataGenerator;
 
@@ -865,31 +845,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the page size. Must be greater than zero.
      */
     public Grid(int pageSize) {
-        dataCommunicator = createDataCommunicator(gridDataGenerator,
-                arrayUpdater, data -> getElement()
-                        .callFunction("$connector.updateData", data),
-                getElement().getNode());
+        this(pageSize, new DataCommunicatorBuilder<>());
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
 
         columnLayers.add(new ColumnLayer(this));
-    }
-
-    protected DataCommunicator<T> createDataCommunicator(
-            CompositeDataGenerator<T> gridDataGenerator,
-            ArrayUpdater arrayUpdater,
-            SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode) {
-        return new DataCommunicator<>(
-                gridDataGenerator, arrayUpdater, dataUpdater, stateNode);
-    }
-
-    protected void initConnector() {
-        getUI().orElseThrow(() -> new IllegalStateException(
-                "Connector can only be initialized for an attached Grid"))
-                .getPage().executeJavaScript(
-                        "window.Vaadin.Flow.gridConnector.initLazy($0)",
-                        getElement());
     }
 
     /**
@@ -919,6 +880,155 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 .forEach(this::addColumn);
     }
 
+    /**
+     * Creates a new grid with an initial set of columns for each of the bean's
+     * properties. The property-values of the bean will be converted to Strings.
+     * Full names of the properties will be used as the
+     * {@link Column#setKey(String) column keys} and the property captions will
+     * be used as the {@link Column#setHeader(String) column headers}.
+     * <p>
+     * You can add columns for nested properties of the bean with
+     * {@link #addColumn(String)}.
+     *
+     * @param beanType
+     *            the bean type to use, not <code>null</code>
+     * @param dataCommunicatorBuilder
+     *            Builder for {@link DataCommunicator} implementation this Grid
+     *            uses to handle all data communication.
+     * @param <G>
+     *            the Grid type
+     * @param <B>
+     *            the data communicator builder type
+     */
+    protected <G extends Grid<T>, B extends DataCommunicatorBuilder<G, T>> Grid(
+            Class<T> beanType, B dataCommunicatorBuilder) {
+        this(50, dataCommunicatorBuilder);
+        Objects.requireNonNull(beanType, "Bean type can't be null");
+        Objects.requireNonNull(dataCommunicatorBuilder,
+                "Data communicator builder can't be null");
+        propertySet = BeanPropertySet.get(beanType);
+        propertySet.getProperties()
+                .filter(property -> !property.isSubProperty())
+                .forEach(this::addColumn);
+    }
+
+    /**
+     * Creates a new instance, with the specified page size and data
+     * communicator.
+     * <p>
+     * The page size influences the {@link Query#getLimit()} sent by the client,
+     * but it's up to the webcomponent to determine the actual query limit,
+     * based on the height of the component and scroll position. Usually the
+     * limit is 3 times the page size (e.g. 150 items with a page size of 50).
+     *
+     * @param pageSize
+     *            the page size. Must be greater than zero.
+     * @param dataCommunicatorBuilder
+     *            Builder for {@link DataCommunicator} implementation this Grid
+     *            uses to handle all data communication.
+     * @param <G>
+     *            the Grid type
+     * @param <B>
+     *            the data communicator builder type
+     * 
+     */
+    protected <G extends Grid<T>, B extends DataCommunicatorBuilder<G, T>> Grid(
+            int pageSize, B dataCommunicatorBuilder) {
+        Objects.requireNonNull(dataCommunicatorBuilder,
+                "Data communicator builder can't be null");
+        dataCommunicator = dataCommunicatorBuilder.build((G) this);
+        gridDataGenerator = dataCommunicatorBuilder.getDataGenerator();
+        arrayUpdater = dataCommunicatorBuilder.getArrayUpdater();
+        detailsManager = new DetailsManager(this);
+        setPageSize(pageSize);
+        setSelectionModel(SelectionMode.SINGLE.createModel(this),
+                SelectionMode.SINGLE);
+
+        columnLayers.add(new ColumnLayer(this));
+    }
+
+    protected void initConnector() {
+        getUI().orElseThrow(() -> new IllegalStateException(
+                "Connector can only be initialized for an attached Grid"))
+                .getPage().executeJavaScript(
+                        "window.Vaadin.Flow.gridConnector.initLazy($0)",
+                        getElement());
+    }
+
+    /**
+     * Builder for {@link DataCommunicator} object.
+     * 
+     * @param <G>
+     *            the Grid type
+     * @param <T>
+     *            the grid bean type
+     */
+    protected static class DataCommunicatorBuilder<G extends Grid<T>, T> {
+    
+        private CompositeDataGenerator<T> dataGenerator = new CompositeDataGenerator<>();
+    
+        private ArrayUpdater arrayUpdater;
+    
+        public DataCommunicatorBuilder<G, T> withArrayUpdater(
+                ArrayUpdater arrayUpdater) {
+            this.arrayUpdater = arrayUpdater;
+            return this;
+        }
+
+        /**
+         * Build a new {@link DataCommunicator} object for the given Grid
+         * instance.
+         * 
+         * @param grid
+         *            the target grid
+         * @return the build data communicator object
+         */
+        protected DataCommunicator<T> build(G grid) {
+            if (arrayUpdater == null) {
+                arrayUpdater = grid.createDefaultArrayUpdater();
+            }
+            return new DataCommunicator<>(
+                    dataGenerator, getArrayUpdater(),
+                    data -> grid.getElement()
+                            .callFunction("$connector.updateData", data),
+                    grid.getElement().getNode());
+        }
+    
+        /**
+         * Gets the {@link DataGenerator} used to build data communicator for
+         * Grid.
+         * 
+         * @return {@link CompositeDataGenerator} object
+         */
+        protected CompositeDataGenerator<T> getDataGenerator() {
+            return dataGenerator;
+        }
+    
+        /**
+         * Gets {@link ArrayUpdater} used to build data communicator for Grid.
+         * 
+         * @return the {@link ArrayUpdater} object
+         */
+        protected ArrayUpdater getArrayUpdater() {
+            return arrayUpdater;
+        }
+    }
+
+    protected ArrayUpdater createDefaultArrayUpdater() {
+        return new ArrayUpdater() {
+            @Override
+            public UpdateQueue startUpdate(int sizeChange) {
+                return new UpdateQueue(sizeChange);
+            }
+
+            @Override
+            public void initialize() {
+                initConnector();
+                updateSelectionModeOnClient();
+            }
+        };
+    }
+    
     /**
      * Adds a new text column to this {@link Grid} with a value provider. The
      * value is converted to String when sent to the client by using
@@ -2155,6 +2265,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
         return compareComparables(Objects.toString(a, ""),
                 Objects.toString(b, ""));
+    }
+
+    /**
+     * Returns {@link PropertySet} of bean this Grid is constructed with via
+     * {@link #Grid(Class)}. Or null if not constructed from a bean type.
+     * 
+     * @return the {@link PropertySet} of bean this Grid is constructed with
+     */
+    public PropertySet<T> getPropertySet() {
+        return propertySet;
     }
 
     private static boolean hasCommonComparableBaseType(Object a, Object b) {

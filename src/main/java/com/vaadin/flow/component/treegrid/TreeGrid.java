@@ -38,21 +38,16 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.binder.PropertyDefinition;
-import com.vaadin.flow.data.provider.ArrayUpdater;
-import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.DisabledUpdateMode;
-import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonUtils;
-import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.shared.Registration;
 
-import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
@@ -69,11 +64,8 @@ import elemental.json.JsonValue;
 public class TreeGrid<T> extends Grid<T>
         implements HasHierarchicalDataProvider<T> {
 
-    private final class UpdateQueue implements TreeUpdate {
+    public final class UpdateQueue implements TreeUpdate {
         private List<SerializableRunnable> queue = new ArrayList<>();
-
-        private UpdateQueue() {
-        }
 
         private UpdateQueue(int size) {
             // 'size' property is not synchronized by the web component since
@@ -145,7 +137,7 @@ public class TreeGrid<T> extends Grid<T>
 
     private ValueProvider<T, String> uniqueKeyProvider;
 
-    protected String uniqueKeyProperty;
+    private String uniqueKeyProperty;
 
     /**
      * Creates a new {@code TreeGrid} without support for creating columns based
@@ -154,7 +146,7 @@ public class TreeGrid<T> extends Grid<T>
      * automatically sets up columns based on the type of presented data.
      */
     public TreeGrid() {
-        super();
+        super(50, new TreeDataCommunicatorBuilder<T>());
     }
 
     /**
@@ -168,7 +160,7 @@ public class TreeGrid<T> extends Grid<T>
      *            the bean type to use, not {@code null}
      */
     public TreeGrid(Class<T> beanType) {
-        super(beanType);
+        super(beanType, new TreeDataCommunicatorBuilder<T>());
     }
 
     /**
@@ -185,20 +177,24 @@ public class TreeGrid<T> extends Grid<T>
         this();
         setDataProvider(dataProvider);
     }
+    
+    private static class TreeDataCommunicatorBuilder<T>
+            extends DataCommunicatorBuilder<TreeGrid<T>, T> {
 
-    @Override
-    protected DataCommunicator<T> createDataCommunicator(
-            CompositeDataGenerator<T> defaultGridDataGenerator,
-            ArrayUpdater defaultArrayUpdater,
-            SerializableConsumer<JsonArray> defaultDataUpdater,
-            StateNode defaultStateNode) {
-        TreeGridArrayUpdater arrayUpdater = createArrayUpdater();
-        uniqueKeyProperty = "key";
-        defaultGridDataGenerator.addDataGenerator(this::generateTreeData);
+        @Override
+        protected DataCommunicator<T> build(TreeGrid<T> grid) {
+            withArrayUpdater(grid.createArrayUpdater());
+            grid.uniqueKeyProperty = "key";
+            getDataGenerator().addDataGenerator(grid::generateTreeData);
 
-        return new HierarchicalDataCommunicator<>(defaultGridDataGenerator,
-                arrayUpdater, defaultDataUpdater, defaultStateNode,
-                item -> getUniqueKeyProvider().apply(item));
+
+            return new HierarchicalDataCommunicator<>(getDataGenerator(),
+                    (TreeGridArrayUpdater) getArrayUpdater(),
+                    data -> grid.getElement()
+                            .callFunction("$connector.updateData", data),
+                    grid.getElement().getNode(),
+                    item -> grid.getUniqueKeyProvider().apply(item));
+        }
     }
 
     /**
@@ -438,7 +434,7 @@ public class TreeGrid<T> extends Grid<T>
     public Column<T> setColumns(String hierarchyPropertyName,
             ValueProvider<T, ?> valueProvider,
             Collection<String> propertyNames) {
-        if (propertySet == null) {
+        if (getPropertySet() == null) {
             throw new UnsupportedOperationException(
                     "This method can't be used for a Grid that isn't constructed from a bean type");
         }
@@ -465,7 +461,7 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     private Column<T> addHierarchyColumn(String propertyName) {
-        if (propertySet == null) {
+        if (getPropertySet() == null) {
             throw new UnsupportedOperationException(
                     "This method can't be used for a Grid that isn't constructed from a bean type");
         }
@@ -474,11 +470,11 @@ public class TreeGrid<T> extends Grid<T>
 
         PropertyDefinition<T, ?> property;
         try {
-            property = propertySet.getProperty(propertyName).get();
+            property = getPropertySet().getProperty(propertyName).get();
         } catch (NoSuchElementException | IllegalArgumentException exception) {
             throw new IllegalArgumentException(
                     "Can't resolve hierarchy property name '" + propertyName
-                            + "' from '" + propertySet + "'");
+                            + "' from '" + getPropertySet() + "'");
         }
         return addHierarchyColumn(property);
     }
