@@ -108,7 +108,7 @@ import elemental.json.JsonValue;
 public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
 
-    public final class UpdateQueue implements Update {
+    private final class UpdateQueue implements Update {
         private List<Runnable> queue = new ArrayList<>();
 
         private UpdateQueue(int size) {
