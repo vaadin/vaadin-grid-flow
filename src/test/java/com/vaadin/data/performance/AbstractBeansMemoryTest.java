@@ -27,8 +27,8 @@ import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 
 import com.vaadin.data.bean.Address;
 import com.vaadin.data.bean.Country;
-import com.vaadin.data.bean.Person;
 import com.vaadin.data.bean.Gender;
+import com.vaadin.data.bean.Person;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
@@ -44,6 +44,8 @@ import com.vaadin.flow.router.HasUrlParameter;
  */
 public abstract class AbstractBeansMemoryTest<T extends Component> extends Div
         implements HasUrlParameter<String> {
+
+    private Random random = new Random();
 
     private int dataSize;
     private boolean isInMemory;
@@ -91,8 +93,6 @@ public abstract class AbstractBeansMemoryTest<T extends Component> extends Div
 
     protected abstract T createComponent();
 
-    private Random random = new Random();
-
     protected List<Person> createBeans(int size) {
         return IntStream.range(0, size).mapToObj(this::createPerson)
                 .collect(Collectors.toList());
@@ -130,12 +130,6 @@ public abstract class AbstractBeansMemoryTest<T extends Component> extends Div
     @SuppressWarnings("restriction")
     private void setData(int size, T component,
             boolean memoryContainer) {
-        // if (item != null) {
-        // MenuItem parent = item.getParent();
-        // parent.getChildren().stream().filter(itm -> !itm.equals(item))
-        // .forEach(itm -> itm.setChecked(false));
-        // logLabel.setValue(item.getText());
-        // }
         dataSize = size;
         isInMemory = memoryContainer;
         List<Person> persons = createBeans(size);
