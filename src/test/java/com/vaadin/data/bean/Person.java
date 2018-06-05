@@ -9,7 +9,7 @@ public class Person implements Serializable {
     private String lastName;
     private String email;
     private int age;
-    private Sex sex;
+    private Gender gender;
     private Address address;
     private boolean deceased;
     private Date birthDate;
@@ -26,20 +26,20 @@ public class Person implements Serializable {
     @Override
     public String toString() {
         return "Person [firstName=" + firstName + ", lastName=" + lastName
-                + ", email=" + email + ", age=" + age + ", sex=" + sex
+                + ", email=" + email + ", age=" + age + ", gender=" + gender
                 + ", address=" + address + ", deceased=" + deceased
                 + ", salary=" + salary + ", salaryDouble=" + salaryDouble
                 + ", rent=" + rent + "]";
     }
 
     public Person(String firstName, String lastName, String email, int age,
-            Sex sex, Address address) {
+            Gender gender, Address address) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.age = age;
-        this.sex = sex;
+        this.gender = gender;
         this.address = address;
     }
 
@@ -75,12 +75,12 @@ public class Person implements Serializable {
         this.address = address;
     }
 
-    public Sex getSex() {
-        return sex;
+    public Gender getGender() {
+        return gender;
     }
 
-    public void setSex(Sex sex) {
-        this.sex = sex;
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
     public String getEmail() {
@@ -132,12 +132,12 @@ public class Person implements Serializable {
     }
 
     public static Person createTestPerson1() {
-        return new Person("Foo", "Bar", "yeah@cool.com", 46, Sex.MALE,
+        return new Person("Foo", "Bar", "yeah@cool.com", 46, Gender.MALE,
                 new Address("Street", 1123, "Turku", Country.FINLAND));
     }
 
     public static Person createTestPerson2() {
-        return new Person("Maya", "Dinkelstein", "maya@foo.bar", 18, Sex.FEMALE,
+        return new Person("Maya", "Dinkelstein", "maya@foo.bar", 18, Gender.FEMALE,
                 new Address("Red street", 12, "Amsterdam",
                         Country.NETHERLANDS));
     }
