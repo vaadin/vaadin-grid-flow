@@ -507,9 +507,9 @@ public class TreeGrid<T> extends Grid<T>
         T item = getDataCommunicator().getKeyMapper().get(key);
         if (item != null) {
             if (expanded) {
-                expand(Arrays.asList(item), false, true);
+                expand(Arrays.asList(item), true);
             } else {
-                collapse(Arrays.asList(item), false, true);
+                collapse(Arrays.asList(item), true);
             }
         }
     }
@@ -542,7 +542,7 @@ public class TreeGrid<T> extends Grid<T>
      *            the items to expand
      */
     public void expand(Collection<T> items) {
-        expand(items, true, false);
+        expand(items, false);
     }
 
     /**
@@ -550,17 +550,12 @@ public class TreeGrid<T> extends Grid<T>
      * 
      * @param items
      *            the items to expand
-     * @param syncClient
-     *            {@code true} if the changes should be synchronised to the
-     *            client, {@code false} otherwise.
      * @param userOriginated
      *            {@code true} if a {@link ExpandEvent} triggered by this
      *            operation is user originated, {@code false} otherwise.
      */
-    protected void expand(Collection<T> items, boolean syncClient,
-            boolean userOriginated) {
-        Collection<T> expandedItems = getDataCommunicator().expand(items,
-                syncClient);
+    protected void expand(Collection<T> items, boolean userOriginated) {
+        Collection<T> expandedItems = getDataCommunicator().expand(items);
         fireEvent(new ExpandEvent<T, TreeGrid<T>>(this, userOriginated,
                 expandedItems));
     }
@@ -605,7 +600,7 @@ public class TreeGrid<T> extends Grid<T>
      */
     public void expandRecursively(Collection<T> items, int depth) {
         getDataCommunicator().expand(
-                getItemsWithChildrenRecursively(items, depth), true);
+                getItemsWithChildrenRecursively(items, depth));
     }
 
     /**
@@ -629,7 +624,7 @@ public class TreeGrid<T> extends Grid<T>
      *            the collection of items to collapse
      */
     public void collapse(Collection<T> items) {
-        collapse(items, true, false);
+        collapse(items, false);
     }
 
     /**
@@ -637,17 +632,12 @@ public class TreeGrid<T> extends Grid<T>
      * 
      * @param items
      *            the collection of items to collapse
-     * @param syncClient
-     *            {@code true} if the changes should be synchronized to the
-     *            client, {@code false} otherwise.
      * @param userOriginated
      *            {@code true} if a {@link CollapseEvent} triggered by this
      *            operation is user originated, {@code false} otherwise.
      */
-    protected void collapse(Collection<T> items, boolean syncClient,
-            boolean userOriginated) {
-        Collection<T> collapsedItems = getDataCommunicator().collapse(items,
-                syncClient);
+    protected void collapse(Collection<T> items, boolean userOriginated) {
+        Collection<T> collapsedItems = getDataCommunicator().collapse(items);
         fireEvent(new CollapseEvent<T, TreeGrid<T>>(this, userOriginated,
                 collapsedItems));
     }
@@ -692,7 +682,7 @@ public class TreeGrid<T> extends Grid<T>
      */
     public void collapseRecursively(Collection<T> items, int depth) {
         getDataCommunicator()
-                .collapse(getItemsWithChildrenRecursively(items, depth), true);
+                .collapse(getItemsWithChildrenRecursively(items, depth));
     }
 
     /**
@@ -731,20 +721,6 @@ public class TreeGrid<T> extends Grid<T>
             }
         });
         return itemsWithChildren;
-    }
-
-    /**
-     * Expands or collapses given item depending on its current state.
-     * 
-     * @param item
-     *            the target item to expand or collapse
-     */
-    protected void toggleExpandedState(T item) {
-        if (isExpanded(item)) {
-            collapse(Arrays.asList(item), false, true);
-        } else {
-            expand(Arrays.asList(item), false, true);
-        }
     }
 
     /**
