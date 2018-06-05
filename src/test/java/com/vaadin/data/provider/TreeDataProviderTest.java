@@ -279,7 +279,7 @@ public class TreeDataProviderTest
     }
 
     @Override
-    public void testDefaultSortWithSpecifiedPostSort() {
+    public void defaultSortWithSpecifiedPostSort() {
         Comparator<StrBean> comp = Comparator.comparing(StrBean::getValue)
                 .thenComparing(Comparator.comparing(StrBean::getId).reversed());
         setSortOrder(QuerySortOrder.asc("value").thenDesc("id").build(), comp);
@@ -315,7 +315,7 @@ public class TreeDataProviderTest
     }
 
     @Override
-    public void testDefaultSortWithFunction() {
+    public void defaultSortWithFunction() {
         setSortOrder(QuerySortOrder.asc("value").build(),
                 Comparator.comparing(StrBean::getValue));
 
@@ -336,12 +336,12 @@ public class TreeDataProviderTest
     }
 
     @Override
-    public void testListContainsAllData() {
+    public void listContainsAllData() {
         assertHierarchyCorrect();
     }
 
     @Override
-    public void testSortByComparatorListsDiffer() {
+    public void sortByComparatorListsDiffer() {
         Comparator<StrBean> comp = Comparator.comparing(StrBean::getValue)
                 .thenComparing(StrBean::getRandomNumber)
                 .thenComparing(StrBean::getId);
