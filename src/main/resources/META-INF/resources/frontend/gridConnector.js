@@ -332,7 +332,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-	grid.$connector.set = function(index, items, parentKey) {
+    grid.$connector.set = function(index, items, parentKey) {
       if (index % grid.pageSize != 0) {
         throw 'Got new data to index ' + index + ' which is not aligned with the page size of ' + grid.pageSize;
       }
@@ -396,7 +396,7 @@ window.Vaadin.Flow.gridConnector = {
       grid.expandedItems = [];
     }
 
-	 grid.$connector.clear = function(index, length, parentKey) {
+    grid.$connector.clear = function(index, length, parentKey) {
       let pkey = parentKey || root;
       if (Object.keys(cache[pkey]).length === 0){
         return;
