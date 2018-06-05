@@ -446,18 +446,26 @@ public class TreeGrid<T> extends Grid<T>
             ValueProvider<T, ?> valueProvider,
             Collection<String> propertyList) {
         getColumns().forEach(this::removeColumn);
-        propertyList.stream().distinct().forEach(key -> {
-            if (key.equals(hierarchyPropertyName)) {
-                if (valueProvider != null) {
-                    addHierarchyColumn(valueProvider)
-                            .setKey(hierarchyPropertyName);
-                } else {
-                    addHierarchyColumn(key);
-                }
-            } else {
-                addColumn(key);
-            }
-        });
+        propertyList.stream().distinct().forEach(
+                key -> addColumn(key, hierarchyPropertyName, valueProvider));
+    }
+
+    private void addColumn(String key, String hierarchyPropertyName,
+            ValueProvider<T, ?> valueProvider) {
+        if (key.equals(hierarchyPropertyName)) {
+            addHierarchyColumn(hierarchyPropertyName, valueProvider);
+        } else {
+            addColumn(key);
+        }
+    }
+
+    private void addHierarchyColumn(String hierarchyPropertyName,
+            ValueProvider<T, ?> valueProvider) {
+        if (valueProvider != null) {
+            addHierarchyColumn(valueProvider).setKey(hierarchyPropertyName);
+        } else {
+            addHierarchyColumn(hierarchyPropertyName);
+        }
     }
 
     private Column<T> addHierarchyColumn(String propertyName) {
