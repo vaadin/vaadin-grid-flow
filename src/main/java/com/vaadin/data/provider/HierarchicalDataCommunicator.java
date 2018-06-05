@@ -305,9 +305,9 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     /**
      * Collapses the given items and removes its sub-hierarchy. Calling this
      * method will have no effect if the row is already collapsed.
-     * {@code syncClient} indicates whether the changes should be synchronized
-     * to the client.
-     *
+     * <p>
+     * Changes are synchronized to the client.
+     * 
      * @param items
      *            the items to collapse
      */
