@@ -135,7 +135,7 @@ window.Vaadin.Flow.gridConnector = {
       detailsVisibleOnClick = visibleOnClick;
     };
 
-    grid._getPageIfSameLevel = function(parentKey, index, defaultPage) {
+    grid.$connector._getPageIfSameLevel = function(parentKey, index, defaultPage) {
       let cacheAndIndex = grid._cache.getCacheAndIndex(index);
       let parentItem = cacheAndIndex.cache.parentItem;
       let parentKeyOfIndex = (parentItem) ? grid.getItemId(parentItem) : root;
@@ -146,7 +146,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    grid.getCacheByKey = function(key) {
+    grid.$connector.getCacheByKey = function(key) {
       let cacheAndIndex = grid._cache.getCacheAndIndexByKey(key);
       if(cacheAndIndex) {
         return cacheAndIndex.cache;
@@ -154,17 +154,7 @@ window.Vaadin.Flow.gridConnector = {
       return undefined;
     }
 
-    grid.getItemCache = function(index) {
-      let cacheAndIndex = grid._cache.getCacheAndIndex(index);
-      if(cacheAndIndex && cacheAndIndex.cache) {
-        let levelCache = cacheAndIndex.cache;
-        let scaledIndex = cacheAndIndex.scaledIndex;
-        return levelCache.itemCaches[scaledIndex];
-      }
-      return undefined;
-    }
-
-    grid.fetchPage = function(fetch, page, parentKey) {
+    grid.$connector.fetchPage = function(fetch, page, parentKey) {
       // Determine what to fetch based on scroll position and not only
       // what grid asked for
 
@@ -181,8 +171,8 @@ window.Vaadin.Flow.gridConnector = {
       let firstNeededPage = page;
       let lastNeededPage = page;
       for(let idx = firstNeededIndex; idx <= lastNeededIndex; idx++) {
-        firstNeededPage = Math.min(firstNeededPage, grid._getPageIfSameLevel(parentKey, idx, firstNeededPage));
-        lastNeededPage = Math.max(lastNeededPage, grid._getPageIfSameLevel(parentKey, idx, lastNeededPage));
+        firstNeededPage = Math.min(firstNeededPage, grid.$connector._getPageIfSameLevel(parentKey, idx, firstNeededPage));
+        lastNeededPage = Math.max(lastNeededPage, grid.$connector._getPageIfSameLevel(parentKey, idx, lastNeededPage));
       }
 
       let firstPage = Math.max(0,  firstNeededPage);
@@ -212,7 +202,7 @@ window.Vaadin.Flow.gridConnector = {
           treePageCallbacks[parentUniqueKey] = {};
         }
 
-        let parentCache = grid.getCacheByKey(parentUniqueKey);
+        let parentCache = grid.$connector.getCacheByKey(parentUniqueKey);
         let itemCache = (parentCache) ? parentCache.itemkeyCaches[parentUniqueKey] : undefined;
         if(cache[parentUniqueKey] && cache[parentUniqueKey][page] && itemCache) {
           // workaround: sometimes grid-element gives page index that overflows
@@ -222,7 +212,7 @@ window.Vaadin.Flow.gridConnector = {
         } else {
           treePageCallbacks[parentUniqueKey][page] = callback;
         }
-        grid.fetchPage((firstIndex, size) =>
+        grid.$connector.fetchPage((firstIndex, size) =>
           grid.$server.setParentRequestedRange(firstIndex, size, params.parentItem.key), page, parentUniqueKey);
 
       } else {
@@ -235,7 +225,7 @@ window.Vaadin.Flow.gridConnector = {
           rootPageCallbacks[page] = callback;
         }
 
-        grid.fetchPage((firstIndex, size) => grid.$server.setRequestedRange(firstIndex, size), page, root);
+        grid.$connector.fetchPage((firstIndex, size) => grid.$server.setRequestedRange(firstIndex, size), page, root);
       }
     }
 
@@ -259,7 +249,7 @@ window.Vaadin.Flow.gridConnector = {
         this.expandItem(inst.item);
       } else {
         delete cache[parentKey];
-        let parentCache = grid.getCacheByKey(parentKey);
+        let parentCache = grid.$connector.getCacheByKey(parentKey);
         if(parentCache && parentCache.itemkeyCaches[parentKey]) {
           parentCache.itemkeyCaches[parentKey].items = [];
         }
@@ -298,7 +288,7 @@ window.Vaadin.Flow.gridConnector = {
     const updateGridCache = function(page, parentKey) {
       if((parentKey || root) !== root) {
         const items = cache[parentKey][page];
-        let parentCache = grid.getCacheByKey(parentKey);
+        let parentCache = grid.$connector.getCacheByKey(parentKey);
         if(parentCache) {
           let _cache = parentCache.itemkeyCaches[parentKey];
           _updateGridCache(page, items,
