@@ -86,6 +86,7 @@ public class TreeGridBasicFeaturesPage extends Div {
         createCollapseMenu();
         createListenerMenu();
         createSelectionModeMenu();
+        createDisableEnableMenu();
     }
 
     private void initializeDataProviders() {
@@ -237,6 +238,11 @@ public class TreeGridBasicFeaturesPage extends Div {
                         }
                     });
         });
+    }
+
+    private void createDisableEnableMenu() {
+        addAction("Toggle Enabled/Disabled",
+                () -> grid.setEnabled(!grid.isEnabled()));
     }
 
     private void addAction(String title, Runnable action) {
