@@ -64,7 +64,7 @@ import elemental.json.JsonValue;
 public class TreeGrid<T> extends Grid<T>
         implements HasHierarchicalDataProvider<T> {
 
-    public final class UpdateQueue implements TreeUpdate {
+    private final class UpdateQueue implements TreeUpdate {
         private List<SerializableRunnable> queue = new ArrayList<>();
 
         private UpdateQueue(int size) {
