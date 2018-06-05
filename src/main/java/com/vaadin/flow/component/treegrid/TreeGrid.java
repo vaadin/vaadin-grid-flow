@@ -716,8 +716,8 @@ public class TreeGrid<T> extends Grid<T>
         if (depth < 0) {
             return itemsWithChildren;
         }
-        items.forEach(item -> {
-            if (getDataCommunicator().hasChildren(item)) {
+        items.stream().filter(getDataCommunicator()::hasChildren)
+                .forEach(item -> {
                 itemsWithChildren.add(item);
                 itemsWithChildren
                         .addAll(getItemsWithChildrenRecursively(
@@ -726,7 +726,6 @@ public class TreeGrid<T> extends Grid<T>
                                                 null, item))
                                         .collect(Collectors.toList()),
                                 depth - 1));
-            }
         });
         return itemsWithChildren;
     }
