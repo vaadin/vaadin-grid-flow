@@ -50,9 +50,9 @@ public abstract class DataProviderTestBase<D extends DataProvider<StrBean, Seria
         }
     }
 
-    protected final SerializablePredicate<StrBean> fooFilter = s -> s.getValue()
+    protected final SerializablePredicate<StrBean> fooFilter = bean -> bean.getValue()
             .equals("Foo");
-    protected final SerializablePredicate<StrBean> gt5Filter = s -> s
+    protected final SerializablePredicate<StrBean> gt5Filter = bean -> bean
             .getRandomNumber() > 5;
 
     protected D dataProvider;
@@ -86,7 +86,7 @@ public abstract class DataProviderTestBase<D extends DataProvider<StrBean, Seria
     // Tests start here.
 
     @Test
-    public void testListContainsAllData() {
+    public void listContainsAllData() {
         List<StrBean> list = new LinkedList<>(data);
         dataProvider.fetch(new Query<>())
                 .forEach(str -> assertTrue(
@@ -97,7 +97,7 @@ public abstract class DataProviderTestBase<D extends DataProvider<StrBean, Seria
     }
 
     @Test
-    public void testSortByComparatorListsDiffer() {
+    public void sortByComparatorListsDiffer() {
         Comparator<StrBean> comp = Comparator.comparing(StrBean::getValue)
                 .thenComparing(StrBean::getRandomNumber)
                 .thenComparing(StrBean::getId);
@@ -121,7 +121,7 @@ public abstract class DataProviderTestBase<D extends DataProvider<StrBean, Seria
     }
 
     @Test
-    public void testDefaultSortWithSpecifiedPostSort() {
+    public void defaultSortWithSpecifiedPostSort() {
         Comparator<StrBean> comp = Comparator.comparing(StrBean::getValue)
                 .thenComparing(Comparator.comparing(StrBean::getId).reversed());
         setSortOrder(QuerySortOrder.asc("value").thenDesc("id").build(), comp);
@@ -154,7 +154,7 @@ public abstract class DataProviderTestBase<D extends DataProvider<StrBean, Seria
     }
 
     @Test
-    public void testDefaultSortWithFunction() {
+    public void defaultSortWithFunction() {
         setSortOrder(QuerySortOrder.asc("value").build(),
                 Comparator.comparing(StrBean::getValue));
 

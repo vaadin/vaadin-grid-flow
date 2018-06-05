@@ -108,22 +108,22 @@ public class HierarchicalCommunicatorTest {
     }
 
     @Test
-    public void testFolderRemoveRefreshAll() {
+    public void folderRemoveRefreshAll() {
         testItemRemove(FOLDER, true);
     }
 
     @Test
-    public void testLeafRemoveRefreshAll() {
+    public void leafRemoveRefreshAll() {
         testItemRemove(LEAF, true);
     }
 
     @Test
-    public void testFolderRemove() {
+    public void folderRemove() {
         testItemRemove(FOLDER, false);
     }
 
     @Test
-    public void testLeafRemove() {
+    public void leafRemove() {
         testItemRemove(LEAF, false);
     }
 
@@ -141,7 +141,7 @@ public class HierarchicalCommunicatorTest {
     }
 
     @Test
-    public void testReplaceAll() {
+    public void replaceAll() {
         // Some modifications
         communicator.expand(ROOT);
         communicator.expand(FOLDER);

@@ -68,12 +68,12 @@ public class TreeGridMemory extends AbstractBeansMemoryTest<TreeGrid<Person>> {
         if (data.size() != 0 && data.size() % 2 == 0) {
             // treat list as if it were a balanced binary tree
             treeData.addItem(null, data.get(0));
-            int n = 0;
-            while (2 * n + 2 < data.size()) {
-                treeData.addItems(data.get(n),
-                        data.subList(2 * n + 1, 2 * n + 3));
-                toExpand.add(data.get(n));
-                n++;
+            int index = 0;
+            while (2 * index + 2 < data.size()) {
+                treeData.addItems(data.get(index),
+                        data.subList(2 * index + 1, 2 * index + 3));
+                toExpand.add(data.get(index));
+                index++;
             }
         } else {
             treeData.addItems(null, data);
