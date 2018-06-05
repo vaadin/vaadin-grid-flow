@@ -28,7 +28,7 @@ import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import com.vaadin.data.bean.Address;
 import com.vaadin.data.bean.Country;
 import com.vaadin.data.bean.Person;
-import com.vaadin.data.bean.Sex;
+import com.vaadin.data.bean.Gender;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
@@ -110,7 +110,7 @@ public abstract class AbstractBeansMemoryTest<T extends Component> extends Div
         person.setRent(new BigDecimal(random.nextLong()));
         person.setSalary(random.nextInt());
         person.setSalaryDouble(random.nextDouble());
-        person.setSex(Sex.values()[random.nextInt(Sex.values().length)]);
+        person.setGender(Gender.values()[random.nextInt(Gender.values().length)]);
 
         Address address = new Address();
         person.setAddress(address);
