@@ -1,11 +1,11 @@
 package com.vaadin.data.bean;
 
-public enum Sex {
+public enum Gender {
     MALE("Male"), FEMALE("Female"), UNKNOWN("Unknown");
 
     private String stringRepresentation;
 
-    private Sex(String stringRepresentation) {
+    private Gender(String stringRepresentation) {
         this.stringRepresentation = stringRepresentation;
     }
 
