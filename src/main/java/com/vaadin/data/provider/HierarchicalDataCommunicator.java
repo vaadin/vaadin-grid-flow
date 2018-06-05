@@ -289,8 +289,8 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     /**
      * Collapses the given item and removes its sub-hierarchy. Calling this
      * method will have no effect if the row is already collapsed.
-     * {@code syncAndRefresh} indicates whether the changes should be
-     * synchronized to the client.
+     * {@code syncClient} indicates whether the changes should be synchronized
+     * to the client.
      *
      * @param item
      *            the item to collapse
@@ -298,24 +298,21 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *            {@code true} if the changes should be synchronized to the
      *            client, {@code false} otherwise.
      */
-    public void collapse(T item, boolean syncClient) {
+    protected void collapse(T item, boolean syncClient) {
         doCollapse(Arrays.asList(item), syncClient);
     }
 
     /**
      * Collapses the given items and removes its sub-hierarchy. Calling this
      * method will have no effect if the row is already collapsed.
-     * {@code syncAndRefresh} indicates whether the changes should be
-     * synchronized to the client.
+     * {@code syncClient} indicates whether the changes should be synchronized
+     * to the client.
      *
      * @param items
      *            the items to collapse
-     * @param syncClient
-     *            {@code true} if the changes should be synchronized to the
-     *            client, {@code false} otherwise.
      */
-    public Collection<T> collapse(Collection<T> items, boolean syncClient) {
-        return doCollapse(items, syncClient);
+    public Collection<T> collapse(Collection<T> items) {
+        return doCollapse(items, true);
     }
 
     private Collection<T> doCollapse(Collection<T> items, boolean syncClient) {
@@ -357,6 +354,19 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     }
 
     /**
+     * Expands the given items. Calling this method will have no effect if the
+     * item is already expanded or if it has no children.
+     * <p>
+     * Changes are synchronized to the client.
+     * 
+     * @param items
+     *            the items to expand
+     */
+    public Collection<T> expand(Collection<T> items) {
+        return doExpand(items, true);
+    }
+
+    /**
      * Expands the given item. Calling this method will have no effect if the
      * item is already expanded or if it has no children. {@code syncClient}
      * indicates whether the changes should be synchronized to the client.
@@ -367,23 +377,8 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *            {@code true} if the changes should be synchronized to the
      *            client, {@code false} otherwise.
      */
-    public void expand(T item, boolean syncClient) {
+    protected void expand(T item, boolean syncClient) {
         doExpand(Arrays.asList(item), syncClient);
-    }
-
-    /**
-     * Expands the given items. Calling this method will have no effect if the
-     * item is already expanded or if it has no children. {@code syncClient}
-     * indicates whether the changes should be synchronized to the client.
-     *
-     * @param items
-     *            the items to expand
-     * @param syncClient
-     *            {@code true} if the changes should be synchronized to the
-     *            client, {@code false} otherwise.
-     */
-    public Collection<T> expand(Collection<T> items, boolean syncClient) {
-        return doExpand(items, syncClient);
     }
 
     private Collection<T> doExpand(Collection<T> items,
@@ -524,4 +519,5 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         dataGenerator.generateData(item, json);
         return json;
     }
+
 }
