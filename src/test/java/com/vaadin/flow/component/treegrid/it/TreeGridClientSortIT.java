@@ -26,21 +26,21 @@ public class TreeGridClientSortIT extends AbstractTreeGridIT {
     public void before() {
         getDriver().get(getRootURL() + "/" + TreeGridBasicFeaturesPage.VIEW);
 
-        super.before();
+        setupTreeGrid();
     }
 
     @Test
     public void client_sorting_with_collapse_and_expand() {
         findElement(By.id("TreeDataProvider")).click();
 
-        grid.getHeaderCell(0).$("vaadin-grid-sorter").first().click();
-        grid.getHeaderCell(0).$("vaadin-grid-sorter").first().click();
-        grid.expandWithClick(0);
-        grid.expandWithClick(1);
-        grid.collapseWithClick(0);
-        grid.expandWithClick(0);
-        Assert.assertEquals("0 | 2", grid.getCell(0, 0).getText());
-        Assert.assertEquals("1 | 2", grid.getCell(1, 0).getText());
-        Assert.assertEquals("2 | 2", grid.getCell(2, 0).getText());
+        getTreeGrid().getHeaderCell(0).$("vaadin-grid-sorter").first().click();
+        getTreeGrid().getHeaderCell(0).$("vaadin-grid-sorter").first().click();
+        getTreeGrid().expandWithClick(0);
+        getTreeGrid().expandWithClick(1);
+        getTreeGrid().collapseWithClick(0);
+        getTreeGrid().expandWithClick(0);
+        Assert.assertEquals("0 | 2", getTreeGrid().getCell(0, 0).getText());
+        Assert.assertEquals("1 | 2", getTreeGrid().getCell(1, 0).getText());
+        Assert.assertEquals("2 | 2", getTreeGrid().getCell(2, 0).getText());
     }
 }

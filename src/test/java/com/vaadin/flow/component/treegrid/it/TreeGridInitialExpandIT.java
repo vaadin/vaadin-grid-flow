@@ -27,15 +27,18 @@ public class TreeGridInitialExpandIT extends AbstractTreeGridIT {
     @Before
     public void before() {
         open();
-        super.before();
+        setupTreeGrid();
     }
 
     @Test
     public void initial_expand_of_items() {
-        Assert.assertEquals("parent1", grid.getCell(0, 0).getText());
-        Assert.assertEquals("parent1-child1", grid.getCell(1, 0).getText());
-        Assert.assertEquals("parent1-child2", grid.getCell(2, 0).getText());
-        Assert.assertEquals("parent2", grid.getCell(3, 0).getText());
-        Assert.assertEquals("parent2-child2", grid.getCell(4, 0).getText());
+        Assert.assertEquals("parent1", getTreeGrid().getCell(0, 0).getText());
+        Assert.assertEquals("parent1-child1",
+                getTreeGrid().getCell(1, 0).getText());
+        Assert.assertEquals("parent1-child2",
+                getTreeGrid().getCell(2, 0).getText());
+        Assert.assertEquals("parent2", getTreeGrid().getCell(3, 0).getText());
+        Assert.assertEquals("parent2-child2",
+                getTreeGrid().getCell(4, 0).getText());
     }
 }
