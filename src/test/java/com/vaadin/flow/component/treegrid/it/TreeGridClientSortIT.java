@@ -20,12 +20,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
+import com.vaadin.flow.testutil.TestPath;
+
+@TestPath(TreeGridBasicFeaturesPage.VIEW)
 public class TreeGridClientSortIT extends AbstractTreeGridIT {
 
     @Before
     public void before() {
-        getDriver().get(getRootURL() + "/" + TreeGridBasicFeaturesPage.VIEW);
-
+        open();
         setupTreeGrid();
     }
 
