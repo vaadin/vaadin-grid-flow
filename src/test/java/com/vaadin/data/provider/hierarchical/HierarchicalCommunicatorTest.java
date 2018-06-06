@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.vaadin.data.TreeData;
@@ -27,8 +28,12 @@ import com.vaadin.data.provider.HierarchicalDataCommunicator;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.data.provider.TreeGridArrayUpdater;
 import com.vaadin.data.provider.TreeUpdate;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.internal.UIInternals;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.internal.StateNode;
+import com.vaadin.flow.internal.StateTree;
 
 import elemental.json.JsonValue;
 
@@ -43,7 +48,11 @@ public class HierarchicalCommunicatorTest {
     private TreeDataProvider<String> dataProvider;
     private HierarchicalDataCommunicator<String> communicator;
     private TreeData<String> treeData;
+    private UI ui;
+    private UIInternals uiInternals;
+    private StateTree stateTree;
     private final int pageSize = 50;
+    private StateNode stateNode;
 
     private class UpdateQueue implements TreeUpdate {
         @Override
@@ -94,16 +103,23 @@ public class HierarchicalCommunicatorTest {
     
     @Before
     public void setUp() {
+        ui = Mockito.mock(UI.class);
+        uiInternals = Mockito.mock(UIInternals.class);
+        stateTree = Mockito.mock(StateTree.class);
+        Mockito.when(ui.getInternals()).thenReturn(uiInternals);
+        Mockito.when(uiInternals.getStateTree()).thenReturn(stateTree);
+
         treeData = new TreeData<>();
         treeData.addItems(null, ROOT);
         treeData.addItems(ROOT, FOLDER);
         treeData.addItems(FOLDER, LEAF);
         dataProvider = new TreeDataProvider<>(treeData);
+        stateNode = Mockito.mock(StateNode.class);
         communicator = new HierarchicalDataCommunicator<>(
                 Mockito.mock(CompositeDataGenerator.class),
                 arrayUpdater, json -> {
                 },
-                Mockito.mock(StateNode.class), null);
+                stateNode, null);
         communicator.setDataProvider(dataProvider, null);
     }
 
@@ -138,6 +154,17 @@ public class HierarchicalCommunicatorTest {
         } else {
             dataProvider.refreshItem(item);
         }
+        
+        ArgumentCaptor<SerializableConsumer> attachCaptor = ArgumentCaptor
+                .forClass(SerializableConsumer.class);
+        Mockito.verify(stateNode, Mockito.times(4))
+                .runWhenAttached(attachCaptor.capture());
+
+        attachCaptor.getAllValues().forEach(consumer -> consumer.accept(ui));
+
+        Mockito.verify(stateTree, Mockito.times(4))
+                .beforeClientResponse(Mockito.any(),
+                Mockito.any());
     }
 
     @Test
