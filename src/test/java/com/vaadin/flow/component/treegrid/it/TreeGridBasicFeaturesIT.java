@@ -47,68 +47,68 @@ public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
     @Before
     public void before() {
         open();
-        super.before();
+        setupTreeGrid();
     }
 
     @Test
     public void toggle_collapse_server_side() {
-        Assert.assertEquals(3, grid.getRowCount());
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         findElementByText("Expand 0 | 0").click();
-        Assert.assertEquals(6, grid.getRowCount());
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         // expanding already expanded item should have no effect
         findElementByText("Expand 0 | 0").click();
-        Assert.assertEquals(6, grid.getRowCount());
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         findElementByText("Collapse 0 | 0").click();
-        Assert.assertEquals(3, grid.getRowCount());
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         // collapsing the same item twice should have no effect
         findElementByText("Collapse 0 | 0").click();
-        Assert.assertEquals(3, grid.getRowCount());
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         findElementByText("Expand 1 | 1").click();
         // 1 | 1 not yet visible, shouldn't immediately expand anything
-        Assert.assertEquals(3, grid.getRowCount());
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         findElementByText("Expand 0 | 0").click();
         // 1 | 1 becomes visible and is also expanded
-        Assert.assertEquals(9, grid.getRowCount());
+        Assert.assertEquals(9, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "2 | 0", "2 | 1",
                 "2 | 2", "1 | 2" });
 
         // collapsing a leaf should have no effect
         findElementByText("Collapse 2 | 1").click();
-        Assert.assertEquals(9, grid.getRowCount());
+        Assert.assertEquals(9, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "2 | 0", "2 | 1",
                 "2 | 2", "1 | 2" });
 
         // collapsing 0 | 0 should collapse the expanded 1 | 1
         findElementByText("Collapse 0 | 0").click();
-        Assert.assertEquals(3, grid.getRowCount());
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         // expand 0 | 0 recursively
         findElementByText("Expand 0 | 0 recursively").click();
-        Assert.assertEquals(15, grid.getRowCount());
+        Assert.assertEquals(15, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "1 | 0", "2 | 0" });
 
         // collapse 0 | 0 recursively
         findElementByText("Collapse 0 | 0 recursively").click();
-        Assert.assertEquals(3, grid.getRowCount());
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         // expanding 0 | 0 should result in 3 additional nodes after recursive
         // collapse
         findElementByText("Expand 0 | 0").click();
-        Assert.assertEquals(6, grid.getRowCount());
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         checkLogsForErrors();
@@ -119,71 +119,71 @@ public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
         findElementByText("Expand 1 | 1").click();
         findElement(By.id("LazyHierarchicalDataProvider")).click();
 
-        grid.expandWithClick(0);
-        Assert.assertEquals(6, grid.getRowCount());
+        getTreeGrid().expandWithClick(0);
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
     }
 
     @Test
     public void non_leaf_collapse_on_click() {
-        Assert.assertEquals(3, grid.getRowCount());
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         // Should expand "0 | 0"
-        grid.expandWithClick(0);
-        Assert.assertEquals(6, grid.getRowCount());
+        getTreeGrid().expandWithClick(0);
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         // Should collapse "0 | 0"
-        grid.collapseWithClick(0);
-        Assert.assertEquals(3, grid.getRowCount());
+        getTreeGrid().collapseWithClick(0);
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
     }
 
     @Test
     public void keyboard_navigation() {
-        grid.getCell(0, 0).focus();
+        getTreeGrid().getCell(0, 0).focus();
 
         // Should expand "0 | 0" without moving focus
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getRowCount() != 3, 1);
-        Assert.assertEquals(6, grid.getRowCount());
+        waitUntil(b -> getTreeGrid().getRowCount() != 3, 1);
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         // Should navigate 2 times down to "1 | 1" row
         new Actions(getDriver()).sendKeys(Keys.DOWN, Keys.DOWN).perform();
-        Assert.assertEquals(6, grid.getRowCount());
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         // Should expand "1 | 1" without moving focus
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getRowCount() != 6, 1);
-        Assert.assertEquals(9, grid.getRowCount());
+        waitUntil(b -> getTreeGrid().getRowCount() != 6, 1);
+        Assert.assertEquals(9, getTreeGrid().getRowCount());
         assertCellTexts(2, 0,
                 new String[] { "1 | 1", "2 | 0", "2 | 1", "2 | 2", "1 | 2" });
 
         // Should collapse "1 | 1"
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getRowCount() != 9, 1);
-        Assert.assertEquals(6, grid.getRowCount());
+        waitUntil(b -> getTreeGrid().getRowCount() != 9, 1);
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(2, 0, new String[] { "1 | 1", "1 | 2", "0 | 1" });
 
         // Should navigate to "0 | 0"
         new Actions(getDriver()).sendKeys(Keys.UP, Keys.UP)
                 .perform();
-        Assert.assertEquals(6, grid.getRowCount());
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(0, 0,
                 new String[] { "0 | 0", "1 | 0", "1 | 1", "1 | 2", "0 | 1" });
 
         // Should collapse "0 | 0"
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getRowCount() != 6, 1);
-        Assert.assertEquals(3, grid.getRowCount());
+        waitUntil(b -> getTreeGrid().getRowCount() != 6, 1);
+        Assert.assertEquals(3, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         // Nothing should happen
         new Actions(getDriver()).sendKeys(Keys.LEFT).perform();
-        waitUntil(b -> grid.getRowCount() == 3, 1);
+        waitUntil(b -> getTreeGrid().getRowCount() == 3, 1);
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "0 | 2" });
 
         checkLogsForErrors();
@@ -191,52 +191,52 @@ public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
 
     @Test
     public void keyboard_selection() {
-        grid.getCell(0, 0).focus();
+        getTreeGrid().getCell(0, 0).focus();
 
         // Should expand "0 | 0" without moving focus
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getRowCount() != 3, 1);
-        Assert.assertEquals(6, grid.getRowCount());
+        waitUntil(b -> getTreeGrid().getRowCount() != 3, 1);
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         // Should navigate 1 time right and 2 times down to "1 | 1" row
         new Actions(getDriver()).sendKeys(Keys.RIGHT, Keys.DOWN, Keys.DOWN)
                 .perform();
-        Assert.assertEquals(6, grid.getRowCount());
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(1, 0, new String[] { "1 | 0", "1 | 1", "1 | 2" });
 
         // Should select "1 | 1"
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getRow(2).isSelected(), 1);
+        waitUntil(b -> getTreeGrid().getRow(2).isSelected(), 1);
 
         // Should move focus but not selection
         new Actions(getDriver()).sendKeys(Keys.UP).perform();
-        assertFalse(grid.getRow(1).isSelected());
-        assertTrue(grid.getRow(2).isSelected());
+        assertFalse(getTreeGrid().getRow(1).isSelected());
+        assertTrue(getTreeGrid().getRow(2).isSelected());
 
 
         // Should select "1 | 0" without moving focus
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getRow(1).isSelected(), 1);
-        assertFalse(grid.getRow(2).isSelected());
+        waitUntil(b -> getTreeGrid().getRow(1).isSelected(), 1);
+        assertFalse(getTreeGrid().getRow(2).isSelected());
 
         checkLogsForErrors();
     }
 
     @Test
     public void changing_hierarchy_column() {
-        assertTrue(grid.hasExpandToggle(0, 0));
-        assertFalse(grid.hasExpandToggle(0, 1));
+        assertTrue(getTreeGrid().hasExpandToggle(0, 0));
+        assertFalse(getTreeGrid().hasExpandToggle(0, 1));
 
         findElementByText("Set hierarchy column - depth").click();
 
-        assertFalse(grid.hasExpandToggle(0, 0));
-        assertTrue(grid.hasExpandToggle(0, 1));
+        assertFalse(getTreeGrid().hasExpandToggle(0, 0));
+        assertTrue(getTreeGrid().hasExpandToggle(0, 1));
 
         findElementByText("Set hierarchy column - id").click();
 
-        assertTrue(grid.hasExpandToggle(0, 0));
-        assertFalse(grid.hasExpandToggle(0, 1));
+        assertTrue(getTreeGrid().hasExpandToggle(0, 0));
+        assertFalse(getTreeGrid().hasExpandToggle(0, 1));
     }
 
     @Test
@@ -249,14 +249,14 @@ public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
         assertFalse(logContainsText(
                 "Item(s) collapsed (from client: true): 0 | 0"));
 
-        grid.expandWithClick(0);
+        getTreeGrid().expandWithClick(0);
 
         assertTrue(logContainsText(
                 "Item(s) expanded (from client: true): 0 | 0"));
         assertFalse(logContainsText(
                 "Item(s) collapsed (from client: true): 0 | 0"));
 
-        grid.collapseWithClick(0);
+        getTreeGrid().collapseWithClick(0);
 
         assertTrue(logContainsText(
                 "Item(s) expanded (from client: true): 0 | 0"));
@@ -280,22 +280,22 @@ public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
 
     @Test
     public void expanded_nodes_stay_expanded_when_parent_expand_state_is_toggled() {
-        grid.expandWithClick(0);
-        grid.expandWithClick(1);
-        grid.collapseWithClick(0);
-        grid.expandWithClick(0);
+        getTreeGrid().expandWithClick(0);
+        getTreeGrid().expandWithClick(1);
+        getTreeGrid().collapseWithClick(0);
+        getTreeGrid().expandWithClick(0);
         assertCellTexts(0, 0, new String[] { "0 | 0", "1 | 0", "2 | 0", "2 | 1",
                 "2 | 2", "1 | 1", "1 | 2", "0 | 1", "0 | 2" });
-        Assert.assertEquals(9, grid.getRowCount());
+        Assert.assertEquals(9, getTreeGrid().getRowCount());
 
-        grid.expandWithClick(7);
-        grid.expandWithClick(8);
-        grid.collapseWithClick(7);
-        grid.collapseWithClick(0);
-        grid.expandWithClick(1);
+        getTreeGrid().expandWithClick(7);
+        getTreeGrid().expandWithClick(8);
+        getTreeGrid().collapseWithClick(7);
+        getTreeGrid().collapseWithClick(0);
+        getTreeGrid().expandWithClick(1);
         assertCellTexts(0, 0, new String[] { "0 | 0", "0 | 1", "1 | 0", "2 | 0",
                 "2 | 1", "2 | 2", "1 | 1", "1 | 2", "0 | 2" });
-        Assert.assertEquals(9, grid.getRowCount());
+        Assert.assertEquals(9, getTreeGrid().getRowCount());
     }
 
 }

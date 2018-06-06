@@ -29,16 +29,16 @@ public class TreeGridHugeTreeNavigationIT extends AbstractTreeGridIT {
     @Before
     public void before() {
         open();
-        super.before();
+        setupTreeGrid();
     }
 
     @Test
     public void keyboard_navigation() {
-        grid.getCell(0, 0).focus();
+        getTreeGrid().getCell(0, 0).focus();
 
         // Should navigate to "Granddad 1" and expand it
         new Actions(getDriver()).sendKeys(Keys.DOWN, Keys.SPACE).perform();
-        Assert.assertEquals(6, grid.getRowCount());
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
         assertCellTexts(0, 0, "Granddad 0", "Granddad 1", "Dad 1/0", "Dad 1/1",
                 "Dad 1/2", "Granddad 2");
 
@@ -81,34 +81,34 @@ public class TreeGridHugeTreeNavigationIT extends AbstractTreeGridIT {
 
     @Test
     public void no_exception_when_calling_expand_and_collapse_same_time() {
-        grid.getCell(0, 0).focus();
+        getTreeGrid().getCell(0, 0).focus();
         new Actions(getDriver()).sendKeys(Keys.SPACE, Keys.SPACE).perform();
         checkLogsForErrors();
     }
 
     @Test
     public void can_toggle_collapse_on_row_that_is_no_longer_in_cache() {
-        grid.getCell(0, 0).focus();
+        getTreeGrid().getCell(0, 0).focus();
 
         // Expand 2 levels
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
         new Actions(getDriver()).sendKeys(Keys.DOWN, Keys.SPACE).perform();
-        waitUntil(b -> grid.getNumberOfExpandedRows() == 2, 1);
-        waitUntil(b -> grid.getRowCount() > 6, 1);
-        grid.scrollToRow(200);
+        waitUntil(b -> getTreeGrid().getNumberOfExpandedRows() == 2, 1);
+        waitUntil(b -> getTreeGrid().getRowCount() > 6, 1);
+        getTreeGrid().scrollToRow(200);
         // Jump into view
         new Actions(getDriver()).sendKeys(Keys.RIGHT).perform();
         new Actions(getDriver()).sendKeys(Keys.LEFT).perform();
         // Collapse
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> grid.getNumberOfExpandedRows() == 1, 1);
-        Assert.assertEquals(6, grid.getRowCount());
+        waitUntil(b -> getTreeGrid().getNumberOfExpandedRows() == 1, 1);
+        Assert.assertEquals(6, getTreeGrid().getRowCount());
 
         // Expand
         new Actions(getDriver()).sendKeys(Keys.SPACE, Keys.UP).perform();
-        grid.scrollToRow(200);
+        getTreeGrid().scrollToRow(200);
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        Assert.assertEquals(306, grid.getRowCount());
+        Assert.assertEquals(306, getTreeGrid().getRowCount());
     }
 
 }
