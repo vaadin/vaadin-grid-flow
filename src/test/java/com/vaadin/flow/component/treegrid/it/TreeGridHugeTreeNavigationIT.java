@@ -15,6 +15,8 @@
  */
 package com.vaadin.flow.component.treegrid.it;
 
+import java.util.Arrays;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,9 +52,8 @@ public class TreeGridHugeTreeNavigationIT extends AbstractTreeGridIT {
 
         // Should navigate 100 items down
         Keys downKeyArr[] = new Keys[100];
-        for (int i = 0; i < 100; i++) {
-            downKeyArr[i] = Keys.DOWN;
-        }
+        Arrays.fill(downKeyArr, Keys.DOWN);
+
         new Actions(getDriver()).sendKeys(downKeyArr).perform();
 
         assertCellTexts(103, 0, "Son 1/1/99");
