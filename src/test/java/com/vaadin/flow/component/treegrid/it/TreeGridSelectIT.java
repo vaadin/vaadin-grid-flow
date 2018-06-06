@@ -30,7 +30,7 @@ public class TreeGridSelectIT extends AbstractTreeGridIT {
     public void before() {
         getDriver().get(getRootURL() + "/" + TreeGridBasicFeaturesPage.VIEW);
 
-        super.before();
+        setupTreeGrid();
     }
 
     @Test
@@ -38,22 +38,22 @@ public class TreeGridSelectIT extends AbstractTreeGridIT {
         findElement(By.id("TreeDataProvider")).click();
         findElementByText("Selection mode - multi").click();
 
-        assertAllRowsDeselected(grid);
-        clickSelectAll(grid);
-        assertAllRowsSelected(grid);
-        grid.expandWithClick(1, 1);
-        grid.expandWithClick(2, 1);
-        assertAllRowsSelected(grid);
-        clickSelectAll(grid);
-        assertAllRowsDeselected(grid);
-        clickSelectAll(grid);
-        grid.collapseWithClick(2, 1);
-        grid.expandWithClick(2, 1);
-        assertAllRowsSelected(grid);
-        grid.collapseWithClick(2, 1);
-        clickSelectAll(grid);
-        grid.expandWithClick(2, 1);
-        assertAllRowsDeselected(grid);
+        assertAllRowsDeselected(getTreeGrid());
+        clickSelectAll(getTreeGrid());
+        assertAllRowsSelected(getTreeGrid());
+        getTreeGrid().expandWithClick(1, 1);
+        getTreeGrid().expandWithClick(2, 1);
+        assertAllRowsSelected(getTreeGrid());
+        clickSelectAll(getTreeGrid());
+        assertAllRowsDeselected(getTreeGrid());
+        clickSelectAll(getTreeGrid());
+        getTreeGrid().collapseWithClick(2, 1);
+        getTreeGrid().expandWithClick(2, 1);
+        assertAllRowsSelected(getTreeGrid());
+        getTreeGrid().collapseWithClick(2, 1);
+        clickSelectAll(getTreeGrid());
+        getTreeGrid().expandWithClick(2, 1);
+        assertAllRowsDeselected(getTreeGrid());
     }
 
     private void assertAllRowsSelected(TreeGridElement grid) {
