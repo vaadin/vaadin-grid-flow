@@ -34,10 +34,6 @@ import static org.junit.Assert.assertTrue;
 @TestPath("treegrid-basic-features")
 public class TreeGridBasicFeaturesIT extends AbstractTreeGridIT {
 
-    public void setDataProvider(String dataProviderString) {
-        findElement(By.id(dataProviderString)).click();
-    }
-
     @Parameters
     public static Collection<String> getDataProviders() {
         return Arrays.asList("LazyHierarchicalDataProvider",
