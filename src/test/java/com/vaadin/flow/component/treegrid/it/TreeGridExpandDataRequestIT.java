@@ -4,13 +4,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
+import com.vaadin.flow.testutil.TestPath;
+
 import static org.junit.Assert.assertFalse;
 
+@TestPath(TreeGridBasicFeaturesPage.VIEW)
 public class TreeGridExpandDataRequestIT extends AbstractTreeGridIT {
 
     @Before
     public void before() {
-        getDriver().get(getRootURL() + "/" + TreeGridBasicFeaturesPage.VIEW);
+        open();
 
         setupTreeGrid();
         findElement(By.id("LoggingDataProvider")).click();
