@@ -20,15 +20,17 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
+import com.vaadin.flow.testutil.TestPath;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@TestPath(TreeGridBasicFeaturesPage.VIEW)
 public class TreeGridSelectIT extends AbstractTreeGridIT {
 
     @Before
     public void before() {
-        getDriver().get(getRootURL() + "/" + TreeGridBasicFeaturesPage.VIEW);
+        open();
 
         setupTreeGrid();
     }
