@@ -46,7 +46,7 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
     @Before
     public void before() {
         open();
-        super.before();
+        setupTreeGrid();
 
         depthSelector = findElement(By.tagName("vaadin-radio-group"));
 
@@ -57,13 +57,14 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
 
     @Test
     public void expandVariousDepth() {
-        Assert.assertEquals(rowCount0, grid.getRowCount());
+        Assert.assertEquals(rowCount0, getTreeGrid().getRowCount());
 
         selectDepth(0);
         expandButton.click();
         
-        waitUntil(input -> grid.getRowCount() == rowCount1, 2);
-        Assert.assertEquals(itemsPerLevel, grid.getNumberOfExpandedRows());
+        waitUntil(input -> getTreeGrid().getRowCount() == rowCount1, 2);
+        Assert.assertEquals(itemsPerLevel,
+                getTreeGrid().getNumberOfExpandedRows());
 
         assertCellTexts(0, 0,
                 new String[] { "Item-0", "Item-0-0", "Item-0-1" });
@@ -71,7 +72,8 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
         selectDepth(1);
         expandButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount1, 2);
+        waitUntil(input -> getTreeGrid().getNumberOfExpandedRows() == rowCount1,
+                2);
 
         assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-0-0",
                 "Item-0-0-1" });
@@ -79,7 +81,8 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
         selectDepth(2);
         expandButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount2, 2);
+        waitUntil(input -> getTreeGrid().getNumberOfExpandedRows() == rowCount2,
+                2);
 
         assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-0-0",
                 "Item-0-0-0-0", "Item-0-0-0-1" });
@@ -88,7 +91,8 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
         selectDepth(3);
         expandButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount3, 2);
+        waitUntil(input -> getTreeGrid().getNumberOfExpandedRows() == rowCount3,
+                2);
 
         assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-0-0",
                 "Item-0-0-0-0", "Item-0-0-0-0-0", "Item-0-0-0-0-1" });
@@ -96,28 +100,31 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
 
     @Test(timeout = 5000)
     public void expandAndCollapseAllItems() {
-        Assert.assertEquals(rowCount0, grid.getRowCount());
+        Assert.assertEquals(rowCount0, getTreeGrid().getRowCount());
 
         selectDepth(3);
         expandButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == rowCount3, 2);
+        waitUntil(input -> getTreeGrid().getNumberOfExpandedRows() == rowCount3,
+                2);
 
         collapseButton.click();
 
-        waitUntil(input -> grid.getNumberOfExpandedRows() == 0, 2);
-        Assert.assertEquals(rowCount0, grid.getRowCount());
+        waitUntil(input -> getTreeGrid().getNumberOfExpandedRows() == 0, 2);
+        Assert.assertEquals(rowCount0, getTreeGrid().getRowCount());
     }
 
     @Test
     public void partialCollapse() {
-        Assert.assertEquals(rowCount0, grid.getRowCount());
+        Assert.assertEquals(rowCount0, getTreeGrid().getRowCount());
 
         selectDepth(3);
         expandButton.click();
 
         final AtomicInteger expandedRows = new AtomicInteger(rowCount3);
-        waitUntil(input -> grid.getNumberOfExpandedRows() == expandedRows.get(),
+        waitUntil(
+                input -> getTreeGrid().getNumberOfExpandedRows() == expandedRows
+                        .get(),
                 2);
 
         selectDepth(1);
@@ -125,22 +132,23 @@ public class TreeGridExpandCollapseRecursivelyIT extends AbstractTreeGridIT {
 
         expandedRows.addAndGet(-rowCount1);
         waitUntil(
-                input -> grid.getNumberOfExpandedRows() == expandedRows.get(),
+                input -> getTreeGrid().getNumberOfExpandedRows() == expandedRows
+                        .get(),
                 2);
-        Assert.assertEquals(rowCount0, grid.getRowCount());
+        Assert.assertEquals(rowCount0, getTreeGrid().getRowCount());
 
         selectDepth(0);
         expandButton.click();
 
-        waitUntil(input -> grid.getRowCount() == rowCount1, 2);
+        waitUntil(input -> getTreeGrid().getRowCount() == rowCount1, 2);
         Assert.assertEquals(expandedRows.addAndGet(rowCount0),
-                grid.getNumberOfExpandedRows());
+                getTreeGrid().getNumberOfExpandedRows());
 
         // Open just one subtree to see if it is still fully expanded
-        grid.getExpandToggleElement(2, 0).click();
+        getTreeGrid().getExpandToggleElement(2, 0).click();
 
         expandedRows.addAndGet(1);
-        waitUntil(input -> grid
+        waitUntil(input -> getTreeGrid()
                 .getNumberOfExpandedRows() == expandedRows.get(), 1);
 
         assertCellTexts(0, 0, new String[] { "Item-0", "Item-0-0", "Item-0-1",
