@@ -1095,10 +1095,12 @@ public class GridView extends DemoView {
         TreeGrid<PersonWithLevel> grid = new TreeGrid<>();
         grid.setItems(getRootItems(), item -> {
             if ((item.getLevel() == 0 && item.getId() > 10)
-                    || item.getLevel() > 1)
+                    || item.getLevel() > 1) {
                 return Collections.emptyList();
-            if (!childMap.containsKey(item))
+            }
+            if (!childMap.containsKey(item)) {
                 childMap.put(item, createSubItems(81, item.getLevel() + 1));
+            }
             return childMap.get(item);
         });
         grid.addHierarchyColumn(Person::getName).setHeader("Hierarchy");
