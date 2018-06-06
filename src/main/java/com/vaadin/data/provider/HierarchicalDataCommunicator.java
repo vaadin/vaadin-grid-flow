@@ -310,6 +310,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      * 
      * @param items
      *            the items to collapse
+     * @return the collapsed items
      */
     public Collection<T> collapse(Collection<T> items) {
         return doCollapse(items, true);
@@ -346,8 +347,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      * 
      * @param item
      *            the item to expand
-     * @param pageSize
-     *            size of the page
      */
     public void expand(T item) {
         expand(item, true);
@@ -361,6 +360,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      * 
      * @param items
      *            the items to expand
+     * @return the expanded items
      */
     public Collection<T> expand(Collection<T> items) {
         return doExpand(items, true);
