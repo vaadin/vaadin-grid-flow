@@ -56,5 +56,6 @@ public class TreeGridScrollingPage extends Div {
                 .setHeader("Index on this depth").setId("index");
         grid.setDataProvider(new LazyHierarchicalDataProvider(nodes, depth));
         add(grid);
+        setSizeFull();
     }
 }
