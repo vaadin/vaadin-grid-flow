@@ -16,24 +16,23 @@
 package com.vaadin.flow.component.treegrid.it;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.vaadin.flow.component.grid.testbench.TreeGridElement;
-import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 
 @TestPath("treegrid-scrolling")
-public class TreeGridScrollingIT extends AbstractComponentIT {
+public class TreeGridScrollingIT extends AbstractTreeGridIT {
+
+    @Before
+    public void before() {
+        open();
+        setupTreeGrid();
+    }
 
     @Test
-    public void testScrollingTree_expandCollapseFromBeginning_correctItemsShown() {
-        // TODO refactor this test to verify each row against a model, e.g. a
-        // InMemoryDataProvider, or the used lazy hierarchical data provider
-        open();
-
-        TreeGridElement grid = $(TreeGridElement.class).id("treegrid");
-
-        Assert.assertEquals(grid.getRowCount(),
+    public void scrollingTree_expandCollapseFromBeginning_correctItemsShown() {
+        Assert.assertEquals(getTreeGrid().getRowCount(),
                 TreeGridScrollingPage.DEFAULT_NODES);
 
         verifyRow(0, 0, 0);
@@ -42,7 +41,7 @@ public class TreeGridScrollingIT extends AbstractComponentIT {
         verifyRow(10, 0, 10);
         verifyRow(0, 0, 0);
 
-        grid.expandWithClick(0);
+        getTreeGrid().expandWithClick(0);
 
         verifyRow(0, 0, 0);
         verifyRow(1, 1, 0);
@@ -56,7 +55,7 @@ public class TreeGridScrollingIT extends AbstractComponentIT {
         verifyRow(1, 1, 0);
         verifyRow(0, 0, 0);
 
-        grid.expandWithClick(3);
+        getTreeGrid().expandWithClick(3);
 
         verifyRow(0, 0, 0);
 
@@ -85,7 +84,7 @@ public class TreeGridScrollingIT extends AbstractComponentIT {
         verifyRow(1, 1, 0);
         verifyRow(0, 0, 0);
 
-        grid.expandWithClick(2);
+        getTreeGrid().expandWithClick(2);
 
         verifyRow(0, 0, 0);
 
@@ -117,7 +116,7 @@ public class TreeGridScrollingIT extends AbstractComponentIT {
 
         verifyRow(0, 0, 0);
 
-        grid.collapseWithClick(2);
+        getTreeGrid().collapseWithClick(2);
 
         verifyRow(0, 0, 0);
 
@@ -146,7 +145,7 @@ public class TreeGridScrollingIT extends AbstractComponentIT {
         verifyRow(1, 1, 0);
         verifyRow(0, 0, 0);
 
-        grid.collapseWithClick(3);
+        getTreeGrid().collapseWithClick(3);
 
         verifyRow(0, 0, 0);
         verifyRow(1, 1, 0);
@@ -161,7 +160,7 @@ public class TreeGridScrollingIT extends AbstractComponentIT {
         verifyRow(1, 1, 0);
         verifyRow(0, 0, 0);
 
-        grid.collapseWithClick(0);
+        getTreeGrid().collapseWithClick(0);
 
         verifyRow(0, 0, 0);
         verifyRow(10, 0, 10);
@@ -171,10 +170,8 @@ public class TreeGridScrollingIT extends AbstractComponentIT {
     }
 
     private void verifyRow(int rowActualIndex, int depth, int levelIndex) {
-        TreeGridElement grid = $(TreeGridElement.class).first();
-
         Assert.assertEquals("Invalid row at index " + rowActualIndex,
                 depth + " | " + levelIndex,
-                grid.getCell(rowActualIndex, 0).getText());
+                getTreeGrid().getCell(rowActualIndex, 0).getText());
     }
 }
