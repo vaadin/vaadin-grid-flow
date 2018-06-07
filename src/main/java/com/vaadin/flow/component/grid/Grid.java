@@ -1023,7 +1023,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param <T>
      *            the grid bean type
      */
-    protected static class DataCommunicatorBuilder<T> {
+    protected static class DataCommunicatorBuilder<T> implements Serializable {
     
         /**
          * Build a new {@link DataCommunicator} object for the given Grid
