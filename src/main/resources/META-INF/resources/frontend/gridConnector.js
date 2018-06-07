@@ -398,7 +398,7 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.$connector.clear = function(index, length, parentKey) {
       let pkey = parentKey || root;
-      if (Object.keys(cache[pkey]).length === 0){
+      if (!cache[pkey] || Object.keys(cache[pkey]).length === 0){
         return;
       }
       if (index % grid.pageSize != 0) {
