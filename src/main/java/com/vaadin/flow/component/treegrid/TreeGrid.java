@@ -15,7 +15,6 @@
  */
 package com.vaadin.flow.component.treegrid;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,28 +26,29 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.vaadin.data.HasHierarchicalDataProvider;
+import com.vaadin.data.provider.GridArrayUpdater;
+import com.vaadin.data.provider.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.data.provider.HierarchicalDataCommunicator;
 import com.vaadin.data.provider.HierarchicalDataProvider;
 import com.vaadin.data.provider.HierarchicalQuery;
-import com.vaadin.data.provider.TreeGridArrayUpdater;
-import com.vaadin.data.provider.TreeUpdate;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.binder.PropertyDefinition;
+import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.DisabledUpdateMode;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializablePredicate;
-import com.vaadin.flow.function.SerializableRunnable;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.shared.Registration;
 
-import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 /**
@@ -64,25 +64,10 @@ import elemental.json.JsonValue;
 public class TreeGrid<T> extends Grid<T>
         implements HasHierarchicalDataProvider<T> {
 
-    private final class UpdateQueue implements TreeUpdate {
-        private List<SerializableRunnable> queue = new ArrayList<>();
+    private static final class UpdateQueue extends Grid.UpdateQueue {
 
-        private UpdateQueue(int size) {
-            // 'size' property is not synchronized by the web component since
-            // there are no events for it, but we
-            // need to sync it otherwise server will overwrite client value with
-            // the old server one
-            enqueue("$connector.updateSize", size);
-            if (uniqueKeyProperty != null) {
-                enqueue("$connector.updateUniqueItemIdPath", uniqueKeyProperty);
-            }
-            getElement().setProperty("size", size);
-        }
-
-        @Override
-        public void set(int start, List<JsonValue> items) {
-            enqueue("$connector.set", start,
-                    items.stream().collect(JsonUtils.asArray()));
+        private UpdateQueue(UpdateQueueData data, int size) {
+            super(data, size);
         }
 
         @Override
@@ -95,10 +80,10 @@ public class TreeGrid<T> extends Grid<T>
 
         @Override
         public void clear(int start, int length) {
-            if (!getDataCommunicator().hasExpandedItems()) {
+            if (!getData().getHasExpandedItems().get()) {
                 enqueue("$connector.clearExpanded");
             }
-            enqueue("$connector.clear", start, length);
+            super.clear(start, length);
         }
 
         @Override
@@ -106,11 +91,6 @@ public class TreeGrid<T> extends Grid<T>
             enqueue("$connector.clear", start, length, parentKey);
         }
 
-        @Override
-        public void commit(int updateId) {
-            enqueue("$connector.confirm", updateId);
-            commit();
-        }
 
         @Override
         public void commit(int updateId, String parentKey, int levelSize) {
@@ -118,26 +98,10 @@ public class TreeGrid<T> extends Grid<T>
                     levelSize);
             commit();
         }
-
-        @Override
-        public void commit() {
-            queue.forEach(Runnable::run);
-            queue.clear();
-        }
-
-        @Override
-        public void enqueue(String name, Serializable... arguments) {
-            queue.add(() -> getElement().callFunction(name, arguments));
-        }
-
     }
 
     private final ValueProvider<T, String> defaultUniqueKeyProvider = item -> String
             .valueOf(item.hashCode());
-
-    private ValueProvider<T, String> uniqueKeyProvider;
-
-    private String uniqueKeyProperty;
 
     /**
      * Creates a new {@code TreeGrid} without support for creating columns based
@@ -146,7 +110,12 @@ public class TreeGrid<T> extends Grid<T>
      * automatically sets up columns based on the type of presented data.
      */
     public TreeGrid() {
-        super(50, new TreeDataCommunicatorBuilder<T>());
+        super(50, UpdateQueue::new,
+                new TreeDataCommunicatorBuilder<T>());
+
+        setUniqueKeyProperty("key");
+        getArrayUpdater().getUpdateQueueData()
+                .setHasExpandedItems(getDataCommunicator()::hasExpandedItems);
     }
 
     /**
@@ -160,7 +129,11 @@ public class TreeGrid<T> extends Grid<T>
      *            the bean type to use, not {@code null}
      */
     public TreeGrid(Class<T> beanType) {
-        super(beanType, new TreeDataCommunicatorBuilder<T>());
+        super(beanType, UpdateQueue::new, new TreeDataCommunicatorBuilder<T>());
+
+        setUniqueKeyProperty("key");
+        getArrayUpdater().getUpdateQueueData()
+                .setHasExpandedItems(getDataCommunicator()::hasExpandedItems);
     }
 
     /**
@@ -179,61 +152,20 @@ public class TreeGrid<T> extends Grid<T>
     }
     
     private static class TreeDataCommunicatorBuilder<T>
-            extends DataCommunicatorBuilder<TreeGrid<T>, T> {
+            extends DataCommunicatorBuilder<T> {
 
         @Override
-        protected DataCommunicator<T> build(TreeGrid<T> grid) {
-            withArrayUpdater(grid.createArrayUpdater());
-            grid.uniqueKeyProperty = "key";
-            getDataGenerator().addDataGenerator(grid::generateTreeData);
+        protected DataCommunicator<T> build(Element element,
+                CompositeDataGenerator<T> dataGenerator,
+                GridArrayUpdater arrayUpdater,
+                SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
 
-
-            return new HierarchicalDataCommunicator<>(getDataGenerator(),
-                    (TreeGridArrayUpdater) getArrayUpdater(),
-                    data -> grid.getElement()
-                            .callFunction("$connector.updateData", data),
-                    grid.getElement().getNode(),
-                    item -> grid.getUniqueKeyProvider().apply(item));
+            return new HierarchicalDataCommunicator<>(dataGenerator,
+                    arrayUpdater,
+                    data -> element.callFunction("$connector.updateData", data),
+                    element.getNode(),
+                    uniqueKeyProviderSupplier);
         }
-    }
-
-    /**
-     * Creates Array update strategy aware object that handles initialization
-     * and creation of update of array on client side.
-     * 
-     * @return new TreeGridArrayUpdater object
-     */
-    protected TreeGridArrayUpdater createArrayUpdater() {
-        return new TreeGridArrayUpdater() {
-            @Override
-            public UpdateQueue startUpdate(int sizeChange) {
-                return new UpdateQueue(sizeChange);
-            }
-
-            @Override
-            public void initialize() {
-                initConnector();
-                updateSelectionModeOnClient();
-            }
-        };
-    }
-
-    /**
-     * Generates TreeGrid specific data for row sent to client.
-     * 
-     * @param item
-     *            Target item
-     * @param jsonObject
-     *            Target json object to fill with TreeGrid specific data
-     */
-    protected void generateTreeData(T item, JsonObject jsonObject) {
-        if (!jsonObject.hasKey(uniqueKeyProperty)) {
-            jsonObject.put(uniqueKeyProperty,
-                    getUniqueKeyProvider().apply(item));
-        }
-        Optional.ofNullable(getDataCommunicator().getParentItem(item))
-                .ifPresent(parent -> jsonObject.put("parentUniqueKey",
-                        getUniqueKeyProvider().apply(parent)));
     }
 
     /**
@@ -251,8 +183,8 @@ public class TreeGrid<T> extends Grid<T>
      */
     public void setUniqueKeyDataGenerator(String propertyName,
             ValueProvider<T, String> uniqueKeyProvider) {
-        this.uniqueKeyProperty = propertyName;
-        this.uniqueKeyProvider = uniqueKeyProvider;
+        setUniqueKeyProperty(propertyName);
+        setUniqueKeyProvider(uniqueKeyProvider);
 
         getDataProvider().refreshAll();
     }
@@ -262,23 +194,10 @@ public class TreeGrid<T> extends Grid<T>
      * 
      * @return ValueProvider for unique key for row
      */
-    public ValueProvider<T, String> getUniqueKeyProvider() {
-        return Optional.ofNullable(uniqueKeyProvider)
+    @Override
+    protected ValueProvider<T, String> getUniqueKeyProvider() {
+        return Optional.ofNullable(super.getUniqueKeyProvider())
                 .orElse(defaultUniqueKeyProvider);
-    }
-
-    /**
-     * Sets value provider for unique key in row's generated JSON.
-     * <p>
-     * <code>null</code> reverts to default. Default value is generated by
-     * bean's hashCode method.
-     * 
-     * @param uniqueKeyProvider
-     *            ValueProvider for unique key for row
-     */
-    public void setUniqueKeyProvider(
-            ValueProvider<T, String> uniqueKeyProvider) {
-        this.uniqueKeyProvider = uniqueKeyProvider;
     }
 
     /**
