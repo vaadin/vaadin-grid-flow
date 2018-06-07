@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.vaadin.data.TreeData;
+import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -34,6 +35,7 @@ import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.ExecutionContext;
 import com.vaadin.flow.internal.JsonUtils;
@@ -56,11 +58,11 @@ import elemental.json.JsonValue;
  */
 public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
-    private final TreeGridArrayUpdater arrayUpdater;
+    private final GridArrayUpdater arrayUpdater;
     private final StateNode stateNode;
     private HierarchyMapper<T, ?> mapper;
     private DataGenerator<T> dataGenerator;
-    private final ValueProvider<T, String> uniqueKeyProvider;
+    private final SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier;
 
     private final Map<String, CommunicationController<T>> dataControllers = new HashMap<>();
 
@@ -80,7 +82,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
         @Override
         protected String createKey() {
-            return Optional.ofNullable(uniqueKeyProvider)
+            return Optional.ofNullable(uniqueKeyProviderSupplier.get())
                     .map(provider -> provider.apply(object))
                     .orElse(super.createKey());
         }
@@ -102,15 +104,16 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
      *            Unique key provider for a row. If null, then using Grid's
      *            default key generator.
      */
-    public HierarchicalDataCommunicator(DataGenerator<T> dataGenerator,
-            TreeGridArrayUpdater arrayUpdater,
+    public HierarchicalDataCommunicator(CompositeDataGenerator<T> dataGenerator,
+            GridArrayUpdater arrayUpdater,
             SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode,
-            ValueProvider<T, String> uniqueKeyProvider) {
+            SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
         super(dataGenerator, arrayUpdater, dataUpdater, stateNode);
         this.dataGenerator = dataGenerator;
         this.arrayUpdater = arrayUpdater;
         this.stateNode = stateNode;
-        this.uniqueKeyProvider = uniqueKeyProvider;
+        this.uniqueKeyProviderSupplier = uniqueKeyProviderSupplier;
+
         try {
             // TODO get rid of this reflection
             FieldUtils.writeField(this, "keyMapper", uniqueKeyMapper, true);
@@ -118,9 +121,16 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        dataGenerator.addDataGenerator(this::generateTreeData);
         setDataProvider(new TreeDataProvider<>(new TreeData<>()), null);
     }
 
+
+    private void generateTreeData(T item, JsonObject jsonObject) {
+        Optional.ofNullable(getParentItem(item)).ifPresent(parent -> jsonObject
+                .put("parentUniqueKey",
+                        uniqueKeyProviderSupplier.get().apply(parent)));
+    }
 
     private void requestFlush(TreeUpdate update) {
         SerializableConsumer<ExecutionContext> flushRequest = context -> update
@@ -150,7 +160,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                     .forEach(CommunicationController::unregisterPassivatedKeys);
             dataControllers.clear();
 
-            TreeUpdate update = arrayUpdater
+            TreeUpdate update = (TreeUpdate) arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.ensureHierarchy");
             requestFlush(update);
@@ -166,13 +176,14 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
     public void setParentRequestedRange(int start, int length,
             T parentItem) {
-        String parentKey = uniqueKeyProvider.apply(parentItem);
+        String parentKey = uniqueKeyProviderSupplier.get().apply(parentItem);
 
         CommunicationController<T> controller = dataControllers.computeIfAbsent(
                 parentKey,
                 key -> new CommunicationController<>(parentKey, getKeyMapper(),
                         mapper, dataGenerator,
-                        size -> arrayUpdater.startUpdate(getDataProviderSize()),
+                        size -> (TreeUpdate) arrayUpdater
+                                .startUpdate(getDataProviderSize()),
                         (pkey, range) -> mapper.fetchChildItems(
                                 getKeyMapper().get(pkey), range)));
 
@@ -329,7 +340,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             }
         });
         if (syncClient) {
-            TreeUpdate update = arrayUpdater
+            TreeUpdate update = (TreeUpdate) arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.collapseItems",
                         collapsedItems.stream().map(this::generateJsonForExpandedOrCollapsedItem)
@@ -390,7 +401,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             }
         });
         if (syncClient) {
-            TreeUpdate update = arrayUpdater
+            TreeUpdate update = (TreeUpdate) arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.expandItems",
                         expandedItems.stream().map(this::generateJsonForExpandedOrCollapsedItem)
