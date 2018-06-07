@@ -142,7 +142,7 @@ window.Vaadin.Flow.gridConnector = {
       if(parentKey !== parentKeyOfIndex) {
         return defaultPage;
       } else {
-        return grid._getPageForIndex(index);
+        return grid._getPageForIndex(cacheAndIndex.scaledIndex);
       }
     }
 
@@ -240,7 +240,7 @@ window.Vaadin.Flow.gridConnector = {
     grid.addEventListener('sorter-changed', sorterChangeListener);
 
     grid._expandedInstanceChangedCallback = function(inst, value) {
-      if (inst.item === undefined) {
+      if (inst.item == undefined) {
         return;
       }
       let parentKey = grid.getItemId(inst.item);
