@@ -24,9 +24,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.vaadin.data.TreeData;
+import com.vaadin.data.provider.GridArrayUpdater;
 import com.vaadin.data.provider.HierarchicalDataCommunicator;
 import com.vaadin.data.provider.TreeDataProvider;
-import com.vaadin.data.provider.TreeGridArrayUpdater;
 import com.vaadin.data.provider.TreeUpdate;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.UIInternals;
@@ -90,7 +90,7 @@ public class HierarchicalCommunicatorTest {
         }
     }
 
-    private final TreeGridArrayUpdater arrayUpdater = new TreeGridArrayUpdater() {
+    private final GridArrayUpdater arrayUpdater = new GridArrayUpdater() {
         @Override
         public TreeUpdate startUpdate(int sizeChange) {
             return new UpdateQueue();
@@ -98,6 +98,15 @@ public class HierarchicalCommunicatorTest {
 
         @Override
         public void initialize() {
+        }
+
+        @Override
+        public void setUpdateQueueData(UpdateQueueData data) {
+        }
+
+        @Override
+        public UpdateQueueData getUpdateQueueData() {
+            return null;
         }
     };
     
@@ -119,7 +128,7 @@ public class HierarchicalCommunicatorTest {
                 Mockito.mock(CompositeDataGenerator.class),
                 arrayUpdater, json -> {
                 },
-                stateNode, null);
+                stateNode, () -> null);
         communicator.setDataProvider(dataProvider, null);
     }
 
