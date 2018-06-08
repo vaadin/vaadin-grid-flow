@@ -38,7 +38,7 @@ import static com.vaadin.flow.component.treegrid.it.TreeGridHugeTreePage.addRoot
 @NoTheme
 public class TreeGridPageSizePage extends Div {
 
-    private TextArea info;
+    private TextArea log;
 
     /**
      * Creates a view with a grid with page size of 10.
@@ -65,14 +65,14 @@ public class TreeGridPageSizePage extends Div {
             @Override
             public Stream<String> fetchChildren(
                     HierarchicalQuery<String, SerializablePredicate<String>> query) {
-                if (info != null) {
-                    info.setValue(String.format(
+                if (log != null) {
+                    log.setValue(String.format(
                             "Query offset: %d Query limit: %d Query parent: %s",
                             query.getOffset(), query.getLimit(),
                             query.getParentOptional().map(String::valueOf)
                                     .orElse("root"))
                             + "\n"
-                            + info.getValue());
+                            + log.getValue());
                 }
                 return super.fetchChildren(query);
             }
@@ -82,10 +82,12 @@ public class TreeGridPageSizePage extends Div {
 
         grid.expandRecursively(data.getRootItems(), 3);
 
-        info = new TextArea();
-        info.setId("query-info");
-        info.setHeight("300px");
-        info.setWidth("100%");
+        log = new TextArea();
+        log.setId("log");
+        log.setHeight("300px");
+        log.setWidth("100%");
+        NativeButton clearLog = new NativeButton("Clear", event -> log.clear());
+        clearLog.setId("clear-log");
 
         Input size = new Input();
         size.setId("size-input");
@@ -95,7 +97,7 @@ public class TreeGridPageSizePage extends Div {
         });
         button.setId("size-submit");
 
-        add(grid, info, new Div(size, button));
+        add(grid, log, clearLog, new Div(size, button));
     }
 
 }
