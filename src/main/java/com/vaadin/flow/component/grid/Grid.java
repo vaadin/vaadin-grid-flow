@@ -2148,16 +2148,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     @ClientCallable
-    private void select(int key) {
+    private void select(String key) {
         getSelectionModel().selectFromClient(findByKey(key));
     }
 
     @ClientCallable
-    private void deselect(int key) {
+    private void deselect(String key) {
         getSelectionModel().deselectFromClient(findByKey(key));
     }
 
-    private T findByKey(int key) {
+    private T findByKey(String key) {
         T item = getDataCommunicator().getKeyMapper().get(String.valueOf(key));
         if (item == null) {
             throw new IllegalStateException("Unknown key: " + key);
