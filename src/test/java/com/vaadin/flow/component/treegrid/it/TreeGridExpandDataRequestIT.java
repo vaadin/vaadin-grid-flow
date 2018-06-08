@@ -18,10 +18,10 @@ public class TreeGridExpandDataRequestIT extends AbstractTreeGridIT {
         setupTreeGrid();
         findElement(By.id("LoggingDataProvider")).click();
 
-        clearLog();
+        clickClearLog();
     }
 
-    private void clearLog() {
+    private void clickClearLog() {
         findElement(By.id(makeId("Clear log"))).click();
     }
 
@@ -37,7 +37,7 @@ public class TreeGridExpandDataRequestIT extends AbstractTreeGridIT {
         getTreeGrid().expandWithClick(1);
         assertFalse("Log should not contain request for root nodes.",
                 logContainsText("Root node request: "));
-        clearLog();
+        clickClearLog();
         getTreeGrid().expandWithClick(0);
         assertFalse("Log should not contain request for children of '0 | 1'.",
                 logContainsText("Children request: 0 | 1"));

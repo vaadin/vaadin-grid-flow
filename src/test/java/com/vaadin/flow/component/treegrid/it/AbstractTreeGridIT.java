@@ -51,6 +51,13 @@ public class AbstractTreeGridIT extends AbstractComponentIT {
     }
 
     /**
+     * Finds element with id 'log' and clears it if its input field.
+     */
+    protected void clearLog() {
+        executeScript("arguments[0].value=''", findElement(By.id("log")));
+    }
+
+    /**
      * Finds element by given text by translating it to id with
      * {@link #makeId(String)} and finding element by that id.
      * <p>
