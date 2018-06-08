@@ -17,7 +17,6 @@ package com.vaadin.flow.component.treegrid.it;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vaadin.flow.testutil.TestPath;
@@ -73,7 +72,6 @@ public class TreeGridItemDetailsRendererIT extends AbstractTreeGridIT {
     }
 
     @Test
-    @Ignore
     public void treegridItemDetails_collapseLevel1_rememberOpenedDetails() {
         getTreeGrid().expandWithClick(1);
         waitUntil(test -> getTreeGrid().getNumberOfExpandedRows() == 2);
