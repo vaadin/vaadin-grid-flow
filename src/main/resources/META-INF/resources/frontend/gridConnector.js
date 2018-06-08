@@ -263,7 +263,7 @@ window.Vaadin.Flow.gridConnector = {
       if (!items || !Array.isArray(items)) {
         throw 'Attempted to call itemsUpdated with an invalid value: ' + JSON.stringify(items);
       }
-      const detailsOpenedItems = [];
+      let detailsOpenedItems = Array.from(grid.detailsOpenedItems);
       let updatedSelectedItem = false;
       for (let i = 0; i < items.length; ++i) {
         const item = items[i];
@@ -271,7 +271,11 @@ window.Vaadin.Flow.gridConnector = {
           continue;
         }
         if (item.detailsOpened) {
-          detailsOpenedItems.push(item);
+          if(grid._getItemIndexInArray(item, detailsOpenedItems) < 0) {
+            detailsOpenedItems.push(item);
+          }
+        } else if(grid._getItemIndexInArray(item, detailsOpenedItems) >= 0) {
+          detailsOpenedItems.splice(grid._getItemIndexInArray(item, detailsOpenedItems), 1)
         }
         if (selectedKeys[item.key]) {
           selectedKeys[item.key] = item;
@@ -465,6 +469,8 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     grid.$connector.collapseItems = function(items) {
+      // items.forEach(item => grid.$connector.closeAllDetailsFromParent(item));
+
       let newExpandedItems = Array.from(grid.expandedItems);
       items.filter(item => grid._isExpanded(item))
         .forEach(item =>
@@ -484,7 +490,8 @@ window.Vaadin.Flow.gridConnector = {
         if((cache[parentKey] && cache[parentKey][page]) || page < lastRequestedRange[0] || page > lastRequestedRange[1]) {
           let callback = treePageCallbacks[parentKey][page];
           delete treePageCallbacks[parentKey][page];
-          callback(cache[parentKey][page] || new Array(levelSize), levelSize);
+          let items = cache[parentKey][page] || new Array(levelSize);
+          callback(items, levelSize);
         }
       }
       // Let server know we're done
