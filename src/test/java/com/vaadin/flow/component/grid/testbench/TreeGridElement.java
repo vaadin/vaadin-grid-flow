@@ -150,8 +150,31 @@ public class TreeGridElement extends GridElement {
 
     }
 
+    /**
+     * Returns a number of expanded rows in the grid element. Notice that
+     * returned number does not mean that grid has yet finished rendering all
+     * visible expanded rows.
+     * 
+     * @return the number of expanded rows
+     */
     public long getNumberOfExpandedRows() {
         return (long) executeScript("return arguments[0].expandedItems.length;",
                 this);
     }
+
+    /**
+     * Returns {@code true} if details are open or the given row index.
+     * 
+     * @param rowIndex
+     *            the 0-based row index
+     * @return {@code true} if details are shown in the target row
+     */
+    public boolean isDetailsOpen(int rowIndex) {
+        try {
+            return getRow(rowIndex).getDetails().isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
 }
