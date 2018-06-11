@@ -40,14 +40,16 @@ public class HierarchyMapperWithDataTest {
     private static final int PARENT_COUNT = 4;
     private static final int LEAF_COUNT = 2;
 
-    private TreeData<Node> data = new TreeData<>();
+    private TreeData<Node> data;
     private TreeDataProvider<Node> provider;
     private HierarchyMapper<Node, SerializablePredicate<Node>> mapper;
     private List<Node> testData;
     private List<Node> roots;
-    private int mapSize = ROOT_COUNT;
+    private int mapSize;
 
     private void setupData() {
+        mapSize = ROOT_COUNT;
+        data = new TreeData<>();
         testData = generateTestData(ROOT_COUNT, PARENT_COUNT, LEAF_COUNT);
         roots = testData.stream().filter(item -> item.getParent() == null)
                 .collect(Collectors.toList());
