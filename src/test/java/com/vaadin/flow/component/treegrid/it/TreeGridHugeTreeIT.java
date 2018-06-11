@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import com.vaadin.data.performance.TreeGridMemory;
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
+import com.vaadin.flow.data.performance.TreeGridMemory;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 
