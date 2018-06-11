@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.vaadin.data.provider.AbstractBackEndHierarchicalDataProvider;
-import com.vaadin.data.provider.HierarchicalQuery;
+import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
 public class LazyHierarchicalDataProvider extends
         AbstractBackEndHierarchicalDataProvider<HierarchicalTestBean, Void> {
