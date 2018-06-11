@@ -21,6 +21,12 @@ import com.vaadin.flow.data.provider.ArrayUpdater;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableSupplier;
 
+/**
+ * Array update strategy aware class for Grid.
+ *
+ * @author Vaadin Ltd
+ *
+ */
 public interface GridArrayUpdater extends ArrayUpdater {
 
     /**
@@ -59,7 +65,18 @@ public interface GridArrayUpdater extends ArrayUpdater {
         }
     }
 
+    /**
+     * Sets {@link UpdateQueueData} for this array updater.
+     * 
+     * @param data
+     *            the new {@link UpdateQueueData} object
+     */
     void setUpdateQueueData(UpdateQueueData data);
 
+    /**
+     * Gets {@link UpdateQueueData} set for this array updater.
+     * 
+     * @return the new {@link UpdateQueueData} or null if not set.
+     */
     UpdateQueueData getUpdateQueueData();
 }
