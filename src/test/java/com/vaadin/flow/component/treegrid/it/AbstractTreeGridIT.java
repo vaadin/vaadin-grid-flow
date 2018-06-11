@@ -7,7 +7,7 @@ import org.openqa.selenium.WebElement;
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 
-public class AbstractTreeGridIT extends AbstractComponentIT {
+public abstract class AbstractTreeGridIT extends AbstractComponentIT {
 
     private TreeGridElement grid;
 
