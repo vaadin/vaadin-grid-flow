@@ -428,7 +428,7 @@ public class TreeGrid<T> extends Grid<T>
         }
     }
 
-    @ClientCallable(DisabledUpdateMode.ALWAYS)
+    @ClientCallable(DisabledUpdateMode.ONLY_WHEN_ENABLED)
     private void updateExpandedState(String key, boolean expanded) {
         T item = getDataCommunicator().getKeyMapper().get(key);
         if (item != null) {
