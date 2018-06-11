@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.flow.function.ValueProvider;
 
 /**
@@ -35,7 +36,6 @@ import com.vaadin.flow.function.ValueProvider;
  * Typically used as a backing data source for {@link TreeDataProvider}.
  *
  * @author Vaadin Ltd
- * @since 8.1
  *
  * @param <T>
  *            data type
@@ -362,7 +362,6 @@ public class TreeData<T> implements Serializable {
      *         root item.
      * @throws IllegalArgumentException
      *             if the item does not exist in this structure
-     * @since 8.1.1
      */
     public T getParent(T item) {
         if (!contains(item)) {
@@ -383,7 +382,6 @@ public class TreeData<T> implements Serializable {
      * @param parent
      *            the item to be set as parent or {@code null} to set the item
      *            as root
-     * @since 8.1
      */
     public void setParent(T item, T parent) {
         if (!contains(item)) {
@@ -426,7 +424,6 @@ public class TreeData<T> implements Serializable {
      * @param sibling
      *            the item after which the moved item will be located, or {@code
      *         null} to move item to first position
-     * @since 8.1
      */
     public void moveAfterSibling(T item, T sibling) {
         if (!contains(item)) {

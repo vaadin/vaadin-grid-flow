@@ -25,7 +25,6 @@ import com.vaadin.flow.data.provider.Query;
  * an in-memory collection or a backend database.
  *
  * @author Vaadin Ltd
- * @since 8.1
  *
  * @param <T>
  *            data type
