@@ -22,7 +22,6 @@ import com.vaadin.flow.data.provider.BackEndDataProvider;
  * data.
  *
  * @author Vaadin Ltd
- * @since 8.1
  *
  * @param <T>
  *            data provider data type
