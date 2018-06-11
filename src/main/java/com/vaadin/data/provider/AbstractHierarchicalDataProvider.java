@@ -22,7 +22,6 @@ import com.vaadin.flow.data.provider.AbstractDataProvider;
  * refreshes and associated events.
  *
  * @author Vaadin Ltd
- * @since 8.1
  *
  * @param <T>
  *            data type

@@ -30,7 +30,6 @@ import com.vaadin.flow.data.provider.SortOrder;
  * {@link BackEndHierarchicalDataProvider}s.
  *
  * @author Vaadin Ltd
- * @since 8.1
  *
  * @param <T>
  *            data type

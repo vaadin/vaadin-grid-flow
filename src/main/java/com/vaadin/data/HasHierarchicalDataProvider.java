@@ -33,7 +33,6 @@ import com.vaadin.flow.function.ValueProvider;
  * provider for showing data.
  *
  * @author Vaadin Ltd
- * @since 8.1
  *
  * @param <T>
  *            the item data type

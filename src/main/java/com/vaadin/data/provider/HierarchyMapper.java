@@ -44,7 +44,6 @@ import com.vaadin.flow.internal.Range;
  * anything.
  *
  * @author Vaadin Ltd
- * @since 8.1
  *
  * @param <T>
  *            the data type
