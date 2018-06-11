@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import com.vaadin.flow.testutil.TestPath;
 
-@TestPath("treegrid-item-details-rederer")
+@TestPath("treegrid-item-details-renderer")
 public class TreeGridItemDetailsRendererIT extends AbstractTreeGridIT {
 
     @Before
