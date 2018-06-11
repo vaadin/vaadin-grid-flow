@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.vaadin.data.TreeData;
@@ -41,15 +40,14 @@ public class HierarchyMapperWithDataTest {
     private static final int PARENT_COUNT = 4;
     private static final int LEAF_COUNT = 2;
 
-    private static TreeData<Node> data = new TreeData<>();
+    private TreeData<Node> data = new TreeData<>();
     private TreeDataProvider<Node> provider;
     private HierarchyMapper<Node, SerializablePredicate<Node>> mapper;
-    private static List<Node> testData;
-    private static List<Node> roots;
+    private List<Node> testData;
+    private List<Node> roots;
     private int mapSize = ROOT_COUNT;
 
-    @BeforeClass
-    public static void setupData() {
+    private void setupData() {
         testData = generateTestData(ROOT_COUNT, PARENT_COUNT, LEAF_COUNT);
         roots = testData.stream().filter(item -> item.getParent() == null)
                 .collect(Collectors.toList());
@@ -61,6 +59,8 @@ public class HierarchyMapperWithDataTest {
 
     @Before
     public void setup() {
+        setupData();
+
         provider = new TreeDataProvider<>(data);
         mapper = new HierarchyMapper<>(provider);
     }
