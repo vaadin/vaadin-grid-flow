@@ -285,7 +285,10 @@ window.Vaadin.Flow.gridConnector = {
       }
       grid.detailsOpenedItems = detailsOpenedItems;
       if (updatedSelectedItem) {
-        grid.selectedItems = Object.values(selectedKeys);
+        // IE 11 Object doesn't support method values
+        grid.selectedItems = Object.keys(selectedKeys).map(function(e) {
+          return selectedKeys[e]
+        });
       }
     }
 
@@ -390,8 +393,10 @@ window.Vaadin.Flow.gridConnector = {
           }
         }
       }
-      for (let key in pagesToUpdate) {
-        let pageToUpdate = pagesToUpdate[key];
+      // IE11 doesn't work with the transpiled version of the forEach.
+      let keys = Object.keys(pagesToUpdate);
+      for (var i = 0; i < keys.length; i++) {
+        let pageToUpdate = pagesToUpdate[keys[i]];
         updateGridCache(pageToUpdate.page, pageToUpdate.parentKey);
       }
     };
@@ -469,8 +474,6 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     grid.$connector.collapseItems = function(items) {
-      // items.forEach(item => grid.$connector.closeAllDetailsFromParent(item));
-
       let newExpandedItems = Array.from(grid.expandedItems);
       items.filter(item => grid._isExpanded(item))
         .forEach(item =>
