@@ -244,15 +244,16 @@ public class HierarchyMapperWithDataTest {
 
     static List<Node> generateTestData(int rootCount, int parentCount,
             int leafCount) {
+        int counter = 0;
         List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < rootCount; ++i) {
-            Node root = new Node();
+            Node root = new Node(counter++);
             nodes.add(root);
             for (int j = 0; j < parentCount; ++j) {
-                Node parent = new Node(root);
+                Node parent = new Node(counter++, root);
                 nodes.add(parent);
                 for (int k = 0; k < leafCount; ++k) {
-                    nodes.add(new Node(parent));
+                    nodes.add(new Node(counter++, parent));
                 }
             }
         }
