@@ -161,8 +161,8 @@ window.Vaadin.Flow.gridConnector = {
       // The buffer size could be multiplied by some constant defined by the user,
       // if he needs to reduce the number of items sent to the Grid to improve performance
       // or to increase it to make Grid smoother when scrolling
-      let start = Math.max(0, grid._virtualStart);
-      let end = Math.max(0, grid._virtualEnd);
+      let start = grid._virtualStart;
+      let end = grid._virtualEnd;
       let buffer = end - start;
 
       let firstNeededIndex = Math.max(0, start + grid._vidxOffset - buffer);
