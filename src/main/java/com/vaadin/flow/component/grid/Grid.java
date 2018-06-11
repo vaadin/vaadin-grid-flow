@@ -890,11 +890,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public Grid(int pageSize) {
         this(pageSize, null, new DataCommunicatorBuilder<>());
-        setPageSize(pageSize);
-        setSelectionModel(SelectionMode.SINGLE.createModel(this),
-                SelectionMode.SINGLE);
-
-        columnLayers.add(new ColumnLayer(this));
     }
 
     /**
