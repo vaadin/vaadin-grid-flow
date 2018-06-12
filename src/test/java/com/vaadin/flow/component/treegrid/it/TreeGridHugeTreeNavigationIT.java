@@ -25,6 +25,8 @@ import org.openqa.selenium.interactions.Actions;
 
 import com.vaadin.flow.testutil.TestPath;
 
+import static org.junit.Assert.assertTrue;
+
 @TestPath("treegrid-huge-tree-navigation")
 public class TreeGridHugeTreeNavigationIT extends AbstractTreeGridIT {
 
@@ -101,9 +103,11 @@ public class TreeGridHugeTreeNavigationIT extends AbstractTreeGridIT {
         // Jump into view
         new Actions(getDriver()).sendKeys(Keys.RIGHT).perform();
         new Actions(getDriver()).sendKeys(Keys.LEFT).perform();
+        assertTrue(getTreeGrid().getFirstVisibleRowIndex() == 1);
+
         // Collapse
         new Actions(getDriver()).sendKeys(Keys.SPACE).perform();
-        waitUntil(b -> getTreeGrid().getNumberOfExpandedRows() == 1, 1);
+        waitUntil(b -> getTreeGrid().getNumberOfExpandedRows() == 1, 2);
         Assert.assertEquals(6, getTreeGrid().getRowCount());
 
         // Expand
