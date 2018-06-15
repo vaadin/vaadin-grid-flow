@@ -111,7 +111,7 @@ import elemental.json.JsonValue;
 @JavaScript("frontend://gridConnector.js")
 public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>>,
-        HasTheme {
+        HasTheme, HasDataGenerators<T> {
 
     protected static class UpdateQueue implements TreeUpdate {
         private List<Runnable> queue = new ArrayList<>();
@@ -310,8 +310,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             comparator = (a, b) -> 0;
 
-            HasDataGenerators<T> gridDataGenerator = grid.getDataGenerator();
-
             Rendering<T> rendering = renderer.render(getElement(),
                     (KeyMapper<T>) getGrid().getDataCommunicator()
                             .getKeyMapper());
@@ -319,7 +317,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                     .getDataGenerator();
 
             if (dataGenerator.isPresent()) {
-                columnDataGeneratorRegistration = gridDataGenerator
+                columnDataGeneratorRegistration = grid
                         .addDataGenerator(dataGenerator.get());
             }
         }
@@ -732,14 +730,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          */
         protected void extend(Grid<T> grid) {
             this.grid = grid;
-            getGrid().getDataGenerator().addDataGenerator(this);
+            getGrid().addDataGenerator(this);
         }
 
         /**
          * Remove this extension from its target.
          */
         protected void remove() {
-            getGrid().getDataGenerator().removeDataGenerator(this);
+            getGrid().removeDataGenerator(this);
         }
 
         /**
@@ -1309,8 +1307,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private Column<T> addColumn(PropertyDefinition<T, ?> property) {
-        Column<T> column = addColumn(item -> formatPropertyValue(property, item))
-                .setHeader(property.getCaption());
+        Column<T> column = addColumn(
+                item -> formatPropertyValue(property, item))
+                        .setHeader(property.getCaption());
         try {
             return column.setKey(property.getName());
         } catch (IllegalArgumentException exception) {
@@ -1320,9 +1319,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    private Object formatPropertyValue(PropertyDefinition<T, ?> property, T item) {
+    private Object formatPropertyValue(PropertyDefinition<T, ?> property,
+            T item) {
         Object value = property.getGetter().apply(item);
-        if(value == null) {
+        if (value == null) {
             return "";
         } else {
             return String.valueOf(value);
@@ -2295,13 +2295,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         setSortOrder(sortOrderBuilder.build(), true);
     }
 
-    /*
-     * This method is not private because AbstractColumn uses it.
-     */
-    CompositeDataGenerator<T> getDataGenerator() {
-        return gridDataGenerator;
-    }
-
     private void setSortOrder(List<GridSortOrder<T>> order,
             boolean userOriginated) {
         Objects.requireNonNull(order, "Sort order list cannot be null");
@@ -2395,6 +2388,86 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * is passed as a property to the client via DataGenerators.
          */
         getDataCommunicator().reset();
+    }
+
+    /**
+     * Adds a {@link DataGenerator} to the Grid that sends all the fields of the
+     * objects in the model to the client, using the field names as property
+     * names.
+     * <p>
+     * This is useful for the cases when the properties in the template of the
+     * columns have the same name as the fields of the model object in the
+     * server side.
+     * <p>
+     * Note: this method sends the entire bean to the client, even if the
+     * template in the client doesn't use all the properties.
+     * <p>
+     * For objects without inner properties, like Strings, a property called
+     * {@code value} is created in the model, so it can be accessed via
+     * {@code [[item.value]]} in the template.
+     * <p>
+     * The properties added to by this method are global to the Grid - they can
+     * be used in any column.
+     * <p>
+     * To fine tune which properties should be sent, use the
+     * {@link #addValueProvider(String, ValueProvider)} or
+     * {@link #addDataGenerator(DataGenerator)} methods instead.
+     * 
+     * @return a registration that can be used to remove the generator from the
+     *         Grid
+     */
+    public Registration addBeanDataGenerator() {
+        return addDataGenerator((item, data) -> {
+            JsonValue value = JsonSerializer.toJson(item);
+            if (value instanceof JsonObject) {
+                JsonObject object = (JsonObject) value;
+                for (String key : object.keys()) {
+                    data.put(key, (JsonValue) object.get(key));
+                }
+            } else {
+                data.put("value", value);
+            }
+        });
+    }
+
+    /**
+     * Adds a ValueProvider to this Grid that is not tied to a Column. This is
+     * specially useful when the columns are defined via a template file instead
+     * of the Java API.
+     * <p>
+     * The properties added to by this method are global to the Grid - they can
+     * be used in any column.
+     * <p>
+     * ValueProviders are registered as {@link DataGenerator}s in the Grid. See
+     * {@link #addDataGenerator(DataGenerator)}.
+     * 
+     * @param property
+     *            the property name used in the template. For example, in a
+     *            template the uses {@code [[item.name]]}, the property is
+     *            {@code name}. Not <code>null</code>
+     * @param valueProvider
+     *            the provider for values for the property, not
+     *            <code>null</code>
+     * @return a registration that can be used to remove the ValueProvider from
+     *         the Grid
+     */
+    public Registration addValueProvider(String property,
+            ValueProvider<T, ?> valueProvider) {
+        Objects.requireNonNull(property);
+        Objects.requireNonNull(valueProvider);
+
+        return addDataGenerator((item, data) -> data.put(property,
+                JsonSerializer.toJson(valueProvider.apply(item))));
+    }
+
+    @Override
+    public Registration addDataGenerator(DataGenerator<T> dataGenerator) {
+        return gridDataGenerator.addDataGenerator(dataGenerator);
+    }
+
+    @Override
+    public void removeDataGenerator(DataGenerator<T> dataGenerator) {
+        gridDataGenerator.removeDataGenerator(dataGenerator);
     }
 
     protected static int compareMaybeComparables(Object a, Object b) {
