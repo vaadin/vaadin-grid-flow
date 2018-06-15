@@ -123,7 +123,7 @@ public class TreeGridElement extends GridElement {
      * @param columnIndex
      *            0-based index of the column
      * @param searchContentBy
-     *            Search for specific content
+     *            Search for specific content. May be null.
      * @return {@code true} if this cell has the component renderer visible with
      *         the optional search locator
      */
