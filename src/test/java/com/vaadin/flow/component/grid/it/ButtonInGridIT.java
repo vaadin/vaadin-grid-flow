@@ -29,6 +29,7 @@ import com.vaadin.flow.testutil.TestPath;
 @TestPath("vaadin-button-inside-grid")
 public class ButtonInGridIT extends AbstractComponentIT {
 
+    @Ignore
     @Test
     @Ignore
     /**
