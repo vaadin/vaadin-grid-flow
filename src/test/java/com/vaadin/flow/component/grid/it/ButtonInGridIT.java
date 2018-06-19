@@ -16,6 +16,7 @@
 package com.vaadin.flow.component.grid.it;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -28,6 +29,7 @@ import com.vaadin.flow.testutil.TestPath;
 @TestPath("vaadin-button-inside-grid")
 public class ButtonInGridIT extends AbstractComponentIT {
 
+    @Ignore
     @Test
     public void pressButtonUsingKeyboard() {
         open();
