@@ -25,6 +25,67 @@ import org.openqa.selenium.WebElement;
 public class TreeGridElement extends GridElement {
 
     /**
+     * Scrolls to the row with the given index.
+     *
+     * @param row
+     *            the row to scroll to
+     */
+    public void scrollToRowAndWait(int row) {
+        if (row > getLastVisibleRowIndex()) {
+            int lastIndex = getLastVisibleRowIndex();
+            scrollToRow(lastIndex);
+            waitUntil(test -> getLastVisibleRowIndex() > lastIndex);
+            waitUntil(test -> !isLoadingExpandedRows());
+            scrollToRow(row);
+        } else {
+            callFunction("_scrollToIndex", row);
+        }
+    }
+
+    /**
+     * Gets the grid cell for the given row and column index.
+     * <p>
+     * For the column index, only visible columns are taken into account.
+     * <p>
+     * Automatically scrolls the given row into view and waits for the row to
+     * load.
+     *
+     * @param rowIndex
+     *            the row index
+     * @param colIndex
+     *            the column index
+     * @return the grid cell for the given coordinates
+     */
+    public GridTHTDElement getCellWaitForRow(int rowIndex, int colIndex) {
+        GridColumnElement column = getVisibleColumns().get(colIndex);
+        return getCellWaitForRow(rowIndex, column);
+    }
+
+    /**
+     * Gets the grid cell for the given row and column.
+     * <p>
+     * Automatically scrolls the given row into view and waits for the row to
+     * load.
+     *
+     * @param rowIndex
+     *            the row index
+     * @param column
+     *            the column element for the column
+     * @return the grid cell for the given coordinates
+     */
+    public GridTHTDElement getCellWaitForRow(int rowIndex,
+            GridColumnElement column) {
+        if (!((getFirstVisibleRowIndex() <= rowIndex
+                && rowIndex <= getLastVisibleRowIndex()))) {
+            scrollToRowAndWait(rowIndex);
+        }
+        waitUntil(test -> !isLoadingExpandedRows());
+
+        GridTRElement row = getRow(rowIndex);
+        return row.getCell(column);
+    }
+
+    /**
      * Expands the row at the given index in the grid. This expects the first
      * column to have the hierarchy data.
      *
@@ -158,8 +219,10 @@ public class TreeGridElement extends GridElement {
      * @return the number of expanded rows
      */
     public long getNumberOfExpandedRows() {
-        return (long) executeScript("return arguments[0].expandedItems.length;",
+        long value = (long) executeScript(
+                "return arguments[0].expandedItems.length;",
                 this);
+        return value;
     }
 
     /**
@@ -177,4 +240,31 @@ public class TreeGridElement extends GridElement {
         }
     }
 
+    /**
+     * Returns true if given index has tr element for the row
+     * 
+     * @param row
+     *            the row index
+     * @return <code>true</code> if there is tr element for the row,
+     *         <code>false</code> otherwise
+     */
+    public boolean hasRow(int row) {
+        try {
+            return getRow(row) != null;
+        } catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if grid is loading expanded rows.
+     * 
+     * @return <code>true</code> if grid is loading expanded rows,
+     *         <code>false</code> otherwise
+     */
+    public boolean isLoadingExpandedRows() {
+        return (Boolean) executeScript(
+                "return arguments[0].$connector.hasEnsureSubCacheQueue();",
+                this);
+    }
 }

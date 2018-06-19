@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import com.vaadin.flow.component.grid.testbench.GridColumnElement;
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 
@@ -91,9 +92,27 @@ public abstract class AbstractTreeGridIT extends AbstractComponentIT {
             String... cellTexts) {
         int index = startRowIndex;
         for (String cellText : cellTexts) {
-            Assert.assertEquals(cellText,
-                    grid.getCell(index, cellIndex).getText());
+            assertCellText(index, cellIndex, cellText);
             index++;
+        }
+    }
+
+    private void assertCellText(int rowIndex, int cellIndex,
+            String expectedText) {
+        if (!((grid.getFirstVisibleRowIndex() <= rowIndex
+                && rowIndex <= grid.getLastVisibleRowIndex()))) {
+            grid.scrollToRowAndWait(rowIndex);
+        }
+        GridColumnElement column = grid.getVisibleColumns().get(cellIndex);
+        try {
+            waitUntil(test -> grid.hasRow(rowIndex) && expectedText
+                    .equals(grid.getRow(rowIndex).getCell(column).getText()));
+        } catch (Exception e) {
+            Assert.fail(
+                    String.format(
+                            "Expected cell text [%s] but got %s in row %s cell %s",
+                            expectedText, e.getClass().getSimpleName(),
+                            rowIndex, cellIndex));
         }
     }
 }
