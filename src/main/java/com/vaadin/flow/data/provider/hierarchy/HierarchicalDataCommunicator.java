@@ -339,7 +339,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                 }
             }
         });
-        if (syncClient) {
+        if (syncClient && !collapsedItems.isEmpty()) {
             TreeUpdate update = (TreeUpdate) arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.collapseItems",
@@ -400,7 +400,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
                 expandedItems.add(item);
             }
         });
-        if (syncClient) {
+        if (syncClient && !expandedItems.isEmpty()) {
             TreeUpdate update = (TreeUpdate) arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.expandItems",
@@ -527,7 +527,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     private JsonValue generateJsonForExpandedOrCollapsedItem(T item) {
         JsonObject json = Json.createObject();
         json.put("key", getKeyMapper().key(item));
-        dataGenerator.generateData(item, json);
         return json;
     }
 
