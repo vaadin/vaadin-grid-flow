@@ -49,6 +49,8 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.shared.Registration;
 
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 /**
@@ -425,6 +427,16 @@ public class TreeGrid<T> extends Grid<T>
         if (item != null) {
             getDataCommunicator().setParentRequestedRange(start, length,
                     item);
+        }
+    }
+
+    @ClientCallable(DisabledUpdateMode.ALWAYS)
+    private void setParentRequestedRanges(JsonArray array) {
+        for (int index = 0; index < array.length(); index++) {
+            JsonObject object = array.getObject(index);
+            setParentRequestedRange((int) object.getNumber("firstIndex"),
+                    (int) object.getNumber("size"),
+                    object.getString("parentKey"));
         }
     }
 
