@@ -29,8 +29,6 @@ import java.util.stream.Stream;
 import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.hierarchy.HierarchyMapper;
 import com.vaadin.flow.data.provider.hierarchy.TreeUpdate;
-import com.vaadin.flow.data.provider.DataGenerator;
-import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.internal.Range;
@@ -204,7 +202,8 @@ public class CommunicationController<T> implements Serializable {
     }
 
     private void set(Range effectiveRequested, TreeUpdate update) {
-        if (effectiveRequested.isEmpty() || activeKeyOrder.isEmpty()) {
+        if (effectiveRequested.isEmpty() || activeKeyOrder.isEmpty()
+                || effectiveRequested.getStart() >= assumedSize) {
             return;
         }
         if (parentKey == null) {
@@ -218,7 +217,7 @@ public class CommunicationController<T> implements Serializable {
     }
 
     private void clear(int start, int length, TreeUpdate update) {
-        if (length == 0) {
+        if (length == 0 || start >= assumedSize) {
             return;
         }
         if (parentKey == null) {

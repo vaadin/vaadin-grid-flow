@@ -17,26 +17,24 @@ package com.vaadin.flow.component.treegrid.it;
 
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
 import com.vaadin.flow.data.performance.TreeGridMemory;
-import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 
 @TestPath("treegrid-huge-tree")
-public class TreeGridHugeTreeIT extends AbstractComponentIT {
-
-    private TreeGridElement grid;
+public class TreeGridHugeTreeIT extends AbstractTreeGridIT {
 
     @Test
     public void toggle_expand_when_row_out_of_cache() {
         open();
+        setupTreeGrid();
 
-        grid = $(TreeGridElement.class).first();
+        TreeGridElement grid = getTreeGrid();
+
         List<WebElement> buttons = findElements(By.tagName("button"));
         WebElement expandSecondRowButton = buttons.get(0);
         WebElement collapseSecondRowButton = buttons.get(1);
@@ -68,7 +66,10 @@ public class TreeGridHugeTreeIT extends AbstractComponentIT {
     @Test
     public void collapsed_rows_invalidated_correctly() {
         open();
-        grid = $(TreeGridElement.class).first();
+        setupTreeGrid();
+
+        TreeGridElement grid = getTreeGrid();
+
         grid.expandWithClick(2);
         grid.expandWithClick(3);
         grid.expandWithClick(0);
@@ -83,30 +84,32 @@ public class TreeGridHugeTreeIT extends AbstractComponentIT {
     public void collapsed_subtrees_outside_of_cache_stay_expanded() {
         getDriver().get(getRootURL() + "/" + TreeGridMemory.PATH
                 + "/items=200&initiallyExpanded");
-        grid = $(TreeGridElement.class).first();
+        setupTreeGrid();
 
+        TreeGridElement grid = getTreeGrid();
+
+        waitUntil(tets -> grid.getNumberOfExpandedRows() == 99);
+
+        // assuming cache size to be visible row count + buffer before/after
+        // assuming buffer to match visible row count
         int assumedCachedSize = (grid.getLastVisibleRowIndex()
                 - grid.getFirstVisibleRowIndex()) * 3;
-        waitUntil(b -> grid.getRowCount() >= assumedCachedSize, 1);
+        waitUntil(b -> grid.getRowCount() >= assumedCachedSize);
+        waitUntil(test -> !grid.isLoadingExpandedRows());
         String[] cellTexts = new String[assumedCachedSize];
         for (int i = 0; i < assumedCachedSize; i++) {
-            cellTexts[i] = grid.getCell(i, 0).getText();
+            cellTexts[i] = grid.getCellWaitForRow(i, 0).getText();
         }
-        grid.scrollToRow(0);
+        grid.scrollToRowAndWait(0);
 
         grid.collapseWithClick(1);
+        waitUntil(tets -> grid.getNumberOfExpandedRows() == 98);
+
         grid.expandWithClick(1);
+        waitUntil(tets -> grid.getNumberOfExpandedRows() == 99);
+        waitUntil(test -> !grid.isLoadingExpandedRows());
 
         assertCellTexts(0, 0, cellTexts);
     }
 
-    private void assertCellTexts(int startRowIndex, int cellIndex,
-            String[] cellTexts) {
-        int index = startRowIndex;
-        for (String cellText : cellTexts) {
-            Assert.assertEquals(cellText,
-                    grid.getCell(index, cellIndex).getText());
-            index++;
-        }
-    }
 }
