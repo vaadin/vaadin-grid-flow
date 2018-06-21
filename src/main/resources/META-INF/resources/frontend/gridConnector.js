@@ -8,7 +8,7 @@ window.Vaadin.Flow.gridConnector = {
     Vaadin.Grid.ItemCache.prototype.ensureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
 
-        if(ensureSubCacheDelay > 0) {
+        if(ensureSubCacheDelay) {
           this.grid.$connector.beforeEnsureSubCacheForScaledIndex(this, scaledIndex);
         } else {
           this.doEnsureSubCacheForScaledIndex(scaledIndex);
@@ -61,12 +61,11 @@ window.Vaadin.Flow.gridConnector = {
     const treePageCallbacks = {};
     const cache = {};
 
-    /* ensureSubCacheDelay - optimizes scrolling performance by adding small delay between
-    *  each first page fetch of expanded item. Delay in milliseconds.
-    *  Disable by setting to 0. Larger delay decreses the amount of data being
-    *  fetched for expanded items out of visible range.
+    /* ensureSubCacheDelay - true optimizes scrolling performance by adding small
+    *  delay between each first page fetch of expanded item.
+    *  Disable by setting to false.
     */
-    const ensureSubCacheDelay = 1;
+    const ensureSubCacheDelay = true;
 
     /* parentRequestDelay - optimizes parent requests by batching several requests
     *  into one request. Delay in milliseconds. Disable by setting to 0.
@@ -76,9 +75,9 @@ window.Vaadin.Flow.gridConnector = {
     const parentRequestBatchMaxSize = 20;
 
     let parentRequestQueue = [];
-    let parentRequestTimeoutId;
+    let parentRequestDebouncer;
     let ensureSubCacheQueue = [];
-    let ensureSubCacheTimeoutId;
+    let ensureSubCacheDebouncer;
 
     let lastRequestedRanges = {};
     const root = 'null';
@@ -115,12 +114,12 @@ window.Vaadin.Flow.gridConnector = {
       ensureSubCacheQueue.sort(function(a, b) {
         return a.scaledIndex - b.scaledIndex || a.level - b.level;
       });
-      if(!ensureSubCacheTimeoutId) {
+      if(!ensureSubCacheDebouncer) {
           grid.$connector.flushQueue(
-            (id) => ensureSubCacheTimeoutId = id,
+            (debouncer) => ensureSubCacheDebouncer = debouncer,
             () => grid.$connector.hasEnsureSubCacheQueue(),
             () => grid.$connector.flushEnsureSubCache(),
-            ensureSubCacheDelay);
+            (action) => Polymer.Debouncer.debounce(ensureSubCacheDebouncer, Polymer.Async.animationFrame, action));
       }
     }
 
@@ -223,17 +222,16 @@ window.Vaadin.Flow.gridConnector = {
       return undefined;
     }
 
-    grid.$connector.flushQueue = function(timeoutIdSetter, hasQueue, flush, delay) {
+    grid.$connector.flushQueue = function(timeoutIdSetter, hasQueue, flush, startTimeout) {
       if(!hasQueue()) {
         timeoutIdSetter(undefined);
         return;
       }
       if(flush()) {
-          timeoutIdSetter(setTimeout(
-            () => grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, delay),
-            delay));
+          timeoutIdSetter(startTimeout(() =>
+            grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout)));
       } else {
-        grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, delay);
+        grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout);
       }
     }
 
@@ -283,12 +281,13 @@ window.Vaadin.Flow.gridConnector = {
           parentKey: parentKey
         });
 
-        if(!parentRequestTimeoutId) {
+        if(!parentRequestDebouncer) {
             grid.$connector.flushQueue(
-              (id) => parentRequestTimeoutId = id,
+              (debouncer) => parentRequestDebouncer = debouncer,
               () => grid.$connector.hasParentRequestQueue(),
               () => grid.$connector.flushParentRequests(),
-              parentRequestDelay);
+              (action) => Polymer.Debouncer.debounce(parentRequestDebouncer, Polymer.Async.timeOut.after(parentRequestDelay), action)
+              );
         }
 
       } else {
@@ -592,10 +591,14 @@ window.Vaadin.Flow.gridConnector = {
       deleteObjectContents(cache);
       deleteObjectContents(grid._cache.items);
       deleteObjectContents(lastRequestedRanges);
-      clearTimeout(ensureSubCacheTimeoutId);
-      clearTimeout(parentRequestTimeoutId);
-      ensureSubCacheTimeoutId = undefined;
-      parentRequestTimeoutId = undefined;
+      if(ensureSubCacheDebouncer) {
+        ensureSubCacheDebouncer.cancel();
+      }
+      if(parentRequestDebouncer) {
+        parentRequestDebouncer.cancel();
+      }
+      ensureSubCacheDebouncer = undefined;
+      parentRequestDebouncer = undefined;
       ensureSubCacheQueue = [];
       parentRequestQueue = [];
       grid._assignModels();
