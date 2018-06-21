@@ -15,6 +15,9 @@
  */
 package com.vaadin.flow.component.grid.testbench;
 
+import java.util.Optional;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
@@ -174,6 +177,34 @@ public class TreeGridElement extends GridElement {
 
     /**
      * Check whether the given indices correspond to a cell that contains a
+     * visible component renderer with the optional search locator {@link By}.
+     *
+     * @param rowIndex
+     *            0-based row index
+     * @param columnIndex
+     *            0-based index of the column
+     * @param searchContentBy
+     *            Search for specific content. May be null.
+     * @return {@code true} if this cell has the component renderer visible with
+     *         the optional search locator
+     */
+    public boolean hasComponentRenderer(int rowIndex, int columnIndex,
+            By searchContentBy) {
+        try {
+            WebElement rendererElement = getComponentRendererElement(rowIndex,
+                    columnIndex);
+            return rendererElement != null && rendererElement.isDisplayed()
+                    && Optional.ofNullable(searchContentBy)
+                            .map(by -> rendererElement.findElement(by))
+                            .map(WebElement::isDisplayed)
+                            .orElse(searchContentBy == null);
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check whether the given indices correspond to a cell that contains a
      * visible hierarchy toggle element.
      *
      * @param rowIndex
@@ -208,6 +239,24 @@ public class TreeGridElement extends GridElement {
     public WebElement getExpandToggleElement(int rowIndex, int hierarchyColumnIndex) {
         return getCell(rowIndex, hierarchyColumnIndex)
                 .$("vaadin-grid-tree-toggle").first();
+
+    }
+
+    /**
+     * Gets the 'flow-component-renderer' element for the given row.
+     *
+     * @param rowIndex
+     *            0-based row index
+     * @param columnIndex
+     *            0-based index of the column
+     * @return the component renderer element
+     * @throws NoSuchElementException
+     *             if there is no component renderer element for this row
+     */
+    public WebElement getComponentRendererElement(int rowIndex,
+            int columnIndex) {
+        return getCell(rowIndex, columnIndex).$("flow-component-renderer")
+                .first();
 
     }
 

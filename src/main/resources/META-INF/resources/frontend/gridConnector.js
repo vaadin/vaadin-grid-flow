@@ -382,6 +382,21 @@ window.Vaadin.Flow.gridConnector = {
     }
     grid.addEventListener('sorter-changed', sorterChangeListener);
 
+    grid._updateItem = function(row, item) {
+      Vaadin.GridElement.prototype._updateItem.call(grid, row, item);
+
+      // make sure that component renderers are updated
+      Array.from(row.children).forEach(cell => {
+        if(cell._instance && cell._instance.children) {
+          Array.from(cell._instance.children).forEach(content => {
+            if(content._attachRenderedComponentIfAble) {
+              content._attachRenderedComponentIfAble();
+            }
+          });
+        }
+      });
+    }
+
     grid._expandedInstanceChangedCallback = function(inst, value) {
       if (inst.item == undefined) {
         return;
@@ -715,5 +730,6 @@ window.Vaadin.Flow.gridConnector = {
         throw 'Attempted to set an invalid selection mode';
       }
     }
+
   }
 }
