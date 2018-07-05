@@ -175,7 +175,7 @@ public class GridColumnTest {
 
     @Test
     public void testRenderer() {
-        Assert.assertNotNull(renderer);
+        assert renderer!= null;
         Assert.assertEquals(renderer, fourthColumn.getRenderer());
     }
     private void expectNullPointerException(String message) {
