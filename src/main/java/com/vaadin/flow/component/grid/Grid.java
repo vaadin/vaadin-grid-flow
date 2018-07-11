@@ -883,7 +883,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private ValueProvider<T, String> uniqueKeyProvider;
 
-    private T contextMenuTargetItem;
+    private String contextMenuTargetItemKey;
     private boolean contextMenuOpened;
 
     /**
@@ -2149,11 +2149,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     @ClientCallable
     private void updateContextMenuTargetItem(String key) {
-        if (key == null) {
-            contextMenuTargetItem = null;
-        } else {
-            contextMenuTargetItem = findByKey(key);
-        }
+        contextMenuTargetItemKey = key;
     }
 
     @ClientCallable
@@ -2184,7 +2180,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             throw new UnsupportedOperationException(
                     "Context menu target item is available only when a context menu is open");
         }
-        return contextMenuTargetItem;
+        if (contextMenuTargetItemKey == null) {
+            return null;
+        } else {
+            return findByKey(contextMenuTargetItemKey);
+        }
     }
 
     private List<Column<T>> fetchChildColumns(ColumnGroup columnGroup) {
