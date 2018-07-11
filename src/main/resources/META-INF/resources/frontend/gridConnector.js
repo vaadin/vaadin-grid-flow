@@ -735,15 +735,6 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     const contextMenuListener = function(e) {
-      const overlay = document.getElementsByTagName('vaadin-context-menu-overlay')[0];
-      if (overlay && !overlay.isHandledByGridConnector) {
-        overlay.isHandledByGridConnector = true;
-        overlay.addEventListener('opened-changed', function(e) {
-          grid.$server.updateContextMenuOpened(overlay.opened);
-        });
-        grid.$server.updateContextMenuOpened(true);
-      }
-
       // https://github.com/vaadin/vaadin-grid/issues/1318
       const path = e.composedPath();
       const cell = path[path.indexOf(grid.$.table) - 3]; // <td> element in shadow dom
@@ -753,8 +744,18 @@ window.Vaadin.Flow.gridConnector = {
       }
       grid.$server.updateContextMenuTargetItem(key);
     }
-
     grid.addEventListener('vaadin-contextmenu', contextMenuListener);
     grid.addEventListener('click', contextMenuListener);
+
+    document.addEventListener('vaadin-overlay-open', function(e) {
+        const overlay = e.target;
+        if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY' && !overlay.isHandledByGridConnector) {
+          overlay.isHandledByGridConnector = true;
+          overlay.addEventListener('opened-changed', function(e) {
+            grid.$server.updateContextMenuOpened(overlay.opened);
+          });
+          grid.$server.updateContextMenuOpened(true);
+        }
+    });
   }
 }
