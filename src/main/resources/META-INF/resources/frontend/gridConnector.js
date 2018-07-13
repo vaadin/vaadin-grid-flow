@@ -744,18 +744,23 @@ window.Vaadin.Flow.gridConnector = {
       }
       grid.$server.updateContextMenuTargetItem(key);
     }
-    grid.addEventListener('vaadin-contextmenu', contextMenuListener);
-    grid.addEventListener('click', contextMenuListener);
+
+    grid.addEventListener('vaadin-context-menu-before-open', function(e) {
+      contextMenuListener(grid.$contextMenuConnector.openEvent);
+    });
 
     document.addEventListener('vaadin-overlay-open', function(e) {
-        const overlay = e.target;
-        if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY' && !overlay.isHandledByGridConnector) {
-          overlay.isHandledByGridConnector = true;
-          overlay.addEventListener('opened-changed', function(e) {
-            grid.$server.updateContextMenuOpened(overlay.opened);
-          });
-          grid.$server.updateContextMenuOpened(true);
-        }
+      if(!grid.$contextMenuConnector) {
+        return;
+      }
+      const overlay = e.target;
+      if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY' && !overlay.isHandledByGridConnector) {
+        overlay.isHandledByGridConnector = true;
+        overlay.addEventListener('opened-changed', function(e) {
+          grid.$server.updateContextMenuOpened(overlay.opened);
+        });
+        grid.$server.updateContextMenuOpened(true);
+      }
     });
   }
 }
