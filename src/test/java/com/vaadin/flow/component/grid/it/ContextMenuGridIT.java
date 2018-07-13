@@ -89,7 +89,7 @@ public class ContextMenuGridIT extends AbstractComponentIT {
     }
 
     private void assertThrows() {
-        assertMessage("java.lang.UnsupportedOperationException "
+        assertMessage("java.lang.IllegalStateException "
                 + "Context menu target item is available "
                 + "only when a context menu is open");
     }

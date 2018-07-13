@@ -2177,7 +2177,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public T getContextMenuTargetItem() {
         if (!contextMenuOpened) {
-            throw new UnsupportedOperationException(
+            throw new IllegalStateException(
                     "Context menu target item is available only when a context menu is open");
         }
         if (contextMenuTargetItemKey == null) {
