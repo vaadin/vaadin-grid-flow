@@ -757,7 +757,7 @@ window.Vaadin.Flow.gridConnector = {
       if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY') {
         if (!overlay._gridsHandled) {
           overlay._gridsHandled = [grid];
-        } else if (!overlay._gridsHandled.includes(grid)) {
+        } else if (overlay._gridsHandled.indexOf(grid) < 0) {
           overlay._gridsHandled.push(grid);
         } else {
           return;
