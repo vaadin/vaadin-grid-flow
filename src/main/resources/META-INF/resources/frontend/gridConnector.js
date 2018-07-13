@@ -754,8 +754,8 @@ window.Vaadin.Flow.gridConnector = {
         return;
       }
       const overlay = e.target;
-      if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY' && !overlay.isHandledByGridConnector) {
-        overlay.isHandledByGridConnector = true;
+      if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY' && !overlay._isHandledByGridConnector) {
+        overlay._isHandledByGridConnector = true;
         overlay.addEventListener('opened-changed', function(e) {
           grid.$server.updateContextMenuOpened(overlay.opened);
         });
