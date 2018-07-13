@@ -28,18 +28,24 @@ import com.vaadin.flow.router.Route;
 @Route("context-menu-grid")
 public class ContextMenuGridPage extends Div {
 
-    private Grid<Person> grid;
     private Label message;
+    private Grid<Person> grid;
 
     public ContextMenuGridPage() {
+        message = new Label("-");
+        message.setId("message");
+        add(message);
+
+        gridWithContextMenu();
+        gridInATemplateWithContextMenu();
+    }
+
+    private void gridWithContextMenu() {
         grid = new Grid<>();
         grid.addColumn(Person::getName).setHeader("Name");
         grid.addColumn(Person::getBorn).setHeader("Born");
         grid.setItems(IntStream.range(0, 77)
                 .mapToObj(i -> new Person("Person " + i, 1900 + i)));
-
-        message = new Label("-");
-        message.setId("message");
 
         ContextMenu contextMenu = new ContextMenu(grid);
         contextMenu.addItem("Show name of context menu target item",
@@ -61,7 +67,7 @@ public class ContextMenuGridPage extends Div {
                 });
         showName.setId("show-name");
 
-        add(grid, toggleOpenOnClick, showName, contextMenu, message);
+        add(grid, toggleOpenOnClick, showName);
     }
 
     private void updateMessage() {
@@ -70,4 +76,18 @@ public class ContextMenuGridPage extends Div {
                         : grid.getContextMenuTargetItem().getName());
     }
 
+    private void gridInATemplateWithContextMenu() {
+        GridInATemplate template = new GridInATemplate();
+        Grid<String> gridInATemplate = template.getGrid();
+        gridInATemplate.addColumn(s -> s).setHeader("Item");
+        gridInATemplate
+                .setItems(IntStream.range(0, 26).mapToObj(i -> "Item " + i));
+
+        ContextMenu contextMenu = new ContextMenu(gridInATemplate);
+        contextMenu.addItem("Show name of context menu target item",
+                e -> message
+                        .setText(gridInATemplate.getContextMenuTargetItem()));
+
+        add(template);
+    }
 }

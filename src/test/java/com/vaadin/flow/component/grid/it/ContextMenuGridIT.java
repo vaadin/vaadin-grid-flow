@@ -16,6 +16,7 @@
 package com.vaadin.flow.component.grid.it;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.vaadin.flow.component.grid.testbench.GridElement;
@@ -25,11 +26,16 @@ import com.vaadin.flow.testutil.TestPath;
 @TestPath("context-menu-grid")
 public class ContextMenuGridIT extends AbstractComponentIT {
 
+    private GridElement grid;
+
+    @Before
+    public void init() {
+        open();
+        grid = $(GridElement.class).first();
+    }
+
     @Test
     public void contextClickOnRow_itemClickGetsTargetItem() {
-        open();
-        GridElement grid = $(GridElement.class).first();
-
         grid.getCell(56, 1).contextClick();
         $("vaadin-item").first().click();
         assertMessage("Person 56");
@@ -37,9 +43,6 @@ public class ContextMenuGridIT extends AbstractComponentIT {
 
     @Test
     public void contextClickOnHeader_targetItemReturnsNull() {
-        open();
-        GridElement grid = $(GridElement.class).first();
-
         grid.getHeaderCell(0).contextClick();
         $("vaadin-item").first().click();
         assertMessage("null target item");
@@ -47,16 +50,12 @@ public class ContextMenuGridIT extends AbstractComponentIT {
 
     @Test
     public void dontOpenContextMenu_getTargetItem_throws() {
-        open();
         $("button").id("show-name").click();
         assertThrows();
     }
 
     @Test
     public void openAndCloseContextMenu_getTargetItem_throws() {
-        open();
-        GridElement grid = $(GridElement.class).first();
-
         grid.getCell(10, 1).contextClick();
         $("vaadin-item").first().click();
         $("button").id("show-name").click();
@@ -65,9 +64,6 @@ public class ContextMenuGridIT extends AbstractComponentIT {
 
     @Test
     public void setOpenOnClick_clickOnRow_itemClickGetsTargetItem() {
-        open();
-        GridElement grid = $(GridElement.class).first();
-
         $("button").id("toggle-open-on-click").click();
         grid.getCell(14, 0).click();
         $("vaadin-item").first().click();
@@ -76,14 +72,20 @@ public class ContextMenuGridIT extends AbstractComponentIT {
 
     @Test
     public void setOpenOnClick_contextClickOnRow_getTargetItem_throws() {
-        open();
-        GridElement grid = $(GridElement.class).first();
-
         $("button").id("toggle-open-on-click").click();
         grid.getCell(22, 0).contextClick();
 
         $("button").id("show-name").click();
         assertThrows();
+    }
+
+    @Test
+    public void gridInATemplateWithContextMenu_itemClickGetsTargetItem() {
+        GridElement gridInATemplate = $("grid-in-a-template").first()
+                .$(GridElement.class).first();
+        gridInATemplate.getCell(18, 0).contextClick();
+        $("vaadin-item").first().click();
+        assertMessage("Item 18");
     }
 
     private void assertThrows() {

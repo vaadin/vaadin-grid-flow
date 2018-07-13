@@ -750,12 +750,18 @@ window.Vaadin.Flow.gridConnector = {
     });
 
     document.addEventListener('vaadin-overlay-open', function(e) {
-      if(!grid.$contextMenuConnector) {
+      if (!grid.$contextMenuConnector) {
         return;
       }
       const overlay = e.target;
-      if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY' && !overlay._isHandledByGridConnector) {
-        overlay._isHandledByGridConnector = true;
+      if (overlay && overlay.tagName === 'VAADIN-CONTEXT-MENU-OVERLAY') {
+        if (!overlay._gridsHandled) {
+          overlay._gridsHandled = [grid];
+        } else if (!overlay._gridsHandled.includes(grid)) {
+          overlay._gridsHandled.push(grid);
+        } else {
+          return;
+        }
         overlay.addEventListener('opened-changed', function(e) {
           grid.$server.updateContextMenuOpened(overlay.opened);
         });
