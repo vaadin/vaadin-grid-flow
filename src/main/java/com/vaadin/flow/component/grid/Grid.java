@@ -2176,7 +2176,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the item targeted by the {@code ContextMenu}, or {@code null} if
      *         the event opening the {@code ContextMenu} didn't target any item
      *         (eg. when targeting a header).
-     * @throws UnsupportedOperationException
+     * @throws IllegalStateException
      *             if called when the {@code ContextMenu} is not opened
      */
     public T getContextMenuTargetItem() {
