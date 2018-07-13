@@ -676,6 +676,18 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 button.isEnabled());
     }
 
+    @Test
+    public void gridWithStyling_correctThemeAttribute() {
+        openTabAndCheckForErrors("");
+        GridElement grid = $(GridElement.class).id("basic-grid-with-style");
+        scrollToElement(grid);
+        waitUntil(driver -> grid.getAllColumns().size() == 2);
+
+        Assert.assertEquals("Grid should have the correct theme attribute.",
+                grid.getAttribute("theme"),
+                "no-row-borders no-border row-stripes");
+    }
+
     private WebElement getCellContent(GridTHTDElement cell) {
         return (WebElement) executeScript(
                 "return arguments[0].firstElementChild.assignedNodes()[0].firstElementChild;",

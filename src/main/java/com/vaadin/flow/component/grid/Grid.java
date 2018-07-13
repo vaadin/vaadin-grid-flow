@@ -41,6 +41,7 @@ import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
@@ -108,8 +109,9 @@ import elemental.json.JsonValue;
 @HtmlImport("frontend://bower_components/vaadin-checkbox/src/vaadin-checkbox.html")
 @HtmlImport("frontend://flow-component-renderer.html")
 @JavaScript("frontend://gridConnector.js")
-public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
-        HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
+public class Grid<T> extends Component
+        implements HasDataProvider<T>, HasStyle, HasSize, HasTheme,
+        Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
 
     protected static class UpdateQueue implements TreeUpdate {
         private List<Runnable> queue = new ArrayList<>();
