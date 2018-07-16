@@ -58,12 +58,12 @@ import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.GridArrayUpdater;
+import com.vaadin.flow.data.provider.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.data.provider.HasDataGenerators;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.provider.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.data.provider.hierarchy.TreeUpdate;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
@@ -109,9 +109,10 @@ import elemental.json.JsonValue;
 @HtmlImport("frontend://bower_components/vaadin-checkbox/src/vaadin-checkbox.html")
 @HtmlImport("frontend://flow-component-renderer.html")
 @JavaScript("frontend://gridConnector.js")
-public class Grid<T> extends Component
-        implements HasDataProvider<T>, HasStyle, HasSize, HasTheme,
-        Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
+
+public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
+        HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>>,
+        HasTheme {
 
     protected static class UpdateQueue implements TreeUpdate {
         private List<Runnable> queue = new ArrayList<>();
@@ -807,6 +808,30 @@ public class Grid<T> extends Component
         public boolean isDetailsVisible(T item) {
             return itemDetailsDataGenerator != null
                     && detailsVisible.contains(item);
+        }
+
+        /**
+         * Adds theme variants to the component.
+         * 
+         * @param variants
+         *            theme variants to add
+         */
+        public void addThemeVariants(GridVariant... variants) {
+            getThemeNames()
+                    .addAll(Stream.of(variants).map(GridVariant::getVariantName)
+                            .collect(Collectors.toList()));
+        }
+
+        /**
+         * Removes theme variants from the component.
+         * 
+         * @param variants
+         *            theme variants to remove
+         */
+        public void removeThemeVariants(GridVariant... variants) {
+            getThemeNames().removeAll(
+                    Stream.of(variants).map(GridVariant::getVariantName)
+                            .collect(Collectors.toList()));
         }
 
         @Override
