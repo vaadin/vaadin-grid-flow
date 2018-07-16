@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2017 Vaadin Ltd.
+ * Copyright 2000-2018 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -24,6 +24,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.data.provider.BeanDataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.Route;
@@ -41,7 +42,7 @@ public class TemplatedColumnsPage extends PolymerTemplate<TemplateModel> {
     public TemplatedColumnsPage() {
         grid.setDataProvider(DataProvider.fromCallbacks(this::fetchPeople,
                 this::countPeople));
-        grid.addBeanDataGenerator();
+        grid.addDataGenerator(new BeanDataGenerator<>());
     }
 
     private Stream<Person> fetchPeople(Query<?, ?> query) {

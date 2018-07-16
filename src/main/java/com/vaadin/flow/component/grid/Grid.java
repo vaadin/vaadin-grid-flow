@@ -2391,46 +2391,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Adds a {@link DataGenerator} to the Grid that sends all the fields of the
-     * objects in the model to the client, using the field names as property
-     * names.
-     * <p>
-     * This is useful for the cases when the properties in the template of the
-     * columns have the same name as the fields of the model object in the
-     * server side.
-     * <p>
-     * Note: this method sends the entire bean to the client, even if the
-     * template in the client doesn't use all the properties.
-     * <p>
-     * For objects without inner properties, like Strings, a property called
-     * {@code value} is created in the model, so it can be accessed via
-     * {@code [[item.value]]} in the template.
-     * <p>
-     * The properties added to by this method are global to the Grid - they can
-     * be used in any column.
-     * <p>
-     * To fine tune which properties should be sent, use the
-     * {@link #addValueProvider(String, ValueProvider)} or
-     * {@link #addDataGenerator(DataGenerator)} methods instead.
-     * 
-     * @return a registration that can be used to remove the generator from the
-     *         Grid
-     */
-    public Registration addBeanDataGenerator() {
-        return addDataGenerator((item, data) -> {
-            JsonValue value = JsonSerializer.toJson(item);
-            if (value instanceof JsonObject) {
-                JsonObject object = (JsonObject) value;
-                for (String key : object.keys()) {
-                    data.put(key, (JsonValue) object.get(key));
-                }
-            } else {
-                data.put("value", value);
-            }
-        });
-    }
-
-    /**
      * Adds a ValueProvider to this Grid that is not tied to a Column. This is
      * specially useful when the columns are defined via a template file instead
      * of the Java API.
