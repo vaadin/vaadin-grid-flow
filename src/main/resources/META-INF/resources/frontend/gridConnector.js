@@ -133,7 +133,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    const sorterChangeListener = function() {
+    const sorterChangeListener = function(event) {
       grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
         return {
           path: sorter.path,
@@ -141,7 +141,7 @@ window.Vaadin.Flow.gridConnector = {
         };
       }));
     }
-    grid._createPropertyObserver("_previousSorters", sorterChangeListener);
+    grid.addEventListener('sorter-changed', sorterChangeListener);
 
     const itemsUpdated = function(items) {
       if (!items || !Array.isArray(items)) {

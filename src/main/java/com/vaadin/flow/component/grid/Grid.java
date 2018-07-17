@@ -244,8 +244,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         private Registration columnDataGeneratorRegistration;
 
-        private Renderer<T> renderer;
-
         /**
          * Constructs a new Column for use inside a Grid.
          *
@@ -254,13 +252,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @param columnId
          *            unique identifier of this column
          * @param renderer
-         *            the renderer to use in this column, must not be {@code null}
+         *            the renderer to use in this column
          */
         public Column(Grid<T> grid, String columnId, Renderer<T> renderer) {
             super(grid);
-            Objects.requireNonNull(renderer);
             this.columnInternalId = columnId;
-            this.renderer = renderer;
 
             comparator = (a, b) -> 0;
 
@@ -287,19 +283,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         protected String getInternalId() {
             return columnInternalId;
-        }
-
-        /**
-         * Get the renderer used for this column.
-         *
-         * Note: Mutating the renderer after the Grid has been rendered
-         * on the client will not change the column, and can lead to
-         * undefined behavior.
-         *
-         * @return the renderer used for this column, should never be {@code null}
-         */
-        public Renderer<T> getRenderer() {
-            return renderer;
         }
 
         /**
