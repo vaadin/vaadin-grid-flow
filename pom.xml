@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,18 +32,75 @@
         <dependency>
             <groupId>org.webjars.bowergithub.vaadin</groupId>
             <artifactId>vaadin-grid</artifactId>
-            <version>5.1.0-alpha3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.webjars.bowergithub.polymerelements</groupId>
-                    <artifactId>iron-flex-layout</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-scroll-target-behavior</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-element-mixin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-usage-statistics</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-development-mode-detector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-lumo-styles</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-material-styles</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-icon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-meta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-iconset-svg</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-resizable-behavior</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-a11y-keys-behavior</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-checkbox</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-control-state-mixin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-themable-mixin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.polymerelements</groupId>
+            <artifactId>iron-a11y-announcer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bowergithub.vaadin</groupId>
+            <artifactId>vaadin-text-field</artifactId>
         </dependency>
         <dependency>
             <groupId>org.webjars.bowergithub.polymerelements</groupId>
             <artifactId>iron-flex-layout</artifactId>
-            <version>2.0.3</version>
         </dependency>
 
         <dependency>
@@ -56,7 +114,7 @@
             <version>${flow.version}</version>
             <scope>provided</scope>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow</artifactId>
             <version>${flow.version}</version>
@@ -79,10 +137,10 @@
         </dependency>
         <!-- Dependencies for the demo -->
         <dependency>
-           <groupId>org.slf4j</groupId>
-           <artifactId>slf4j-simple</artifactId>
-           <version>1.7.25</version>
-           <scope>test</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.25</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -144,7 +202,14 @@
             <artifactId>vaadin-radio-button-flow</artifactId>
             <version>1.1-SNAPSHOT</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.webjars.bowergithub.polymerelements</groupId>
+                    <artifactId>iron-flex-layout</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
@@ -160,12 +225,12 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>${jetty.version}</version>
                 <configuration>
-                <webApp>
-                    <resourceBases>
-                        <resourceBase>${project.basedir}/src/main/resources/META-INF/resources</resourceBase>
-                        <resourceBase>${project.basedir}/src/test/webapp</resourceBase>
-                    </resourceBases>
-                </webApp>
+                    <webApp>
+                        <resourceBases>
+                            <resourceBase>${project.basedir}/src/main/resources/META-INF/resources</resourceBase>
+                            <resourceBase>${project.basedir}/src/test/webapp</resourceBase>
+                        </resourceBases>
+                    </webApp>
                 </configuration>
             </plugin>
         </plugins>
@@ -183,5 +248,5 @@
             </dependencies>
         </profile>
     </profiles>
-    
+
 </project>
