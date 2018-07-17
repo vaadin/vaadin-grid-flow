@@ -369,6 +369,7 @@ public class GridView extends DemoView {
         createDisabledGrid();
         createBasicTreeGridUsage();
         createLazyLoadingTreeGridUsage();
+        createGridWithStyling();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -1080,6 +1081,21 @@ public class GridView extends DemoView {
 
         grid.setId("disabled-grid");
         addCard("Disabled grid", grid, div);
+    }
+
+    private void createGridWithStyling() {
+        // begin-source-example
+        // source-example-heading: Grid with styling
+        Grid<Person> grid = new Grid<>();
+        List<Person> people = createItems(50);
+        grid.setItems(people);
+
+        grid.addColumn(Person::getName).setHeader("Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
+        grid.addThemeNames("no-border", "no-row-borders", "row-stripes");
+        // end-source-example
+        grid.setId("basic-grid-with-style");
+        addCard("Grid with styling", grid);
     }
 
     private Map<PersonWithLevel, List<PersonWithLevel>> childMap;

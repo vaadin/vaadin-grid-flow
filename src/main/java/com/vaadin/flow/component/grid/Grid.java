@@ -109,6 +109,7 @@ import elemental.json.JsonValue;
 @HtmlImport("frontend://bower_components/vaadin-checkbox/src/vaadin-checkbox.html")
 @HtmlImport("frontend://flow-component-renderer.html")
 @JavaScript("frontend://gridConnector.js")
+
 public class Grid<T> extends Component
         implements HasDataProvider<T>, HasStyle, HasSize, Focusable<Grid<T>>,
         SortNotifier<Grid<T>, GridSortOrder<T>>, HasTheme {
