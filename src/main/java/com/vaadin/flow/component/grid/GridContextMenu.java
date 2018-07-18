@@ -35,7 +35,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
         this();
         setTarget(target);
     }
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -44,7 +44,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
      */
     @Override
     public void setTarget(Component target) {
-        if(!(target instanceof Grid<?>)) {
+        if (!(target instanceof Grid<?>)) {
             throw new IllegalArgumentException(
                     "Only an instance of Grid can be used as the target for GridContextMenu. "
                             + "Use ContextMenu for any other component.");
@@ -74,13 +74,44 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
     public MenuItem addItem(String text,
             ComponentEventListener<GridContextMenuItemClickEvent<T>> clickListener) {
         MenuItem menuItem = addItem(text);
+        addMenuItemClickListener(menuItem, clickListener);
+        return menuItem;
+    }
+
+    /**
+     * Adds a new item component with the given component and click listener to
+     * the context menu overlay.
+     * <p>
+     * This is a convenience method for the use case where you have a list of
+     * high-lightable {@link MenuItem}s inside the overlay. If you want to
+     * configure the contents of the overlay without wrapping them inside
+     * {@link MenuItem}s, or if you just want to add some non-high-lightable
+     * components between the items, use the {@link #add(Component...)} method.
+     * 
+     * @param component
+     *            the component inside the new item
+     * @param clickListener
+     *            the handler for clicking the new item, can be {@code null} to
+     *            not add listener
+     * @return the added {@link MenuItem} component
+     * @see #addItem(String, ComponentEventListener)
+     * @see #add(Component...)
+     */
+    public MenuItem addItem(Component component,
+            ComponentEventListener<GridContextMenuItemClickEvent<T>> clickListener) {
+        MenuItem menuItem = addItem(component);
+        addMenuItemClickListener(menuItem, clickListener);
+        return menuItem;
+    }
+
+    private void addMenuItemClickListener(MenuItem menuItem,
+            ComponentEventListener<GridContextMenuItemClickEvent<T>> clickListener) {
         if (clickListener != null) {
             menuItem.getElement().addEventListener("click", event -> {
                 clickListener.onComponentEvent(
                         new GridContextMenuItemClickEvent<T>(menuItem, true));
             });
         }
-        return menuItem;
     }
 
     /**
@@ -94,8 +125,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
 
         private Grid<T> grid;
 
-        GridContextMenuItemClickEvent(MenuItem source,
-                boolean fromClient) {
+        GridContextMenuItemClickEvent(MenuItem source, boolean fromClient) {
             super(source, fromClient);
             grid = (Grid<T>) ((MenuItem) getSource()).getContextMenu()
                     .getTarget();
