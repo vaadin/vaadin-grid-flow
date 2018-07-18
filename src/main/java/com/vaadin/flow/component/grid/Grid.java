@@ -893,6 +893,8 @@ public class Grid<T> extends Component
 
     private ValueProvider<T, String> uniqueKeyProvider;
 
+    private String contextMenuTargetItemKey;
+
     /**
      * Creates a new instance, with page size of 50.
      */
@@ -2171,6 +2173,28 @@ public class Grid<T> extends Component
     public boolean isMultiSort() {
         String multiSort = getElement().getAttribute("multi-sort");
         return multiSort == null ? false : Boolean.valueOf(multiSort);
+    }
+
+    @ClientCallable
+    private void updateContextMenuTargetItem(String key) {
+        contextMenuTargetItemKey = key;
+    }
+
+    protected T getContextMenuTargetItem() {
+        if (contextMenuTargetItemKey == null) {
+            return null;
+        } else {
+            return findByKey(contextMenuTargetItemKey);
+        }
+    }
+
+    /**
+     * Adds a new context-menu for this grid.
+     * 
+     * @return the added context-menu
+     */
+    public GridContextMenu<T> addContextMenu() {
+        return new GridContextMenu<T>(this);
     }
 
     private List<Column<T>> fetchChildColumns(ColumnGroup columnGroup) {
