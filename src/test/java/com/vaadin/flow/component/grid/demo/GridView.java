@@ -1217,35 +1217,27 @@ public class GridView extends DemoView {
         // source-example-heading: Using ContextMenu With Grid
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
-
         grid.addColumn(Person::getName).setHeader("Name");
         grid.addColumn(Person::getAge).setHeader("Age");
-
         GridContextMenu<Person> contextMenu = new GridContextMenu<Person>(grid);
-
         contextMenu.addItem("Update", event -> {
             event.getItem().ifPresent(person -> {
                 person.setName(person.getName() + " Updated");
-
                 ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) event
-                        .getGrid()
-                        .getDataProvider();
+                        .getGrid().getDataProvider();
                 dataProvider.refreshItem(person);
             });
         });
         contextMenu.addItem("Remove", event -> {
             event.getItem().ifPresent(person -> {
-
                 ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                         .getDataProvider();
                 dataProvider.getItems().remove(person);
                 dataProvider.refreshAll();
             });
         });
-
         // end-source-example
         grid.setId("context-menu-grid");
-
         addCard("Context Menu", "Using ContextMenu With Grid", grid,
                 contextMenu);
     }
