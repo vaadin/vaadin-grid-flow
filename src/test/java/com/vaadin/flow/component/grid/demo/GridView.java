@@ -388,11 +388,7 @@ public class GridView extends DemoView {
         // end-source-example
 
         addVariantsDemo(() -> {
-            Grid<Person> grid1 = new Grid<>();
-            grid1.setItems(createItems(50));
-            grid1.addColumn(Person::getName).setHeader("NAME");
-            grid1.addColumn(Person::getAge).setHeader("AGE");
-            return grid1;
+            return grid;
         }, Grid::addThemeVariants,
                 Grid::removeThemeVariants, GridVariant::getVariantName,
                 GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS,
