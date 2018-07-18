@@ -676,6 +676,11 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 button.isEnabled());
     }
 
+    @Test
+    public void assertVariants() {
+        verifyThemeVariantsBeingToggled();
+    }
+
     private WebElement getCellContent(GridTHTDElement cell) {
         return (WebElement) executeScript(
                 "return arguments[0].firstElementChild.assignedNodes()[0].firstElementChild;",
