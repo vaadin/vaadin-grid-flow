@@ -678,6 +678,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     @Test
     public void assertVariants() {
+        openTabAndCheckForErrors("");
         verifyThemeVariantsBeingToggled();
     }
 
