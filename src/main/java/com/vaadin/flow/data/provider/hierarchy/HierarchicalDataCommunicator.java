@@ -15,6 +15,7 @@
  */
 package com.vaadin.flow.data.provider.hierarchy;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.vaadin.flow.component.grid.GridArrayUpdater;
 import com.vaadin.flow.data.provider.CommunicationController;
@@ -116,19 +115,22 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
 
         try {
             // TODO get rid of this reflection
-            FieldUtils.writeField(this, "keyMapper", uniqueKeyMapper, true);
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Field keyMapperField = DataCommunicator.class
+                    .getDeclaredField("keyMapper");
+            keyMapperField.setAccessible(true);
+            keyMapperField.set(this, uniqueKeyMapper);
+        } catch (IllegalAccessException | NoSuchFieldException
+                | SecurityException e) {
+            throw new RuntimeException("Error accessing the keyMapper field",
+                    e);
         }
         dataGenerator.addDataGenerator(this::generateTreeData);
         setDataProvider(new TreeDataProvider<>(new TreeData<>()), null);
     }
 
-
     private void generateTreeData(T item, JsonObject jsonObject) {
-        Optional.ofNullable(getParentItem(item)).ifPresent(parent -> jsonObject
-                .put("parentUniqueKey",
+        Optional.ofNullable(getParentItem(item))
+                .ifPresent(parent -> jsonObject.put("parentUniqueKey",
                         uniqueKeyProviderSupplier.get().apply(parent)));
     }
 
@@ -174,8 +176,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         return mapper.fetchRootItems(Range.withLength(offset, limit));
     }
 
-    public void setParentRequestedRange(int start, int length,
-            T parentItem) {
+    public void setParentRequestedRange(int start, int length, T parentItem) {
         String parentKey = uniqueKeyProviderSupplier.get().apply(parentItem);
 
         CommunicationController<T> controller = dataControllers.computeIfAbsent(
@@ -273,15 +274,16 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     }
 
     public void confirmUpdate(int id, String parentKey) {
-        Optional.ofNullable(dataControllers.get(parentKey)).ifPresent(controller -> {
-            controller.confirmUpdate(id);
+        Optional.ofNullable(dataControllers.get(parentKey))
+                .ifPresent(controller -> {
+                    controller.confirmUpdate(id);
 
-            // Not absolutely necessary, but doing it right away to release
-            // memory earlier
-            requestFlush(controller);
-        });
+                    // Not absolutely necessary, but doing it right away to
+                    // release
+                    // memory earlier
+                    requestFlush(controller);
+                });
     }
-
 
     /**
      * Collapses the given item and removes its sub-hierarchy. Calling this
@@ -295,7 +297,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     public void collapse(T item) {
         collapse(item, true);
     }
-
 
     /**
      * Collapses the given item and removes its sub-hierarchy. Calling this
@@ -343,8 +344,9 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             TreeUpdate update = (TreeUpdate) arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.collapseItems",
-                        collapsedItems.stream().map(this::generateJsonForExpandedOrCollapsedItem)
-                                .collect(JsonUtils.asArray()));
+                    collapsedItems.stream()
+                            .map(this::generateJsonForExpandedOrCollapsedItem)
+                            .collect(JsonUtils.asArray()));
             requestFlush(update);
         }
         return collapsedItems;
@@ -392,8 +394,7 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
         doExpand(Arrays.asList(item), syncClient);
     }
 
-    private Collection<T> doExpand(Collection<T> items,
-            boolean syncClient) {
+    private Collection<T> doExpand(Collection<T> items, boolean syncClient) {
         List<T> expandedItems = new ArrayList<>();
         items.forEach(item -> {
             if (mapper.expand(item)) {
@@ -404,8 +405,9 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
             TreeUpdate update = (TreeUpdate) arrayUpdater
                     .startUpdate(getHierarchyMapper().getRootSize());
             update.enqueue("$connector.expandItems",
-                        expandedItems.stream().map(this::generateJsonForExpandedOrCollapsedItem)
-                                .collect(JsonUtils.asArray()));
+                    expandedItems.stream()
+                            .map(this::generateJsonForExpandedOrCollapsedItem)
+                            .collect(JsonUtils.asArray()));
             requestFlush(update);
         }
         return expandedItems;
@@ -432,7 +434,6 @@ public class HierarchicalDataCommunicator<T> extends DataCommunicator<T> {
     public boolean isExpanded(T item) {
         return mapper.isExpanded(item);
     }
-
 
     /**
      * Returns parent index for the row or {@code null}.
