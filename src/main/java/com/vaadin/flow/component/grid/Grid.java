@@ -156,21 +156,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             queue.add(() -> getElement().callFunction(name, arguments));
         }
 
-        @Override
-        public void commit(int updateId, String parentKey, int levelSize) {
-            onlySupportedOnTreeGrid();
-        }
-
-        @Override
-        public void set(int start, List<JsonValue> items, String parentKey) {
-            onlySupportedOnTreeGrid();
-        }
-
-        @Override
-        public void clear(int start, int length, String parentKey) {
-            onlySupportedOnTreeGrid();
-        }
-
         private void onlySupportedOnTreeGrid() {
             throw new UnsupportedOperationException(
                     "This method can't be used for a Grid. Use TreeGrid instead.");
