@@ -1100,11 +1100,19 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         String columnId = createColumnId(false);
 
         Column<T> column = addColumn(TemplateRenderer
-                .<T> of("[[item." + columnId + "]]").withProperty(columnId,
-                        value -> String.valueOf(valueProvider.apply(value))));
+                .<T> of("[[item." + columnId + "]]")
+                .withProperty(columnId, value -> formatValueToSendToTheClient(
+                        valueProvider.apply(value))));
         column.comparator = ((a, b) -> compareMaybeComparables(
                 valueProvider.apply(a), valueProvider.apply(b)));
         return column;
+    }
+
+    private String formatValueToSendToTheClient(Object value) {
+        if (value == null) {
+            return "";
+        }
+        return String.valueOf(value);
     }
 
     /**
@@ -1285,8 +1293,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private Column<T> addColumn(PropertyDefinition<T, ?> property) {
-        Column<T> column = addColumn(item -> formatPropertyValue(property, item))
-                .setHeader(property.getCaption());
+        Column<T> column = addColumn(
+                item -> runPropertyValueGetter(property, item))
+                        .setHeader(property.getCaption());
         try {
             return column.setKey(property.getName());
         } catch (IllegalArgumentException exception) {
@@ -1296,13 +1305,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    private Object formatPropertyValue(PropertyDefinition<T, ?> property, T item) {
-        Object value = property.getGetter().apply(item);
-        if(value == null) {
-            return "";
-        } else {
-            return String.valueOf(value);
-        }
+    private Object runPropertyValueGetter(PropertyDefinition<T, ?> property,
+            T item) {
+        return property.getGetter().apply(item);
     }
 
     /**
