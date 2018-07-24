@@ -1352,6 +1352,45 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
+     * <p>
+     * Sets the defined columns as sortable, based on the given properties.
+     * <p>
+     * This is a shortcut for setting all columns not sortable and then calling
+     * {@link Column#setSortable(boolean)} for each of the columns defined by
+     * the given propertyNames.
+     * <p>
+     * You can set sortable columns for nested properties with dot notation, eg.
+     * <code>"property.nestedProperty"</code>
+     * 
+     * @param propertyNames
+     *            the property names used to reference the columns
+     * 
+     * @throws IllegalArgumentException
+     *             if any of the propertyNames refers to a non-existing column
+     * 
+     * @see #setColumns(String...)
+     * @see #getColumnByKey(String)
+     */
+    public void setSortableColumns(String... propertyNames) {
+        if (propertySet == null) {
+            throw new UnsupportedOperationException(
+                    "This method can't be used for a Grid that isn't constructed from a bean type");
+        }
+        getColumns().forEach(col -> col.setSortable(false));
+        for (String property : propertyNames) {
+            Column<T> column = getColumnByKey(property);
+            if (column == null) {
+                throw new IllegalArgumentException(
+                        "The column for the property '" + property
+                                + "' could not be found");
+            }
+            column.setSortable(true);
+        }
+    }
+
+    /**
      * Sets a user-defined identifier for given column.
      *
      * @see Column#setKey(String)
