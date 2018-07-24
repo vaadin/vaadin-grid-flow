@@ -37,7 +37,6 @@ import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HasHierarchicalDataProvider;
-import com.vaadin.flow.data.provider.hierarchy.HierarchicalArrayUpdater;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalArrayUpdater.HierarchicalUpdate;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataCommunicator;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
@@ -68,10 +67,10 @@ import elemental.json.JsonValue;
 public class TreeGrid<T> extends Grid<T>
         implements HasHierarchicalDataProvider<T> {
 
-    private static final class UpdateQueue extends Grid.UpdateQueue
+    private static final class TreeGridUpdateQueue extends UpdateQueue
             implements HierarchicalUpdate {
 
-        private UpdateQueue(UpdateQueueData data, int size) {
+        private TreeGridUpdateQueue(UpdateQueueData data, int size) {
             super(data, size);
         }
 
@@ -101,6 +100,38 @@ public class TreeGrid<T> extends Grid<T>
         }
     }
 
+    private class TreeGridArrayUpdaterImpl implements TreeGridArrayUpdater {
+        private UpdateQueueData data;
+        private SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueFactory;
+
+        public TreeGridArrayUpdaterImpl(
+                SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueFactory) {
+            this.updateQueueFactory = updateQueueFactory;
+        }
+
+        @Override
+        public TreeGridUpdateQueue startUpdate(int sizeChange) {
+            return (TreeGridUpdateQueue) updateQueueFactory.apply(data,
+                    sizeChange);
+        }
+
+        @Override
+        public void initialize() {
+            initConnector();
+            updateSelectionModeOnClient();
+        }
+
+        @Override
+        public void setUpdateQueueData(UpdateQueueData data) {
+            this.data = data;
+        }
+
+        @Override
+        public UpdateQueueData getUpdateQueueData() {
+            return data;
+        }
+    }
+
     private final ValueProvider<T, String> defaultUniqueKeyProvider = item -> String
             .valueOf(item.hashCode());
 
@@ -111,7 +142,8 @@ public class TreeGrid<T> extends Grid<T>
      * automatically sets up columns based on the type of presented data.
      */
     public TreeGrid() {
-        super(50, UpdateQueue::new, new TreeDataCommunicatorBuilder<T>());
+        super(50, TreeGridUpdateQueue::new,
+                new TreeDataCommunicatorBuilder<T>());
 
         setUniqueKeyProperty("key");
         getArrayUpdater().getUpdateQueueData()
@@ -129,7 +161,8 @@ public class TreeGrid<T> extends Grid<T>
      *            the bean type to use, not {@code null}
      */
     public TreeGrid(Class<T> beanType) {
-        super(beanType, UpdateQueue::new, new TreeDataCommunicatorBuilder<T>());
+        super(beanType, TreeGridUpdateQueue::new,
+                new TreeDataCommunicatorBuilder<T>());
 
         setUniqueKeyProperty("key");
         getArrayUpdater().getUpdateQueueData()
@@ -138,33 +171,8 @@ public class TreeGrid<T> extends Grid<T>
 
     @Override
     protected GridArrayUpdater createDefaultArrayUpdater(
-            SerializableBiFunction<UpdateQueueData, Integer, Grid.UpdateQueue> updateQueueFactory) {
-
-        return new TreeGridArrayUpdater() {
-
-            private UpdateQueueData data;
-
-            @Override
-            public UpdateQueue startUpdate(int sizeChange) {
-                return (UpdateQueue) updateQueueFactory.apply(data, sizeChange);
-            }
-
-            @Override
-            public void initialize() {
-                initConnector();
-                updateSelectionModeOnClient();
-            }
-
-            @Override
-            public void setUpdateQueueData(UpdateQueueData data) {
-                this.data = data;
-            }
-
-            @Override
-            public UpdateQueueData getUpdateQueueData() {
-                return data;
-            }
-        };
+            SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueFactory) {
+        return new TreeGridArrayUpdaterImpl(updateQueueFactory);
     }
 
     /**
@@ -183,21 +191,16 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     private static class TreeDataCommunicatorBuilder<T>
-            extends DataCommunicatorBuilder<T> {
+            extends DataCommunicatorBuilder<T, TreeGridArrayUpdater> {
 
         @Override
         protected DataCommunicator<T> build(Element element,
                 CompositeDataGenerator<T> dataGenerator,
-                GridArrayUpdater arrayUpdater,
+                TreeGridArrayUpdater arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
 
-            if (!(arrayUpdater instanceof HierarchicalArrayUpdater)) {
-                throw new IllegalArgumentException(
-                        "The ArrayUpdater should implement the HierarchicalArrayUpdater interface for TreeGrid");
-            }
-
             return new HierarchicalDataCommunicator<>(dataGenerator,
-                    (HierarchicalArrayUpdater) arrayUpdater,
+                    arrayUpdater,
                     data -> element.callFunction("$connector.updateData", data),
                     element.getNode(), uniqueKeyProviderSupplier);
         }
