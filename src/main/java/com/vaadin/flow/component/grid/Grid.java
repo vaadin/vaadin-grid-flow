@@ -1274,9 +1274,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
      * Adds a new column for the given property name. The property values are
      * converted to Strings in the grid cells. The property's full name will be
      * used as the {@link Column#setKey(String) column key} and the property
@@ -1285,16 +1282,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * You can add columns for nested properties with dot notation, eg.
      * <code>"property.nestedProperty"</code>
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
      *
      * @param propertyName
      *            the property name of the new column, not <code>null</code>
      * @return the created column
      */
     public Column<T> addColumn(String propertyName) {
-        if (propertySet == null) {
-            throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid that isn't constructed from a bean type");
-        }
+        checkForBeanGrid();
         Objects.requireNonNull(propertyName, "Property name can't be null");
 
         PropertyDefinition<T, ?> property;
@@ -1326,9 +1323,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
      * Sets the columns and their order based on the given properties.
      * <p>
      * This is a shortcut for removing all columns and then calling
@@ -1338,24 +1332,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <code>"property.nestedProperty"</code>
      * <p>
      * Note that this also resets the headers and footers.
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
      * 
      * @param propertyNames
      *            the properties to create columns for
      */
     public void setColumns(String... propertyNames) {
-        if (propertySet == null) {
-            throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid that isn't constructed from a bean type");
-        }
+        checkForBeanGrid();
         getColumns().forEach(this::removeColumn);
         Stream.of(propertyNames).forEach(this::addColumn);
     }
 
     /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
-     * Sets the defined columns as sortable, based on the given properties.
+     * Sets the defined columns as sortable, based on the given property names.
      * <p>
      * This is a shortcut for setting all columns not sortable and then calling
      * {@link Column#setSortable(boolean)} for each of the columns defined by
@@ -1363,6 +1354,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * You can set sortable columns for nested properties with dot notation, eg.
      * <code>"property.nestedProperty"</code>
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
      * 
      * @param propertyNames
      *            the property names used to reference the columns
@@ -1374,10 +1368,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #getColumnByKey(String)
      */
     public void setSortableColumns(String... propertyNames) {
-        if (propertySet == null) {
-            throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid that isn't constructed from a bean type");
-        }
+        checkForBeanGrid();
         getColumns().forEach(col -> col.setSortable(false));
         for (String property : propertyNames) {
             Column<T> column = getColumnByKey(property);
@@ -1387,6 +1378,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                                 + "' could not be found");
             }
             column.setSortable(true);
+        }
+    }
+
+    private void checkForBeanGrid() {
+        if (propertySet == null) {
+            throw new UnsupportedOperationException(
+                    "This method can't be used for a Grid that isn't constructed from a bean type");
         }
     }
 
