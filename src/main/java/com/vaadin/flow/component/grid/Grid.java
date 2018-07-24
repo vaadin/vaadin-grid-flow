@@ -1318,7 +1318,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (value == null) {
             return "";
         } else {
-            return String.valueOf(value);
+            return value;
         }
     }
 
