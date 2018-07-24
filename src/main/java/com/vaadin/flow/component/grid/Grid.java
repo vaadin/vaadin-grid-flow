@@ -1314,12 +1314,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private Object formatPropertyValue(PropertyDefinition<T, ?> property,
             T item) {
-        Object value = property.getGetter().apply(item);
-        if (value == null) {
-            return "";
-        } else {
-            return value;
-        }
+        return property.getGetter().apply(item);
     }
 
     /**
