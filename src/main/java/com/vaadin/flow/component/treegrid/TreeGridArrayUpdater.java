@@ -13,22 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License. 
  */
-package com.vaadin.flow.data.provider.hierarchy;
+package com.vaadin.flow.component.treegrid;
 
-import com.vaadin.flow.data.provider.BackEndDataProvider;
+import com.vaadin.flow.component.grid.GridArrayUpdater;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalArrayUpdater;
 
 /**
- * A data provider that lazy loads items from a back end containing hierarchical
- * data.
+ * Array update strategy aware class for TreeGrid.
  *
  * @author Vaadin Ltd
  *
- * @param <T>
- *            data provider data type
- * @param <F>
- *            data provider filter type
  */
-public interface BackEndHierarchicalDataProvider<T, F>
-        extends HierarchicalDataProvider<T, F>, BackEndDataProvider<T, F> {
+public interface TreeGridArrayUpdater
+        extends GridArrayUpdater, HierarchicalArrayUpdater {
 
 }

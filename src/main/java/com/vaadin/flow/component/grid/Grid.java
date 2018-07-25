@@ -54,6 +54,8 @@ import com.vaadin.flow.data.binder.PropertyDefinition;
 import com.vaadin.flow.data.binder.PropertySet;
 import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.event.SortEvent.SortNotifier;
+import com.vaadin.flow.data.provider.ArrayUpdater;
+import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
@@ -63,7 +65,6 @@ import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.provider.hierarchy.TreeUpdate;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.Rendering;
@@ -112,7 +113,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>>,
         HasTheme, HasDataGenerators<T> {
 
-    protected static class UpdateQueue implements TreeUpdate {
+    protected static class UpdateQueue implements Update {
         private final ArrayList<Runnable> queue = new ArrayList<>();
         private final UpdateQueueData data;
 
@@ -154,26 +155,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         public void enqueue(String name, Serializable... arguments) {
             queue.add(() -> getElement().callFunction(name, arguments));
-        }
-
-        @Override
-        public void commit(int updateId, String parentKey, int levelSize) {
-            onlySupportedOnTreeGrid();
-        }
-
-        @Override
-        public void set(int start, List<JsonValue> items, String parentKey) {
-            onlySupportedOnTreeGrid();
-        }
-
-        @Override
-        public void clear(int start, int length, String parentKey) {
-            onlySupportedOnTreeGrid();
-        }
-
-        private void onlySupportedOnTreeGrid() {
-            throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid. Use TreeGrid instead.");
         }
 
         protected Element getElement() {
@@ -856,6 +837,38 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
+    private class GridArrayUpdaterImpl implements GridArrayUpdater {
+        private UpdateQueueData data;
+        private SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueFactory;
+
+        public GridArrayUpdaterImpl(
+                SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueFactory) {
+            this.updateQueueFactory = updateQueueFactory;
+        }
+
+        @Override
+        public UpdateQueue startUpdate(int sizeChange) {
+            return updateQueueFactory.apply(data, sizeChange);
+        }
+
+        @Override
+        public void initialize() {
+            initConnector();
+            updateSelectionModeOnClient();
+        }
+
+        @Override
+        public void setUpdateQueueData(UpdateQueueData data) {
+            this.data = data;
+        }
+
+        @Override
+        public UpdateQueueData getUpdateQueueData() {
+            return data;
+        }
+
+    }
+
     private final GridArrayUpdater arrayUpdater;
 
     private final CompositeDataGenerator<T> gridDataGenerator;
@@ -960,8 +973,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            uses to handle all data communication.
      * @param <B>
      *            the data communicator builder type
+     * @param <U>
+     *            the GridArrayUpdater type
      */
-    protected <B extends DataCommunicatorBuilder<T>> Grid(Class<T> beanType,
+    protected <U extends GridArrayUpdater, B extends DataCommunicatorBuilder<T, U>> Grid(
+            Class<T> beanType,
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuidler,
             B dataCommunicatorBuilder) {
         this(50, updateQueueBuidler, dataCommunicatorBuilder);
@@ -992,9 +1008,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            uses to handle all data communication.
      * @param <B>
      *            the data communicator builder type
+     * @param <U>
+     *            the GridArrayUpdater type
      * 
      */
-    protected <B extends DataCommunicatorBuilder<T>> Grid(int pageSize,
+    protected <U extends GridArrayUpdater, B extends DataCommunicatorBuilder<T, U>> Grid(
+            int pageSize,
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuidler,
             B dataCommunicatorBuilder) {
         Objects.requireNonNull(dataCommunicatorBuilder,
@@ -1008,7 +1027,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         gridDataGenerator.addDataGenerator(this::generateUniqueKeyData);
 
         dataCommunicator = dataCommunicatorBuilder.build(getElement(),
-                gridDataGenerator, arrayUpdater, this::getUniqueKeyProvider);
+                gridDataGenerator, (U) arrayUpdater,
+                this::getUniqueKeyProvider);
 
         detailsManager = new DetailsManager(this);
         setPageSize(pageSize);
@@ -1041,8 +1061,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * 
      * @param <T>
      *            the grid bean type
+     * 
+     * @param <U>
+     *            the ArrayUpdater type
      */
-    protected static class DataCommunicatorBuilder<T> implements Serializable {
+    protected static class DataCommunicatorBuilder<T, U extends ArrayUpdater>
+            implements Serializable {
 
         /**
          * Build a new {@link DataCommunicator} object for the given Grid
@@ -1054,15 +1078,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          *            the {@link CompositeDataGenerator} for the data
          *            communicator
          * @param arrayUpdater
-         *            the {@link GridArrayUpdater} for the data communicator
+         *            the {@link ArrayUpdater} for the data communicator
          * @param uniqueKeyProviderSupplier
          *            the unique key value provider supplier for the data
          *            communicator
          * @return the build data communicator object
          */
         protected DataCommunicator<T> build(Element element,
-                CompositeDataGenerator<T> dataGenerator,
-                GridArrayUpdater arrayUpdater,
+                CompositeDataGenerator<T> dataGenerator, U arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
             return new DataCommunicator<>(dataGenerator, arrayUpdater,
                     data -> element.callFunction("$connector.updateData", data),
@@ -1072,31 +1095,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     protected GridArrayUpdater createDefaultArrayUpdater(
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueFactory) {
-        return new GridArrayUpdater() {
-
-            private UpdateQueueData data;
-
-            @Override
-            public UpdateQueue startUpdate(int sizeChange) {
-                return updateQueueFactory.apply(data, sizeChange);
-            }
-
-            @Override
-            public void initialize() {
-                initConnector();
-                updateSelectionModeOnClient();
-            }
-
-            @Override
-            public void setUpdateQueueData(UpdateQueueData data) {
-                this.data = data;
-            }
-
-            @Override
-            public UpdateQueueData getUpdateQueueData() {
-                return data;
-            }
-        };
+        return new GridArrayUpdaterImpl(updateQueueFactory);
     }
 
     /**
@@ -1118,11 +1117,19 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         String columnId = createColumnId(false);
 
         Column<T> column = addColumn(TemplateRenderer
-                .<T> of("[[item." + columnId + "]]").withProperty(columnId,
-                        value -> String.valueOf(valueProvider.apply(value))));
+                .<T> of("[[item." + columnId + "]]")
+                .withProperty(columnId, value -> formatValueToSendToTheClient(
+                        valueProvider.apply(value))));
         column.comparator = ((a, b) -> compareMaybeComparables(
                 valueProvider.apply(a), valueProvider.apply(b)));
         return column;
+    }
+
+    private String formatValueToSendToTheClient(Object value) {
+        if (value == null) {
+            return "";
+        }
+        return String.valueOf(value);
     }
 
     /**
@@ -1269,9 +1276,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
      * Adds a new column for the given property name. The property values are
      * converted to Strings in the grid cells. The property's full name will be
      * used as the {@link Column#setKey(String) column key} and the property
@@ -1280,16 +1284,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * You can add columns for nested properties with dot notation, eg.
      * <code>"property.nestedProperty"</code>
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
      *
      * @param propertyName
      *            the property name of the new column, not <code>null</code>
      * @return the created column
      */
     public Column<T> addColumn(String propertyName) {
-        if (propertySet == null) {
-            throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid that isn't constructed from a bean type");
-        }
+        checkForBeanGrid();
         Objects.requireNonNull(propertyName, "Property name can't be null");
 
         PropertyDefinition<T, ?> property;
@@ -1304,7 +1308,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private Column<T> addColumn(PropertyDefinition<T, ?> property) {
         Column<T> column = addColumn(
-                item -> formatPropertyValue(property, item))
+                item -> runPropertyValueGetter(property, item))
                         .setHeader(property.getCaption());
         try {
             return column.setKey(property.getName());
@@ -1315,20 +1319,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    private Object formatPropertyValue(PropertyDefinition<T, ?> property,
+    private Object runPropertyValueGetter(PropertyDefinition<T, ?> property,
             T item) {
-        Object value = property.getGetter().apply(item);
-        if (value == null) {
-            return "";
-        } else {
-            return String.valueOf(value);
-        }
+        return property.getGetter().apply(item);
     }
 
     /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
      * Sets the columns and their order based on the given properties.
      * <p>
      * This is a shortcut for removing all columns and then calling
@@ -1338,17 +1334,60 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <code>"property.nestedProperty"</code>
      * <p>
      * Note that this also resets the headers and footers.
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
      * 
      * @param propertyNames
      *            the properties to create columns for
      */
     public void setColumns(String... propertyNames) {
+        checkForBeanGrid();
+        getColumns().forEach(this::removeColumn);
+        Stream.of(propertyNames).forEach(this::addColumn);
+    }
+
+    /**
+     * Sets the defined columns as sortable, based on the given property names.
+     * <p>
+     * This is a shortcut for setting all columns not sortable and then calling
+     * {@link Column#setSortable(boolean)} for each of the columns defined by
+     * the given propertyNames.
+     * <p>
+     * You can set sortable columns for nested properties with dot notation, eg.
+     * <code>"property.nestedProperty"</code>
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
+     * 
+     * @param propertyNames
+     *            the property names used to reference the columns
+     * 
+     * @throws IllegalArgumentException
+     *             if any of the propertyNames refers to a non-existing column
+     * 
+     * @see #setColumns(String...)
+     * @see #getColumnByKey(String)
+     */
+    public void setSortableColumns(String... propertyNames) {
+        checkForBeanGrid();
+        getColumns().forEach(col -> col.setSortable(false));
+        for (String property : propertyNames) {
+            Column<T> column = getColumnByKey(property);
+            if (column == null) {
+                throw new IllegalArgumentException(
+                        "The column for the property '" + property
+                                + "' could not be found");
+            }
+            column.setSortable(true);
+        }
+    }
+
+    private void checkForBeanGrid() {
         if (propertySet == null) {
             throw new UnsupportedOperationException(
                     "This method can't be used for a Grid that isn't constructed from a bean type");
         }
-        getColumns().forEach(this::removeColumn);
-        Stream.of(propertyNames).forEach(this::addColumn);
     }
 
     /**
