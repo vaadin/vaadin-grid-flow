@@ -72,9 +72,9 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
      * to the context menu overlay.
      * <p>
      * This is a convenience method for the use case where you have a list of
-     * high-lightable {@link MenuItem}s inside the overlay. If you want to
+     * highlightable {@link MenuItem}s inside the overlay. If you want to
      * configure the contents of the overlay without wrapping them inside
-     * {@link MenuItem}s, or if you just want to add some non-high-lightable
+     * {@link MenuItem}s, or if you just want to add some non-highlightable
      * components between the items, use the {@link #add(Component...)} method.
      * 
      * @param text
@@ -98,9 +98,9 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
      * the context menu overlay.
      * <p>
      * This is a convenience method for the use case where you have a list of
-     * high-lightable {@link MenuItem}s inside the overlay. If you want to
+     * highlightable {@link MenuItem}s inside the overlay. If you want to
      * configure the contents of the overlay without wrapping them inside
-     * {@link MenuItem}s, or if you just want to add some non-high-lightable
+     * {@link MenuItem}s, or if you just want to add some non-highlightable
      * components between the items, use the {@link #add(Component...)} method.
      * 
      * @param component

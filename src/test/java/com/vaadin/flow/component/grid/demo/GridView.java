@@ -1219,7 +1219,7 @@ public class GridView extends DemoView {
         grid.setItems(getItems());
         grid.addColumn(Person::getName).setHeader("Name");
         grid.addColumn(Person::getAge).setHeader("Age");
-        GridContextMenu<Person> contextMenu = new GridContextMenu<Person>(grid);
+        GridContextMenu<Person> contextMenu = new GridContextMenu<>(grid);
         contextMenu.addItem("Update", event -> {
             event.getItem().ifPresent(person -> {
                 person.setName(person.getName() + " Updated");
