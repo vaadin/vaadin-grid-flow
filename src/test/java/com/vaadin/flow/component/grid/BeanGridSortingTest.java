@@ -37,16 +37,18 @@ public class BeanGridSortingTest {
         private int integer;
         private boolean bool;
         private double number;
+        private Object notComparable;
 
         private SortableBean innerBean;
 
         public SortableBean(String string, int integer, boolean bool,
-                double number, SortableBean innerBean) {
+                double number, SortableBean innerBean, Object notComparable) {
             this.string = string;
             this.integer = integer;
             this.bool = bool;
             this.number = number;
             this.innerBean = innerBean;
+            this.notComparable = notComparable;
         }
 
         public String getString() {
@@ -87,6 +89,14 @@ public class BeanGridSortingTest {
 
         public void setInnerBean(SortableBean innerBean) {
             this.innerBean = innerBean;
+        }
+        
+        public void setNotComparable(Object notComparable) {
+            this.notComparable = notComparable;
+        }
+
+        public Object getNotComparable() {
+            return notComparable;
         }
     }
 
@@ -174,15 +184,43 @@ public class BeanGridSortingTest {
         assertInMemorySorting((b1, b2) -> Double.compare(
                 b2.getInnerBean().getNumber(), b1.getInnerBean().getNumber()));
     }
+    
+    @Test
+    public void setSortableColumns_onlyComparablePropertiesAreSortable() {
+        Assert.assertTrue(grid.getColumnByKey("string").isSortable());
+        Assert.assertFalse(grid.getColumnByKey("notComparable").isSortable());
+
+        grid.setColumns("string", "notComparable", "innerBean",
+                "innerBean.string");
+
+        Assert.assertTrue(grid.getColumnByKey("string").isSortable());
+        Assert.assertFalse(grid.getColumnByKey("notComparable").isSortable());
+        Assert.assertFalse(grid.getColumnByKey("innerBean").isSortable());
+        Assert.assertTrue(grid.getColumnByKey("innerBean.string").isSortable());
+
+        grid.addColumn("bool");
+        grid.addColumn("innerBean.notComparable");
+
+        Assert.assertTrue(grid.getColumnByKey("bool").isSortable());
+        Assert.assertFalse(
+                grid.getColumnByKey("innerBean.notComparable").isSortable());
+
+    }
 
     private List<SortableBean> createBeans() {
         return Arrays.asList(
                 new SortableBean("Bean A", 9, false, 9.5,
-                        new SortableBean("Sub A", 111, true, 111.5, null)),
+                        new SortableBean("Sub A", 111, true, 111.5, null,
+                                "Not comparable A"),
+                        "Not comparable 1"),
                 new SortableBean("Bean B", 111, true, 111.5,
-                        new SortableBean("Sub B", 1, false, 1.5, null)),
-                new SortableBean("Bean C", 1, false, 1.5,
-                        new SortableBean("Sub C", 9, false, 9.5, null)));
+                        new SortableBean("Sub B", 1, false, 1.5, null,
+                                "Not comparable B"),
+                        "Not comparable 2"),
+                new SortableBean(
+                        "Bean C", 1, false, 1.5, new SortableBean("Sub C", 9,
+                                false, 9.5, null, "Not comparable C"),
+                        "Not comparable 3"));
     }
 
     private void assertInMemorySorting(Comparator<SortableBean> comparator) {
