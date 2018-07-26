@@ -875,7 +875,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * properties. The property-values of the bean will be converted to Strings.
      * Full names of the properties will be used as the
      * {@link Column#setKey(String) column keys} and the property captions will
-     * be used as the {@link Column#setHeader(String) column headers}.
+     * be used as the {@link Column#setHeader(String) column headers}. The
+     * generated columns will be sortable by default, if the property is
+     * {@link Comparable}.
      * <p>
      * By default, only the direct properties of the bean are included and they
      * will be in alphabetical order. Use {@link Grid#setColumns(String...)} to
@@ -1075,9 +1077,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
      * Adds a new column for the given property name. The property values are
      * converted to Strings in the grid cells. The property's full name will be
      * used as the {@link Column#setKey(String) column key} and the property
@@ -1086,6 +1085,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * You can add columns for nested properties with dot notation, eg.
      * <code>"property.nestedProperty"</code>
+     * <p>
+     * If the property is {@link Comparable}, the created column is sortable by
+     * default. This can be changed with the {@link Column#setSortable(boolean)}
+     * method.
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
      *
      * @param propertyName
      *            the property name of the new column, not <code>null</code>
@@ -1113,12 +1119,17 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 item -> runPropertyValueGetter(property, item))
                         .setHeader(property.getCaption());
         try {
-            return column.setKey(property.getName());
+            column.setKey(property.getName());
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException(
                     "Multiple columns for the same property: "
                             + property.getName());
         }
+
+        if (Comparable.class.isAssignableFrom(property.getType())) {
+            column.setSortable(true);
+        }
+        return column;
     }
 
     private Object runPropertyValueGetter(PropertyDefinition<T, ?> property,
@@ -1127,9 +1138,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * <strong>Note:</strong> This method can only be used for a Grid created
-     * from a bean type with {@link #Grid(Class)}.
-     * <p>
      * Sets the columns and their order based on the given properties.
      * <p>
      * This is a shortcut for removing all columns and then calling
@@ -1139,6 +1147,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <code>"property.nestedProperty"</code>
      * <p>
      * Note that this also resets the headers and footers.
+     * <p>
+     * <strong>Note:</strong> This method can only be used for a Grid created
+     * from a bean type with {@link #Grid(Class)}.
      * 
      * @param propertyNames
      *            the properties to create columns for
