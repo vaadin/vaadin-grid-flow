@@ -157,12 +157,12 @@ public class GridView extends DemoView {
         }
 
         @Override
-        public Object clone() {
+        public Person clone() {
             try {
-                return super.clone();
+                return (Person) super.clone();
             } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                return null;
+                throw new RuntimeException(
+                        "The Person object could not be cloned.", e);
             }
         }
     }
@@ -1348,8 +1348,7 @@ public class GridView extends DemoView {
     }
 
     private List<Person> getItems() {
-        return items.stream().map(person -> (Person) person.clone())
-                .collect(Collectors.toList());
+        return items.stream().map(Person::clone).collect(Collectors.toList());
     }
 
     private List<PersonWithLevel> getRootItems() {
