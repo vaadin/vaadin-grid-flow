@@ -433,6 +433,21 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 QuerySortOrder.asc("age").thenAsc("name").build(), true);
     }
 
+    @Test
+    public void gridWithSorting_switchColumnSorting() {
+        openTabAndCheckForErrors("sorting");
+        GridElement grid = $(GridElement.class).id("grid-sortable-columns");
+        scrollToElement(grid);
+
+        getCellContent(grid.getHeaderCell(0)).click();
+        getCellContent(grid.getHeaderCell(0)).click();
+        getCellContent(grid.getHeaderCell(0)).click();
+
+        Assert.assertEquals(
+                "Current sort order: . Sort originates from the client: true.",
+                findElement(By.id("grid-sortable-columns-message")).getText());
+    }
+
     private void assertSortMessageEquals(List<QuerySortOrder> querySortOrders,
             boolean fromClient) {
         String sortOrdersString = querySortOrders.stream()
