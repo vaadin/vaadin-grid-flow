@@ -429,10 +429,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
         clickElementWithJs(findElement(By.id("grid-multi-sort-toggle")));
         getCellContent(grid.getHeaderCell(0)).click();
         getCellContent(grid.getHeaderCell(1)).click();
-
-        Assert.assertEquals(
-                "Current sort order: . Sort originates from the client: true.",
-                findElement(By.id("grid-sortable-columns-message")).getText());
+        assertSortMessageEquals(
+                QuerySortOrder.asc("age").thenAsc("name").build(), true);
     }
 
     @Test
@@ -444,8 +442,10 @@ public class GridViewIT extends TabbedComponentDemoTest {
         getCellContent(grid.getHeaderCell(0)).click();
         getCellContent(grid.getHeaderCell(0)).click();
         getCellContent(grid.getHeaderCell(0)).click();
-        assertSortMessageEquals(
-                QuerySortOrder.asc("age").thenAsc("name").build(), true);
+
+        Assert.assertEquals(
+                "Current sort order: . Sort originates from the client: true.",
+                findElement(By.id("grid-sortable-columns-message")).getText());
     }
 
     @Test
