@@ -2026,16 +2026,18 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 throw new IllegalArgumentException(
                         "Received a sorters changed call from the client for a non-existent column");
             }
-            switch (sorter.getString("direction")) {
-            case "asc":
-                sortOrderBuilder.thenAsc(column);
-                break;
-            case "desc":
-                sortOrderBuilder.thenDesc(column);
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        "Received a sorters changed call from the client containing an invalid sorting direction");
+            if (sorter.hasKey("direction")) {
+                switch (sorter.getString("direction")) {
+                case "asc":
+                    sortOrderBuilder.thenAsc(column);
+                    break;
+                case "desc":
+                    sortOrderBuilder.thenDesc(column);
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            "Received a sorters changed call from the client containing an invalid sorting direction");
+                }
             }
         }
         setSortOrder(sortOrderBuilder.build(), true);
