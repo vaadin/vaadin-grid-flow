@@ -28,6 +28,8 @@ public class Person implements Serializable {
 
     private int[] grades;
 
+    private boolean married;
+
     public Person(String name, int born) {
         this.name = name;
         this.born = born;
@@ -67,6 +69,14 @@ public class Person implements Serializable {
 
     public void setGrades(int[] grades) {
         this.grades = grades;
+    }
+
+    public boolean isMarried() {
+        return married;
+    }
+
+    public void setMarried(boolean married) {
+        this.married = married;
     }
 
     @Override

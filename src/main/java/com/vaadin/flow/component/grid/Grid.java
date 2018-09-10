@@ -44,6 +44,7 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
@@ -86,6 +87,7 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.internal.ReflectTools;
+import com.vaadin.flow.server.Command;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.Json;
@@ -274,6 +276,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         private Renderer<T> renderer;
 
+        private Rendering<T> rendering;
+
         /**
          * Constructs a new Column for use inside a Grid.
          *
@@ -293,9 +297,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             comparator = (a, b) -> 0;
 
-            Rendering<T> rendering = renderer.render(getElement(),
-                    (KeyMapper<T>) getGrid().getDataCommunicator()
-                            .getKeyMapper());
+            rendering = renderer.render(getElement(), (KeyMapper<T>) getGrid()
+                    .getDataCommunicator().getKeyMapper());
             Optional<DataGenerator<T>> dataGenerator = rendering
                     .getDataGenerator();
 
@@ -303,6 +306,38 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 columnDataGeneratorRegistration = grid
                         .addDataGenerator(dataGenerator.get());
             }
+        }
+
+        public void setEditorComponent(Component editorComponent) {
+            Element container = new Element("div");
+            getElement().appendVirtualChild(container);
+            container.appendChild(editorComponent.getElement());
+
+            runBeforeClientResponse(() -> {
+                Element template = rendering.getTemplateElement();
+                String originalTemplate = template.getProperty("innerHTML");
+
+                String appId = UI.getCurrent().getInternals().getAppId();
+                int nodeId = container.getNode().getId();
+                String editorTemplate = String.format(
+                        "<flow-component-renderer appid=\"%s\" nodeid=\"%s\"></flow-component-renderer>",
+                        appId, nodeId);
+
+                template.setProperty("innerHTML", String.format(
+
+                //@formatter:off
+                "<template is='dom-if' if='[[item._editing]]' restamp>%s</template>"
+              + "<template is='dom-if' if='[[!item._editing]]' restamp>%s</template>",
+                //@formatter:on
+                        editorTemplate, originalTemplate));
+            });
+        }
+
+        private void runBeforeClientResponse(Command command) {
+            getElement().getNode()
+                    .runWhenAttached(ui -> ui.getInternals().getStateTree()
+                            .beforeClientResponse(getElement().getNode(),
+                                    context -> command.execute()));
         }
 
         protected void destroyDataGenerators() {
@@ -672,6 +707,30 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return this;
         }
 
+    }
+
+    private T editedItem;
+
+    private boolean buffered;
+
+    public T getEditedItem() {
+        return editedItem;
+    }
+
+    public void editItem(T item) {
+        T oldEditingItem = editedItem;
+        editedItem = item;
+
+        if (oldEditingItem != null) {
+            getDataCommunicator().refresh(oldEditingItem);
+        }
+        if (item != null) {
+            getDataCommunicator().refresh(item);
+        }
+    }
+
+    public void setBuffered(boolean buffered) {
+        this.buffered = buffered;
     }
 
     /**
@@ -1057,6 +1116,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 new UpdateQueueData(getElement(), getUniqueKeyProperty()));
         gridDataGenerator = new CompositeDataGenerator<>();
         gridDataGenerator.addDataGenerator(this::generateUniqueKeyData);
+        addDataGenerator((item, jsonObject) -> {
+            if (item != null && item.equals(editedItem)) {
+                jsonObject.put("_editing", true);
+            } else {
+                jsonObject.remove("_editing");
+            }
+        });
 
         dataCommunicator = dataCommunicatorBuilder.build(getElement(),
                 gridDataGenerator, (U) arrayUpdater,
