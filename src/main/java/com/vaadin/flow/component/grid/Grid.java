@@ -308,7 +308,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
         }
 
+        private Component editorComponent;
+
         public void setEditorComponent(Component editorComponent) {
+            this.editorComponent = editorComponent;
             Element container = new Element("div");
             getElement().appendVirtualChild(container);
             container.appendChild(editorComponent.getElement());
@@ -331,6 +334,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 //@formatter:on
                         editorTemplate, originalTemplate));
             });
+        }
+
+        public Component getEditorComponent() {
+            return editorComponent;
         }
 
         private void runBeforeClientResponse(Command command) {
@@ -726,6 +733,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
         if (item != null) {
             getDataCommunicator().refresh(item);
+            Optional<Component> firstEditorComponent = getColumns().stream()
+                    .map(Column::getEditorComponent).findFirst();
+            if (firstEditorComponent.isPresent()) {
+                firstEditorComponent.get().getUI().ifPresent(ui -> {
+                    ui.getPage().executeJavaScript(
+                            "window.requestAnimationFrame(function(){$0.focus();})",
+                            firstEditorComponent.get().getElement());
+                });
+            }
         }
     }
 
