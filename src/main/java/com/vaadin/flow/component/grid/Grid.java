@@ -729,6 +729,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
+    @ClientCallable
+    private void editItem(String key) {
+        editItem(findByKey(key));
+    }
+
     public void setBuffered(boolean buffered) {
         this.buffered = buffered;
     }
