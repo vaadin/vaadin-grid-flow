@@ -772,7 +772,7 @@ window.Vaadin.Flow.gridConnector = {
       contextMenuListener(grid.$contextMenuConnector.openEvent);
     });
 
-    grid.shadowRoot.querySelector('table').addEventListener('keydown', e => {
+    grid.$.table.addEventListener('keydown', e => {
 
       // Should be parameterized so users can customize
       const editorKey = 'Enter';
@@ -784,8 +784,13 @@ window.Vaadin.Flow.gridConnector = {
         var element = e.path[i];
         if(element.tagName === 'TR') {
           const item = element._item;
-          const key = item.key;
-          grid.$server.editItem(key);
+
+          if(item._editing) {
+            grid.$server.saveChanges();
+          } else {
+            const key = item.key;
+            grid.$server.editItem(key);
+          }
           break;
         }
       }

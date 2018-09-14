@@ -750,6 +750,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         editItem(findByKey(key));
     }
 
+    @ClientCallable
+    private void saveChanges() {
+        // should run also Binder::writeBean in buffered mode
+
+        T item = null; // otherwise ambiguous of which method to call
+        editItem(item);
+    }
+
     public void setBuffered(boolean buffered) {
         this.buffered = buffered;
     }
