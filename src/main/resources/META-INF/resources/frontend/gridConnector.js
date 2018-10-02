@@ -791,7 +791,7 @@ window.Vaadin.Flow.gridConnector = {
     function _onClick(event){
         // if there was no click on item then don't do anything
         if (grid.$connector.activeItem){
-            event.item = grid.$connector.activeItem;
+            event.itemKey = grid.$connector.activeItem.key;
             grid.dispatchEvent(new CustomEvent('item-click', 
                     { 
                         detail: event

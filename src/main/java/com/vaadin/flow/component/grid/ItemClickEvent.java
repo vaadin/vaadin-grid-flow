@@ -19,8 +19,6 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
-import elemental.json.JsonObject;
-
 /**
  * Event fired when a Grid item is clicked.
  *
@@ -72,7 +70,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      *
      */
     public ItemClickEvent(Grid<T> source, boolean fromClient,
-            @EventData("event.detail.item") JsonObject json,
+            @EventData("event.detail.itemKey") String itemKey,
             @EventData("event.detail.screenX") int screenX,
             @EventData("event.detail.screenY") int screenY,
             @EventData("event.detail.clientX") int clientX,
@@ -85,7 +83,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
             @EventData("event.detail.metaKey") boolean metaKey) {
         super(source, fromClient, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
-        this.item = null;
+        item = source.getDataCommunicator().getKeyMapper().get(itemKey);
     }
 
 }
