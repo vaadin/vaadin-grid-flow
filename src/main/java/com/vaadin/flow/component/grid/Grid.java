@@ -2596,6 +2596,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return propertySet;
     }
 
+    public void addItemClickListener(
+            ComponentEventListener<ItemClickEvent> listener) {
+        addListener(ItemClickEvent.class, listener);
+    }
+
     /**
      * Gets optional value provider for unique key in row's generated JSON.
      *

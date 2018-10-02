@@ -420,6 +420,9 @@ public class GridView extends DemoView {
         // end-source-example
         grid.setId("basic");
 
+        grid.addItemClickListener(event -> {
+        });
+
         addCard("Grid Basics", grid);
     }
 

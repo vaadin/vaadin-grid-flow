@@ -93,7 +93,7 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.size = 0; // To avoid NaN here and there before we get proper data
     grid.itemIdPath = 'key';
-
+    
     grid.$connector = {};
 
     grid.$connector.hasEnsureSubCacheQueue = function() {
@@ -103,7 +103,7 @@ window.Vaadin.Flow.gridConnector = {
     grid.$connector.hasParentRequestQueue = function() {
         return parentRequestQueue.length > 0;
     }
-
+    
     grid.$connector.beforeEnsureSubCacheForScaledIndex = function(targetCache, scaledIndex) {
       // add call to queue
       ensureSubCacheQueue.push({
@@ -771,6 +771,34 @@ window.Vaadin.Flow.gridConnector = {
     grid.addEventListener('vaadin-context-menu-before-open', function(e) {
       contextMenuListener(grid.$contextMenuConnector.openEvent);
     });
+    
+    function _runWhenReady(){
+        if ( grid.$ ){
+            grid.$.scroller.addEventListener('click', _onClick);
+            grid.addEventListener('cell-activate', _cellActivated);
+        }
+        else {
+            window.setTimeout(_runWhenReady, 0 );
+        }
+    }
+    
+    _runWhenReady();
+    
+    function _cellActivated(){
+        grid.$connector.activeItem = grid.activeItem;
+    }
+    
+    function _onClick(event){
+        // if there was no click on item then don't do anything
+        if (grid.$connector.activeItem){
+            event.item = grid.$connector.activeItem;
+            grid.dispatchEvent(new CustomEvent('item-click', 
+                    { 
+                        detail: event
+                    }));
+            grid.$connector.activeItem = null;
+        }
+    }
 
   }
 }
