@@ -15,27 +15,23 @@
  */
 package com.vaadin.flow.component.grid;
 
-import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
 /**
- * Event fired when a Grid item is clicked.
+ * Event fired when a Grid item is double clicked.
  *
  * @param <T>
  *            the grid bean type
  *
  * @author Vaadin Ltd
  *
- *
  */
-@DomEvent("item-click")
-public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
-
-    private final T item;
+@DomEvent("item-double-click")
+public class ItemDoubleClickEvent<T> extends ItemClickEvent<T> {
 
     /**
-     * Creates a new item click event.
+     * Creates a new item double click event.
      *
      * @param source
      *            the component that fired the event
@@ -73,7 +69,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      *            fired, <code>false</code> otherwise
      *
      */
-    public ItemClickEvent(Grid<T> source, boolean fromClient,
+    public ItemDoubleClickEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.itemKey") String itemKey,
             @EventData("event.detail.screenX") int screenX,
             @EventData("event.detail.screenY") int screenY,
@@ -85,9 +81,8 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
             @EventData("event.detail.shiftKey") boolean shiftKey,
             @EventData("event.detail.altKey") boolean altKey,
             @EventData("event.detail.metaKey") boolean metaKey) {
-        super(source, fromClient, screenX, screenY, clientX, clientY,
+        super(source, fromClient, itemKey, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
-        item = source.getDataCommunicator().getKeyMapper().get(itemKey);
     }
 
 }

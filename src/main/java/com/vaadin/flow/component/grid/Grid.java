@@ -2596,9 +2596,26 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return propertySet;
     }
 
-    public void addItemClickListener(
-            ComponentEventListener<ItemClickEvent> listener) {
-        addListener(ItemClickEvent.class, listener);
+    /**
+     * @param listener
+     * @return
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Registration addItemClickListener(
+            ComponentEventListener<ItemClickEvent<T>> listener) {
+        return addListener(ItemClickEvent.class,
+                (ComponentEventListener) listener);
+    }
+
+    /**
+     * @param listener
+     * @return
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Registration addItemDoubleClickListener(
+            ComponentEventListener<ItemDoubleClickEvent<T>> listener) {
+        return addListener(ItemDoubleClickEvent.class,
+                (ComponentEventListener) listener);
     }
 
     /**

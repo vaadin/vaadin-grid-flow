@@ -775,6 +775,7 @@ window.Vaadin.Flow.gridConnector = {
     function _runWhenReady(){
         if ( grid.$ ){
             grid.$.scroller.addEventListener('click', _onClick);
+            grid.$.scroller.addEventListener('dblclick', _onDblClick);
             grid.addEventListener('cell-activate', _cellActivated);
         }
         else {
@@ -784,20 +785,32 @@ window.Vaadin.Flow.gridConnector = {
     
     _runWhenReady();
     
-    function _cellActivated(){
-        grid.$connector.activeItem = grid.activeItem;
+    function _cellActivated(event){
+        grid.$connector.clickedItem = event.detail.model.item;
     }
     
     function _onClick(event){
+        _fireClickEvent(event, 'item-click');
+    }
+    
+    function _onDblClick(event){
+        _fireClickEvent(event, 'item-double-click');
+    }
+    
+    function _fireClickEvent(event, eventName){
         // if there was no click on item then don't do anything
-        if (grid.$connector.activeItem){
-            event.itemKey = grid.$connector.activeItem.key;
-            grid.dispatchEvent(new CustomEvent('item-click', 
+        if (grid.$connector.clickedItem){
+            event.itemKey = grid.$connector.clickedItem.key;
+            grid.dispatchEvent(new CustomEvent(eventName, 
                     { 
                         detail: event
                     }));
-            grid.$connector.activeItem = null;
+            window.setTimeout(_clearClickedItem, 0 );
         }
+    }
+    
+    function _clearClickedItem(){
+        grid.$connector.clickedItem = null;
     }
 
   }

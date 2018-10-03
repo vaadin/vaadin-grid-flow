@@ -422,6 +422,8 @@ public class GridView extends DemoView {
 
         grid.addItemClickListener(event -> {
         });
+        grid.addItemDoubleClickListener(event -> {
+        });
 
         addCard("Grid Basics", grid);
     }
