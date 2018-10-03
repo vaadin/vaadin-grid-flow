@@ -1314,6 +1314,8 @@ public class GridView extends DemoView {
 
         // end-source-example
         grid.setId("item-click-listener");
+
+        message.addClickListener(event -> message.setText(""));
         addCard("Click Listeners", "Item Click Listener", message, grid);
     }
 
@@ -1333,6 +1335,7 @@ public class GridView extends DemoView {
 
         // end-source-example
         grid.setId("item-doubleclick-listener");
+        message.addClickListener(event -> message.setText(""));
         addCard("Click Listeners", "Item Double Click Listener", message, grid);
     }
 
