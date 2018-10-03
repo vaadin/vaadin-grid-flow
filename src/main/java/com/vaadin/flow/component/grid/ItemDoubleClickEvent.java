@@ -24,6 +24,9 @@ import com.vaadin.flow.component.EventData;
  * @param <T>
  *            the grid bean type
  *
+ * @see ItemClickEvent
+ * @see Grid#addItemDoubleClickListener(com.vaadin.flow.component.ComponentEventListener)
+ *
  * @author Vaadin Ltd
  *
  */

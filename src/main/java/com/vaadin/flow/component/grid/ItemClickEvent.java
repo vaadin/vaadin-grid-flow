@@ -27,6 +27,7 @@ import com.vaadin.flow.component.EventData;
  *
  * @author Vaadin Ltd
  *
+ * @see Grid#addItemClickListener(com.vaadin.flow.component.ComponentEventListener)
  *
  */
 @DomEvent("item-click")

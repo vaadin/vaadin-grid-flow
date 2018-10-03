@@ -805,6 +805,9 @@ window.Vaadin.Flow.gridConnector = {
                     { 
                         detail: event
                     }));
+            // can't clear the clicked item right away since there may be 
+            // not handled double click event (or may be not, it's not known)
+            // schedule this for the next cycle
             window.setTimeout(_clearClickedItem, 0 );
         }
     }
