@@ -6,11 +6,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.data.bean.Person;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.material.Material;
 
 @Route("header-page")
-@Theme(Material.class)
 public class HeaderTextPage extends Div {
 
     public static final String CHANGE_ADDRESS_HEADER_ID = "changeAddressHeader";
