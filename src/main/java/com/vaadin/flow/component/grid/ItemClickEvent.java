@@ -91,4 +91,13 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
         item = source.getDataCommunicator().getKeyMapper().get(itemKey);
     }
 
+    /**
+     * Gets the clicked item.
+     *
+     * @return the clicked item
+     */
+    public T getItem() {
+        return item;
+    }
+
 }
