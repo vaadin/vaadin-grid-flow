@@ -750,7 +750,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     @Test
-    public void itemClickListener() throws InterruptedException {
+    public void itemClickListener_singleClick_doubleClickFireClick() {
         openTabAndCheckForErrors("click-listeners");
 
         GridElement grid = $(GridElement.class).id("item-click-listener");
@@ -777,7 +777,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     @Test
-    public void itemDoubleClickListener() throws InterruptedException {
+    public void itemDoubleClickListener() {
         openTabAndCheckForErrors("click-listeners");
 
         GridElement grid = $(GridElement.class).id("item-doubleclick-listener");

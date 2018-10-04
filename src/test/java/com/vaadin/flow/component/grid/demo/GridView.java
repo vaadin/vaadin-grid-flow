@@ -1324,7 +1324,7 @@ public class GridView extends DemoView {
         message.setId("doubleclicked-item");
 
         // begin-source-example
-        // source-example-heading: Item Click Listener
+        // source-example-heading: Item Double Click Listener
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
         grid.addColumn(Person::getName).setHeader("Name");
