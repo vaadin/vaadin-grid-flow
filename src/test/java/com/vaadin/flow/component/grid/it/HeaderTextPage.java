@@ -21,7 +21,6 @@ public class HeaderTextPage extends Div {
     public HeaderTextPage() {
         Grid<Person> singleHeaderGrid = new Grid<>(Person.class);
         singleHeaderGrid.setId(SINGLE_HEADER_GRID_ID);
-        singleHeaderGrid.getThemeNames().add("column-borders");
         singleHeaderGrid.setItems(Person.createTestPerson1(),
                 Person.createTestPerson2());
 
