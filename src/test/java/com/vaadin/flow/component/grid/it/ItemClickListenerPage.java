@@ -33,10 +33,10 @@ public class ItemClickListenerPage extends Div {
         grid.setItems("foo", "bar");
         grid.addColumn(item -> item).setHeader("Name");
 
-        grid.addItemClickListener(event -> clickMsg.setText("Click event"));
+        grid.addItemClickListener(event -> clickMsg.setText("Click event "));
 
-        grid.addItemDoubleClickListener(
-                event -> dblClickMsg.setText(String.valueOf("Double click")));
+        grid.addItemDoubleClickListener(event -> dblClickMsg
+                .setText(String.valueOf(event.getClientY())));
 
         add(grid, clickMsg, dblClickMsg);
     }

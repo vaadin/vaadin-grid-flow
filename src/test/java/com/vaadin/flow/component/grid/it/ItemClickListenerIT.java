@@ -15,6 +15,8 @@
  */
 package com.vaadin.flow.component.grid.it;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -39,7 +41,12 @@ public class ItemClickListenerIT extends AbstractComponentIT {
 
         Assert.assertEquals("Click event", singleClickCount.getText());
 
-        Assert.assertEquals("Double click",
-                findElement(By.id("dblClickMsg")).getText());
+        String yCoord = findElement(By.id("dblClickMsg")).getText();
+
+        Assert.assertThat(Integer.parseInt(yCoord),
+                CoreMatchers.allOf(
+                        Matchers.greaterThan(firstRow.getLocation().getY()),
+                        Matchers.lessThan(firstRow.getLocation().getY()
+                                + firstRow.getSize().getHeight())));
     }
 }
