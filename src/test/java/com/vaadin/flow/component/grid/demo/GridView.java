@@ -61,6 +61,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
@@ -103,6 +104,7 @@ public class GridView extends DemoView {
         private int age;
         private String name;
         private Address address;
+        private boolean isMale;
 
         public int getId() {
             return id;
@@ -134,6 +136,14 @@ public class GridView extends DemoView {
 
         public void setAddress(Address address) {
             this.address = address;
+        }
+
+        public boolean isMale() {
+            return isMale;
+        }
+
+        public void setMale(boolean male) {
+            isMale = male;
         }
 
         @Override
@@ -387,6 +397,8 @@ public class GridView extends DemoView {
         addVariantFeature();
         createClickListener();
         createDoubleClickListener();
+        createBufferedEditor();
+        createNotBufferedEditor();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -1339,6 +1351,42 @@ public class GridView extends DemoView {
         addCard("Click Listeners", "Item Double Click Listener", message, grid);
     }
 
+    private void createBufferedEditor() {
+
+    }
+
+    private void createNotBufferedEditor() {
+        Div message = new Div();
+        message.setId("buffered-editor");
+
+        // begin-source-example
+        // source-example-heading: Editor in Buffered Mode
+        Grid<Person> grid = new Grid<>();
+        List<Person> persons = getItems();
+        grid.setItems(persons);
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setHeader("Name");
+        Column<Person> genderColumn = grid
+                .addColumn(person -> person.isMale() ? "Male" : "Femail")
+                .setHeader("Gender");
+
+        Binder<Person> binder = new Binder<>(Person.class);
+        grid.getEditor().setBinder(binder);
+
+        TextField field = new TextField();
+        nameColumn.setEditorBinding(binder.bind(field, "name"));
+
+        Checkbox checkbox = new Checkbox();
+        genderColumn.setEditorBinding(binder.bind(checkbox, "male"));
+
+        grid.addItemDoubleClickListener(
+                event -> grid.getEditor().editItem(persons.get(0)));
+
+        // end-source-example
+        grid.setId("item-doubleclick-listener");
+        addCard("Grid Editor", "Editor in buffered mode", message, grid);
+    }
+
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
             TreeGrid<T> grid, Component... other) {
         NativeButton toggleFirstItem = new NativeButton("Toggle first item",
@@ -1450,6 +1498,7 @@ public class GridView extends DemoView {
         person.setId(id);
         person.setName("Person " + index);
         person.setAge(13 + random.nextInt(50));
+        person.setMale(random.nextBoolean());
 
         Address address = new Address();
         address.setStreet("Street " + ((char) ('A' + random.nextInt(26))));
