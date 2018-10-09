@@ -55,6 +55,7 @@ import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.HasDataProvider;
 import com.vaadin.flow.data.binder.PropertyDefinition;
 import com.vaadin.flow.data.binder.PropertySet;
+import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.event.SortEvent.SortNotifier;
 import com.vaadin.flow.data.provider.ArrayUpdater;
@@ -695,6 +696,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @return this column
          *
          * @see Binding
+         * @see #setEditorComponent(Component)
          * @see Grid#getEditor()
          * @see Editor#getBinder()
          */
@@ -709,7 +711,30 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
 
             editorBinding = binding;
-            setEditorComponent((Component) field);
+            return setEditorComponent((Component) field);
+        }
+
+        /**
+         * Sets a component to use for editing values of this column in the
+         * editor row. This is a convenient way for use in simple cases where no
+         * need to read/write values (only UI components are shown in two modes:
+         * when editor is shown and closed). Use
+         * {@link #setEditorBinding(Binding)} to support more complex cases.
+         *
+         * @param editorComponent
+         *            the editor component
+         * @return this column
+         *
+         * @see #setEditorBinding(Binding)
+         * @see Grid#getEditor()
+         * @see Binder#bind(HasValue, ValueProvider, Setter)
+         */
+        public Column<T> setEditorComponent(Component editorComponent) {
+            Element container = ElementFactory.createDiv();
+            getElement().appendVirtualChild(container);
+            container.appendChild(editorComponent.getElement());
+
+            runBeforeClientResponse(context -> setComponentTemplate(container));
             return this;
         }
 
@@ -728,14 +753,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         @Override
         protected Column<?> getBottomLevelColumn() {
             return this;
-        }
-
-        private void setEditorComponent(Component editorComponent) {
-            Element container = ElementFactory.createDiv();
-            getElement().appendVirtualChild(container);
-            container.appendChild(editorComponent.getElement());
-
-            runBeforeClientResponse(context -> setComponentTemplate(container));
         }
 
         private void setComponentTemplate(Element container) {

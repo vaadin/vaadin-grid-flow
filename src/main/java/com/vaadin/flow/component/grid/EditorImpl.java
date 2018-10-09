@@ -19,10 +19,14 @@ import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.grid.Grid.AbstractGridExtension;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.PropertySet;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.shared.Registration;
 
 import elemental.json.JsonObject;
 
@@ -40,6 +44,30 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     private Binder<T> binder;
     private T edited;
     private boolean isBuffered;
+
+    private static class SaveEvent<T> extends ComponentEvent<Grid<T>> {
+
+        public SaveEvent(Grid<T> source) {
+            super(source, false);
+        }
+
+    }
+
+    private static class CancelEvent<T> extends ComponentEvent<Grid<T>> {
+
+        public CancelEvent(Grid<T> source) {
+            super(source, false);
+        }
+
+    }
+
+    private static class EditEvent<T> extends ComponentEvent<Grid<T>> {
+
+        public EditEvent(Grid<T> source) {
+            super(source, false);
+        }
+
+    }
 
     public EditorImpl(Grid<T> grid, PropertySet<T> propertySet) {
         super(grid);
@@ -87,7 +115,8 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
         if (isOpen() && isBuffered()) {
             binder.validate();
             if (binder.writeBeanIfValid(edited)) {
-                refresh(edited);
+                ComponentUtil.fireEvent(getGrid(), new SaveEvent<T>(getGrid()));
+                close();
                 return true;
             }
         }
@@ -96,6 +125,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
 
     @Override
     public void cancel() {
+        ComponentUtil.fireEvent(getGrid(), new CancelEvent<T>(getGrid()));
         close();
     }
 
@@ -115,6 +145,8 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
         } else {
             binder.setBean(item);
         }
+
+        ComponentUtil.fireEvent(getGrid(), new EditEvent<T>(getGrid()));
     }
 
     @Override
@@ -161,6 +193,33 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
             throw new IllegalStateException(
                     "The item is not in the backing data provider");
         }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public Registration addSaveListener(EditorSaveListener<T> listener) {
+        ComponentEventListener componentListener = event -> listener
+                .onEditorSave(new EditorSaveEvent<T>(this, edited));
+        return ComponentUtil.addListener(getGrid(), SaveEvent.class,
+                componentListener);
+    }
+
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Registration addCancelListener(EditorCancelListener<T> listener) {
+        ComponentEventListener componentListener = event -> listener
+                .onEditorCancel(new EditorCancelEvent<T>(this, edited));
+        return ComponentUtil.addListener(getGrid(), CancelEvent.class,
+                componentListener);
+    }
+
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Registration addOpenListener(EditorOpenListener<T> listener) {
+        ComponentEventListener componentListener = event -> listener
+                .onEditorOpen(new EditorOpenEvent<T>(this, edited));
+        return ComponentUtil.addListener(getGrid(), EditEvent.class,
+                componentListener);
     }
 
 }
