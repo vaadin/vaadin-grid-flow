@@ -39,6 +39,10 @@ import elemental.json.JsonObject;
 public class EditorImpl<T> extends AbstractGridExtension<T>
         implements Editor<T> {
 
+    /**
+     * This property is used in the Grid <code>dom-if</code> template for
+     * setting the editor component.
+     */
     private static final String EDITING = "_editing";
 
     private Binder<T> binder;
@@ -190,8 +194,8 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
         }
 
         if (!getGrid().getDataCommunicator().getKeyMapper().has(item)) {
-            throw new IllegalStateException(
-                    "The item is not in the backing data provider");
+            throw new IllegalStateException("The item " + item
+                    + " is not in the backing data provider");
         }
     }
 

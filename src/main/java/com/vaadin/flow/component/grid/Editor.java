@@ -22,6 +22,9 @@ import com.vaadin.flow.shared.Registration;
 
 /**
  * An editor in a Grid.
+ * <p>
+ * This class contains methods for editor functionality: configure an editor
+ * {@link Binder}, open the editor, save and cancel a row editing.
  *
  * @author Vaadin Ltd
  *

@@ -692,7 +692,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * {@link Component}.
          *
          * @param binding
-         *            the binding to use for this column
+         *            the binding to use for this column, not {@code null}
          * @return this column
          *
          * @see Binding
@@ -722,7 +722,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * {@link #setEditorBinding(Binding)} to support more complex cases.
          *
          * @param editorComponent
-         *            the editor component
+         *            the editor component, not {@code null}
          * @return this column
          *
          * @see #setEditorBinding(Binding)
@@ -730,6 +730,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @see Binder#bind(HasValue, ValueProvider, Setter)
          */
         public Column<T> setEditorComponent(Component editorComponent) {
+            Objects.requireNonNull(editorComponent,
+                    "null is not a valid editor component");
+
             Element container = ElementFactory.createDiv();
             getElement().appendVirtualChild(container);
             container.appendChild(editorComponent.getElement());
