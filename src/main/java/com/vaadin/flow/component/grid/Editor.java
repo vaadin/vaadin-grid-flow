@@ -129,7 +129,6 @@ public interface Editor<T> extends Serializable {
      *            open listener
      * @return a registration object for removing the listener
      *
-     * @since 8.1
      */
     public Registration addOpenListener(EditorOpenListener<T> listener);
 }
