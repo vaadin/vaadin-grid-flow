@@ -1355,7 +1355,7 @@ public class GridView extends DemoView {
 
     private void createBufferedEditor() {
         Div message = new Div();
-        message.setId("buffered-editor");
+        message.setId("buffered-editor-msg");
 
         // begin-source-example
         // source-example-heading: Editor in Buffered Mode
@@ -1392,9 +1392,7 @@ public class GridView extends DemoView {
             return edit;
         });
 
-        Button save = new Button("Save", e -> {
-            editor.save();
-        });
+        Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
 
         Button cancel = new Button("Cancel", e -> editor.cancel());
@@ -1414,7 +1412,7 @@ public class GridView extends DemoView {
 
     private void createNotBufferedEditor() {
         Div message = new Div();
-        message.setId("not-buffered-editor");
+        message.setId("not-buffered-editor-msg");
 
         // begin-source-example
         // source-example-heading: Editor in Not Buffered Mode

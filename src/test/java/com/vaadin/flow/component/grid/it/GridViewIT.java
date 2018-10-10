@@ -32,6 +32,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 import com.vaadin.flow.component.grid.demo.GridView;
+import com.vaadin.flow.component.grid.testbench.GridColumnElement;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.component.grid.testbench.GridTHTDElement;
 import com.vaadin.flow.component.grid.testbench.GridTRElement;
@@ -802,6 +803,149 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         // No event
         Assert.assertEquals("", clickInfo.getText());
+    }
+
+    @Test
+    public void bufferedEditor_invalidName() {
+        openTabAndCheckForErrors("grid-editor");
+
+        GridElement grid = $(GridElement.class).id("buffered-editor");
+        scrollToElement(grid);
+        waitUntil(driver -> grid.getRowCount() > 0);
+
+        GridTRElement row = grid.getRow(0);
+
+        GridColumnElement nameColumn = grid.getColumn("Name");
+        GridTHTDElement nameCell = row.getCell(nameColumn);
+        String personName = nameCell.getText();
+
+        WebElement edit = findElement(By.className("edit"));
+        edit.click();
+
+        // Write invalid name. There should be a status message with validation
+        // error.
+        TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
+
+        TestBenchElement nameInput = nameField.$("input").first();
+        nameInput.clear();
+        nameInput.sendKeys("foo");
+        nameInput.sendKeys(Keys.ENTER);
+
+        GridTHTDElement editColumn = row.getCell(grid.getAllColumns().get(2));
+        editColumn.$("vaadin-button").attribute("class", "save").first()
+                .click();
+
+        String validation = findElement(By.id("validation")).getText();
+        // There is an error in the status message
+        Assert.assertEquals("Name should start with Person", validation);
+
+        WebElement msg = findElement(By.id("buffered-editor-msg"));
+        // No save events
+        Assert.assertEquals("", msg.getText());
+
+        editColumn.$("vaadin-button").attribute("class", "cancel").first()
+                .click();
+
+        Assert.assertEquals(personName, nameCell.getText());
+        // Still no any save events
+        Assert.assertEquals("", msg.getText());
+    }
+
+    @Test
+    public void bufferedEditor_validName() throws InterruptedException {
+        openTabAndCheckForErrors("grid-editor");
+
+        GridElement grid = $(GridElement.class).id("buffered-editor");
+        scrollToElement(grid);
+        waitUntil(driver -> grid.getRowCount() > 0);
+
+        GridTRElement row = grid.getRow(0);
+
+        GridColumnElement nameColumn = grid.getColumn("Name");
+        GridTHTDElement nameCell = row.getCell(nameColumn);
+        String personName = nameCell.getText();
+
+        GridColumnElement genderColumn = grid.getColumn("Gender");
+
+        WebElement edit = findElement(By.className("edit"));
+        edit.click();
+
+        GridTHTDElement genderCell = row.getCell(genderColumn);
+
+        TestBenchElement genderCheckbox = genderCell.$("vaadin-checkbox")
+                .first();
+        boolean isMale = genderCheckbox.getAttribute("checked") != null;
+
+        // Write valid name.
+        TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
+
+        TestBenchElement nameInput = nameField.$("input").first();
+        nameInput.sendKeys("foo");
+        nameInput.sendKeys(Keys.ENTER);
+
+        genderCheckbox.click();
+
+        GridColumnElement editColumn = grid.getAllColumns().get(2);
+
+        TestBenchElement save = row.getCell(editColumn).$("vaadin-button")
+                .first();
+        save.click();
+
+        String validation = findElement(By.id("validation")).getText();
+        // Validation is empty
+        Assert.assertEquals("", validation);
+
+        // New data should be shown in the grid cell
+        Assert.assertEquals(personName + "foo", nameCell.getText());
+        Assert.assertEquals(isMale ? "Femail" : "Male", genderCell.getText());
+
+        // There should be an event for the edited person
+        WebElement msg = findElement(By.id("buffered-editor-msg"));
+        Assert.assertEquals(personName + "foo, " + !isMale, msg.getText());
+    }
+
+    @Test
+    public void notBufferedEditor() throws InterruptedException {
+        openTabAndCheckForErrors("grid-editor");
+
+        GridElement grid = $(GridElement.class).id("not-buffered-editor");
+        scrollToElement(grid);
+        waitUntil(driver -> grid.getRowCount() > 0);
+
+        GridTRElement row = grid.getRow(0);
+
+        GridColumnElement nameColumn = grid.getColumn("Name");
+        GridTHTDElement nameCell = row.getCell(nameColumn);
+        String personName = nameCell.getText();
+
+        GridColumnElement genderColumn = grid.getColumn("Gender");
+
+        GridTHTDElement genderCell = row.getCell(genderColumn);
+
+        row.doubleClick();
+
+        TestBenchElement genderCheckbox = genderCell.$("vaadin-checkbox")
+                .first();
+        boolean isMale = genderCheckbox.getAttribute("checked") != null;
+
+        TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
+
+        TestBenchElement nameInput = nameField.$("input").first();
+        nameInput.sendKeys("foo");
+        nameInput.sendKeys(Keys.ENTER);
+
+        genderCheckbox.click();
+
+        // click on another row
+        grid.getRow(1).click(10, 10);
+
+        // New data should be shown in the grid cell
+        Assert.assertEquals(personName + "foo", nameCell.getText());
+        Assert.assertEquals(isMale ? "Femail" : "Male", genderCell.getText());
+
+        // The edited person should have new data
+        WebElement msg = findElement(By.id("not-buffered-editor-msg"));
+        Assert.assertEquals(personName + "foo, " + !isMale, msg.getText());
     }
 
     private void assertFirstCells(GridElement grid, String... cellContents) {

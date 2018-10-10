@@ -113,8 +113,8 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     @Override
     public boolean save() {
         if (isOpen() && isBuffered()) {
-            binder.validate();
-            if (binder.writeBeanIfValid(edited)) {
+            getBinder().validate();
+            if (getBinder().writeBeanIfValid(edited)) {
                 ComponentUtil.fireEvent(getGrid(), new SaveEvent<T>(getGrid()));
                 close();
                 return true;
