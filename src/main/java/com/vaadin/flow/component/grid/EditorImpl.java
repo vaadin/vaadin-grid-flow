@@ -85,6 +85,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
 
     @Override
     public Editor<T> setBinder(Binder<T> binder) {
+        Objects.requireNonNull(binder, "Binder can't edit null");
         this.binder = binder;
         return this;
     }
@@ -142,7 +143,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
         close();
         edited = item;
 
-        getGrid().getDataCommunicator().refresh(item);
+        refresh(item);
 
         if (isBuffered()) {
             binder.readBean(item);

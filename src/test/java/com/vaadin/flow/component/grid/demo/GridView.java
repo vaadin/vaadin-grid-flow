@@ -1388,12 +1388,7 @@ public class GridView extends DemoView {
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
             edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                Column<Person> column = grid.getColumns()
-                        .get(grid.getColumns().size() - 1);
-                column.setEditorComponent(new Label("xxx"));
-                // editor.editItem(person);
-            });
+            edit.addClickListener(e -> editor.editItem(person));
             return edit;
         });
 
@@ -1531,7 +1526,7 @@ public class GridView extends DemoView {
     }
 
     private static List<Person> createItems() {
-        return createItems(500);
+        return createItems(1000);
     }
 
     private static List<PersonWithLevel> createRootItems() {
