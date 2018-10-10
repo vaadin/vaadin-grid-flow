@@ -231,6 +231,7 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
 
     @Test
     public void addHeaderRow_setMultiselect_disableSelection() {
+
         clickButton("prepend-header");
         clickButton("set-multiselect");
         List<WebElement> headerCells = getHeaderCells();
