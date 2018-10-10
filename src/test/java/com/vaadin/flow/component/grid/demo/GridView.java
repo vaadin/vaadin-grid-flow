@@ -1526,7 +1526,7 @@ public class GridView extends DemoView {
     }
 
     private static List<Person> createItems() {
-        return createItems(1000);
+        return createItems(500);
     }
 
     private static List<PersonWithLevel> createRootItems() {
