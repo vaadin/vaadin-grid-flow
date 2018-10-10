@@ -269,6 +269,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         private Binding<T, ?> editorBinding;
 
+        private boolean editorComponentSet;
+
         private SortOrderProvider sortOrderProvider = direction -> {
             String key = getKey();
             if (key == null) {
@@ -690,6 +692,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * <p>
          * The {@link HasValue} that the binding is defined to use must be a
          * {@link Component}.
+         * <p>
+         * A binding for the column can be set only once. The second attempt
+         * will cause {@link IllegalStateException}.The same happens if the
+         * method {@link #setEditorComponent(Component)} is called after the
+         * {@link #setEditorBinding(Binding)} method.
          *
          * @param binding
          *            the binding to use for this column, not {@code null}
@@ -699,9 +706,17 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @see #setEditorComponent(Component)
          * @see Grid#getEditor()
          * @see Editor#getBinder()
+         *
+         * @throws IllegalStateException
+         *             if binding is already set
          */
         public Column<T> setEditorBinding(Binding<T, ?> binding) {
             Objects.requireNonNull(binding, "null is not a valid editor field");
+
+            if (editorBinding != null) {
+                throw new IllegalStateException("Cannot set a binding  to the "
+                        + "column which already has a binding");
+            }
 
             HasValue<?, ?> field = binding.getField();
 
@@ -720,6 +735,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * need to read/write values (only UI components are shown in two modes:
          * when editor is shown and closed). Use
          * {@link #setEditorBinding(Binding)} to support more complex cases.
+         * <p>
+         * An editor component for the column can be set only once. The second
+         * attempt will cause {@link IllegalStateException}. The same happens if
+         * the method {@link #setEditorBinding(Binding)} is called after the
+         * {@link #setEditorComponent(Component)} method.
          *
          * @param editorComponent
          *            the editor component, not {@code null}
@@ -728,10 +748,19 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @see #setEditorBinding(Binding)
          * @see Grid#getEditor()
          * @see Binder#bind(HasValue, ValueProvider, Setter)
+         *
+         * @throws IllegalStateException
+         *             if components is already set
          */
         public Column<T> setEditorComponent(Component editorComponent) {
             Objects.requireNonNull(editorComponent,
                     "null is not a valid editor component");
+            if (editorComponentSet) {
+                throw new IllegalStateException(
+                        "Cannot set a binding or editor component to the "
+                                + "column which already has a binding/editor component");
+            }
+            editorComponentSet = true;
 
             Element container = ElementFactory.createDiv();
             getElement().appendVirtualChild(container);
