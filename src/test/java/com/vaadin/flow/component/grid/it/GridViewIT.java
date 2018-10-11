@@ -197,7 +197,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 "<div title=\"Person 1\">Person 1<br><small>23 years old</small></div>",
                 grid.getCell(0, 1).getInnerHTML());
         Assert.assertEquals(
-                "<div>Street S, number 30<br><small>16142</small></div>",
+                "<div>Street X, number 48<br><small>15625</small></div>",
                 grid.getCell(0, 2).getInnerHTML());
         Assert.assertEquals("<button>Update</button><button>Remove</button>",
                 grid.getCell(0, 3).getInnerHTML());
@@ -216,7 +216,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         buttons.get(1).click();
         Assert.assertEquals(
-                "<div title=\"Person 2\">Person 2<br><small>28 years old</small></div>",
+                "<div title=\"Person 2\">Person 2<br><small>16 years old</small></div>",
                 grid.getCell(0, 1).getInnerHTML());
     }
 
@@ -594,13 +594,14 @@ public class GridViewIT extends TabbedComponentDemoTest {
         GridElement grid = $(GridElement.class).id("bean-grid");
         scrollToElement(grid);
 
-        Assert.assertEquals("Unexpected amount of columns", 4,
+        Assert.assertEquals("Unexpected amount of columns", 5,
                 grid.findElements(By.tagName("vaadin-grid-column")).size());
 
         Assert.assertEquals("Address", grid.getHeaderCell(0).getText());
         Assert.assertEquals("Age", grid.getHeaderCell(1).getText());
-        Assert.assertEquals("Name", grid.getHeaderCell(2).getText());
-        Assert.assertEquals("Postal Code", grid.getHeaderCell(3).getText());
+        Assert.assertEquals("Age", grid.getHeaderCell(2).getText());
+        Assert.assertEquals("Name", grid.getHeaderCell(3).getText());
+        Assert.assertEquals("Postal Code", grid.getHeaderCell(4).getText());
     }
 
     @Test

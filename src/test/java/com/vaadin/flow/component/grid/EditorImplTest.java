@@ -23,8 +23,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.StatusChangeEvent;
+import com.vaadin.flow.function.ValueProvider;
 
 public class EditorImplTest {
 
@@ -168,6 +170,28 @@ public class EditorImplTest {
 
         Assert.assertNotNull(statusEventCapture.get());
         Assert.assertNotNull(saveEventCapure.get());
+    }
+
+    @Test
+    public void save_editorIsOpened_editorIsInBufferedMode_beanIsInvalid_editorIsNotClosed() {
+        editor.getBinder().forField(new TextField())
+                .withValidator(value -> !value.equals("bar"), "")
+                .bind(ValueProvider.identity(), (item, value) -> {
+                });
+        editor.editItem("bar");
+        editor.refreshedItems.clear();
+        editor.setBuffered(true);
+
+        AtomicReference<StatusChangeEvent> statusEventCapture = new AtomicReference<>();
+        AtomicReference<EditorSaveEvent<String>> saveEventCapure = new AtomicReference<EditorSaveEvent<String>>();
+
+        Assert.assertFalse(doSave(statusEventCapture, saveEventCapure));
+        Assert.assertEquals(0, editor.refreshedItems.size());
+
+        Assert.assertNotNull(statusEventCapture.get());
+        Assert.assertNull(saveEventCapure.get());
+
+        Assert.assertTrue(statusEventCapture.get().hasValidationErrors());
     }
 
     private void assertNegativeSave(
