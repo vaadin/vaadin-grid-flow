@@ -599,7 +599,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         Assert.assertEquals("Address", grid.getHeaderCell(0).getText());
         Assert.assertEquals("Age", grid.getHeaderCell(1).getText());
-        Assert.assertEquals("Age", grid.getHeaderCell(2).getText());
+        Assert.assertEquals("Male", grid.getHeaderCell(2).getText());
         Assert.assertEquals("Name", grid.getHeaderCell(3).getText());
         Assert.assertEquals("Postal Code", grid.getHeaderCell(4).getText());
     }
