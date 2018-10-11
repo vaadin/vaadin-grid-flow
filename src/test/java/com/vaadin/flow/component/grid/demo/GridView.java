@@ -1365,7 +1365,7 @@ public class GridView extends DemoView {
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
         Column<Person> genderColumn = grid
-                .addColumn(person -> person.isMale() ? "Male" : "Femail")
+                .addColumn(person -> person.isMale() ? "Male" : "Female")
                 .setHeader("Gender");
 
         Binder<Person> binder = new Binder<>(Person.class);
@@ -1422,7 +1422,7 @@ public class GridView extends DemoView {
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
         Column<Person> genderColumn = grid
-                .addColumn(person -> person.isMale() ? "Male" : "Femail")
+                .addColumn(person -> person.isMale() ? "Male" : "Female")
                 .setHeader("Gender");
 
         Binder<Person> binder = new Binder<>(Person.class);
