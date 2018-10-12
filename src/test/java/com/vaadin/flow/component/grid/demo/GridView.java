@@ -106,7 +106,7 @@ public class GridView extends DemoView {
         private int age;
         private String name;
         private Address address;
-        private boolean isMale;
+        private boolean isSubscriber;
 
         public int getId() {
             return id;
@@ -140,12 +140,12 @@ public class GridView extends DemoView {
             this.address = address;
         }
 
-        public boolean isMale() {
-            return isMale;
+        public boolean isSubscriber() {
+            return isSubscriber;
         }
 
-        public void setMale(boolean male) {
-            isMale = male;
+        public void setSubscriber(boolean isSubscriber) {
+            this.isSubscriber = isSubscriber;
         }
 
         @Override
@@ -1364,9 +1364,8 @@ public class GridView extends DemoView {
         grid.setItems(persons);
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
-        Column<Person> genderColumn = grid
-                .addColumn(person -> person.isMale() ? "Male" : "Female")
-                .setHeader("Gender");
+        Column<Person> genderColumn = grid.addColumn(Person::isSubscriber)
+                .setHeader("Subscriber");
 
         Binder<Person> binder = new Binder<>(Person.class);
         Editor<Person> editor = grid.getEditor();
@@ -1383,7 +1382,7 @@ public class GridView extends DemoView {
                 .withStatusLabel(validationStatus).bind("name"));
 
         Checkbox checkbox = new Checkbox();
-        genderColumn.setEditorBinding(binder.bind(checkbox, "male"));
+        genderColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
@@ -1401,8 +1400,9 @@ public class GridView extends DemoView {
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
 
-        editor.addSaveListener(event -> message.setText(
-                event.getBean().getName() + ", " + event.getBean().isMale()));
+        editor.addSaveListener(
+                event -> message.setText(event.getBean().getName() + ", "
+                        + event.getBean().isSubscriber));
 
         // end-source-example
         grid.setId("buffered-editor");
@@ -1421,9 +1421,8 @@ public class GridView extends DemoView {
         grid.setItems(persons);
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
-        Column<Person> genderColumn = grid
-                .addColumn(person -> person.isMale() ? "Male" : "Female")
-                .setHeader("Gender");
+        Column<Person> genderColumn = grid.addColumn(Person::isSubscriber)
+                .setHeader("Subscriber");
 
         Binder<Person> binder = new Binder<>(Person.class);
         grid.getEditor().setBinder(binder);
@@ -1432,7 +1431,7 @@ public class GridView extends DemoView {
         nameColumn.setEditorBinding(binder.bind(field, "name"));
 
         Checkbox checkbox = new Checkbox();
-        genderColumn.setEditorBinding(binder.bind(checkbox, "male"));
+        genderColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
 
         grid.addItemDoubleClickListener(
                 event -> grid.getEditor().editItem(event.getItem()));
@@ -1440,7 +1439,7 @@ public class GridView extends DemoView {
         grid.addItemClickListener(event -> {
             if (binder.getBean() != null) {
                 message.setText(binder.getBean().getName() + ", "
-                        + binder.getBean().isMale());
+                        + binder.getBean().isSubscriber());
             }
         });
 
@@ -1560,7 +1559,7 @@ public class GridView extends DemoView {
         person.setId(id);
         person.setName("Person " + index);
         person.setAge(13 + random.nextInt(50));
-        person.setMale(random.nextBoolean());
+        person.setSubscriber(random.nextBoolean());
 
         Address address = new Address();
         address.setStreet("Street " + ((char) ('A' + random.nextInt(26))));

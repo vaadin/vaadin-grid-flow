@@ -866,7 +866,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         GridTHTDElement nameCell = row.getCell(nameColumn);
         String personName = nameCell.getText();
 
-        GridColumnElement genderColumn = grid.getColumn("Gender");
+        GridColumnElement genderColumn = grid.getColumn("Subscriber");
 
         WebElement edit = findElement(By.className("edit"));
         edit.click();
@@ -875,7 +875,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         TestBenchElement genderCheckbox = genderCell.$("vaadin-checkbox")
                 .first();
-        boolean isMale = genderCheckbox.getAttribute("checked") != null;
+        boolean isSubscriber = genderCheckbox.getAttribute("checked") != null;
 
         // Write valid name.
         TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
@@ -898,11 +898,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         // New data should be shown in the grid cell
         Assert.assertEquals(personName + "foo", nameCell.getText());
-        Assert.assertEquals(isMale ? "Female" : "Male", genderCell.getText());
+        Assert.assertEquals(String.valueOf(!isSubscriber),
+                genderCell.getText());
 
         // There should be an event for the edited person
         WebElement msg = findElement(By.id("buffered-editor-msg"));
-        Assert.assertEquals(personName + "foo, " + !isMale, msg.getText());
+        Assert.assertEquals(personName + "foo, " + !isSubscriber,
+                msg.getText());
     }
 
     @Test
@@ -919,7 +921,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         GridTHTDElement nameCell = row.getCell(nameColumn);
         String personName = nameCell.getText();
 
-        GridColumnElement genderColumn = grid.getColumn("Gender");
+        GridColumnElement genderColumn = grid.getColumn("Subscriber");
 
         GridTHTDElement genderCell = row.getCell(genderColumn);
 
@@ -927,7 +929,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         TestBenchElement genderCheckbox = genderCell.$("vaadin-checkbox")
                 .first();
-        boolean isMale = genderCheckbox.getAttribute("checked") != null;
+        boolean isSubscriber = genderCheckbox.getAttribute("checked") != null;
 
         TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
 
@@ -942,11 +944,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         // New data should be shown in the grid cell
         Assert.assertEquals(personName + "foo", nameCell.getText());
-        Assert.assertEquals(isMale ? "Female" : "Male", genderCell.getText());
+        Assert.assertEquals(String.valueOf(!isSubscriber),
+                genderCell.getText());
 
         // The edited person should have new data
         WebElement msg = findElement(By.id("not-buffered-editor-msg"));
-        Assert.assertEquals(personName + "foo, " + !isMale, msg.getText());
+        Assert.assertEquals(personName + "foo, " + !isSubscriber,
+                msg.getText());
     }
 
     private void assertFirstCells(GridElement grid, String... cellContents) {
