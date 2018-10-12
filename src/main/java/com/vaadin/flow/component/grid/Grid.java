@@ -712,12 +712,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          */
         public Column<T> setEditorBinding(Binding<T, ?> binding) {
             Objects.requireNonNull(binding, "null is not a valid editor field");
-
-            if (editorBinding != null) {
-                throw new IllegalStateException("Cannot set a binding  to the "
-                        + "column which already has a binding");
-            }
-
             HasValue<?, ?> field = binding.getField();
 
             if (!(field instanceof Component)) {
