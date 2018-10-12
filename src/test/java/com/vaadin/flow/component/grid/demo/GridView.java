@@ -562,10 +562,17 @@ public class GridView extends DemoView {
     }
 
     private void createColumnTemplate() {
+        List<Person> items = new ArrayList<>();
+        items.add(createPerson(Person::new, "Person A", -1, 27, true,
+                "Street N", 31, "74253"));
+        items.add(createPerson(Person::new, "Person B", 0, 19, false,
+                "Street F", 73, "93493"));
+        items.addAll(createItems());
+
         // begin-source-example
         // source-example-heading: Grid with columns using template renderer
         Grid<Person> grid = new Grid<>();
-        grid.setItems(createItems());
+        grid.setItems(items);
 
         // You can use the [[index]] variable to print the row index (0 based)
         grid.addColumn(TemplateRenderer.of("[[index]]")).setHeader("#");
@@ -1555,16 +1562,26 @@ public class GridView extends DemoView {
 
     private static <T extends Person> T createPerson(Supplier<T> constructor,
             int index, int id, Random random) {
+        return createPerson(constructor, "Person " + index, id,
+                13 + random.nextInt(50), random.nextBoolean(),
+                "Street " + ((char) ('A' + random.nextInt(26))),
+                1 + random.nextInt(50),
+                String.valueOf(10000 + random.nextInt(8999)));
+    }
+
+    private static <T extends Person> T createPerson(Supplier<T> constructor,
+            String name, int id, int age, boolean subscriber, String street,
+            int addressNumber, String postalCode) {
         T person = constructor.get();
         person.setId(id);
-        person.setName("Person " + index);
-        person.setAge(13 + random.nextInt(50));
-        person.setSubscriber(random.nextBoolean());
+        person.setName(name);
+        person.setAge(age);
+        person.setSubscriber(subscriber);
 
         Address address = new Address();
-        address.setStreet("Street " + ((char) ('A' + random.nextInt(26))));
-        address.setNumber(1 + random.nextInt(50));
-        address.setPostalCode(String.valueOf(10000 + random.nextInt(8999)));
+        address.setStreet(street);
+        address.setNumber(addressNumber);
+        address.setPostalCode(postalCode);
         person.setAddress(address);
 
         return person;

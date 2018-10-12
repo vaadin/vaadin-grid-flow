@@ -194,10 +194,10 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         Assert.assertEquals("0", grid.getCell(0, 0).getText());
         Assert.assertEquals(
-                "<div title=\"Person 1\">Person 1<br><small>23 years old</small></div>",
+                "<div title=\"Person A\">Person A<br><small>27 years old</small></div>",
                 grid.getCell(0, 1).getInnerHTML());
         Assert.assertEquals(
-                "<div>Street X, number 48<br><small>15625</small></div>",
+                "<div>Street N, number 31<br><small>74253</small></div>",
                 grid.getCell(0, 2).getInnerHTML());
         Assert.assertEquals("<button>Update</button><button>Remove</button>",
                 grid.getCell(0, 3).getInnerHTML());
@@ -207,16 +207,16 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         buttons.get(0).click();
         Assert.assertEquals(
-                "<div title=\"Person 1 Updated\">Person 1 Updated<br><small>23 years old</small></div>",
+                "<div title=\"Person A Updated\">Person A Updated<br><small>27 years old</small></div>",
                 grid.getCell(0, 1).getInnerHTML());
         buttons.get(0).click();
         Assert.assertEquals(
-                "<div title=\"Person 1 Updated Updated\">Person 1 Updated Updated<br><small>23 years old</small></div>",
+                "<div title=\"Person A Updated Updated\">Person A Updated Updated<br><small>27 years old</small></div>",
                 grid.getCell(0, 1).getInnerHTML());
 
         buttons.get(1).click();
         Assert.assertEquals(
-                "<div title=\"Person 2\">Person 2<br><small>16 years old</small></div>",
+                "<div title=\"Person B\">Person B<br><small>19 years old</small></div>",
                 grid.getCell(0, 1).getInnerHTML());
     }
 
@@ -599,7 +599,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         Assert.assertEquals("Address", grid.getHeaderCell(0).getText());
         Assert.assertEquals("Age", grid.getHeaderCell(1).getText());
-        Assert.assertEquals("Male", grid.getHeaderCell(2).getText());
+        Assert.assertEquals("Subscriber", grid.getHeaderCell(2).getText());
         Assert.assertEquals("Name", grid.getHeaderCell(3).getText());
         Assert.assertEquals("Postal Code", grid.getHeaderCell(4).getText());
     }
@@ -866,16 +866,17 @@ public class GridViewIT extends TabbedComponentDemoTest {
         GridTHTDElement nameCell = row.getCell(nameColumn);
         String personName = nameCell.getText();
 
-        GridColumnElement genderColumn = grid.getColumn("Subscriber");
+        GridColumnElement subscriberColumn = grid.getColumn("Subscriber");
 
         WebElement edit = findElement(By.className("edit"));
         edit.click();
 
-        GridTHTDElement genderCell = row.getCell(genderColumn);
+        GridTHTDElement subscriberCell = row.getCell(subscriberColumn);
 
-        TestBenchElement genderCheckbox = genderCell.$("vaadin-checkbox")
-                .first();
-        boolean isSubscriber = genderCheckbox.getAttribute("checked") != null;
+        TestBenchElement subscriberCheckbox = subscriberCell
+                .$("vaadin-checkbox").first();
+        boolean isSubscriber = subscriberCheckbox
+                .getAttribute("checked") != null;
 
         // Write valid name.
         TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
@@ -884,7 +885,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         nameInput.sendKeys("foo");
         nameInput.sendKeys(Keys.ENTER);
 
-        genderCheckbox.click();
+        subscriberCheckbox.click();
 
         GridColumnElement editColumn = grid.getAllColumns().get(2);
 
@@ -899,7 +900,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         // New data should be shown in the grid cell
         Assert.assertEquals(personName + "foo", nameCell.getText());
         Assert.assertEquals(String.valueOf(!isSubscriber),
-                genderCell.getText());
+                subscriberCell.getText());
 
         // There should be an event for the edited person
         WebElement msg = findElement(By.id("buffered-editor-msg"));
@@ -921,15 +922,16 @@ public class GridViewIT extends TabbedComponentDemoTest {
         GridTHTDElement nameCell = row.getCell(nameColumn);
         String personName = nameCell.getText();
 
-        GridColumnElement genderColumn = grid.getColumn("Subscriber");
+        GridColumnElement subscriberColumn = grid.getColumn("Subscriber");
 
-        GridTHTDElement genderCell = row.getCell(genderColumn);
+        GridTHTDElement subscriberCell = row.getCell(subscriberColumn);
 
         row.doubleClick();
 
-        TestBenchElement genderCheckbox = genderCell.$("vaadin-checkbox")
-                .first();
-        boolean isSubscriber = genderCheckbox.getAttribute("checked") != null;
+        TestBenchElement subscriberCheckbox = subscriberCell
+                .$("vaadin-checkbox").first();
+        boolean isSubscriber = subscriberCheckbox
+                .getAttribute("checked") != null;
 
         TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
 
@@ -937,7 +939,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         nameInput.sendKeys("foo");
         nameInput.sendKeys(Keys.ENTER);
 
-        genderCheckbox.click();
+        subscriberCheckbox.click();
 
         // click on another row
         grid.getRow(1).click(10, 10);
@@ -945,7 +947,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         // New data should be shown in the grid cell
         Assert.assertEquals(personName + "foo", nameCell.getText());
         Assert.assertEquals(String.valueOf(!isSubscriber),
-                genderCell.getText());
+                subscriberCell.getText());
 
         // The edited person should have new data
         WebElement msg = findElement(By.id("not-buffered-editor-msg"));
