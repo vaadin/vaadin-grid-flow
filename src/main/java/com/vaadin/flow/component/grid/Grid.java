@@ -261,8 +261,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     @Tag("vaadin-grid-column")
     public static class Column<T> extends AbstractColumn<Column<T>> {
 
-        public final String columnInternalId; // for internal implementation
-                                              // only
+        private final String columnInternalId; // for internal implementation
+                                               // only
         private String columnKey; // defined and used by the user
 
         private boolean sortingEnabled;
