@@ -13,12 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.grid;
+package com.vaadin.flow.component.grid.editor;
 
 import java.util.EventObject;
 
+import com.vaadin.flow.component.grid.Grid;
+
 /**
- * Holds the data for events fired in {@link Editor}.
+ * Base class for events fired in {@link Editor}.
  *
  * @author Vaadin Ltd
  *
@@ -30,7 +32,7 @@ import java.util.EventObject;
  * @param <T>
  *            the item type
  */
-public class EditorEvent<T> extends EventObject {
+public abstract class EditorEvent<T> extends EventObject {
 
     private T item;
 

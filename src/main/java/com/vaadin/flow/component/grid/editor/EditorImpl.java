@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.grid;
+package com.vaadin.flow.component.grid.editor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +24,9 @@ import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.AbstractGridExtension;
+import com.vaadin.flow.component.grid.ItemClickEvent;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.PropertySet;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -100,7 +102,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
         if (isOpen() && isBuffered()) {
             getBinder().validate();
             if (getBinder().writeBeanIfValid(edited)) {
-                fireSaveEvent(new EditorEvent<>(this, edited));
+                fireSaveEvent(new EditorSaveEvent<>(this, edited));
                 close();
                 return true;
             }
@@ -110,7 +112,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
 
     @Override
     public void cancel() {
-        fireCancelEvent(new EditorEvent<>(this, edited));
+        fireCancelEvent(new EditorCancelEvent<>(this, edited));
         close();
     }
 
@@ -131,7 +133,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
             binder.setBean(item);
         }
 
-        fireOpenEvent(new EditorEvent<>(this, edited));
+        fireOpenEvent(new EditorOpenEvent<>(this, edited));
     }
 
     @Override
@@ -158,7 +160,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
             T oldEdited = edited;
             edited = null;
             refresh(oldEdited);
-            fireCloseEvent(new EditorEvent<>(this, oldEdited));
+            fireCloseEvent(new EditorCloseEvent<>(this, oldEdited));
         }
     }
 
@@ -215,7 +217,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     }
 
     @SuppressWarnings("unchecked")
-    private void fireOpenEvent(EditorEvent<T> event) {
+    private void fireOpenEvent(EditorOpenEvent<T> event) {
         List<EditorOpenListener<T>> list = (List<EditorOpenListener<T>>) listeners
                 .get(EditorOpenListener.class);
         if (list == null || list.isEmpty()) {
@@ -225,7 +227,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     }
 
     @SuppressWarnings("unchecked")
-    private void fireCancelEvent(EditorEvent<T> event) {
+    private void fireCancelEvent(EditorCancelEvent<T> event) {
         List<EditorCancelListener<T>> list = (List<EditorCancelListener<T>>) listeners
                 .get(EditorCancelListener.class);
         if (list == null || list.isEmpty()) {
@@ -236,7 +238,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     }
 
     @SuppressWarnings("unchecked")
-    private void fireSaveEvent(EditorEvent<T> event) {
+    private void fireSaveEvent(EditorSaveEvent<T> event) {
         List<EditorSaveListener<T>> list = (List<EditorSaveListener<T>>) listeners
                 .get(EditorSaveListener.class);
         if (list == null || list.isEmpty()) {
@@ -246,7 +248,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     }
 
     @SuppressWarnings("unchecked")
-    private void fireCloseEvent(EditorEvent<T> event) {
+    private void fireCloseEvent(EditorCloseEvent<T> event) {
         List<EditorCloseListener<T>> list = (List<EditorCloseListener<T>>) listeners
                 .get(EditorCloseListener.class);
         if (list == null || list.isEmpty()) {

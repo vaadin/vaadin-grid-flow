@@ -13,29 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.grid;
-
-import java.io.Serializable;
+package com.vaadin.flow.component.grid.editor;
 
 /**
- * An event listener for a {@link Grid} editor open events.
+ * Holds the data for save events fired in {@link Editor}.
  *
  * @author Vaadin Ltd
  *
- * @param <T>
- *            the bean type
+ * @see EditorSaveListener
  *
- * @see EditorEvent
- * @see Editor#addOpenListener(EditorOpenListener)
+ * @param <T>
+ *            the item type
  */
-@FunctionalInterface
-public interface EditorOpenListener<T> extends Serializable {
+public class EditorSaveEvent<T> extends EditorEvent<T> {
 
     /**
-     * Called when the editor is opened.
+     * Constructor for the editor save event.
      *
-     * @param event
-     *            open event
+     * @param editor
+     *            the source of the event
+     * @param item
+     *            the item being edited
      */
-    public void onEditorOpen(EditorEvent<T> event);
+    public EditorSaveEvent(Editor<T> editor, T item) {
+        super(editor, item);
+    }
+
 }
