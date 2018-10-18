@@ -759,7 +759,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             if (setComponentTemplate) {
 
                 getGrid().addDataGenerator((item, jsonObject) -> jsonObject.put(
-                        "_" + columnInternalId,
+                        "_" + columnInternalId + "_editor",
                         getEditorComponent().getElement().getNode().getId()));
                 runBeforeClientResponse(context -> setComponentTemplate());
             }
@@ -802,7 +802,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             String originalTemplate = template.getProperty("innerHTML");
             String appId = UI.getCurrent().getInternals().getAppId();
             String editorTemplate = String.format(
-                    "<flow-component-renderer appid='%s' nodeid='[[item._%s]]'></flow-component-renderer>",
+                    "<flow-component-renderer appid='%s' nodeid='[[item._%s_editor]]'></flow-component-renderer>",
                     appId, columnInternalId);
             template.setProperty("innerHTML", String.format(
             //@formatter:off

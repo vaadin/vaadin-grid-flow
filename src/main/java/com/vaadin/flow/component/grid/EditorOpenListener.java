@@ -18,14 +18,14 @@ package com.vaadin.flow.component.grid;
 import java.io.Serializable;
 
 /**
- * An event listener for a {@link Grid} editor save events.
+ * An event listener for a {@link Grid} editor open events.
  *
  * @author Vaadin Ltd
  *
  * @param <T>
  *            the bean type
  *
- * @see EditorOpenEvent
+ * @see EditorEvent
  * @see Editor#addOpenListener(EditorOpenListener)
  */
 @FunctionalInterface
@@ -37,5 +37,5 @@ public interface EditorOpenListener<T> extends Serializable {
      * @param event
      *            open event
      */
-    public void onEditorOpen(EditorOpenEvent<T> event);
+    public void onEditorOpen(EditorEvent<T> event);
 }

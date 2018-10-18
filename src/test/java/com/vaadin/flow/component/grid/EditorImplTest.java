@@ -80,7 +80,7 @@ public class EditorImplTest {
     @Test
     public void editItem_itemIsKnown_binderStatusEventAndEditorOpenEvent() {
         AtomicReference<StatusChangeEvent> statusEventCapture = new AtomicReference<>();
-        AtomicReference<EditorOpenEvent<String>> openEventCapure = new AtomicReference<EditorOpenEvent<String>>();
+        AtomicReference<EditorEvent<String>> openEventCapure = new AtomicReference<EditorEvent<String>>();
         assertOpenEvents(statusEventCapture, openEventCapure);
 
         // In not buffered mode there is the bean in the binder
@@ -92,7 +92,7 @@ public class EditorImplTest {
         editor.setBuffered(true);
 
         AtomicReference<StatusChangeEvent> statusEventCapture = new AtomicReference<>();
-        AtomicReference<EditorOpenEvent<String>> openEventCapure = new AtomicReference<EditorOpenEvent<String>>();
+        AtomicReference<EditorEvent<String>> openEventCapure = new AtomicReference<EditorEvent<String>>();
         assertOpenEvents(statusEventCapture, openEventCapure);
 
         // In not buffered mode there is no bean in the binder
@@ -117,12 +117,16 @@ public class EditorImplTest {
         editor.editItem("bar");
         editor.refreshedItems.clear();
 
-        AtomicReference<EditorCancelEvent<String>> cancelEventCapure = new AtomicReference<EditorCancelEvent<String>>();
+        AtomicReference<EditorEvent<String>> cancelEventCapture = new AtomicReference<>();
+        AtomicReference<EditorEvent<String>> closeEventCapture = new AtomicReference<>();
         editor.addCancelListener(
-                event -> cancelEventCapure.compareAndSet(null, event));
+                event -> cancelEventCapture.compareAndSet(null, event));
+        editor.addCloseListener(
+                event -> closeEventCapture.compareAndSet(null, event));
         editor.cancel();
 
-        Assert.assertNotNull(cancelEventCapure.get());
+        Assert.assertNotNull(cancelEventCapture.get());
+        Assert.assertNotNull(closeEventCapture.get());
 
         Assert.assertEquals(1, editor.refreshedItems.size());
         Assert.assertEquals("bar", editor.refreshedItems.get(0));
@@ -131,13 +135,16 @@ public class EditorImplTest {
     @Test
     public void save_editorIsNotOpened_noEvents() {
         AtomicReference<StatusChangeEvent> statusEventCapture = new AtomicReference<>();
-        AtomicReference<EditorSaveEvent<String>> saveEventCapure = new AtomicReference<EditorSaveEvent<String>>();
+        AtomicReference<EditorEvent<String>> saveEventCapture = new AtomicReference<>();
+        AtomicReference<EditorEvent<String>> closeEventCapture = new AtomicReference<>();
 
-        assertNegativeSave(statusEventCapture, saveEventCapure);
+        assertNegativeSave(statusEventCapture, saveEventCapture,
+                closeEventCapture);
         Assert.assertEquals(0, editor.refreshedItems.size());
 
         Assert.assertNull(statusEventCapture.get());
-        Assert.assertNull(saveEventCapure.get());
+        Assert.assertNull(saveEventCapture.get());
+        Assert.assertNull(closeEventCapture.get());
     }
 
     @Test
@@ -146,13 +153,16 @@ public class EditorImplTest {
         editor.refreshedItems.clear();
 
         AtomicReference<StatusChangeEvent> statusEventCapture = new AtomicReference<>();
-        AtomicReference<EditorSaveEvent<String>> saveEventCapure = new AtomicReference<EditorSaveEvent<String>>();
+        AtomicReference<EditorEvent<String>> saveEventCapture = new AtomicReference<>();
+        AtomicReference<EditorEvent<String>> closeEventCapture = new AtomicReference<>();
 
-        assertNegativeSave(statusEventCapture, saveEventCapure);
+        assertNegativeSave(statusEventCapture, saveEventCapture,
+                closeEventCapture);
         Assert.assertEquals(0, editor.refreshedItems.size());
 
         Assert.assertNull(statusEventCapture.get());
-        Assert.assertNull(saveEventCapure.get());
+        Assert.assertNull(saveEventCapture.get());
+        Assert.assertNull(closeEventCapture.get());
     }
 
     @Test
@@ -162,14 +172,17 @@ public class EditorImplTest {
         editor.setBuffered(true);
 
         AtomicReference<StatusChangeEvent> statusEventCapture = new AtomicReference<>();
-        AtomicReference<EditorSaveEvent<String>> saveEventCapure = new AtomicReference<EditorSaveEvent<String>>();
+        AtomicReference<EditorEvent<String>> saveEventCapture = new AtomicReference<>();
+        AtomicReference<EditorEvent<String>> closeEventCapture = new AtomicReference<>();
 
-        Assert.assertTrue(doSave(statusEventCapture, saveEventCapure));
+        Assert.assertTrue(doSave(statusEventCapture, saveEventCapture,
+                closeEventCapture));
         Assert.assertEquals(1, editor.refreshedItems.size());
         Assert.assertEquals("bar", editor.refreshedItems.get(0));
 
         Assert.assertNotNull(statusEventCapture.get());
-        Assert.assertNotNull(saveEventCapure.get());
+        Assert.assertNotNull(saveEventCapture.get());
+        Assert.assertNotNull(closeEventCapture.get());
     }
 
     @Test
@@ -183,37 +196,45 @@ public class EditorImplTest {
         editor.setBuffered(true);
 
         AtomicReference<StatusChangeEvent> statusEventCapture = new AtomicReference<>();
-        AtomicReference<EditorSaveEvent<String>> saveEventCapure = new AtomicReference<EditorSaveEvent<String>>();
+        AtomicReference<EditorEvent<String>> saveEventCapture = new AtomicReference<>();
+        AtomicReference<EditorEvent<String>> closeEventCapture = new AtomicReference<>();
 
-        Assert.assertFalse(doSave(statusEventCapture, saveEventCapure));
+        Assert.assertFalse(doSave(statusEventCapture, saveEventCapture,
+                closeEventCapture));
         Assert.assertEquals(0, editor.refreshedItems.size());
 
         Assert.assertNotNull(statusEventCapture.get());
-        Assert.assertNull(saveEventCapure.get());
+        Assert.assertNull(saveEventCapture.get());
+        Assert.assertNull(closeEventCapture.get());
 
         Assert.assertTrue(statusEventCapture.get().hasValidationErrors());
     }
 
     private void assertNegativeSave(
             AtomicReference<StatusChangeEvent> statusEventCapture,
-            AtomicReference<EditorSaveEvent<String>> saveEventCapure) {
-        Assert.assertFalse(doSave(statusEventCapture, saveEventCapure));
+            AtomicReference<EditorEvent<String>> saveEventCapture,
+            AtomicReference<EditorEvent<String>> closeEventCapture) {
+        Assert.assertFalse(doSave(statusEventCapture, saveEventCapture,
+                closeEventCapture));
     }
 
     private boolean doSave(
             AtomicReference<StatusChangeEvent> statusEventCapture,
-            AtomicReference<EditorSaveEvent<String>> saveEventCapure) {
+            AtomicReference<EditorEvent<String>> saveEventCapture,
+            AtomicReference<EditorEvent<String>> closeEventCapture) {
         editor.getBinder().addStatusChangeListener(
                 event -> statusEventCapture.compareAndSet(null, event));
         editor.addSaveListener(
-                event -> saveEventCapure.compareAndSet(null, event));
+                event -> saveEventCapture.compareAndSet(null, event));
+        editor.addCloseListener(
+                event -> closeEventCapture.compareAndSet(null, event));
 
         return editor.save();
     }
 
     private void assertOpenEvents(
             AtomicReference<StatusChangeEvent> statusEventCapture,
-            AtomicReference<EditorOpenEvent<String>> openEventCapure) {
+            AtomicReference<EditorEvent<String>> openEventCapure) {
         editor.getBinder().addStatusChangeListener(
                 event -> statusEventCapture.compareAndSet(null, event));
 
@@ -224,6 +245,6 @@ public class EditorImplTest {
         Assert.assertNotNull(statusEventCapture.get());
         Assert.assertNotNull(openEventCapure.get());
 
-        Assert.assertEquals("bar", openEventCapure.get().getBean());
+        Assert.assertEquals("bar", openEventCapure.get().getItem());
     }
 }

@@ -34,5 +34,5 @@ public interface EditorSaveListener<T> extends Serializable {
      * @param event
      *            save event
      */
-    public void onEditorSave(EditorSaveEvent<T> event);
+    public void onEditorSave(EditorEvent<T> event);
 }

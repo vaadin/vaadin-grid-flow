@@ -39,14 +39,14 @@ public interface Editor<T> extends Serializable {
      *            the binder for updating editor fields; not {@code null}
      * @return this editor
      */
-    public Editor<T> setBinder(Binder<T> binder);
+    Editor<T> setBinder(Binder<T> binder);
 
     /**
      * Returns the underlying Binder from Editor.
      *
      * @return the binder; not {@code null}
      */
-    public Binder<T> getBinder();
+    Binder<T> getBinder();
 
     /**
      * Sets the Editor buffered mode. When the editor is in buffered mode, edits
@@ -58,7 +58,7 @@ public interface Editor<T> extends Serializable {
      *            not
      * @return this editor
      */
-    public Editor<T> setBuffered(boolean buffered);
+    Editor<T> setBuffered(boolean buffered);
 
     /**
      * Returns whether Editor is buffered or not.
@@ -67,26 +67,26 @@ public interface Editor<T> extends Serializable {
      *
      * @return {@code true} if editor is buffered; {@code false} if not
      */
-    public boolean isBuffered();
+    boolean isBuffered();
 
     /**
      * Returns whether Editor is open or not.
      *
      * @return {@code true} if editor is open; {@code false} if not
      */
-    public boolean isOpen();
+    boolean isOpen();
 
     /**
      * Saves any changes from the Editor fields to the edited bean.
      *
      * @return {@code true} if save succeeded; {@code false} if not
      */
-    public boolean save();
+    boolean save();
 
     /**
      * Close the editor discarding any unsaved changes.
      */
-    public void cancel();
+    void cancel();
 
     /**
      * Opens the editor interface for the provided item.
@@ -98,14 +98,23 @@ public interface Editor<T> extends Serializable {
      * @throws IllegalArgumentException
      *             if the {@code item} is not in the backing data provider
      */
-    public void editItem(T item);
+    void editItem(T item);
+
+    /**
+     * Gets the current item being edited, if any.
+     * 
+     * @return the item being edited, or <code>null</code> if none is being
+     *         edited
+     * @see #editItem(Object)
+     */
+    T getItem();
 
     /**
      * Gets the Grid instance which this editor belongs to.
      *
      * @return the grid which owns the editor
      */
-    public Grid<T> getGrid();
+    Grid<T> getGrid();
 
     /**
      * Adds an editor save {@code listener}.
@@ -114,7 +123,7 @@ public interface Editor<T> extends Serializable {
      *            save listener
      * @return a registration object for removing the listener
      */
-    public Registration addSaveListener(EditorSaveListener<T> listener);
+    Registration addSaveListener(EditorSaveListener<T> listener);
 
     /**
      * Adds an editor cancel {@code listener}.
@@ -123,7 +132,7 @@ public interface Editor<T> extends Serializable {
      *            cancel listener
      * @return a registration object for removing the listener
      */
-    public Registration addCancelListener(EditorCancelListener<T> listener);
+    Registration addCancelListener(EditorCancelListener<T> listener);
 
     /**
      * Adds an editor open {@code listener}.
@@ -133,5 +142,16 @@ public interface Editor<T> extends Serializable {
      * @return a registration object for removing the listener
      *
      */
-    public Registration addOpenListener(EditorOpenListener<T> listener);
+    Registration addOpenListener(EditorOpenListener<T> listener);
+
+    /**
+     * Adds an editor close {@code listener}. Close events are sent every time
+     * the editor is closed, no matter if it is due to a save or to a cancel
+     * operation.
+     * 
+     * @param listener
+     *            close listener
+     * @return a registration object for removing the listener
+     */
+    Registration addCloseListener(EditorCloseListener<T> listener);
 }
