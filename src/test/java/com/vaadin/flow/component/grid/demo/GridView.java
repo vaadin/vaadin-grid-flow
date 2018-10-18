@@ -1408,8 +1408,8 @@ public class GridView extends DemoView {
         editorColumn.setEditorComponent(buttons);
 
         editor.addSaveListener(
-                event -> message.setText(event.getBean().getName() + ", "
-                        + event.getBean().isSubscriber));
+                event -> message.setText(event.getItem().getName() + ", "
+                        + event.getItem().isSubscriber));
 
         // end-source-example
         grid.setId("buffered-editor");

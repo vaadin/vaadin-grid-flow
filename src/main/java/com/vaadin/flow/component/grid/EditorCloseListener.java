@@ -18,24 +18,24 @@ package com.vaadin.flow.component.grid;
 import java.io.Serializable;
 
 /**
- * An event listener for a {@link Grid} editor cancel events.
+ * An event listener for a {@link Grid} editor close events.
  *
  * @author Vaadin Ltd
  *
- * @see EditorCancelEvent
- * @see Editor#addCancelListener(EditorCancelListener)
- *
  * @param <T>
  *            the bean type
+ *
+ * @see EditorEvent
+ * @see Editor#addCloseListener(EditorCloseListener)
  */
 @FunctionalInterface
-public interface EditorCancelListener<T> extends Serializable {
+public interface EditorCloseListener<T> extends Serializable {
 
     /**
-     * Called when the editor is cancelled.
+     * Called when the editor is closed.
      *
      * @param event
-     *            cancel event
+     *            close event
      */
-    public void onEditorCancel(EditorEvent<T> event);
+    public void onEditorClose(EditorEvent<T> event);
 }
