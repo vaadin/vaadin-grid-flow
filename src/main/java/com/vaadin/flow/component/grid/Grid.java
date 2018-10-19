@@ -922,8 +922,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
 
             if (itemDetailsDataGenerator != null && refresh) {
-                refresh(item);
-                itemDetailsDataGenerator.destroyData(item);
+                if (detailsVisible.contains(item)) {
+                    refresh(item);
+                } else {
+                    itemDetailsDataGenerator.destroyData(item);
+                }
             }
         }
 
