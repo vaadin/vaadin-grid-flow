@@ -50,6 +50,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.grid.editor.EditorDataGenerator;
 import com.vaadin.flow.component.grid.editor.EditorImpl;
 import com.vaadin.flow.data.binder.BeanPropertySet;
 import com.vaadin.flow.data.binder.Binder;
@@ -89,6 +90,7 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
@@ -270,9 +272,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         private boolean sortingEnabled;
 
-        private Binding<T, ?> editorBinding;
-
         private Component editorComponent;
+        private Binding<T, ?> editorBinding;
+        private EditorDataGenerator<T> editorDataGenerator;
 
         private SortOrderProvider sortOrderProvider = direction -> {
             String key = getKey();
@@ -289,6 +291,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         private Renderer<T> renderer;
 
         private Rendering<T> rendering;
+
+        private final String originalTemplate;
 
         /**
          * Constructs a new Column for use inside a Grid.
@@ -312,6 +316,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             rendering = renderer.render(getElement(), (KeyMapper<T>) getGrid()
                     .getDataCommunicator().getKeyMapper());
+
+            Element template = rendering.getTemplateElement();
+            if (template != null) {
+                originalTemplate = template.getProperty("innerHTML");
+            } else {
+                originalTemplate = "";
+            }
+
             Optional<DataGenerator<T>> dataGenerator = rendering
                     .getDataGenerator();
 
@@ -715,15 +727,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          */
         public Column<T> setEditorBinding(Binding<T, ?> binding) {
             Objects.requireNonNull(binding, "null is not a valid editor field");
-            HasValue<?, ?> field = binding.getField();
-
-            if (!(field instanceof Component)) {
-                throw new IllegalArgumentException(
-                        "Binding target must be a component.");
-            }
-
+            setEditorBinding(item -> binding);
             editorBinding = binding;
-            return setEditorComponent((Component) field);
+            return this;
+        }
+
+        public Column<T> setEditorBinding(
+                SerializableFunction<T, Binding<T, ?>> bindingCallback) {
+            editorComponent = null;
+            editorBinding = null;
+            if (editorDataGenerator == null) {
+                setupColumnEditor();
+            }
+            editorDataGenerator.setComponentFunction(null);
+            editorDataGenerator.setBindingFunction(bindingCallback);
+            return this;
         }
 
         /**
@@ -752,20 +770,22 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         public Column<T> setEditorComponent(Component editorComponent) {
             Objects.requireNonNull(editorComponent,
                     "null is not a valid editor component");
-            boolean setComponentTemplate = this.editorComponent == null;
+            setEditorComponent(item -> editorComponent);
             this.editorComponent = editorComponent;
+            return this;
+        }
 
-            Element container = ElementFactory.createDiv();
-            getElement().appendVirtualChild(container);
-            container.appendChild(editorComponent.getElement());
+        public Column<T> setEditorComponent(
+                SerializableFunction<T, ? extends Component> componentCallback) {
 
-            if (setComponentTemplate) {
-
-                getGrid().addDataGenerator((item, jsonObject) -> jsonObject.put(
-                        "_" + columnInternalId + "_editor",
-                        getEditorComponent().getElement().getNode().getId()));
-                runBeforeClientResponse(context -> setComponentTemplate());
+            editorComponent = null;
+            editorBinding = null;
+            if (editorDataGenerator == null) {
+                setupColumnEditor();
             }
+            editorDataGenerator.setBindingFunction(null);
+            editorDataGenerator.setComponentFunction(componentCallback);
+
             return this;
         }
 
@@ -800,9 +820,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return this;
         }
 
-        private void setComponentTemplate() {
+        private void setupColumnEditor() {
+            Element container = ElementFactory.createDiv();
+            getElement().appendVirtualChild(container);
+            editorDataGenerator = new EditorDataGenerator<>(
+                    (Editor) grid.getEditor(), columnInternalId, container);
+            grid.addDataGenerator((EditorDataGenerator) editorDataGenerator);
+
             Element template = rendering.getTemplateElement();
-            String originalTemplate = template.getProperty("innerHTML");
             String appId = UI.getCurrent().getInternals().getAppId();
             String editorTemplate = String.format(
                     "<flow-component-renderer appid='%s' nodeid='[[item._%s_editor]]'></flow-component-renderer>",

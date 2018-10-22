@@ -109,6 +109,7 @@ public class GridView extends DemoView {
         private String name;
         private Address address;
         private boolean isSubscriber;
+        private String email;
 
         public int getId() {
             return id;
@@ -148,6 +149,14 @@ public class GridView extends DemoView {
 
         public void setSubscriber(boolean isSubscriber) {
             this.isSubscriber = isSubscriber;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
         }
 
         @Override
@@ -403,6 +412,7 @@ public class GridView extends DemoView {
         createDoubleClickListener();
         createBufferedEditor();
         createNotBufferedEditor();
+        createDynamicEditor();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -1463,6 +1473,58 @@ public class GridView extends DemoView {
         // end-source-example
         grid.setId("not-buffered-editor");
         addCard("Grid Editor", "Editor in Not Buffered Mode", message, grid);
+    }
+
+    private void createDynamicEditor() {
+        Div message = new Div();
+        message.setId("dynamic-editor-msg");
+
+        // begin-source-example
+        // source-example-heading: Editor in Not Buffered Mode
+        Grid<Person> grid = new Grid<>();
+        List<Person> persons = getItems();
+        grid.setItems(persons);
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setHeader("Name");
+        Column<Person> subscriberColumn = grid.addColumn(Person::isSubscriber)
+                .setHeader("Subscriber");
+        Column<Person> emailColumn = grid.addColumn(Person::getEmail)
+                .setHeader("E-mail");
+
+        Binder<Person> binder = new Binder<>(Person.class);
+        Editor<Person> editor = grid.getEditor();
+        editor.setBinder(binder);
+
+        Div validationStatus = new Div();
+        validationStatus.setId("validation");
+
+        TextField field = new TextField();
+        nameColumn.setEditorBinding(binder.forField(field)
+                .withValidator(name -> name.startsWith("Person"),
+                        "Name should start with Person")
+                .withStatusLabel(validationStatus).bind("name"));
+
+        Checkbox checkbox = new Checkbox();
+        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+
+        TextField emailField = new TextField();
+        TextField emailField2 = new TextField();
+        emailField2.setPlaceholder("Not a subscriber");
+        emailField2.setEnabled(false);
+        emailColumn.setEditorBinding(
+                item -> item.isSubscriber() ? binder.bind(emailField, "email")
+                        : binder.bind(emailField2, "email"));
+
+        grid.addItemDoubleClickListener(
+                event -> grid.getEditor().editItem(event.getItem()));
+
+        binder.addValueChangeListener(event -> {
+            grid.getDataProvider().refreshItem(binder.getBean());
+        });
+
+        // end-source-example
+        grid.setId("dynamic-editor");
+        addCard("Grid Editor", "Dynamic editor", message, grid);
     }
 
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
