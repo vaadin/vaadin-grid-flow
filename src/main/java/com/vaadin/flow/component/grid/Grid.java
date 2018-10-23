@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -1395,7 +1397,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         getDataCommunicator().reset();
 
-        Column<T> column = new Column<>(this, columnId, renderer);
+        Column<T> column = createColumn ( renderer, columnId );
         idToColumnMap.put(columnId, column);
 
         AbstractColumn<?> current = column;
@@ -1409,6 +1411,20 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getElement().appendChild(current.getElement());
 
         return column;
+    }
+
+    /**
+     * Creates a new column instance for this {@link Grid} instance. When overriding
+     * this method the created column needs to set this {@link Grid} as reference.
+     * <p/>
+     * This method must not return <code>null</code>.
+     * @param renderer
+     * @param columnId
+     * @return
+     */
+    @Nonnull
+    protected Column<T> createColumn ( Renderer<T> renderer, String columnId ) {
+        return new Column<> (this, columnId, renderer);
     }
 
     /**
