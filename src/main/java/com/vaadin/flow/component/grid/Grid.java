@@ -78,6 +78,7 @@ import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableComparator;
+import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.internal.JsonUtils;
@@ -109,7 +110,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
 
     private final class UpdateQueue implements Update {
-        private List<Runnable> queue = new ArrayList<>();
+        private ArrayList<SerializableRunnable> queue = new ArrayList<>();
 
         private UpdateQueue(int size) {
             // 'size' property is not synchronized by the web component since
@@ -134,7 +135,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         @Override
         public void commit(int updateId) {
             enqueue("$connector.confirm", updateId);
-            queue.forEach(Runnable::run);
+            queue.forEach(SerializableRunnable::run);
             queue.clear();
         }
 
