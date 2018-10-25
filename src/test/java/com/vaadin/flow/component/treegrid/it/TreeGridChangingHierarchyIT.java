@@ -101,7 +101,7 @@ public class TreeGridChangingHierarchyIT extends AbstractComponentIT {
     }
 
     @Test
-    public void removal_of_deeply_nested_items() throws InterruptedException {
+    public void removal_of_deeply_nested_items() {
         addItemsToABtn.click();
         addItemsToAABtn.click();
         grid.expandWithClick(0);
