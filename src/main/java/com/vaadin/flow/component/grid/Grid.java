@@ -122,6 +122,25 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>>,
         HasTheme, HasDataGenerators<T> {
 
+    private static class EnqueueCall implements Runnable, Serializable {
+
+        private final Element element;
+        private final String name;
+        private final Serializable[] args;
+
+        private EnqueueCall(Element element, String name,
+                Serializable... arguments) {
+            this.element = element;
+            this.name = name;
+            args = arguments;
+        }
+
+        @Override
+        public void run() {
+            element.callFunction(name, args);
+        }
+    }
+
     protected static class UpdateQueue implements Update {
         private final ArrayList<Runnable> queue = new ArrayList<>();
         private final UpdateQueueData data;
@@ -163,7 +182,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         public void enqueue(String name, Serializable... arguments) {
-            queue.add(() -> getElement().callFunction(name, arguments));
+            // don't use lambda here because it breaks serializable test
+            queue.add(new EnqueueCall(getElement(), name, arguments));
         }
 
         protected Element getElement() {
@@ -178,6 +198,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         public UpdateQueueData getData() {
             return data;
         }
+
     }
 
     /**
@@ -2801,7 +2822,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Enables or disables the vertical scrolling on the Grid web component. By
      * default, the scrolling is enabled.
-     * 
+     *
      * @param enabled
      *            <code>true</code> to enable vertical scrolling,
      *            <code>false</code> to disabled it
@@ -2817,7 +2838,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets whether the vertical scrolling on the Grid web component is enabled.
-     * 
+     *
      * @return <code>true</code> if the vertical scrolling is enabled,
      *         <code>false</code> otherwise
      */
