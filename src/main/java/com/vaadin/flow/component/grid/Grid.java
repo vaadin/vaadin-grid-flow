@@ -1419,9 +1419,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * this method the created column needs to set this {@link Grid} as reference.
      * <p/>
      * This method must not return <code>null</code>.
-     * @param renderer
-     * @param columnId
-     * @return
+     *
+     * @see #createColumnId(boolean)
+     * @see Renderer
+     *
+     * @param renderer the renderer used to create the grid cell structure
+     * @param columnId internal column id
+     * @return column instance
      */
     @Nonnull
     protected Column<T> createColumn ( Renderer<T> renderer, String columnId ) {
