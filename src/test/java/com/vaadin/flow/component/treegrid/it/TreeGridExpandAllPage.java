@@ -25,7 +25,7 @@ public class TreeGridExpandAllPage extends Div {
 
         TreeData<String> data = new TreeData<>();
 
-        final Map<String, String> parentPathMap = new HashMap<>();
+        Map<String, String> parentPathMap = new HashMap<>();
 
         TreeGridHugeTreePage.addRootItems("Granddad", 1, data, parentPathMap)
                 .forEach(granddad -> TreeGridHugeTreePage
@@ -37,18 +37,22 @@ public class TreeGridExpandAllPage extends Div {
         grid.setDataProvider(dataprovider);
         grid.expandRecursively(data.getRootItems(), 3);
 
-        add(new NativeButton("Collapse All", event -> {
-            grid.collapseRecursively(data.getRootItems(), 3);
-        }));
+        NativeButton collapse = new NativeButton("Collapse All",
+                event -> grid.collapseRecursively(data.getRootItems(), 3));
+        collapse.setId("collapse");
+        add(collapse);
 
-        add(new NativeButton("Expand All", event -> {
-            grid.expandRecursively(data.getRootItems(), 3);
-        }));
+        NativeButton expand = new NativeButton("Expand All",
+                event -> grid.expandRecursively(data.getRootItems(), 3));
+        expand.setId("expand");
+        add(expand);
 
-        add(new NativeButton("Add New son", event -> {
+        NativeButton addNew = new NativeButton("Add New son", event -> {
             dataprovider.getTreeData().addItem("Dad 0/0", "New son");
             dataprovider.refreshAll();
             event.getSource().setEnabled(false);
-        }));
+        });
+        addNew.setId("add-new");
+        add(addNew);
     }
 }
