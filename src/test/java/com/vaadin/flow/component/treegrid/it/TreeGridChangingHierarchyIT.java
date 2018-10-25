@@ -15,6 +15,9 @@
  */
 package com.vaadin.flow.component.treegrid.it;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import org.junit.After;
@@ -27,9 +30,6 @@ import org.openqa.selenium.WebElement;
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @TestPath("treegrid-changing-hierarchy")
 public class TreeGridChangingHierarchyIT extends AbstractComponentIT {
@@ -101,13 +101,14 @@ public class TreeGridChangingHierarchyIT extends AbstractComponentIT {
     }
 
     @Test
-    public void removal_of_deeply_nested_items() {
+    public void removal_of_deeply_nested_items() throws InterruptedException {
         addItemsToABtn.click();
         addItemsToAABtn.click();
         grid.expandWithClick(0);
         grid.expandWithClick(1);
         grid.expandWithClick(2);
         removeChildrenOfAAABtn.click();
+        waitUntil(driver -> !grid.isRowCollapsed(1, 0));
         grid.collapseWithClick(1);
         grid.expandWithClick(1);
         Assert.assertEquals("a/a/a", grid.getCell(2, 0).getText());
