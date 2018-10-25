@@ -53,6 +53,7 @@ import com.vaadin.flow.data.binder.PropertyDefinition;
 import com.vaadin.flow.data.binder.PropertySet;
 import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.event.SortEvent.SortNotifier;
+import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
@@ -62,7 +63,6 @@ import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.provider.hierarchy.TreeUpdate;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.Rendering;
@@ -79,6 +79,7 @@ import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
+import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonSerializer;
@@ -110,8 +111,8 @@ import elemental.json.JsonValue;
 public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>> {
 
-    protected static class UpdateQueue implements TreeUpdate {
-        private List<Runnable> queue = new ArrayList<>();
+    protected static class UpdateQueue implements Update {
+        private final ArrayList<SerializableRunnable> queue = new ArrayList<>();
         private final UpdateQueueData data;
 
         protected UpdateQueue(UpdateQueueData data, int size) {
@@ -146,7 +147,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         public void commit() {
-            queue.forEach(Runnable::run);
+            queue.forEach(SerializableRunnable::run);
             queue.clear();
         }
 
@@ -940,8 +941,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param <B>
      *            the data communicator builder type
      */
-    protected <B extends DataCommunicatorBuilder<T>> Grid(
-            Class<T> beanType,
+    protected <B extends DataCommunicatorBuilder<T>> Grid(Class<T> beanType,
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuidler,
             B dataCommunicatorBuilder) {
         this(50, updateQueueBuidler, dataCommunicatorBuilder);
@@ -974,23 +974,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the data communicator builder type
      * 
      */
-    protected <B extends DataCommunicatorBuilder<T>> Grid(
-            int pageSize,
+    protected <B extends DataCommunicatorBuilder<T>> Grid(int pageSize,
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuidler,
             B dataCommunicatorBuilder) {
         Objects.requireNonNull(dataCommunicatorBuilder,
                 "Data communicator builder can't be null");
-        arrayUpdater = createDefaultArrayUpdater(Optional
-                .ofNullable(updateQueueBuidler)
-                .orElseGet(() -> UpdateQueue::new));
+        arrayUpdater = createDefaultArrayUpdater(
+                Optional.ofNullable(updateQueueBuidler)
+                        .orElseGet(() -> UpdateQueue::new));
         arrayUpdater.setUpdateQueueData(
                 new UpdateQueueData(getElement(), getUniqueKeyProperty()));
         gridDataGenerator = new CompositeDataGenerator<>();
         gridDataGenerator.addDataGenerator(this::generateUniqueKeyData);
 
-        dataCommunicator = dataCommunicatorBuilder.build(
-                getElement(), gridDataGenerator, arrayUpdater,
-                this::getUniqueKeyProvider);
+        dataCommunicator = dataCommunicatorBuilder.build(getElement(),
+                gridDataGenerator, arrayUpdater, this::getUniqueKeyProvider);
 
         detailsManager = new DetailsManager(this);
         setPageSize(pageSize);
@@ -1025,7 +1023,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the grid bean type
      */
     protected static class DataCommunicatorBuilder<T> implements Serializable {
-    
+
         /**
          * Build a new {@link DataCommunicator} object for the given Grid
          * instance.
@@ -1046,10 +1044,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 CompositeDataGenerator<T> dataGenerator,
                 GridArrayUpdater arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
-            return new DataCommunicator<>(
-                    dataGenerator, arrayUpdater,
-                    data -> element
-                            .callFunction("$connector.updateData", data),
+            return new DataCommunicator<>(dataGenerator, arrayUpdater,
+                    data -> element.callFunction("$connector.updateData", data),
                     element.getNode());
         }
     }
@@ -1082,7 +1078,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
         };
     }
-    
+
     /**
      * Adds a new text column to this {@link Grid} with a value provider. The
      * value is converted to String when sent to the client by using
