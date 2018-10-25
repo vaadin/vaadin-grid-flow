@@ -123,25 +123,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasSize, Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>>,
         HasTheme, HasDataGenerators<T> {
 
-    private static class EnqueueCall implements Runnable, Serializable {
-
-        private final Element element;
-        private final String name;
-        private final Serializable[] args;
-
-        private EnqueueCall(Element element, String name,
-                Serializable... arguments) {
-            this.element = element;
-            this.name = name;
-            args = arguments;
-        }
-
-        @Override
-        public void run() {
-            element.callFunction(name, args);
-        }
-    }
-
     protected static class UpdateQueue implements Update {
         private final ArrayList<SerializableRunnable> queue = new ArrayList<>();
         private final UpdateQueueData data;
@@ -183,8 +164,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         public void enqueue(String name, Serializable... arguments) {
-            // don't use lambda here because it breaks serializable test
-            queue.add(new EnqueueCall(getElement(), name, arguments));
+            queue.add(() -> getElement().callFunction(name, arguments));
         }
 
         protected Element getElement() {
@@ -199,7 +179,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         public UpdateQueueData getData() {
             return data;
         }
-
     }
 
     /**
