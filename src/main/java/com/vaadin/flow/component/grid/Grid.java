@@ -1415,8 +1415,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Creates a new column instance for this {@link Grid} instance. When overriding
-     * this method the created column needs to set this {@link Grid} as reference.
+     * Creates a new column instance for this {@link Grid} instance.
      * <p/>
      * This method must not return <code>null</code>.
      *
