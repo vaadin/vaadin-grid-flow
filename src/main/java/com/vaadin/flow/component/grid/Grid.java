@@ -1417,7 +1417,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         getDataCommunicator().reset();
 
-        Column<T> column = new Column<>(this, columnId, renderer);
+        Column<T> column = createColumn(renderer, columnId);
         idToColumnMap.put(columnId, column);
 
         AbstractColumn<?> current = column;
@@ -1431,6 +1431,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getElement().appendChild(current.getElement());
 
         return column;
+    }
+
+    /**
+     * Creates a new column instance for this {@link Grid} instance.
+     * <p/>
+     * This method must not return <code>null</code>.
+     *
+     * @param renderer the renderer used to create the grid cell structure
+     * @param columnId internal column id
+     * @return column instance
+     * @see #createColumnId(boolean)
+     * @see Renderer
+     */
+    protected Column<T> createColumn(Renderer<T> renderer, String columnId) {
+        return new Column<>(this, columnId, renderer);
     }
 
     /**
