@@ -528,6 +528,27 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             setSortable(true);
             sortOrderProvider = dir -> Arrays.stream(properties)
                     .map(s -> new QuerySortOrder(s, dir));
+            if (properties.length == 0) {
+                setComparator(Grid::compareMaybeComparables);
+            } else {
+                PropertySet<T> propertySet = (PropertySet<T>) getGrid().getPropertySet();
+                SerializableComparator<T> fullComparator = null;
+                for (int i = 0; i < properties.length; i++) {
+                    String property = properties[i];
+                    ValueProvider<T, ?> getter = propertySet
+                            .getProperty(property)
+                            .orElseThrow(() -> new IllegalArgumentException("Property not defined: " + property))
+                            .getGetter();
+                    SerializableComparator<T> aComparator;
+                    if (i == properties.length - 1) {
+                        aComparator = (a, b) -> compareMaybeComparables(getter.apply(a), getter.apply(b));
+                    } else {
+                        aComparator = (a, b) -> compareMaybeComparablesChainable(getter.apply(a), getter.apply(b));
+                    }
+                    fullComparator = i == 0 ? aComparator : fullComparator.thenComparing(aComparator)::compare;
+                }
+                setComparator(fullComparator);
+            }
             return this;
         }
 
@@ -2739,12 +2760,35 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         gridDataGenerator.removeDataGenerator(dataGenerator);
     }
 
+    /**
+     * Compares {@link Comparable} values to according to their natural order ({@code  null}) is last) or,
+     * if values are not comparable, compares their string representations.
+     * @param a a value
+     * @param b another value
+     * @return comparison result as defined in {@link Comparable#compareTo(Object)}
+     *
+     */
     protected static int compareMaybeComparables(Object a, Object b) {
         if (hasCommonComparableBaseType(a, b)) {
             return compareComparables(a, b);
         }
         return compareComparables(Objects.toString(a, ""),
                 Objects.toString(b, ""));
+    }
+
+    /**
+     * Compares {@link Comparable} values to according to their natural order ({@code  null}) is last) or,
+     * if values are not comparable, returns zero.
+     * @param a a value
+     * @param b another value
+     * @return comparison result as defined in {@link Comparable#compareTo(Object)} or zero
+     *
+     */
+    protected static int compareMaybeComparablesChainable(Object a, Object b) {
+        if (hasCommonComparableBaseType(a, b)) {
+            return compareComparables(a, b);
+        }
+        return 0;
     }
 
     /**
