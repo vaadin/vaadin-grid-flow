@@ -528,10 +528,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             setSortable(true);
             sortOrderProvider = dir -> Arrays.stream(properties)
                     .map(s -> new QuerySortOrder(s, dir));
-            if (properties.length == 0) {
+            PropertySet<T> propertySet = (PropertySet<T>) getGrid().getPropertySet();
+            if (properties.length == 0 || propertySet == null) {
                 setComparator(Grid::compareMaybeComparables);
             } else {
-                PropertySet<T> propertySet = (PropertySet<T>) getGrid().getPropertySet();
                 SerializableComparator<T> fullComparator = null;
                 for (int i = 0; i < properties.length; i++) {
                     String property = properties[i];
