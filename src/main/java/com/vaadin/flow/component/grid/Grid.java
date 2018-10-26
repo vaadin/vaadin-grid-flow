@@ -145,13 +145,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             commit();
         }
 
-        @Override
         public void commit() {
             queue.forEach(Runnable::run);
             queue.clear();
         }
 
-        @Override
         public void enqueue(String name, Serializable... arguments) {
             queue.add(() -> getElement().callFunction(name, arguments));
         }
@@ -180,7 +178,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         /**
          * Gets {@link UpdateQueueData} for this queue.
-         *
+         * 
          * @return the {@link UpdateQueueData} object.
          */
         public UpdateQueueData getData() {
@@ -944,7 +942,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param <B>
      *            the data communicator builder type
      */
-    protected <B extends DataCommunicatorBuilder<T>> Grid(Class<T> beanType,
+    protected <B extends DataCommunicatorBuilder<T>> Grid(
+            Class<T> beanType,
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuidler,
             B dataCommunicatorBuilder) {
         this(50, updateQueueBuidler, dataCommunicatorBuilder);
@@ -975,23 +974,25 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            uses to handle all data communication.
      * @param <B>
      *            the data communicator builder type
-     *
+     * 
      */
-    protected <B extends DataCommunicatorBuilder<T>> Grid(int pageSize,
+    protected <B extends DataCommunicatorBuilder<T>> Grid(
+            int pageSize,
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuidler,
             B dataCommunicatorBuilder) {
         Objects.requireNonNull(dataCommunicatorBuilder,
                 "Data communicator builder can't be null");
-        arrayUpdater = createDefaultArrayUpdater(
-                Optional.ofNullable(updateQueueBuidler)
-                        .orElseGet(() -> UpdateQueue::new));
+        arrayUpdater = createDefaultArrayUpdater(Optional
+                .ofNullable(updateQueueBuidler)
+                .orElseGet(() -> UpdateQueue::new));
         arrayUpdater.setUpdateQueueData(
                 new UpdateQueueData(getElement(), getUniqueKeyProperty()));
         gridDataGenerator = new CompositeDataGenerator<>();
         gridDataGenerator.addDataGenerator(this::generateUniqueKeyData);
 
-        dataCommunicator = dataCommunicatorBuilder.build(getElement(),
-                gridDataGenerator, arrayUpdater, this::getUniqueKeyProvider);
+        dataCommunicator = dataCommunicatorBuilder.build(
+                getElement(), gridDataGenerator, arrayUpdater,
+                this::getUniqueKeyProvider);
 
         detailsManager = new DetailsManager(this);
         setPageSize(pageSize);
@@ -1021,16 +1022,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Builder for {@link DataCommunicator} object.
-     *
+     * 
      * @param <T>
      *            the grid bean type
      */
     protected static class DataCommunicatorBuilder<T> implements Serializable {
-
+    
         /**
          * Build a new {@link DataCommunicator} object for the given Grid
          * instance.
-         *
+         * 
          * @param element
          *            the target grid element
          * @param dataGenerator
@@ -1047,8 +1048,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 CompositeDataGenerator<T> dataGenerator,
                 GridArrayUpdater arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
-            return new DataCommunicator<>(dataGenerator, arrayUpdater,
-                    data -> element.callFunction("$connector.updateData", data),
+            return new DataCommunicator<>(
+                    dataGenerator, arrayUpdater,
+                    data -> element
+                            .callFunction("$connector.updateData", data),
                     element.getNode());
         }
     }
@@ -1081,7 +1084,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
         };
     }
-
+    
     /**
      * Adds a new text column to this {@link Grid} with a value provider. The
      * value is converted to String when sent to the client by using
@@ -1333,7 +1336,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * <strong>Note:</strong> This method can only be used for a Grid created
      * from a bean type with {@link #Grid(Class)}.
-     *
+     * 
      * @param propertyNames
      *            the properties to create columns for
      */
@@ -1376,7 +1379,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Adds a new header row on the top of the existing header rows.
      * <p>
      * If there are no existing header rows, this will create the first row.
-     *
+     * 
      * @return the created header row
      */
     public HeaderRow prependHeaderRow() {
@@ -1390,7 +1393,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Adds a new header row to the bottom of the existing header rows.
      * <p>
      * If there are no existing header rows, this will create the first row.
-     *
+     * 
      * @return the created header row
      */
     public HeaderRow appendHeaderRow() {
@@ -1414,7 +1417,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Adds a new footer row on the top of the existing footer rows.
      * <p>
      * If there are no existing footer rows, this will create the first row.
-     *
+     * 
      * @return the created footer row
      */
     public FooterRow prependFooterRow() {
@@ -1428,7 +1431,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Adds a new footer row to the bottom of the existing footer rows.
      * <p>
      * If there are no existing footer rows, this will create the first row.
-     *
+     * 
      * @return the created header row
      */
     public FooterRow appendFooterRow() {
@@ -1444,7 +1447,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets all of the header rows in the Grid, in order from top to bottom.
-     *
+     * 
      * @return the header rows of the Grid
      */
     public List<HeaderRow> getHeaderRows() {
@@ -1457,7 +1460,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets all of the footer rows in the Grid, in order from top to bottom.
-     *
+     * 
      * @return the footer rows of the Grid
      */
     public List<FooterRow> getFooterRows() {
@@ -1468,7 +1471,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Creates a new layer containing same amount of column-groups as the next
      * inner layer, adds it to layers list and returns the layer.
-     *
+     * 
      * @param index
      *            index to insert to, must be > 0
      */
@@ -1490,7 +1493,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * The user of this method should make sure that the DOM corresponds the
      * column layer structure.
-     *
+     * 
      * @param index
      *            the index to insert
      * @param columns
@@ -1507,7 +1510,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Removes the given layer and moves the columns on the lower level to its
      * place.
-     *
+     * 
      * @param layer
      *            the layer to remove, not the bottom layer
      */
@@ -2160,7 +2163,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Adds a new context-menu for this grid.
-     *
+     * 
      * @return the added context-menu
      */
     public GridContextMenu<T> addContextMenu() {
@@ -2361,7 +2364,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Returns {@link PropertySet} of bean this Grid is constructed with via
      * {@link #Grid(Class)}. Or null if not constructed from a bean type.
-     *
+     * 
      * @return the {@link PropertySet} of bean this Grid is constructed with
      */
     public PropertySet<T> getPropertySet() {
@@ -2370,7 +2373,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets optional value provider for unique key in row's generated JSON.
-     *
+     * 
      * @return ValueProvider for unique key for row or null if not set
      */
     protected ValueProvider<T, String> getUniqueKeyProvider() {
@@ -2381,7 +2384,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Sets value provider for unique key in row's generated JSON.
      * <p>
      * <code>null</code> by default.
-     *
+     * 
      * @param uniqueKeyProvider
      *            ValueProvider for unique key for row
      */
@@ -2392,7 +2395,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets property name for unique key in row's generated JSON.
-     *
+     * 
      * @return the optional property name for unique key
      */
     protected String getUniqueKeyProperty() {
@@ -2401,7 +2404,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Sets property name for unique key in row's generated JSON.
-     *
+     * 
      * @param uniqueKeyProperty
      *            the new optional property name for unique key
      */
