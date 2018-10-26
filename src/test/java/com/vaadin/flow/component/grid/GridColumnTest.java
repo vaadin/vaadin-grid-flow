@@ -224,7 +224,6 @@ public class GridColumnTest {
     @Test
     public void addColumn_extendedColumnTypeByOverridingCreateMethod() {
         Grid<Person> extendedGrid = new Grid<Person>() {
-            @Nonnull
             @Override
             protected Column<Person> createColumn(Renderer<Person> renderer, String columnId) {
                 return new ExtendedColumn<>(this, columnId, renderer);

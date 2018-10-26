@@ -1426,7 +1426,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param columnId internal column id
      * @return column instance
      */
-    @Nonnull
     protected Column<T> createColumn ( Renderer<T> renderer, String columnId ) {
         return new Column<> (this, columnId, renderer);
     }
