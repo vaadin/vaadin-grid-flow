@@ -4,16 +4,19 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
- * the License. 
+ * the License.
  */
 package com.vaadin.flow.data.provider.hierarchy;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,18 +30,11 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.GridArrayUpdater;
 import com.vaadin.flow.component.internal.UIInternals;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
-import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataCommunicator;
-import com.vaadin.flow.data.provider.hierarchy.TreeData;
-import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
-import com.vaadin.flow.data.provider.hierarchy.TreeUpdate;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.internal.StateNode;
 import com.vaadin.flow.internal.StateTree;
 
 import elemental.json.JsonValue;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class HierarchicalCommunicatorTest {
 
@@ -72,13 +68,11 @@ public class HierarchicalCommunicatorTest {
         }
 
         @Override
-        public void set(int start, List<JsonValue> items,
-                String parentKey) {
+        public void set(int start, List<JsonValue> items, String parentKey) {
         }
 
         @Override
-        public void clear(int start, int length,
-                String parentKey) {
+        public void clear(int start, int length, String parentKey) {
         }
 
         @Override
@@ -109,7 +103,7 @@ public class HierarchicalCommunicatorTest {
             return null;
         }
     };
-    
+
     @Before
     public void setUp() {
         ui = Mockito.mock(UI.class);
@@ -125,10 +119,9 @@ public class HierarchicalCommunicatorTest {
         dataProvider = new TreeDataProvider<>(treeData);
         stateNode = Mockito.mock(StateNode.class);
         communicator = new HierarchicalDataCommunicator<>(
-                Mockito.mock(CompositeDataGenerator.class),
-                arrayUpdater, json -> {
-                },
-                stateNode, () -> null);
+                Mockito.mock(CompositeDataGenerator.class), arrayUpdater,
+                json -> {
+                }, stateNode, () -> null);
         communicator.setDataProvider(dataProvider, null);
     }
 
@@ -163,17 +156,18 @@ public class HierarchicalCommunicatorTest {
         } else {
             dataProvider.refreshItem(item);
         }
-        
+
+        int number = refreshAll ? 6 : 5;
+
         ArgumentCaptor<SerializableConsumer> attachCaptor = ArgumentCaptor
                 .forClass(SerializableConsumer.class);
-        Mockito.verify(stateNode, Mockito.times(4))
+        Mockito.verify(stateNode, Mockito.times(number))
                 .runWhenAttached(attachCaptor.capture());
 
         attachCaptor.getAllValues().forEach(consumer -> consumer.accept(ui));
 
-        Mockito.verify(stateTree, Mockito.times(4))
-                .beforeClientResponse(Mockito.any(),
-                Mockito.any());
+        Mockito.verify(stateTree, Mockito.times(number))
+                .beforeClientResponse(Mockito.any(), Mockito.any());
     }
 
     @Test
