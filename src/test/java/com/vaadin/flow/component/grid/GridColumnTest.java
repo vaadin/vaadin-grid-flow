@@ -15,6 +15,8 @@
  */
 package com.vaadin.flow.component.grid;
 
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.data.renderer.TemplateRenderer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,6 +28,8 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.IconRenderer;
 import com.vaadin.flow.function.SerializableComparator;
+
+import javax.annotation.Nonnull;
 
 public class GridColumnTest {
 
@@ -177,6 +181,29 @@ public class GridColumnTest {
         Assert.assertEquals(renderer, fourthColumn.getRenderer());
     }
 
+    @Test
+    public void addColumn_defaultTextAlign() {
+        Grid<Person> grid = new Grid<>();
+
+        Column<Person> nameColumn = grid.addColumn(Person::getName);
+        Assert.assertEquals(ColumnTextAlign.START, nameColumn.getTextAlign());
+    }
+
+    @Test
+    public void setTextAlignToNull_defaultTextAlign() {
+        Grid<Person> grid = new Grid<>();
+
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setTextAlign(null);
+        Assert.assertEquals(ColumnTextAlign.START, nameColumn.getTextAlign());
+
+        nameColumn.setTextAlign(ColumnTextAlign.CENTER);
+        Assert.assertEquals(ColumnTextAlign.CENTER, nameColumn.getTextAlign());
+
+        nameColumn.setTextAlign(null);
+        Assert.assertEquals(ColumnTextAlign.START, nameColumn.getTextAlign());
+    }
+
     private void expectNullPointerException(String message) {
         thrown.expect(NullPointerException.class);
         thrown.expectMessage(message);
@@ -185,5 +212,33 @@ public class GridColumnTest {
     private void expectIllegalArgumentException(String message) {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(message);
+    }
+
+    @Test
+    public void createColumn_returnsNonNullAndBasicType() {
+        Column column = new Grid<Person>().createColumn(TemplateRenderer.of(""), "");
+        Assert.assertNotNull(column);
+        Assert.assertEquals(Column.class, column.getClass());
+    }
+
+    @Test
+    public void addColumn_extendedColumnTypeByOverridingCreateMethod() {
+        Grid<Person> extendedGrid = new Grid<Person>() {
+            @Override
+            protected Column<Person> createColumn(Renderer<Person> renderer, String columnId) {
+                return new ExtendedColumn<>(this, columnId, renderer);
+            }
+        };
+
+        Column<Person> column = extendedGrid.addColumn(Person::toString);
+
+        Assert.assertNotNull(column);
+        Assert.assertEquals(ExtendedColumn.class, column.getClass());
+    }
+
+    private static class ExtendedColumn<T> extends Column<T> {
+        ExtendedColumn(Grid<T> grid, String columnId, Renderer<T> renderer) {
+            super(grid, columnId, renderer);
+        }
     }
 }

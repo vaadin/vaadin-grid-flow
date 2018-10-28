@@ -89,6 +89,7 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.ExecutionContext;
@@ -123,7 +124,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         HasTheme, HasDataGenerators<T> {
 
     protected static class UpdateQueue implements Update {
-        private final ArrayList<Runnable> queue = new ArrayList<>();
+        private final ArrayList<SerializableRunnable> queue = new ArrayList<>();
         private final UpdateQueueData data;
 
         protected UpdateQueue(UpdateQueueData data, int size) {
@@ -158,7 +159,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         public void commit() {
-            queue.forEach(Runnable::run);
+            queue.forEach(SerializableRunnable::run);
             queue.clear();
         }
 
@@ -1395,7 +1396,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         getDataCommunicator().reset();
 
-        Column<T> column = new Column<>(this, columnId, renderer);
+        Column<T> column = createColumn(renderer, columnId);
         idToColumnMap.put(columnId, column);
 
         AbstractColumn<?> current = column;
@@ -1409,6 +1410,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getElement().appendChild(current.getElement());
 
         return column;
+    }
+
+    /**
+     * Creates a new column instance for this {@link Grid} instance.
+     * <p/>
+     * This method must not return <code>null</code>.
+     *
+     * @param renderer the renderer used to create the grid cell structure
+     * @param columnId internal column id
+     * @return column instance
+     * @see #createColumnId(boolean)
+     * @see Renderer
+     */
+    protected Column<T> createColumn(Renderer<T> renderer, String columnId) {
+        return new Column<>(this, columnId, renderer);
     }
 
     /**
@@ -2801,7 +2817,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Enables or disables the vertical scrolling on the Grid web component. By
      * default, the scrolling is enabled.
-     * 
+     *
      * @param enabled
      *            <code>true</code> to enable vertical scrolling,
      *            <code>false</code> to disabled it
@@ -2817,7 +2833,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets whether the vertical scrolling on the Grid web component is enabled.
-     * 
+     *
      * @return <code>true</code> if the vertical scrolling is enabled,
      *         <code>false</code> otherwise
      */
