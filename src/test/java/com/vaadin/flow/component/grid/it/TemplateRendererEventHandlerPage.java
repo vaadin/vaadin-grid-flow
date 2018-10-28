@@ -26,9 +26,8 @@ import com.vaadin.flow.router.Route;
 public class TemplateRendererEventHandlerPage extends Div {
 
     public TemplateRendererEventHandlerPage() {
-        TemplateRenderer<Person> renderer = TemplateRenderer
-                .<Person> of(
-                        "<div on-click='clicked'>Click [[item.name]]</div>")
+        TemplateRenderer<Person> renderer = TemplateRenderer.<Person> of(
+                "<div>[[item.name]] <button on-click='clicked'>Click</button></div>")
                 .withProperty("name", Person::getName)
                 .withEventHandler("clicked", this::clicked);
 
