@@ -102,6 +102,11 @@ public interface Editor<T> extends Serializable {
     void editItem(T item);
 
     /**
+     * 
+     */
+    void refresh();
+
+    /**
      * Gets the current item being edited, if any.
      * <p>
      * The item being edited is always <code>null</code> while the editor is

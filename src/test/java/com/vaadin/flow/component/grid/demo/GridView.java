@@ -385,34 +385,34 @@ public class GridView extends DemoView {
 
     @Override
     protected void initView() {
-        createBasicUsage();
-        createCallBackDataProvider();
-        createSingleSelect();
-        createMultiSelect();
-        createNoneSelect();
-        createColumnApiExample();
-        createBasicRenderers();
-        createColumnTemplate();
-        createColumnComponentRenderer();
-        createItemDetails();
-        createItemDetailsOpenedProgrammatically();
-        createSorting();
-        createGridWithHeaderAndFooterRows();
-        createHeaderAndFooterUsingComponents();
-        createGridWithFilters();
-        createBeanGrid();
-        createHeightByRows();
-        createBasicFeatures();
-        createDisabledGrid();
-        createBasicTreeGridUsage();
-        createLazyLoadingTreeGridUsage();
-        createContextMenu();
-        addVariantFeature();
-        createClickListener();
-        createDoubleClickListener();
+        // createBasicUsage();
+        // createCallBackDataProvider();
+        // createSingleSelect();
+        // createMultiSelect();
+        // createNoneSelect();
+        // createColumnApiExample();
+        // createBasicRenderers();
+        // createColumnTemplate();
+        // createColumnComponentRenderer();
+        // createItemDetails();
+        // createItemDetailsOpenedProgrammatically();
+        // createSorting();
+        // createGridWithHeaderAndFooterRows();
+        // createHeaderAndFooterUsingComponents();
+        // createGridWithFilters();
+        // createBeanGrid();
+        // createHeightByRows();
+        // createBasicFeatures();
+        // createDisabledGrid();
+        // createBasicTreeGridUsage();
+        // createLazyLoadingTreeGridUsage();
+        // createContextMenu();
+        // addVariantFeature();
+        // createClickListener();
+        // createDoubleClickListener();
         createBufferedEditor();
-        createNotBufferedEditor();
-        createDynamicEditor();
+        // createNotBufferedEditor();
+        // createDynamicEditor();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -1393,6 +1393,8 @@ public class GridView extends DemoView {
                 .setHeader("Name");
         Column<Person> subscriberColumn = grid.addColumn(Person::isSubscriber)
                 .setHeader("Subscriber");
+        Column<Person> emailColumn = grid.addColumn(Person::getEmail)
+                .setHeader("E-mail");
 
         Binder<Person> binder = new Binder<>(Person.class);
         Editor<Person> editor = grid.getEditor();
@@ -1402,14 +1404,19 @@ public class GridView extends DemoView {
         Div validationStatus = new Div();
         validationStatus.setId("validation");
 
-        TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.forField(field)
+        TextField nameField = new TextField();
+        nameColumn.setEditorBinding(binder.forField(nameField)
                 .withValidator(name -> name.startsWith("Person"),
                         "Name should start with Person")
                 .withStatusLabel(validationStatus).bind("name"));
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        Checkbox checkbox2 = new Checkbox();
+        checkbox2.setLabel("Blah");
+        subscriberColumn
+                .setEditorBinding(item -> nameField.getValue().contains("2")
+                        ? binder.bind(checkbox, "subscriber")
+                        : binder.bind(checkbox2, "subscriber"));
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
@@ -1426,6 +1433,34 @@ public class GridView extends DemoView {
 
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
+
+        TextField emailField = new TextField();
+        TextField emailField2 = new TextField();
+        emailField2.setPlaceholder("Not a subscriber");
+        emailField2.setEnabled(false);
+
+        emailColumn.setEditorBinding(item -> (nameField.getValue().contains("2")
+                ? checkbox.getValue()
+                : checkbox2.getValue()) ? binder.bind(emailField, "email")
+                        : binder.bind(emailField2, "email"));
+
+        // nameField.addValueChangeListener(event -> {
+        // if (nameField.getValue().contains("2")) {
+        // checkbox.setValue(false);
+        // }
+        // grid.getEditor().refresh();
+        // });
+
+        nameField.addValueChangeListener(event -> {
+            grid.getEditor().refresh();
+        });
+
+        checkbox.addValueChangeListener(event -> {
+            grid.getEditor().refresh();
+        });
+        checkbox2.addValueChangeListener(event -> {
+            grid.getEditor().refresh();
+        });
 
         editor.addSaveListener(
                 event -> message.setText(event.getItem().getName() + ", "
