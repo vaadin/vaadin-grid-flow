@@ -40,7 +40,7 @@ public class EditorDataGenerator<T> implements DataGenerator<T> {
 
     @Override
     public void generateData(T item, JsonObject jsonObject) {
-        if (component != null && editor.isOpen()) {
+        if (component != null && editor.isOpen() && editor.getItem() == item) {
             int nodeId = component.getElement().getNode().getId();
             jsonObject.put("_" + columnInternalId + "_editor", nodeId);
         }
@@ -71,7 +71,7 @@ public class EditorDataGenerator<T> implements DataGenerator<T> {
 
     @Override
     public void refreshData(T item) {
-        if (!editor.isOpen()) {
+        if (!editor.isOpen() || editor.getItem() != item) {
             return;
         }
         if (bindingFunction != null) {

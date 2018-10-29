@@ -45,7 +45,6 @@ import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
@@ -287,12 +286,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         private SerializableComparator<T> comparator;
 
         private Registration columnDataGeneratorRegistration;
+        private Registration editorDataGeneratorRegistration;
 
         private Renderer<T> renderer;
-
         private Rendering<T> rendering;
-
-        private final String originalTemplate;
+        private String originalTemplate;
 
         /**
          * Constructs a new Column for use inside a Grid.
@@ -317,13 +315,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             rendering = renderer.render(getElement(), (KeyMapper<T>) getGrid()
                     .getDataCommunicator().getKeyMapper());
 
-            Element template = rendering.getTemplateElement();
-            if (template != null) {
-                originalTemplate = template.getProperty("innerHTML");
-            } else {
-                originalTemplate = "";
-            }
-
             Optional<DataGenerator<T>> dataGenerator = rendering
                     .getDataGenerator();
 
@@ -337,6 +328,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             if (columnDataGeneratorRegistration != null) {
                 columnDataGeneratorRegistration.remove();
                 columnDataGeneratorRegistration = null;
+            }
+            if (editorDataGeneratorRegistration != null) {
+                editorDataGeneratorRegistration.remove();
+                editorDataGeneratorRegistration = null;
             }
         }
 
@@ -825,19 +820,31 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             getElement().appendVirtualChild(container);
             editorDataGenerator = new EditorDataGenerator<>(
                     (Editor) grid.getEditor(), columnInternalId, container);
-            grid.addDataGenerator((EditorDataGenerator) editorDataGenerator);
+            editorDataGeneratorRegistration = grid.addDataGenerator(
+                    (EditorDataGenerator) editorDataGenerator);
 
-            Element template = rendering.getTemplateElement();
-            String appId = UI.getCurrent().getInternals().getAppId();
-            String editorTemplate = String.format(
-                    "<flow-component-renderer appid='%s' nodeid='[[item._%s_editor]]'></flow-component-renderer>",
-                    appId, columnInternalId);
-            template.setProperty("innerHTML", String.format(
-            //@formatter:off
-            "<template is='dom-if' if='[[item._editing]]' restamp>%s</template>" +
-            "<template is='dom-if' if='[[!item._editing]]' restamp>%s</template>",
-            //@formatter:on
-                    editorTemplate, originalTemplate));
+            /**
+             * This is needed because ComponentRenderers don't set the innerHTML
+             * of the <template> elements in advance, only before the client
+             * response.
+             */
+            runBeforeClientResponse(context -> {
+                Element template = rendering.getTemplateElement();
+                if (originalTemplate == null) {
+                    originalTemplate = template.getProperty("innerHTML");
+                }
+                String appId = context.getUI().getInternals().getAppId();
+                String editorTemplate = String.format(
+                        "<flow-component-renderer appid='%s' nodeid='[[item._%s_editor]]'></flow-component-renderer>",
+                        appId, columnInternalId);
+
+                template.setProperty("innerHTML", String.format(
+                //@formatter:off
+                        "<template is='dom-if' if='[[item._editing]]' restamp>%s</template>" +
+                        "<template is='dom-if' if='[[!item._editing]]' restamp>%s</template>",
+                        //@formatter:on
+                        editorTemplate, originalTemplate));
+            });
         }
 
         private void runBeforeClientResponse(
@@ -1442,8 +1449,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p/>
      * This method must not return <code>null</code>.
      *
-     * @param renderer the renderer used to create the grid cell structure
-     * @param columnId internal column id
+     * @param renderer
+     *            the renderer used to create the grid cell structure
+     * @param columnId
+     *            internal column id
      * @return column instance
      * @see #createColumnId(boolean)
      * @see Renderer

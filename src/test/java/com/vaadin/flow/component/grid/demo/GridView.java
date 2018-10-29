@@ -1409,7 +1409,9 @@ public class GridView extends DemoView {
                 .withStatusLabel(validationStatus).bind("name"));
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        subscriberColumn.setEditorBinding(item -> item.getName().endsWith("2")
+                ? binder.bind(checkbox, "subscriber")
+                : null);
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
