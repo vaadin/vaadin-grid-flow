@@ -15,6 +15,32 @@
  */
 package com.vaadin.flow.component.grid.demo;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -61,31 +87,6 @@ import com.vaadin.flow.demo.DemoView;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
-import org.apache.commons.lang3.StringUtils;
-
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * View for {@link Grid} demo.
@@ -1535,15 +1536,16 @@ public class GridView extends DemoView {
                 .map(usaState -> usaState.toString())
                 .collect(Collectors.toList()));
 
-        stateColumn.setEditorBinding(
-                item -> countryComboBox.getValue() == Country.USA
-                        ? binder.bind(stateComboBox, "state")
-                        : binder.bind(stateField, "state"));
+        stateColumn.setEditorBinding(item -> item.getCountry() == Country.USA
+                ? binder.bind(stateComboBox, "state")
+                : binder.bind(stateField, "state"));
 
         countryComboBox.addValueChangeListener(event -> {
-            if(event.isFromClient())
+            if (event.isFromClient()) {
                 grid.getEditor().getItem().setState(null);
-            grid.getEditor().refresh();
+                grid.getEditor().getItem().setCountry(event.getValue());
+                grid.getEditor().refresh();
+            }
         });
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
@@ -1562,10 +1564,9 @@ public class GridView extends DemoView {
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
 
-        editor.addSaveListener(
-                event -> message.setText(event.getItem().getName() + ", "
-                        + event.getItem().getCountry() + ", "
-                        + event.getItem().getState()));
+        editor.addSaveListener(event -> message.setText(
+                event.getItem().getName() + ", " + event.getItem().getCountry()
+                        + ", " + event.getItem().getState()));
 
         // end-source-example
         grid.setId("dynamic-editor");

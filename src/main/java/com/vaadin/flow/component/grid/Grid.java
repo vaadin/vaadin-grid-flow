@@ -710,12 +710,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @see Editor#getBinder()
          */
         public Column<T> setEditorBinding(Binding<T, ?> binding) {
-            if (binding == null) {
-                setEditorBinding((SerializableFunction<T, Binding<T, ?>>) null);
-            } else {
-                setEditorBinding(item -> binding);
-            }
+            editorComponent = null;
+            editorBinding = null;
             editorBinding = binding;
+            if (editorRenderer == null && binding != null) {
+                setupColumnEditor();
+            }
+            if (editorRenderer != null) {
+                editorRenderer.setStaticBinding(binding);
+            }
             return this;
         }
 

@@ -60,6 +60,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     private SerializableFunction<T, Binding<T, ?>> bindingFunction;
 
     private Binding<T, ?> binding;
+    private Binding<T, ?> staticBinding;
     private Component component;
     private String originalTemplate;
 
@@ -91,6 +92,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
             SerializableFunction<T, ? extends Component> componentFunction) {
         this.componentFunction = componentFunction;
         this.bindingFunction = null;
+        this.staticBinding = null;
     }
 
     /**
@@ -104,12 +106,18 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
             SerializableFunction<T, Binding<T, ?>> bindingFunction) {
         this.bindingFunction = bindingFunction;
         this.componentFunction = null;
+        this.staticBinding = null;
+    }
+
+    public void setStaticBinding(Binding<T, ?> staticBinding) {
+        this.staticBinding = staticBinding;
+        this.bindingFunction = null;
+        this.componentFunction = null;
     }
 
     @Override
     public void generateData(T item, JsonObject jsonObject) {
         if (editor.isOpen()) {
-            buildComponent(item);
             if (component != null) {
                 int nodeId = component.getElement().getNode().getId();
                 jsonObject.put("_" + columnInternalId + "_editor", nodeId);
@@ -118,8 +126,12 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     }
 
     private void buildComponent(T item) {
-        if (bindingFunction != null) {
-            setBinding(bindingFunction.apply(item), item);
+        if (staticBinding != null || bindingFunction != null) {
+            if (staticBinding != null) {
+                binding = staticBinding;
+            } else {
+                setBinding(bindingFunction.apply(item), item);
+            }
             if (binding != null) {
                 HasValue<?, ?> field = binding.getField();
                 if (field != null && !(field instanceof Component)) {
@@ -169,6 +181,13 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
             binding.unbind();
         }
         binding = newBinding;
+    }
+
+    @Override
+    public void refreshData(T item) {
+        if (editor.isOpen()) {
+            buildComponent(item);
+        }
     }
 
     @Override
