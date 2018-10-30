@@ -40,9 +40,31 @@ public class EditorDataGenerator<T> implements DataGenerator<T> {
 
     @Override
     public void generateData(T item, JsonObject jsonObject) {
-        if (component != null && editor.isOpen() && editor.getItem() == item) {
-            int nodeId = component.getElement().getNode().getId();
-            jsonObject.put("_" + columnInternalId + "_editor", nodeId);
+        if (editor.isOpen()) {
+            buildComponent(item);
+            if (component != null) {
+                int nodeId = component.getElement().getNode().getId();
+                jsonObject.put("_" + columnInternalId + "_editor", nodeId);
+            }
+        }
+    }
+
+    private void buildComponent(T item) {
+        if (bindingFunction != null) {
+            setBinding(bindingFunction.apply(item), item);
+            if (binding != null) {
+                HasValue<?, ?> field = binding.getField();
+                if (field != null && !(field instanceof Component)) {
+                    throw new IllegalArgumentException(
+                            "Binding target must be a component. It was "
+                                    + field);
+                }
+                setComponent((Component) field);
+            } else {
+                setComponent(null);
+            }
+        } else if (componentFunction != null) {
+            setComponent(componentFunction.apply(item));
         }
     }
 
@@ -62,33 +84,18 @@ public class EditorDataGenerator<T> implements DataGenerator<T> {
         component = newComponent;
     }
 
-    private void setBinding(Binding<T, ?> newBinding) {
+    private void setBinding(Binding<T, ?> newBinding, T item) {
+        if (newBinding != null) {
+            if (binding == null
+                    || !binding.getField().equals(newBinding.getField())) {
+                newBinding.read(item);
+            }
+        }
+
         if (binding != null && !binding.equals(newBinding)) {
             binding.unbind();
         }
         binding = newBinding;
     }
 
-    @Override
-    public void refreshData(T item) {
-        if (!editor.isOpen() || editor.getItem() != item) {
-            return;
-        }
-        if (bindingFunction != null) {
-            setBinding(bindingFunction.apply(item));
-            if (binding != null) {
-                HasValue<?, ?> field = binding.getField();
-                if (field != null && !(field instanceof Component)) {
-                    throw new IllegalArgumentException(
-                            "Binding target must be a component. It was "
-                                    + field);
-                }
-                setComponent((Component) field);
-            } else {
-                setComponent(null);
-            }
-        } else if (componentFunction != null) {
-            setComponent(componentFunction.apply(item));
-        }
-    }
 }
