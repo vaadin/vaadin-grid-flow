@@ -287,7 +287,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         private Renderer<T> renderer;
         private Rendering<T> rendering;
-        private String originalTemplate;
 
         /**
          * Constructs a new Column for use inside a Grid.
