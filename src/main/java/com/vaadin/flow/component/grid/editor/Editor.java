@@ -102,7 +102,13 @@ public interface Editor<T> extends Serializable {
     void editItem(T item);
 
     /**
+     * Refreshes the editor components for the current item being edited. It is
+     * a NO-OP if the editor is not opened.
+     * <p>
+     * This is useful when the state of the item is changed while the editor is
+     * open.
      * 
+     * @see #isOpen()
      */
     void refresh();
 
