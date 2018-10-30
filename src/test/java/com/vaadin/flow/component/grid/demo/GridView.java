@@ -15,34 +15,10 @@
  */
 package com.vaadin.flow.component.grid.demo;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -65,6 +41,8 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.bean.Country;
+import com.vaadin.flow.data.bean.UsaState;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -83,6 +61,31 @@ import com.vaadin.flow.demo.DemoView;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
+import org.apache.commons.lang3.StringUtils;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * View for {@link Grid} demo.
@@ -110,6 +113,8 @@ public class GridView extends DemoView {
         private Address address;
         private boolean isSubscriber;
         private String email;
+        private Country country;
+        private String state;
 
         public int getId() {
             return id;
@@ -157,6 +162,22 @@ public class GridView extends DemoView {
 
         public void setEmail(String email) {
             this.email = email;
+        }
+
+        public Country getCountry() {
+            return country;
+        }
+
+        public void setCountry(Country country) {
+            this.country = country;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
         }
 
         @Override
@@ -576,9 +597,9 @@ public class GridView extends DemoView {
     private void createColumnTemplate() {
         List<Person> items = new ArrayList<>();
         items.add(createPerson(Person::new, "Person A", -1, 27, true,
-                "Street N", 31, "74253"));
+                "Street N", 31, "74253", Country.FINLAND, ""));
         items.add(createPerson(Person::new, "Person B", 0, 19, false,
-                "Street F", 73, "93493"));
+                "Street F", 73, "93493", Country.USA, ""));
         items.addAll(createItems());
 
         // begin-source-example
@@ -1488,41 +1509,63 @@ public class GridView extends DemoView {
         grid.setItems(persons);
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
-        Column<Person> subscriberColumn = grid.addColumn(Person::isSubscriber)
-                .setHeader("Subscriber");
-        Column<Person> emailColumn = grid.addColumn(Person::getEmail)
-                .setHeader("E-mail");
+        Column<Person> countryColumn = grid.addColumn(Person::getCountry)
+                .setHeader("Country");
+        Column<Person> stateColumn = grid.addColumn(Person::getState)
+                .setHeader("State/Province");
 
         Binder<Person> binder = new Binder<>(Person.class);
         Editor<Person> editor = grid.getEditor();
         editor.setBinder(binder);
+        editor.setBuffered(true);
 
         Div validationStatus = new Div();
         validationStatus.setId("validation");
 
         TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.forField(field)
-                .withValidator(name -> name.startsWith("Person"),
-                        "Name should start with Person")
-                .withStatusLabel(validationStatus).bind("name"));
+        nameColumn.setEditorBinding(binder.forField(field).bind("name"));
 
-        Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        ComboBox<Country> countryComboBox = new ComboBox<>();
+        countryComboBox.setItems(Country.values());
+        countryColumn.setEditorBinding(binder.bind(countryComboBox, "country"));
 
-        TextField emailField = new TextField();
-        TextField emailField2 = new TextField();
-        emailField2.setPlaceholder("Not a subscriber");
-        emailField2.setEnabled(false);
-        emailColumn.setEditorBinding(
-                item -> item.isSubscriber() ? binder.bind(emailField, "email")
-                        : binder.bind(emailField2, "email"));
+        TextField stateField = new TextField();
+        ComboBox<String> stateComboBox = new ComboBox<>();
+        stateComboBox.setItems(Arrays.stream(UsaState.values())
+                .map(usaState -> usaState.toString())
+                .collect(Collectors.toList()));
 
-        grid.addItemDoubleClickListener(
-                event -> grid.getEditor().editItem(event.getItem()));
+        stateColumn.setEditorBinding(
+                item -> countryComboBox.getValue() == Country.USA
+                        ? binder.bind(stateComboBox, "state")
+                        : binder.bind(stateField, "state"));
 
-        binder.addValueChangeListener(event -> {
-            grid.getDataProvider().refreshItem(binder.getBean());
+        countryComboBox.addValueChangeListener(event -> {
+            if(event.isFromClient())
+                grid.getEditor().getItem().setState(null);
+            grid.getEditor().refresh();
         });
+
+        Column<Person> editorColumn = grid.addComponentColumn(person -> {
+            Button edit = new Button("Edit");
+            edit.addClassName("edit");
+            edit.addClickListener(e -> editor.editItem(person));
+            return edit;
+        });
+
+        Button save = new Button("Save", e -> editor.save());
+        save.addClassName("save");
+
+        Button cancel = new Button("Cancel", e -> editor.cancel());
+        cancel.addClassName("cancel");
+
+        Div buttons = new Div(save, cancel);
+        editorColumn.setEditorComponent(buttons);
+
+        editor.addSaveListener(
+                event -> message.setText(event.getItem().getName() + ", "
+                        + event.getItem().getCountry() + ", "
+                        + event.getItem().getState()));
 
         // end-source-example
         grid.setId("dynamic-editor");
@@ -1636,16 +1679,26 @@ public class GridView extends DemoView {
 
     private static <T extends Person> T createPerson(Supplier<T> constructor,
             int index, int id, Random random) {
+        Country country = Country.values()[random
+                .nextInt(Country.values().length)];
+        String state;
+        if (country == Country.USA)
+            state = UsaState.values()[random.nextInt(UsaState.values().length)]
+                    .toString();
+        else
+            state = "A state in " + country.toString();
+
         return createPerson(constructor, "Person " + index, id,
                 13 + random.nextInt(50), random.nextBoolean(),
                 "Street " + ((char) ('A' + random.nextInt(26))),
                 1 + random.nextInt(50),
-                String.valueOf(10000 + random.nextInt(8999)));
+                String.valueOf(10000 + random.nextInt(8999)), country, state);
     }
 
     private static <T extends Person> T createPerson(Supplier<T> constructor,
             String name, int id, int age, boolean subscriber, String street,
-            int addressNumber, String postalCode) {
+            int addressNumber, String postalCode, Country country,
+            String state) {
         T person = constructor.get();
         person.setId(id);
         person.setName(name);
@@ -1657,6 +1710,8 @@ public class GridView extends DemoView {
         address.setNumber(addressNumber);
         address.setPostalCode(postalCode);
         person.setAddress(address);
+        person.setCountry(null);
+        person.setState(null);
 
         return person;
     }
