@@ -608,14 +608,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
         GridElement grid = $(GridElement.class).id("bean-grid");
         scrollToElement(grid);
 
-        Assert.assertEquals("Unexpected amount of columns", 5,
+        Assert.assertEquals("Unexpected amount of columns", 6,
                 grid.findElements(By.tagName("vaadin-grid-column")).size());
 
         Assert.assertEquals("Address", grid.getHeaderCell(0).getText());
         Assert.assertEquals("Age", grid.getHeaderCell(1).getText());
-        Assert.assertEquals("Name", grid.getHeaderCell(2).getText());
-        Assert.assertEquals("Subscriber", grid.getHeaderCell(3).getText());
-        Assert.assertEquals("Postal Code", grid.getHeaderCell(4).getText());
+        Assert.assertEquals("Email", grid.getHeaderCell(2).getText());
+        Assert.assertEquals("Name", grid.getHeaderCell(3).getText());
+        Assert.assertEquals("Subscriber", grid.getHeaderCell(4).getText());
+        Assert.assertEquals("Postal Code", grid.getHeaderCell(5).getText());
     }
 
     @Test
