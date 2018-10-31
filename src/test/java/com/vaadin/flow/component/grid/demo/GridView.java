@@ -1543,8 +1543,13 @@ public class GridView extends DemoView {
 
         countryComboBox.addValueChangeListener(event -> {
             if (event.isFromClient()) {
-                grid.getEditor().getItem().setState(null);
-                grid.getEditor().getItem().setCountry(event.getValue());
+                if (event.getValue() == Country.USA) {
+                    stateField.setValue(stateField.getEmptyValue());
+                }
+                stateColumn.setEditorBinding(
+                        item -> countryComboBox.getValue() == Country.USA
+                                ? binder.bind(stateComboBox, "state")
+                                : binder.bind(stateField, "state"));
                 grid.getEditor().refresh();
             }
         });
@@ -1552,7 +1557,13 @@ public class GridView extends DemoView {
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
             edit.addClassName("edit");
-            edit.addClickListener(e -> editor.editItem(person));
+            edit.addClickListener(e -> {
+                stateColumn.setEditorBinding(
+                        item -> item.getCountry() == Country.USA
+                                ? binder.bind(stateComboBox, "state")
+                                : binder.bind(stateField, "state"));
+                editor.editItem(person);
+            });
             return edit;
         });
 
