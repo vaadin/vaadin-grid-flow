@@ -1536,6 +1536,8 @@ public class GridView extends DemoView {
                 .map(usaState -> usaState.toString())
                 .collect(Collectors.toList()));
 
+        stateComboBox.setAllowCustomValue(true);
+
         stateColumn.setEditorBinding(item -> item.getCountry() == Country.USA
                 ? binder.bind(stateComboBox, "state")
                 : binder.bind(stateField, "state"));

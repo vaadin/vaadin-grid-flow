@@ -166,16 +166,6 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     }
 
     private void setBinding(Binding<T, ?> newBinding, T item) {
-        if (newBinding != null) {
-            if (binding == null
-                    || !binding.getField().equals(newBinding.getField())) {
-
-                // The binding can be created after the binder has read the
-                // bean, so we need to make the new field gets the correct data
-                newBinding.read(item);
-            }
-        }
-
         if (binding != null && !binding.equals(newBinding)) {
             // Removes the old binding and the associated listeners
             binding.unbind();
