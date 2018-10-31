@@ -134,9 +134,16 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     @Override
     public void generateData(T item, JsonObject jsonObject) {
         if (editor.isOpen() && component != null) {
-            int nodeId = component.getElement().getNode().getId();
+            int nodeId = getComponentNodeId(component);
             jsonObject.put("_" + columnInternalId + "_editor", nodeId);
         }
+    }
+
+    /*
+     * Package-protected for testing
+     */
+    int getComponentNodeId(Component component) {
+        return component.getElement().getNode().getId();
     }
 
     private void buildComponent(T item) {
@@ -160,6 +167,8 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
             }
         } else if (componentFunction != null) {
             setComponent(componentFunction.apply(item));
+        } else {
+            setComponent(null);
         }
     }
 
@@ -214,7 +223,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
          * nodeId, and the nodeId is needed by the <flow-component-renderer> in
          * the client-side.
          */
-        editorContainer = ElementFactory.createDiv();
+        editorContainer = createEditorContainer();
         container.appendVirtualChild(editorContainer);
 
         /*
@@ -237,6 +246,10 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
         });
 
         return new EditorRendering(contentTemplate);
+    }
+
+    Element createEditorContainer() {
+        return ElementFactory.createDiv();
     }
 
     private void runBeforeClientResponse(Element container,

@@ -700,7 +700,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * {@link Component}.
          *
          * @param binding
-         *            the binding to use for this column, not {@code null}
+         *            the binding to use for this column, or <code>null</code>
+         *            to remove the editor component for this column
          * @return this column
          *
          * @see Binding
