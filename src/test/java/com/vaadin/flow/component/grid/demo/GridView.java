@@ -23,7 +23,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -435,7 +433,6 @@ public class GridView extends DemoView {
         createDoubleClickListener();
         createBufferedEditor();
         createNotBufferedEditor();
-        createDynamicEditor();
         createBufferedDynamicEditor();
         createNotBufferedDynamicEditor();
 
@@ -1502,93 +1499,6 @@ public class GridView extends DemoView {
         addCard("Grid Editor", "Editor in Not Buffered Mode", message, grid);
     }
 
-    private void createDynamicEditor() {
-        Div message = new Div();
-        message.setId("dynamic-editor-msg");
-
-        // begin-source-example
-        // source-example-heading: Dynamic Editors
-        Grid<Person> grid = new Grid<>();
-        List<Person> persons = getItems();
-        grid.setItems(persons);
-        Column<Person> nameColumn = grid.addColumn(Person::getName)
-                .setHeader("Name");
-        Column<Person> countryColumn = grid.addColumn(Person::getCountry)
-                .setHeader("Country");
-        Column<Person> stateColumn = grid.addColumn(Person::getState)
-                .setHeader("State/Province");
-
-        Binder<Person> binder = new Binder<>(Person.class);
-        Editor<Person> editor = grid.getEditor();
-        editor.setBinder(binder);
-        editor.setBuffered(true);
-
-        Div validationStatus = new Div();
-        validationStatus.setId("validation");
-
-        TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.forField(field).bind("name"));
-
-        ComboBox<Country> countryComboBox = new ComboBox<>();
-        countryComboBox.setItems(Country.values());
-        countryColumn.setEditorBinding(binder.bind(countryComboBox, "country"));
-
-        TextField stateField = new TextField();
-        ComboBox<String> stateComboBox = new ComboBox<>();
-        stateComboBox.setItems(Arrays.stream(UsaState.values())
-                .map(usaState -> usaState.toString())
-                .collect(Collectors.toList()));
-
-        stateComboBox.setAllowCustomValue(true);
-
-        stateColumn.setEditorBinding(item -> item.getCountry() == Country.USA
-                ? binder.bind(stateComboBox, "state")
-                : binder.bind(stateField, "state"));
-
-        countryComboBox.addValueChangeListener(event -> {
-            if (event.isFromClient()) {
-                if (event.getValue() == Country.USA) {
-                    stateField.setValue(stateField.getEmptyValue());
-                }
-                stateColumn.setEditorBinding(
-                        item -> countryComboBox.getValue() == Country.USA
-                                ? binder.bind(stateComboBox, "state")
-                                : binder.bind(stateField, "state"));
-                grid.getEditor().refresh();
-            }
-        });
-
-        Column<Person> editorColumn = grid.addComponentColumn(person -> {
-            Button edit = new Button("Edit");
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                stateColumn.setEditorBinding(
-                        item -> item.getCountry() == Country.USA
-                                ? binder.bind(stateComboBox, "state")
-                                : binder.bind(stateField, "state"));
-                editor.editItem(person);
-            });
-            return edit;
-        });
-
-        Button save = new Button("Save", e -> editor.save());
-        save.addClassName("save");
-
-        Button cancel = new Button("Cancel", e -> editor.cancel());
-        cancel.addClassName("cancel");
-
-        Div buttons = new Div(save, cancel);
-        editorColumn.setEditorComponent(buttons);
-
-        editor.addSaveListener(event -> message.setText(
-                event.getItem().getName() + ", " + event.getItem().getCountry()
-                        + ", " + event.getItem().getState()));
-
-        // end-source-example
-        grid.setId("dynamic-editor");
-        addCard("Grid Editor", "Dynamic Editors", message, grid);
-    }
-
     private void createBufferedDynamicEditor() {
         Div message = new Div();
         message.setId("buffered-dynamic-editor-msg");
@@ -1598,8 +1508,8 @@ public class GridView extends DemoView {
         Grid<Person> grid = new Grid<>();
         List<Person> persons = new ArrayList<>();
         persons.addAll(createItems());
-
         grid.setItems(persons);
+
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
         Column<Person> subscriberColumn = grid.addColumn(Person::isSubscriber)
@@ -1623,19 +1533,25 @@ public class GridView extends DemoView {
         subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
 
         TextField emailField = new TextField();
+
+        // When not a subscriber, we want to show a read-only text-field that
+        // ignores whatever is set to it
         TextField readOnlyEmail = new TextField() {
             @Override
             public void setValue(String value) {
+                // resets whatever is set to "Not a subscriber"
                 super.setValue("Not a subscriber");
             }
 
             @Override
             public String getValue() {
+                // the value set to the Person bean is always empty
                 return "";
             }
         };
         readOnlyEmail.setValue("");
         readOnlyEmail.setReadOnly(true);
+
         Runnable setEmail = () -> emailColumn
                 .setEditorBinding(
                         item -> item.isSubscriber()
@@ -1645,13 +1561,19 @@ public class GridView extends DemoView {
                                         .withStatusLabel(validationStatus)
                                         .bind("email")
                                 : binder.bind(readOnlyEmail, "email"));
-        setEmail.run();
 
-        editor.addCloseListener(event -> setEmail.run());
+        // Sets the binding based on the Person bean state
+        setEmail.run();
 
         // Refresh subscriber editor component when checkbox value is changed
         checkbox.addValueChangeListener(event -> {
+            // Only updates from the client-side should be taken into account
             if (event.isFromClient()) {
+
+                // When using buffered mode, the partial updates shouldn't be
+                // propagated to the bean before the Save button is clicked, so
+                // here we need to override the binding function to take the
+                // checkbox state into consideration instead
                 emailColumn
                         .setEditorBinding(item -> checkbox.getValue()
                                 ? binder.forField(emailField)
@@ -1663,6 +1585,10 @@ public class GridView extends DemoView {
                 grid.getEditor().refresh();
             }
         });
+
+        // Resets the binding function to use the bean state whenever the editor
+        // is closed
+        editor.addCloseListener(event -> setEmail.run());
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
@@ -1696,13 +1622,11 @@ public class GridView extends DemoView {
 
         // begin-source-example
         // source-example-heading: Dynamic Editor in Not Buffered Mode
-
         Grid<Person> grid = new Grid<>();
         List<Person> persons = new ArrayList<>();
-        items.add(createPerson(Person::new, "Person A", -1, 27, true,
-                "foo@gmail.com", "Street N", 31, "74253", Country.FINLAND, ""));
         persons.addAll(createItems());
         grid.setItems(persons);
+
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
         Column<Person> subscriberColumn = grid.addColumn(Person::isSubscriber)
@@ -1728,6 +1652,9 @@ public class GridView extends DemoView {
         grid.addItemDoubleClickListener(
                 event -> grid.getEditor().editItem(event.getItem()));
 
+        // Revalidates the editors every time something changes on the Binder.
+        // This is needed for the email column to turn into nothing when the
+        // checkbox is desselected, for example.
         binder.addValueChangeListener(event -> {
             grid.getEditor().refresh();
         });
