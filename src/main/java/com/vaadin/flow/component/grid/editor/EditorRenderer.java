@@ -53,8 +53,8 @@ import elemental.json.JsonObject;
  */
 public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
 
-    private Editor<T> editor;
-    private String columnInternalId;
+    private final Editor<T> editor;
+    private final String columnInternalId;
     private Element editorContainer;
 
     private SerializableFunction<T, ? extends Component> componentFunction;
@@ -63,7 +63,6 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     private Binding<T, ?> binding;
     private Binding<T, ?> staticBinding;
     private Component component;
-    private String originalTemplate;
 
     // the flow-component-renderer needs something to load when the component is
     // null
@@ -134,11 +133,9 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
 
     @Override
     public void generateData(T item, JsonObject jsonObject) {
-        if (editor.isOpen()) {
-            if (component != null) {
-                int nodeId = component.getElement().getNode().getId();
-                jsonObject.put("_" + columnInternalId + "_editor", nodeId);
-            }
+        if (editor.isOpen() && component != null) {
+            int nodeId = component.getElement().getNode().getId();
+            jsonObject.put("_" + columnInternalId + "_editor", nodeId);
         }
     }
 
@@ -148,7 +145,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
                 // static bindings should never be unbound
                 binding = staticBinding;
             } else {
-                setBinding(bindingFunction.apply(item), item);
+                setBinding(bindingFunction.apply(item));
             }
             if (binding != null) {
                 HasValue<?, ?> field = binding.getField();
@@ -192,7 +189,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
         return emptyComponent;
     }
 
-    private void setBinding(Binding<T, ?> newBinding, T item) {
+    private void setBinding(Binding<T, ?> newBinding) {
         if (binding != null && !binding.equals(newBinding)) {
             // Removes the old binding and the associated listeners
             binding.unbind();
@@ -225,9 +222,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
          * the <template> elements in advance, only before the client response.
          */
         runBeforeClientResponse(container, context -> {
-            if (originalTemplate == null) {
-                originalTemplate = contentTemplate.getProperty("innerHTML");
-            }
+            String originalTemplate = contentTemplate.getProperty("innerHTML");
             String appId = context.getUI().getInternals().getAppId();
             String editorTemplate = String.format(
                     "<flow-component-renderer appid='%s' nodeid='[[item._%s_editor]]'></flow-component-renderer>",
