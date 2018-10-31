@@ -1634,8 +1634,9 @@ public class GridView extends DemoView {
                 return "";
             }
         };
+        readOnlyEmail.setValue("");
         readOnlyEmail.setReadOnly(true);
-        Runnable updateEmailEditor = () -> emailColumn
+        Runnable setEmail = () -> emailColumn
                 .setEditorBinding(
                         item -> item.isSubscriber()
                                 ? binder.forField(emailField)
@@ -1644,12 +1645,21 @@ public class GridView extends DemoView {
                                         .withStatusLabel(validationStatus)
                                         .bind("email")
                                 : binder.bind(readOnlyEmail, "email"));
-        updateEmailEditor.run();
+        setEmail.run();
+
+        editor.addCloseListener(event -> setEmail.run());
 
         // Refresh subscriber editor component when checkbox value is changed
         checkbox.addValueChangeListener(event -> {
             if (event.isFromClient()) {
-                updateEmailEditor.run();
+                emailColumn
+                        .setEditorBinding(item -> checkbox.getValue()
+                                ? binder.forField(emailField)
+                                        .withValidator(new EmailValidator(
+                                                "Invalid email"))
+                                        .withStatusLabel(validationStatus)
+                                        .bind("email")
+                                : binder.bind(readOnlyEmail, "email"));
                 grid.getEditor().refresh();
             }
         });
