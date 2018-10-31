@@ -436,6 +436,8 @@ public class GridView extends DemoView {
         createBufferedEditor();
         createNotBufferedEditor();
         createDynamicEditor();
+        createBufferedDynamicEditor();
+        createNotBufferedDynamicEditor();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
