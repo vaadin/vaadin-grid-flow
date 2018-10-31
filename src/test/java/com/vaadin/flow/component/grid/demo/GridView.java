@@ -68,6 +68,7 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.bean.Country;
 import com.vaadin.flow.data.bean.UsaState;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
@@ -1552,15 +1553,14 @@ public class GridView extends DemoView {
         readOnlyEmail.setValue("");
         readOnlyEmail.setReadOnly(true);
 
+        Supplier<Binding<Person, String>> bindEmail = () -> binder
+                .forField(emailField)
+                .withValidator(new EmailValidator("Invalid email"))
+                .withStatusLabel(validationStatus).bind("email");
+
         Runnable setEmail = () -> emailColumn
-                .setEditorBinding(
-                        item -> item.isSubscriber()
-                                ? binder.forField(emailField)
-                                        .withValidator(new EmailValidator(
-                                                "Invalid email"))
-                                        .withStatusLabel(validationStatus)
-                                        .bind("email")
-                                : binder.bind(readOnlyEmail, "email"));
+                .setEditorBinding(item -> item.isSubscriber() ? bindEmail.get()
+                        : binder.bind(readOnlyEmail, "email"));
 
         // Sets the binding based on the Person bean state
         setEmail.run();
@@ -1574,13 +1574,8 @@ public class GridView extends DemoView {
                 // propagated to the bean before the Save button is clicked, so
                 // here we need to override the binding function to take the
                 // checkbox state into consideration instead
-                emailColumn
-                        .setEditorBinding(item -> checkbox.getValue()
-                                ? binder.forField(emailField)
-                                        .withValidator(new EmailValidator(
-                                                "Invalid email"))
-                                        .withStatusLabel(validationStatus)
-                                        .bind("email")
+                emailColumn.setEditorBinding(
+                        item -> checkbox.getValue() ? bindEmail.get()
                                 : binder.bind(readOnlyEmail, "email"));
                 grid.getEditor().refresh();
             }
