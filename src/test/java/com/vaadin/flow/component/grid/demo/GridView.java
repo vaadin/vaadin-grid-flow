@@ -1634,7 +1634,7 @@ public class GridView extends DemoView {
             }
         };
         readOnlyEmail.setReadOnly(true);
-        emailColumn
+        Runnable updateEmailEditor = () -> emailColumn
                 .setEditorBinding(
                         item -> item.isSubscriber()
                                 ? binder.forField(emailField)
@@ -1643,9 +1643,13 @@ public class GridView extends DemoView {
                                         .withStatusLabel(validationStatus)
                                         .bind("email")
                                 : binder.bind(readOnlyEmail, "email"));
+        updateEmailEditor.run();
 
         // Refresh subscriber editor component when checkbox value is changed
-        checkbox.addValueChangeListener(event -> grid.getEditor().refresh());
+        checkbox.addValueChangeListener(event -> {
+            updateEmailEditor.run();
+            grid.getEditor().refresh();
+        });
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
