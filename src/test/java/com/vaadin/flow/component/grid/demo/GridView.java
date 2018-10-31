@@ -82,6 +82,7 @@ import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
+import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.demo.DemoView;
 import com.vaadin.flow.function.SerializablePredicate;
@@ -435,6 +436,8 @@ public class GridView extends DemoView {
         createBufferedEditor();
         createNotBufferedEditor();
         createDynamicEditor();
+        createBufferedDynamicEditor();
+        createNotBufferedDynamicEditor();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -598,8 +601,8 @@ public class GridView extends DemoView {
     private void createColumnTemplate() {
         List<Person> items = new ArrayList<>();
         items.add(createPerson(Person::new, "Person A", -1, 27, true,
-                "Street N", 31, "74253", Country.FINLAND, ""));
-        items.add(createPerson(Person::new, "Person B", 0, 19, false,
+                "foo@gmail.com", "Street N", 31, "74253", Country.FINLAND, ""));
+        items.add(createPerson(Person::new, "Person B", 0, 19, false, "",
                 "Street F", 73, "93493", Country.USA, ""));
         items.addAll(createItems());
 
@@ -1586,6 +1589,148 @@ public class GridView extends DemoView {
         addCard("Grid Editor", "Dynamic editor", message, grid);
     }
 
+    private void createBufferedDynamicEditor() {
+        Div message = new Div();
+        message.setId("dynamic-editor-msg");
+
+        // begin-source-example
+        // source-example-heading: Dynamic Editor in Buffered Mode
+        Grid<Person> grid = new Grid<>();
+        List<Person> persons = new ArrayList<>();
+        items.add(createPerson(Person::new, "Person A", -1, 27, true,
+                "foo@gmail.com", "Street N", 31, "74253", Country.FINLAND, ""));
+        persons.addAll(createItems());
+        grid.setItems(persons);
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setHeader("Name");
+        Column<Person> subscriberColumn = grid.addColumn(Person::isSubscriber)
+                .setHeader("Subscriber");
+        Column<Person> emailColumn = grid.addColumn(Person::getEmail)
+                .setHeader("E-mail");
+
+        Binder<Person> binder = new Binder<>(Person.class);
+        Editor<Person> editor = grid.getEditor();
+        editor.setBinder(binder);
+        editor.setBuffered(true);
+
+        TextField field = new TextField();
+        nameColumn.setEditorBinding(binder.bind(field, "name"));
+
+        Div validationStatus = new Div();
+        validationStatus.getStyle().set("color", "red");
+        validationStatus.setId("email-validation");
+
+        Checkbox checkbox = new Checkbox();
+        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+
+        TextField emailField = new TextField();
+        TextField readOnlyEmail = new TextField() {
+            @Override
+            public void setValue(String value) {
+                super.setValue("Not a subscriber");
+            }
+
+            @Override
+            public String getValue() {
+                return "";
+            }
+        };
+        readOnlyEmail.setReadOnly(true);
+        emailColumn
+                .setEditorBinding(
+                        item -> item.isSubscriber()
+                                ? binder.forField(emailField)
+                                        .withValidator(new EmailValidator(
+                                                "Invalid email"))
+                                        .withStatusLabel(validationStatus)
+                                        .bind("email")
+                                : binder.bind(readOnlyEmail, "email"));
+
+        // Refresh subscriber editor component when checkbox value is changed
+        checkbox.addValueChangeListener(event -> grid.getEditor().refresh());
+
+        Column<Person> editorColumn = grid.addComponentColumn(person -> {
+            Button edit = new Button("Edit");
+            edit.addClassName("edit");
+            edit.addClickListener(e -> editor.editItem(person));
+            return edit;
+        });
+
+        Button save = new Button("Save", e -> editor.save());
+        save.addClassName("save");
+
+        Button cancel = new Button("Cancel", e -> editor.cancel());
+        cancel.addClassName("cancel");
+
+        Div buttons = new Div(save, cancel);
+        editorColumn.setEditorComponent(buttons);
+
+        editor.addSaveListener(event -> message.setText(
+                event.getItem().getName() + ", " + event.getItem().isSubscriber
+                        + ", " + event.getItem().getEmail()));
+
+        // end-source-example
+        grid.setId("buffered-dynamic-editor");
+        addCard("Grid Editor", "Dynamic Editor in Buffered Mode", message,
+                validationStatus, grid);
+    }
+
+    private void createNotBufferedDynamicEditor() {
+        Div message = new Div();
+        message.setId("not-buffered-dynamic-editor-msg");
+
+        // begin-source-example
+        // source-example-heading: Dynamic Editor in Not Buffered Mode
+
+        Grid<Person> grid = new Grid<>();
+        List<Person> persons = new ArrayList<>();
+        items.add(createPerson(Person::new, "Person A", -1, 27, true,
+                "foo@gmail.com", "Street N", 31, "74253", Country.FINLAND, ""));
+        persons.addAll(createItems());
+        grid.setItems(persons);
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setHeader("Name");
+        Column<Person> subscriberColumn = grid.addColumn(Person::isSubscriber)
+                .setHeader("Subscriber");
+        Column<Person> emailColumn = grid.addColumn(Person::getEmail)
+                .setHeader("E-mail");
+
+        Binder<Person> binder = new Binder<>(Person.class);
+        Editor<Person> editor = grid.getEditor();
+        editor.setBinder(binder);
+
+        TextField field = new TextField();
+        nameColumn.setEditorBinding(binder.bind(field, "name"));
+
+        Checkbox checkbox = new Checkbox();
+        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+
+        TextField emailField = new TextField();
+        emailColumn.setEditorBinding(
+                item -> item.isSubscriber() ? binder.bind(emailField, "email")
+                        : null);
+
+        grid.addItemDoubleClickListener(
+                event -> grid.getEditor().editItem(event.getItem()));
+
+        binder.addValueChangeListener(event -> {
+            grid.getEditor().refresh();
+        });
+
+        grid.addItemClickListener(event -> {
+            if (binder.getBean() != null) {
+                message.setText(binder.getBean().getName() + ", "
+                        + binder.getBean().isSubscriber() + ", "
+                        + binder.getBean().getEmail());
+            }
+        });
+
+        // end-source-example
+        grid.setId("not-buffered-dynamic-editor");
+        addCard("Grid Editor", "Dynamic Editor in Not Buffered Mode", message,
+                grid);
+    }
+
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
             TreeGrid<T> grid, Component... other) {
         NativeButton toggleFirstItem = new NativeButton("Toggle first item",
@@ -1693,31 +1838,45 @@ public class GridView extends DemoView {
 
     private static <T extends Person> T createPerson(Supplier<T> constructor,
             int index, int id, Random random) {
+        boolean isSubscriber = random.nextBoolean();
         Country country = Country.values()[random
                 .nextInt(Country.values().length)];
         String state;
-        if (country == Country.USA)
+        if (country == Country.USA) {
             state = UsaState.values()[random.nextInt(UsaState.values().length)]
                     .toString();
-        else
+        } else {
             state = "A state in " + country.toString();
-
+        }
         return createPerson(constructor, "Person " + index, id,
-                13 + random.nextInt(50), random.nextBoolean(),
-                "Street " + ((char) ('A' + random.nextInt(26))),
-                1 + random.nextInt(50),
+                13 + random.nextInt(50), isSubscriber,
+                isSubscriber ? generateEmail(random) : "",
+                "Street " + generateChar(random, false), 1 + random.nextInt(50),
                 String.valueOf(10000 + random.nextInt(8999)), country, state);
     }
 
+    private static String generateEmail(Random random) {
+        StringBuilder builder = new StringBuilder("mail");
+        builder.append(generateChar(random, true));
+        builder.append(generateChar(random, true));
+        builder.append("@example.com");
+        return builder.toString();
+    }
+
+    private static char generateChar(Random random, boolean lowerCase) {
+        return ((char) ((lowerCase ? 'a' : 'A') + random.nextInt(26)));
+    }
+
     private static <T extends Person> T createPerson(Supplier<T> constructor,
-            String name, int id, int age, boolean subscriber, String street,
-            int addressNumber, String postalCode, Country country,
-            String state) {
+            String name, int id, int age, boolean subscriber, String email,
+            String street, int addressNumber, String postalCode,
+            Country country, String state) {
         T person = constructor.get();
         person.setId(id);
         person.setName(name);
         person.setAge(age);
         person.setSubscriber(subscriber);
+        person.setEmail(email);
 
         Address address = new Address();
         address.setStreet(street);
