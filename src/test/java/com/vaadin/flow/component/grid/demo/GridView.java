@@ -1484,7 +1484,10 @@ public class GridView extends DemoView {
         // begin-source-example
         // source-example-heading: Dynamic Editor in Buffered Mode
         Grid<Person> grid = new Grid<>();
-        List<Person> persons = getItems();
+        List<Person> persons = new ArrayList<>();
+        persons.add(createPerson(Person::new, "Person A", -1, 27, true,
+                "foo@gmail.com", "Street N", 31, "74253"));
+        persons.addAll(createItems());
         grid.setItems(persons);
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
@@ -1532,9 +1535,7 @@ public class GridView extends DemoView {
                                 : binder.bind(readOnlyEmail, "email"));
 
         // Refresh subscriber editor component when checkbox value is changed
-        checkbox.addValueChangeListener(event -> {
-            grid.getDataProvider().refreshItem(binder.getBean());
-        });
+        checkbox.addValueChangeListener(event -> grid.getEditor().refresh());
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
@@ -1554,7 +1555,7 @@ public class GridView extends DemoView {
 
         editor.addSaveListener(event -> message.setText(
                 event.getItem().getName() + ", " + event.getItem().isSubscriber
-                        + " , " + event.getItem().getEmail()));
+                        + ", " + event.getItem().getEmail()));
 
         // end-source-example
         grid.setId("buffered-dynamic-editor");
@@ -1570,7 +1571,10 @@ public class GridView extends DemoView {
         // source-example-heading: Dynamic Editor in Not Buffered Mode
 
         Grid<Person> grid = new Grid<>();
-        List<Person> persons = getItems();
+        List<Person> persons = new ArrayList<>();
+        persons.add(createPerson(Person::new, "Person A", -1, 27, true,
+                "foo@gmail.com", "Street N", 31, "74253"));
+        persons.addAll(createItems());
         grid.setItems(persons);
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
@@ -1598,13 +1602,13 @@ public class GridView extends DemoView {
                 event -> grid.getEditor().editItem(event.getItem()));
 
         binder.addValueChangeListener(event -> {
-            grid.getDataProvider().refreshItem(binder.getBean());
+            grid.getEditor().refresh();
         });
 
         grid.addItemClickListener(event -> {
             if (binder.getBean() != null) {
                 message.setText(binder.getBean().getName() + ", "
-                        + binder.getBean().isSubscriber() + " , "
+                        + binder.getBean().isSubscriber() + ", "
                         + binder.getBean().getEmail());
             }
         });
