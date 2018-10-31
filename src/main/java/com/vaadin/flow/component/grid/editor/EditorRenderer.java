@@ -20,6 +20,7 @@ import java.util.Optional;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataKeyMapper;
@@ -64,6 +65,10 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     private Component component;
     private String originalTemplate;
 
+    // the flow-component-renderer needs something to load when the component is
+    // null
+    private Component emptyComponent;
+
     /**
      * Creates a new Data generator for a specific column.
      * 
@@ -83,7 +88,8 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     /**
      * Sets the function that creates components to be used as editors for the
      * column. Using this method overrides whatever was set by
-     * {@link #setBindingFunction(SerializableFunction)}.
+     * {@link #setBindingFunction(SerializableFunction)} and
+     * {@link #setStaticBinding(Binding)}.
      * 
      * @param componentFunction
      *            the function that generates editor components
@@ -98,9 +104,11 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     /**
      * Sets the function that creates bindings to be used as editors for the
      * column. Using this method overrides whatever was set by
-     * {@link #setComponentFunction(SerializableFunction)}.
+     * {@link #setComponentFunction(SerializableFunction)} and
+     * {@link #setStaticBinding(Binding)}.
      * 
      * @param bindingFunction
+     *            the function that generates bindings
      */
     public void setBindingFunction(
             SerializableFunction<T, Binding<T, ?>> bindingFunction) {
@@ -109,6 +117,15 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
         this.staticBinding = null;
     }
 
+    /**
+     * Sets the static binding that creates the editor for the column. Using
+     * this method overrides whatever was set by
+     * {@link #setComponentFunction(SerializableFunction)} and
+     * {@link #setBindingFunction(SerializableFunction)}.
+     * 
+     * @param staticBinding
+     *            the binding
+     */
     public void setStaticBinding(Binding<T, ?> staticBinding) {
         this.staticBinding = staticBinding;
         this.bindingFunction = null;
@@ -128,6 +145,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     private void buildComponent(T item) {
         if (staticBinding != null || bindingFunction != null) {
             if (staticBinding != null) {
+                // static bindings should never be unbound
                 binding = staticBinding;
             } else {
                 setBinding(bindingFunction.apply(item), item);
@@ -158,24 +176,23 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
             }
         }
 
-        if (newComponent != null) {
-            // the component needs to be attached in order to have a nodeId
-            editorContainer.appendChild(newComponent.getElement());
+        if (newComponent == null) {
+            newComponent = getOrCreateEmptyComponent();
         }
+
+        // the component needs to be attached in order to have a nodeId
+        editorContainer.appendChild(newComponent.getElement());
         component = newComponent;
     }
 
-    private void setBinding(Binding<T, ?> newBinding, T item) {
-        if (newBinding != null) {
-            if (binding == null
-                    || !binding.getField().equals(newBinding.getField())) {
-
-                // The binding can be created after the binder has read the
-                // bean, so we need to make the new field gets the correct data
-                newBinding.read(item);
-            }
+    private Component getOrCreateEmptyComponent() {
+        if (emptyComponent == null) {
+            emptyComponent = new Span();
         }
+        return emptyComponent;
+    }
 
+    private void setBinding(Binding<T, ?> newBinding, T item) {
         if (binding != null && !binding.equals(newBinding)) {
             // Removes the old binding and the associated listeners
             binding.unbind();

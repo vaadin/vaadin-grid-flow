@@ -1015,14 +1015,17 @@ public class GridViewIT extends TabbedComponentDemoTest {
         emailInput.sendKeys(Keys.ENTER);
         save.click();
 
-        WebElement updatedItemMsg = findElement(By.id("dynamic-editor-msg"));
+        WebElement updatedItemMsg = findElement(
+                By.id("buffered-dynamic-editor-msg"));
 
-        Assert.assertEquals("Person Afoo, true, bar@example.com",
+        waitUntil(driver -> !updatedItemMsg.getText().isEmpty());
+
+        Assert.assertEquals("Person 1foo, true, bar@example.com",
                 updatedItemMsg.getText());
     }
 
     @Test
-    public void dynamicEditor_bufferedMode_useKeybarodToSwitchEditorComponent() {
+    public void dynamicEditor_bufferedMode_useKeyboardToSwitchEditorComponent() {
         openTabAndCheckForErrors("grid-editor");
 
         GridElement grid = $(GridElement.class).id("buffered-dynamic-editor");
@@ -1049,17 +1052,21 @@ public class GridViewIT extends TabbedComponentDemoTest {
         new Actions(getDriver()).sendKeys(Keys.TAB).sendKeys(Keys.TAB).build()
                 .perform();
 
+        // change the e-mail to .org
         new Actions(getDriver())
                 .sendKeys(Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE)
-                .sendKeys("org").sendKeys(Keys.ENTER).build().perform();
+                .sendKeys("org").build().perform();
 
-        TestBenchElement save = row.getCell(editColumn).$("vaadin-button")
-                .first();
-        save.click();
+        // press enter on the save button
+        new Actions(getDriver()).sendKeys(Keys.TAB).sendKeys(Keys.ENTER).build()
+                .perform();
 
-        WebElement updatedItemMsg = findElement(By.id("dynamic-editor-msg"));
+        WebElement updatedItemMsg = findElement(
+                By.id("buffered-dynamic-editor-msg"));
 
-        Assert.assertEquals("Person Afoo, true, foo@gmail.org",
+        waitUntil(driver -> !updatedItemMsg.getText().isEmpty());
+
+        Assert.assertEquals("Person 1foo, true, mailvn@example.org",
                 updatedItemMsg.getText());
     }
 
@@ -1124,7 +1131,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     @Test
-    public void dynamicNotBufferedEditor_navigateUsingKeybaord()
+    public void dynamicNotBufferedEditor_navigateUsingKeyboard()
             throws InterruptedException {
         openTabAndCheckForErrors("grid-editor");
 
@@ -1168,7 +1175,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         // The edited person should have new data
         WebElement msg = findElement(By.id("not-buffered-dynamic-editor-msg"));
-        Assert.assertEquals(personName + "foo, true, foo@gmail.org",
+        Assert.assertEquals(personName + "foo, true, mailvn@example.org",
                 msg.getText());
     }
 
