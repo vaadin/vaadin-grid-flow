@@ -999,6 +999,8 @@ public class GridView extends DemoView {
         // Property-names are automatically set as keys
         // You can remove undesired columns by using the key
         grid.removeColumnByKey("id");
+        grid.removeColumnByKey("country");
+        grid.removeColumnByKey("state");
 
         // Columns for sub-properties can be added easily
         grid.addColumn("address.postalCode");
@@ -1434,9 +1436,7 @@ public class GridView extends DemoView {
                 .withStatusLabel(validationStatus).bind("name"));
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(item -> item.getName().endsWith("2")
-                ? binder.bind(checkbox, "subscriber")
-                : null);
+        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
@@ -1591,15 +1591,14 @@ public class GridView extends DemoView {
 
     private void createBufferedDynamicEditor() {
         Div message = new Div();
-        message.setId("dynamic-editor-msg");
+        message.setId("buffered-dynamic-editor-msg");
 
         // begin-source-example
         // source-example-heading: Dynamic Editor in Buffered Mode
         Grid<Person> grid = new Grid<>();
         List<Person> persons = new ArrayList<>();
-        items.add(createPerson(Person::new, "Person A", -1, 27, true,
-                "foo@gmail.com", "Street N", 31, "74253", Country.FINLAND, ""));
         persons.addAll(createItems());
+
         grid.setItems(persons);
         Column<Person> nameColumn = grid.addColumn(Person::getName)
                 .setHeader("Name");
@@ -1647,7 +1646,11 @@ public class GridView extends DemoView {
                                 : binder.bind(readOnlyEmail, "email"));
 
         // Refresh subscriber editor component when checkbox value is changed
-        checkbox.addValueChangeListener(event -> grid.getEditor().refresh());
+        checkbox.addValueChangeListener(event -> {
+            if (event.isFromClient()) {
+                grid.getEditor().refresh();
+            }
+        });
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
