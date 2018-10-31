@@ -1507,7 +1507,7 @@ public class GridView extends DemoView {
         message.setId("dynamic-editor-msg");
 
         // begin-source-example
-        // source-example-heading: Editor in Not Buffered Mode
+        // source-example-heading: Dynamic Editors
         Grid<Person> grid = new Grid<>();
         List<Person> persons = getItems();
         grid.setItems(persons);
@@ -1586,7 +1586,7 @@ public class GridView extends DemoView {
 
         // end-source-example
         grid.setId("dynamic-editor");
-        addCard("Grid Editor", "Dynamic editor", message, grid);
+        addCard("Grid Editor", "Dynamic Editors", message, grid);
     }
 
     private void createBufferedDynamicEditor() {
