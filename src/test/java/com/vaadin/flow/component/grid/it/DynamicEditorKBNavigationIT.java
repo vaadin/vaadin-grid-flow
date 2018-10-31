@@ -90,6 +90,7 @@ public class DynamicEditorKBNavigationIT extends AbstractComponentIT {
         new Actions(getDriver()).sendKeys(Keys.BACK_SPACE).build().perform();
 
         emailField = emailCell.$("vaadin-text-field").first();
+        Assert.assertNotNull(emailField.getAttribute("focused"));
         Assert.assertEquals("Not a subscriber",
                 emailField.getAttribute("value"));
 
