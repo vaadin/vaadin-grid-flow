@@ -1699,7 +1699,7 @@ public class GridView extends DemoView {
 
         Grid<Person> grid = new Grid<>();
         List<Person> persons = new ArrayList<>();
-        items.add(createPerson(Person::new, "Person A", -1, 27, true,
+        persons.add(createPerson(Person::new, "Person A", -1, 27, true,
                 "foo@gmail.com", "Street N", 31, "74253", Country.FINLAND, ""));
         persons.addAll(createItems());
         grid.setItems(persons);
