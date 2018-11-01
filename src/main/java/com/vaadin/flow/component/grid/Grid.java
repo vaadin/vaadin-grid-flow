@@ -269,7 +269,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         private boolean sortingEnabled;
 
         private Component editorComponent;
-        private Binding<T, ?> editorBinding;
         private EditorRenderer<T> editorRenderer;
 
         private SortOrderProvider sortOrderProvider = direction -> {
@@ -687,80 +686,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         /**
-         * Sets an editor binding for this column. The {@link Binding} is used
-         * when a row is in editor mode to define how to populate an editor
-         * component based on the edited row and how to update an item based on
-         * the value in the editor component.
-         * <p>
-         * To create a binding to use with a column, define a binding for the
-         * editor binder (<code>grid.getEditor().getBinder()</code>) using e.g.
-         * {@link Binder#forField(HasValue)}.
-         * <p>
-         * The {@link HasValue} that the binding is defined to use must be a
-         * {@link Component}.
-         *
-         * @param binding
-         *            the binding to use for this column, not {@code null}
-         * @return this column
-         *
-         * @see Binding
-         * @see #setEditorComponent(Component)
-         * @see #setEditorComponent(SerializableFunction)
-         * @see Grid#getEditor()
-         * @see Editor#getBinder()
-         */
-        public Column<T> setEditorBinding(Binding<T, ?> binding) {
-            editorComponent = null;
-            editorBinding = null;
-            editorBinding = binding;
-            if (editorRenderer == null && binding != null) {
-                setupColumnEditor();
-            }
-            if (editorRenderer != null) {
-                editorRenderer.setStaticBinding(binding);
-            }
-            return this;
-        }
-
-        /**
-         * Sets an function that returns the editor binding for this column to
-         * be used for an specific item. The {@link Binding} is used when a row
-         * is in editor mode to define how to populate an editor component based
-         * on the edited row and how to update an item based on the value in the
-         * editor component.
-         * <p>
-         * To create a binding to use with a column, define a binding for the
-         * editor binder (<code>grid.getEditor().getBinder()</code>) using e.g.
-         * {@link Binder#forField(HasValue)}.
-         * <p>
-         * The {@link HasValue} that the binding is defined to use must be a
-         * {@link Component}.
-         *
-         * @param bindingCallback
-         *            the editor binding function, or <code>null</code> to
-         *            remove the editor component for this column
-         * @return this column
-         *
-         * @see Binding
-         * @see #setEditorBinding(Binding)
-         * @see #setEditorComponent(SerializableFunction)
-         * @see Grid#getEditor()
-         * @see Editor#getBinder()
-         */
-        public Column<T> setEditorBinding(
-                SerializableFunction<T, Binding<T, ?>> bindingCallback) {
-            editorComponent = null;
-            editorBinding = null;
-            if (editorRenderer == null && bindingCallback != null) {
-                setupColumnEditor();
-            }
-            if (editorRenderer != null) {
-                editorRenderer.setBindingFunction(bindingCallback);
-            }
-            return this;
-        }
-
-        /**
          * Sets a component to use for editing values of this column in the
          * editor row. This is a convenient way for use in simple cases where no
          * need to read/write values (only UI components are shown in two modes:
@@ -793,22 +718,20 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * are shown in two modes: when editor is shown and closed). Use
          * {@link #setEditorBinding(SerializableFunction)} to support more
          * complex cases.
-         * 
+         *
          * @param componentCallback
          *            the editor component function, or <code>null</code> to
          *            remove the editor component for this column
-         * 
+         *
          * @return this column
-         * 
+         *
          * @see Grid#getEditor()
          * @see #setEditorComponent(Component)
-         * @see #setEditorBinding(SerializableFunction)
          */
         public Column<T> setEditorComponent(
                 SerializableFunction<T, ? extends Component> componentCallback) {
 
             editorComponent = null;
-            editorBinding = null;
             if (editorRenderer == null && componentCallback != null) {
                 setupColumnEditor();
             }
@@ -817,22 +740,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
 
             return this;
-        }
-
-        /**
-         * Gets the binder binding that is currently used for this column.
-         *
-         * @return the used binder binding, or <code>null</code> if no binding
-         *         is configured, or if it was configured by using
-         *         {@link #setEditorComponent(Component)},
-         *         {@link #setEditorComponent(SerializableFunction)} or
-         *         {@link #setEditorBinding(SerializableFunction)}.
-         *
-         * @see #setEditorBinding(Binding)
-         * @see #getEditorComponent()
-         */
-        public Binding<T, ?> getEditorBinding() {
-            return editorBinding;
         }
 
         /**
