@@ -1543,20 +1543,8 @@ public class GridView extends DemoView {
 
         // When not a subscriber, we want to show a read-only text-field that
         // ignores whatever is set to it
-        TextField readOnlyEmail = new TextField() {
-            @Override
-            public void setValue(String value) {
-                // resets whatever is set to "Not a subscriber"
-                super.setValue("Not a subscriber");
-            }
-
-            @Override
-            public String getValue() {
-                // the value set to the Person bean is always empty
-                return "";
-            }
-        };
-        readOnlyEmail.setValue("");
+        TextField readOnlyEmail = new TextField();
+        readOnlyEmail.setValue("Not a subscriber");
         readOnlyEmail.setReadOnly(true);
 
         Supplier<Binding<Person, String>> bindEmail = () -> binder
@@ -1569,7 +1557,6 @@ public class GridView extends DemoView {
                 bindEmail.get();
                 return emailField;
             } else {
-                binder.bind(readOnlyEmail, "email");
                 return readOnlyEmail;
             }
         });
@@ -1591,7 +1578,6 @@ public class GridView extends DemoView {
                         bindEmail.get();
                         return emailField;
                     } else {
-                        binder.bind(readOnlyEmail, "email");
                         return readOnlyEmail;
                     }
                 });
