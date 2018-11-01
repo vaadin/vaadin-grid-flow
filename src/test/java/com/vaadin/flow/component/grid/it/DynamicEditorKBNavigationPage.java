@@ -51,14 +51,16 @@ public class DynamicEditorKBNavigationPage extends Div {
         editor.setBinder(binder);
 
         TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.bind(field, "name"));
+        binder.bind(field, "name");
+        nameColumn.setEditorComponent(field);
 
         Div validationStatus = new Div();
         validationStatus.getStyle().set("color", "red");
         validationStatus.setId("email-validation");
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        binder.bind(checkbox, "subscriber");
+        subscriberColumn.setEditorComponent(checkbox);
 
         TextField emailField = new TextField();
         TextField readOnlyEmail = new TextField() {
@@ -75,9 +77,15 @@ public class DynamicEditorKBNavigationPage extends Div {
         readOnlyEmail.setValue("");
         readOnlyEmail.setReadOnly(true);
 
-        emailColumn.setEditorBinding(
-                item -> item.isSubscriber() ? binder.bind(emailField, "email")
-                        : binder.bind(readOnlyEmail, "email"));
+        emailColumn.setEditorComponent(item -> {
+            if (item.isSubscriber()) {
+                binder.bind(emailField, "email");
+                return emailField;
+            } else {
+                binder.bind(readOnlyEmail, "email");
+                return readOnlyEmail;
+            }
+        });
 
         grid.addItemDoubleClickListener(
                 event -> grid.getEditor().editItem(event.getItem()));
