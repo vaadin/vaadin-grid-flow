@@ -53,7 +53,6 @@ import com.vaadin.flow.component.grid.editor.EditorImpl;
 import com.vaadin.flow.component.grid.editor.EditorRenderer;
 import com.vaadin.flow.data.binder.BeanPropertySet;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.HasDataProvider;
 import com.vaadin.flow.data.binder.PropertyDefinition;
 import com.vaadin.flow.data.binder.PropertySet;
@@ -687,10 +686,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         /**
          * Sets a component to use for editing values of this column in the
-         * editor row. This is a convenient way for use in simple cases where no
-         * need to read/write values (only UI components are shown in two modes:
-         * when editor is shown and closed). Use
-         * {@link #setEditorBinding(Binding)} to support more complex cases.
+         * editor row. This is a convenient way for use in simple cases where
+         * the same component can be used to edit all the items. Use
+         * {@link #setEditorComponent(SerializableFunction)} to support more
+         * complex cases.
          *
          * @param editorComponent
          *            the editor component, or <code>null</code> to remove the
@@ -713,11 +712,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         /**
          * Sets a function that returns the editor component to be used for an
-         * specific item in the editor row. This is a convenient way for use in
-         * simple cases where no need to read/write values (only UI components
-         * are shown in two modes: when editor is shown and closed). Use
-         * {@link #setEditorBinding(SerializableFunction)} to support more
-         * complex cases.
+         * specific item in the editor row.
          *
          * @param componentCallback
          *            the editor component function, or <code>null</code> to
@@ -743,16 +738,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         /**
-         * Gets the editor component that is currently used for this column.
+         * Gets the editor component that is used for this column.
          *
          * @return the editor component, or <code>null</code> if no component is
          *         set, or if it was set by using
-         *         {@link #setEditorComponent(SerializableFunction)},
-         *         {@link #setEditorBinding(Binding)} or
-         *         {@link #setEditorBinding(SerializableFunction)}.
+         *         {@link #setEditorComponent(SerializableFunction)}.
          *
          * @see #setEditorComponent(Component)
-         * @see #getEditorBinding()
          */
         public Component getEditorComponent() {
             return editorComponent;

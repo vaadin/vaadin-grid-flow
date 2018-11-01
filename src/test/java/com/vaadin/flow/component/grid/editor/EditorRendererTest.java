@@ -20,11 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Person;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.Element;
 
 import elemental.json.Json;
@@ -52,28 +49,8 @@ public class EditorRendererTest {
     public void setComponentFunction_editorIsOpen_componentIsRendered() {
         Label label = new Label();
         renderer.setComponentFunction(item -> label);
-        editorIsOpen_componentIsRendered(label);
-    }
-
-    @Test
-    public void setBindingFunction_editorIsOpen_componentIsRendered() {
-        TextField field = new TextField();
-        Binder<Person> binder = new Binder<>(Person.class);
-        renderer.setBindingFunction(item -> binder.bind(field, "name"));
-        editorIsOpen_componentIsRendered(field);
-    }
-
-    @Test
-    public void setStaticBinding_editorIsOpen_componentIsRendered() {
-        TextField field = new TextField();
-        Binder<Person> binder = new Binder<>(Person.class);
-        renderer.setStaticBinding(binder.bind(field, "name"));
-        editorIsOpen_componentIsRendered(field);
-    }
-
-    private void editorIsOpen_componentIsRendered(Component component) {
         Mockito.when(editor.isOpen()).thenReturn(true);
-        Mockito.when(renderer.getComponentNodeId(component)).thenReturn(42);
+        Mockito.when(renderer.getComponentNodeId(label)).thenReturn(42);
 
         Person item = new Person("Special Person", 42);
 
@@ -83,37 +60,16 @@ public class EditorRendererTest {
         renderer.generateData(item, object);
 
         Assert.assertEquals(42, (int) object.getNumber("_col_editor"));
-        Mockito.verify(renderer, Mockito.times(1))
-                .getComponentNodeId(component);
+        Mockito.verify(renderer, Mockito.times(1)).getComponentNodeId(label);
 
         Assert.assertEquals(1, editorContainer.getChildCount());
-        Assert.assertEquals(component,
+        Assert.assertEquals(label,
                 editorContainer.getChild(0).getComponent().get());
     }
 
     @Test
     public void setComponentFunction_editorIsClosed_nothingIsRendered() {
         renderer.setComponentFunction(item -> new Label());
-        editorIsClosed_nothingIsRendered();
-    }
-
-    @Test
-    public void setBindingFunction_editorIsClosed_nothingIsRendered() {
-        TextField field = new TextField();
-        Binder<Person> binder = new Binder<>(Person.class);
-        renderer.setBindingFunction(item -> binder.bind(field, "name"));
-        editorIsClosed_nothingIsRendered();
-    }
-
-    @Test
-    public void setStaticBinding_editorIsClosed_nothingIsRendered() {
-        TextField field = new TextField();
-        Binder<Person> binder = new Binder<>(Person.class);
-        renderer.setStaticBinding(binder.bind(field, "name"));
-        editorIsClosed_nothingIsRendered();
-    }
-
-    private void editorIsClosed_nothingIsRendered() {
         Mockito.when(editor.isOpen()).thenReturn(false);
 
         Person item = new Person("Special Person", 42);
@@ -130,22 +86,6 @@ public class EditorRendererTest {
     @Test
     public void setComponentFunction_functionReturnsNull_emptyIsRendered() {
         renderer.setComponentFunction(item -> null);
-        functionReturnsNull_emptyIsRendered();
-    }
-
-    @Test
-    public void setBindingFunction_functionReturnsNull_emptyIsRendered() {
-        renderer.setBindingFunction(item -> null);
-        functionReturnsNull_emptyIsRendered();
-    }
-
-    @Test
-    public void setStaticBinding_setNull_emptyIsRendered() {
-        renderer.setStaticBinding(null);
-        functionReturnsNull_emptyIsRendered();
-    }
-
-    private void functionReturnsNull_emptyIsRendered() {
         Mockito.when(editor.isOpen()).thenReturn(true);
 
         Person item = new Person("Special Person", 42);

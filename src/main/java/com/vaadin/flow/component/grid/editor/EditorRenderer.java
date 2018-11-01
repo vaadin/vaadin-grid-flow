@@ -18,10 +18,8 @@ package com.vaadin.flow.component.grid.editor;
 import java.util.Optional;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.renderer.Renderer;
@@ -36,7 +34,7 @@ import elemental.json.JsonObject;
 
 /**
  * Renderer and DataGenerator used by {@link Column} to control the state of the
- * editor components and bindings.
+ * editor components.
  * <p>
  * Components are created during the {@link #generateData(Object, JsonObject)}
  * calls, and the proper data is sent to the client-side to be rendered.
@@ -46,8 +44,6 @@ import elemental.json.JsonObject;
  * @param <T>
  *            the type of the object being processed
  * 
- * @see Column#setEditorBinding(SerializableFunction)
- * @see Column#setEditorBinding(Binding)
  * @see Column#setEditorComponent(Component)
  * @see Column#setEditorComponent(SerializableFunction)
  */
@@ -58,10 +54,7 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     private Element editorContainer;
 
     private SerializableFunction<T, ? extends Component> componentFunction;
-    private SerializableFunction<T, Binding<T, ?>> bindingFunction;
 
-    private Binding<T, ?> binding;
-    private Binding<T, ?> staticBinding;
     private Component component;
 
     // the flow-component-renderer needs something to load when the component is
@@ -69,15 +62,12 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     private Component emptyComponent;
 
     /**
-     * Creates a new Data generator for a specific column.
+     * Creates a new renderer for a specific column.
      * 
      * @param editor
      *            the Grid's editor
      * @param columnInternalId
      *            the internal Id of the column that uses this data generator
-     * @param editorContainer
-     *            the container where all created editor components are appended
-     *            to
      */
     public EditorRenderer(Editor<T> editor, String columnInternalId) {
         this.editor = editor;
@@ -86,9 +76,8 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
 
     /**
      * Sets the function that creates components to be used as editors for the
-     * column. Using this method overrides whatever was set by
-     * {@link #setBindingFunction(SerializableFunction)} and
-     * {@link #setStaticBinding(Binding)}.
+     * column. When set to <code>null</code>, an empty component is used
+     * instead.
      * 
      * @param componentFunction
      *            the function that generates editor components
@@ -96,39 +85,6 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
     public void setComponentFunction(
             SerializableFunction<T, ? extends Component> componentFunction) {
         this.componentFunction = componentFunction;
-        this.bindingFunction = null;
-        this.staticBinding = null;
-    }
-
-    /**
-     * Sets the function that creates bindings to be used as editors for the
-     * column. Using this method overrides whatever was set by
-     * {@link #setComponentFunction(SerializableFunction)} and
-     * {@link #setStaticBinding(Binding)}.
-     * 
-     * @param bindingFunction
-     *            the function that generates bindings
-     */
-    public void setBindingFunction(
-            SerializableFunction<T, Binding<T, ?>> bindingFunction) {
-        this.bindingFunction = bindingFunction;
-        this.componentFunction = null;
-        this.staticBinding = null;
-    }
-
-    /**
-     * Sets the static binding that creates the editor for the column. Using
-     * this method overrides whatever was set by
-     * {@link #setComponentFunction(SerializableFunction)} and
-     * {@link #setBindingFunction(SerializableFunction)}.
-     * 
-     * @param staticBinding
-     *            the binding
-     */
-    public void setStaticBinding(Binding<T, ?> staticBinding) {
-        this.staticBinding = staticBinding;
-        this.bindingFunction = null;
-        this.componentFunction = null;
     }
 
     @Override
@@ -139,33 +95,8 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
         }
     }
 
-    /*
-     * Package-protected for testing
-     */
-    int getComponentNodeId(Component component) {
-        return component.getElement().getNode().getId();
-    }
-
     private void buildComponent(T item) {
-        if (staticBinding != null || bindingFunction != null) {
-            if (staticBinding != null) {
-                // static bindings should never be unbound
-                binding = staticBinding;
-            } else {
-                setBinding(bindingFunction.apply(item));
-            }
-            if (binding != null) {
-                HasValue<?, ?> field = binding.getField();
-                if (field != null && !(field instanceof Component)) {
-                    throw new IllegalArgumentException(
-                            "Binding target must be a component. It was "
-                                    + field);
-                }
-                setComponent((Component) field);
-            } else {
-                setComponent(null);
-            }
-        } else if (componentFunction != null) {
+        if (componentFunction != null) {
             setComponent(componentFunction.apply(item));
         } else {
             setComponent(null);
@@ -196,14 +127,6 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
             emptyComponent = new Span();
         }
         return emptyComponent;
-    }
-
-    private void setBinding(Binding<T, ?> newBinding) {
-        if (binding != null && !binding.equals(newBinding)) {
-            // Removes the old binding and the associated listeners
-            binding.unbind();
-        }
-        binding = newBinding;
     }
 
     @Override
@@ -248,15 +171,21 @@ public class EditorRenderer<T> extends Renderer<T> implements DataGenerator<T> {
         return new EditorRendering(contentTemplate);
     }
 
-    Element createEditorContainer() {
-        return ElementFactory.createDiv();
-    }
-
     private void runBeforeClientResponse(Element container,
             SerializableConsumer<ExecutionContext> execution) {
         container.getNode()
                 .runWhenAttached(ui -> ui.getInternals().getStateTree()
                         .beforeClientResponse(container.getNode(), execution));
+    }
+
+    // Package-protected for testing
+
+    int getComponentNodeId(Component component) {
+        return component.getElement().getNode().getId();
+    }
+
+    Element createEditorContainer() {
+        return ElementFactory.createDiv();
     }
 
     private class EditorRendering implements Rendering<T> {

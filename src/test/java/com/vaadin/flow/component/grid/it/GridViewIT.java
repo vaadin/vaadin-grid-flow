@@ -1206,12 +1206,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
         // New data should be shown in the grid cell
         Assert.assertEquals(personName + "foo", nameCell.getText());
         Assert.assertEquals(Boolean.TRUE.toString(), subscriberCell.getText());
-        Assert.assertEquals("foo@gmail.org",
+        Assert.assertEquals("mailvn@example.org",
                 row.getCell(grid.getAllColumns().get(2)).getText());
 
         // The edited person should have new data
         WebElement msg = findElement(By.id("not-buffered-dynamic-editor-msg"));
-        Assert.assertEquals(personName + "foo, true, foo@gmail.org",
+        Assert.assertEquals(personName + "foo, true, mailvn@example.org",
                 msg.getText());
     }
 
