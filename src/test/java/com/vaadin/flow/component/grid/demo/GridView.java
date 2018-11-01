@@ -1428,13 +1428,15 @@ public class GridView extends DemoView {
         validationStatus.setId("validation");
 
         TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.forField(field)
+        binder.forField(field)
                 .withValidator(name -> name.startsWith("Person"),
                         "Name should start with Person")
-                .withStatusLabel(validationStatus).bind("name"));
+                .withStatusLabel(validationStatus).bind("name");
+        nameColumn.setEditorComponent(field);
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        binder.bind(checkbox, "subscriber");
+        subscriberColumn.setEditorComponent(checkbox);
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
@@ -1480,10 +1482,12 @@ public class GridView extends DemoView {
         grid.getEditor().setBinder(binder);
 
         TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.bind(field, "name"));
+        binder.bind(field, "name");
+        nameColumn.setEditorComponent(field);
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        binder.bind(checkbox, "subscriber");
+        subscriberColumn.setEditorComponent(checkbox);
 
         grid.addItemDoubleClickListener(
                 event -> grid.getEditor().editItem(event.getItem()));
@@ -1524,14 +1528,16 @@ public class GridView extends DemoView {
         editor.setBuffered(true);
 
         TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.bind(field, "name"));
+        binder.bind(field, "name");
+        nameColumn.setEditorComponent(field);
 
         Div validationStatus = new Div();
         validationStatus.getStyle().set("color", "red");
         validationStatus.setId("email-validation");
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        binder.bind(checkbox, "subscriber");
+        subscriberColumn.setEditorComponent(checkbox);
 
         TextField emailField = new TextField();
 
@@ -1558,9 +1564,15 @@ public class GridView extends DemoView {
                 .withValidator(new EmailValidator("Invalid email"))
                 .withStatusLabel(validationStatus).bind("email");
 
-        Runnable setEmail = () -> emailColumn
-                .setEditorBinding(item -> item.isSubscriber() ? bindEmail.get()
-                        : binder.bind(readOnlyEmail, "email"));
+        Runnable setEmail = () -> emailColumn.setEditorComponent(item -> {
+            if (item.isSubscriber()) {
+                bindEmail.get();
+                return emailField;
+            } else {
+                binder.bind(readOnlyEmail, "email");
+                return readOnlyEmail;
+            }
+        });
 
         // Sets the binding based on the Person bean state
         setEmail.run();
@@ -1574,9 +1586,15 @@ public class GridView extends DemoView {
                 // propagated to the bean before the Save button is clicked, so
                 // here we need to override the binding function to take the
                 // checkbox state into consideration instead
-                emailColumn.setEditorBinding(
-                        item -> checkbox.getValue() ? bindEmail.get()
-                                : binder.bind(readOnlyEmail, "email"));
+                emailColumn.setEditorComponent(item -> {
+                    if (checkbox.getValue()) {
+                        bindEmail.get();
+                        return emailField;
+                    } else {
+                        binder.bind(readOnlyEmail, "email");
+                        return readOnlyEmail;
+                    }
+                });
                 grid.getEditor().refresh();
             }
         });
@@ -1634,15 +1652,22 @@ public class GridView extends DemoView {
         editor.setBinder(binder);
 
         TextField field = new TextField();
-        nameColumn.setEditorBinding(binder.bind(field, "name"));
+        binder.bind(field, "name");
+        nameColumn.setEditorComponent(field);
 
         Checkbox checkbox = new Checkbox();
-        subscriberColumn.setEditorBinding(binder.bind(checkbox, "subscriber"));
+        binder.bind(checkbox, "subscriber");
+        subscriberColumn.setEditorComponent(checkbox);
 
         TextField emailField = new TextField();
-        emailColumn.setEditorBinding(
-                item -> item.isSubscriber() ? binder.bind(emailField, "email")
-                        : null);
+        emailColumn.setEditorComponent(item -> {
+            if (item.isSubscriber()) {
+                binder.bind(emailField, "email");
+                return emailField;
+            } else {
+                return null;
+            }
+        });
 
         grid.addItemDoubleClickListener(
                 event -> grid.getEditor().editItem(event.getItem()));
