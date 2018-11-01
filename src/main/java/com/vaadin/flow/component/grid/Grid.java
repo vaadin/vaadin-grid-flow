@@ -517,7 +517,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * this column.
          * <p>
          * <strong>Note:</strong> calling this method automatically sets the
-         * column as sortable with {@link #setSortable(boolean)}.
+         * column as sortable with {@link #setSortable(boolean)} and sets a comparator
+         * for in-memory sorting with {@link #setComparator(Comparator)}
          *
          * @param properties
          *            the array of strings describing backend properties
@@ -533,24 +534,24 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             if (properties.length == 0 || propertySet == null) {
                 setComparator(Grid::compareMaybeComparables);
             } else {
-                SerializableComparator<T> fullComparator = null;
-                for (int i = 0; i < properties.length; i++) {
+                ValueProvider<T, ?> lastGetter = getterById(propertySet, properties[properties.length - 1]);
+                SerializableComparator<T> fullComparator = (a, b) -> compareMaybeComparables(lastGetter.apply(a), lastGetter.apply(b));
+
+                for (int i = properties.length - 2; i >= 0; i--) {
                     String property = properties[i];
-                    ValueProvider<T, ?> getter = propertySet
-                            .getProperty(property)
-                            .orElseThrow(() -> new IllegalArgumentException("Property not defined: " + property))
-                            .getGetter();
-                    SerializableComparator<T> aComparator;
-                    if (i == properties.length - 1) {
-                        aComparator = (a, b) -> compareMaybeComparables(getter.apply(a), getter.apply(b));
-                    } else {
-                        aComparator = (a, b) -> compareMaybeComparablesChainable(getter.apply(a), getter.apply(b));
-                    }
-                    fullComparator = i == 0 ? aComparator : fullComparator.thenComparing(aComparator)::compare;
+                    ValueProvider<T, ?> getter = getterById(propertySet, property);
+                    SerializableComparator<T> aComparator = (a, b) -> compareMaybeComparablesChainable(getter.apply(a), getter.apply(b));
+                    fullComparator = aComparator.thenComparing(fullComparator)::compare;
                 }
                 setComparator(fullComparator);
             }
             return this;
+        }
+
+        private ValueProvider<T, ?> getterById(PropertySet<T> propertySet, String property) {
+            return propertySet.getProperty(property)
+                    .orElseThrow(() -> new IllegalArgumentException("Property not defined: " + property))
+                    .getGetter();
         }
 
         /**
@@ -855,8 +856,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Class for managing visible details rows.
      *
-     * @param <T>
-     *            the grid bean type
      */
     private class DetailsManager extends AbstractGridExtension<T> {
 
