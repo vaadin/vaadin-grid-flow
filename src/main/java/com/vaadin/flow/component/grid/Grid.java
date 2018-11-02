@@ -1165,6 +1165,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 new UpdateQueueData(getElement(), getUniqueKeyProperty()));
         gridDataGenerator = new CompositeDataGenerator<>();
         gridDataGenerator.addDataGenerator(this::generateUniqueKeyData);
+        gridDataGenerator.addDataGenerator(this::generateStyleData);
 
         dataCommunicator = dataCommunicatorBuilder.build(getElement(),
                 gridDataGenerator, (U) arrayUpdater,
@@ -1345,6 +1346,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         Column<T> column = createColumn(renderer, columnId);
         idToColumnMap.put(columnId, column);
+        column.getElement().setProperty("_id", columnId);
 
         AbstractColumn<?> current = column;
         columnLayers.get(0).addColumn(column);
@@ -2804,6 +2806,33 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             editor = createEditor();
         }
         return editor;
+    }
+
+    @FunctionalInterface
+    public static interface CellStyleGenerator<T>
+            extends SerializableBiFunction<T, Column<T>, Map<String, String>> {
+    }
+
+    private CellStyleGenerator<T> cellStyleGenerator;
+
+    public void setCellStyleGenerator(
+            CellStyleGenerator<T> cellStyleGenerator) {
+        this.cellStyleGenerator = cellStyleGenerator;
+    }
+
+    private void generateStyleData(T item, JsonObject jsonObject) {
+        if (cellStyleGenerator == null) {
+            return;
+        }
+
+        JsonObject styleObject = Json.createObject();
+        idToColumnMap.forEach((id, column) -> {
+            JsonObject stylesForCol = Json.createObject();
+            cellStyleGenerator.apply(item, column)
+                    .forEach((prop, value) -> stylesForCol.put(prop, value));
+            styleObject.put(id, stylesForCol);
+        });
+        jsonObject.put("style", styleObject);
     }
 
     /**

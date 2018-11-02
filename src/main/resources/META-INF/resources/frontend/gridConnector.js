@@ -851,5 +851,13 @@ window.Vaadin.Flow.gridConnector = {
         grid.$connector.clickedItem = null;
     }
 
+    grid.cellStyleGenerator = function(rowData, column) {
+        console.log(rowData.item);
+
+        const style = rowData.item.style;
+        const colStyles = style && style[column._id];
+
+        return colStyles ? colStyles : {};
+    }
   }
 }

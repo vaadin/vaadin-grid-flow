@@ -431,6 +431,7 @@ public class GridView extends DemoView {
         createNotBufferedEditor();
         createBufferedDynamicEditor();
         createNotBufferedDynamicEditor();
+        createCellStyleGenerator();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -1666,6 +1667,41 @@ public class GridView extends DemoView {
         grid.setId("not-buffered-dynamic-editor");
         addCard("Grid Editor", "Dynamic Editor in Not Buffered Mode", message,
                 grid);
+    }
+
+    private void createCellStyleGenerator() {
+
+        // begin-source-example
+        // source-example-heading: Styling grid cells
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(getItems());
+
+        Column<Person> nameColumn = grid.addColumn(Person::getName)
+                .setHeader("Name");
+        Column<Person> ageColumn = grid.addColumn(Person::getAge)
+                .setHeader("Age");
+
+        grid.setCellStyleGenerator((item, column) -> {
+            Map<String, String> style = new HashMap<>();
+
+            if (column == nameColumn) {
+                style.put("color", "red");
+            }
+
+            if (item.getId() == 3) {
+                style.put("fontSize", "24px");
+            }
+
+            if (column == nameColumn && item.getId() == 3) {
+                style.put("background", "blue");
+            }
+
+            return style;
+        });
+
+        // end-source-example
+        grid.setId("grid-with-cell-style-generator");
+        addCard("Styling", "Styling grid cells", grid);
     }
 
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
