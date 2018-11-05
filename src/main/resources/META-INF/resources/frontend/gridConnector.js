@@ -855,9 +855,12 @@ window.Vaadin.Flow.gridConnector = {
         console.log(rowData.item);
 
         const style = rowData.item.style;
-        const colStyles = style && style[column._id];
 
-        return colStyles ? colStyles : {};
+        if (!style) {
+            return {};
+        }
+
+        return Object.assign({}, style['row'], style[column._id]);
     }
   }
 }

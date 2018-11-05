@@ -85,6 +85,7 @@ import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableFunction;
@@ -2811,11 +2812,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     @FunctionalInterface
+    public static interface RowStyleGenerator<T>
+            extends SerializableBiConsumer<T, Style> {
+    }
+
+    @FunctionalInterface
     public static interface CellStyleGenerator<T>
             extends SerializableTriConsumer<T, Column<T>, Style> {
     }
 
+    private RowStyleGenerator rowStyleGenerator;
     private CellStyleGenerator<T> cellStyleGenerator;
+
+    public void setRowStyleGenerator(RowStyleGenerator<T> rowStyleGenerator) {
+        this.rowStyleGenerator = rowStyleGenerator;
+    }
 
     public void setCellStyleGenerator(
             CellStyleGenerator<T> cellStyleGenerator) {
@@ -2823,18 +2834,29 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private void generateStyleData(T item, JsonObject jsonObject) {
-        if (cellStyleGenerator == null) {
+        if (rowStyleGenerator == null && cellStyleGenerator == null) {
             return;
         }
 
         JsonObject styleObject = Json.createObject();
 
-        idToColumnMap.forEach((id, column) -> {
-            GridContentStyle style = new GridContentStyle();
-            cellStyleGenerator.accept(item, column, style);
-            JsonObject cellStyleJson = styleToJson(style);
-            styleObject.put(id, cellStyleJson);
-        });
+        if (rowStyleGenerator != null) {
+            GridContentStyle rowStyle = new GridContentStyle();
+            rowStyleGenerator.accept(item, rowStyle);
+            if (rowStyle.size() > 0) {
+                styleObject.put("row", styleToJson(rowStyle));
+            }
+        }
+
+        if (cellStyleGenerator != null) {
+            idToColumnMap.forEach((id, column) -> {
+                GridContentStyle cellStyle = new GridContentStyle();
+                cellStyleGenerator.accept(item, column, cellStyle);
+                if (cellStyle.size() > 0) {
+                    styleObject.put(id, styleToJson(cellStyle));
+                }
+            });
+        }
 
         jsonObject.put("style", styleObject);
     }

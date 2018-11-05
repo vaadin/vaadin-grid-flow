@@ -1681,6 +1681,12 @@ public class GridView extends DemoView {
         Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
+        grid.setRowStyleGenerator((item, style) -> {
+            if (item.getId() % 2 == 0) {
+                style.set("background", "yellow").set("fontSize", "smaller");
+            }
+        });
+
         grid.setCellStyleGenerator((item, column, style) -> {
             if (column == nameColumn) {
                 style.set("color", "red");

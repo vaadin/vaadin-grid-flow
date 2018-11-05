@@ -85,4 +85,8 @@ class GridContentStyle implements Style {
     void forEach(SerializableBiConsumer<String, String> action) {
         stylePropertyMap.forEach(action);
     }
+
+    int size() {
+        return stylePropertyMap.size();
+    }
 }
