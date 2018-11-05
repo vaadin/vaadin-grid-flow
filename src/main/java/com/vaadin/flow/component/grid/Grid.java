@@ -84,11 +84,13 @@ import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.SerializableSupplier;
+import com.vaadin.flow.function.SerializableTriConsumer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JsonSerializer;
 import com.vaadin.flow.internal.JsonUtils;
@@ -2810,7 +2812,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     @FunctionalInterface
     public static interface CellStyleGenerator<T>
-            extends SerializableBiFunction<T, Column<T>, Map<String, String>> {
+            extends SerializableTriConsumer<T, Column<T>, Style> {
     }
 
     private CellStyleGenerator<T> cellStyleGenerator;
@@ -2826,13 +2828,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         JsonObject styleObject = Json.createObject();
+
         idToColumnMap.forEach((id, column) -> {
-            JsonObject stylesForCol = Json.createObject();
-            cellStyleGenerator.apply(item, column)
-                    .forEach((prop, value) -> stylesForCol.put(prop, value));
-            styleObject.put(id, stylesForCol);
+            GridContentStyle style = new GridContentStyle();
+            cellStyleGenerator.accept(item, column, style);
+            JsonObject cellStyleJson = styleToJson(style);
+            styleObject.put(id, cellStyleJson);
         });
+
         jsonObject.put("style", styleObject);
+    }
+
+    private JsonObject styleToJson(GridContentStyle style) {
+        JsonObject json = Json.createObject();
+        style.forEach((prop, value) -> json.put(prop, value));
+        return json;
     }
 
     /**

@@ -1681,22 +1681,18 @@ public class GridView extends DemoView {
         Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
-        grid.setCellStyleGenerator((item, column) -> {
-            Map<String, String> style = new HashMap<>();
-
+        grid.setCellStyleGenerator((item, column, style) -> {
             if (column == nameColumn) {
-                style.put("color", "red");
+                style.set("color", "red");
             }
 
             if (item.getId() == 3) {
-                style.put("fontSize", "24px");
+                style.set("fontSize", "24px");
             }
 
             if (column == nameColumn && item.getId() == 3) {
-                style.put("background", "blue");
+                style.set("background", "blue");
             }
-
-            return style;
         });
 
         // end-source-example
