@@ -2833,6 +2833,28 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         this.cellStyleGenerator = cellStyleGenerator;
     }
 
+    /**
+     * A {@link DataGenerator}-method that creates a json-object, which contains
+     * css-properties to set for the whole row as well as individual cells based
+     * on their column.
+     * <p>
+     * An example of produced json:
+     * 
+     * <pre>
+     *     style {
+     *         row: {
+     *             background: yellow,
+     *             font-size: larger
+     *         },
+     *         col0: {
+     *             color: red
+     *         },
+     *         col1: {
+     *             color: green
+     *         }
+     *     }
+     * </pre>
+     */
     private void generateStyleData(T item, JsonObject jsonObject) {
         if (rowStyleGenerator == null && cellStyleGenerator == null) {
             return;
