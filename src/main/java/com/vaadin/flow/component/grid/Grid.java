@@ -2812,6 +2812,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     @FunctionalInterface
+    public static interface ColumnStyleGenerator<T>
+            extends SerializableBiConsumer<Column<T>, Style> {
+    }
+
+    @FunctionalInterface
     public static interface RowStyleGenerator<T>
             extends SerializableBiConsumer<T, Style> {
     }
@@ -2821,8 +2826,20 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             extends SerializableTriConsumer<T, Column<T>, Style> {
     }
 
+    private ColumnStyleGenerator columnStyleGenerator;
     private RowStyleGenerator rowStyleGenerator;
-    private CellStyleGenerator<T> cellStyleGenerator;
+    private CellStyleGenerator cellStyleGenerator;
+
+    public void setColumnStyleGenerator(
+            ColumnStyleGenerator<T> columnStyleGenerator) {
+        this.columnStyleGenerator = columnStyleGenerator;
+        getColumns().forEach(col -> {
+            GridContentStyle colStyle = new GridContentStyle();
+            columnStyleGenerator.accept(col, colStyle);
+            col.getElement().setPropertyJson("_style", styleToJson(colStyle));
+        });
+        // TODO: update also when adding a new column
+    }
 
     public void setRowStyleGenerator(RowStyleGenerator<T> rowStyleGenerator) {
         this.rowStyleGenerator = rowStyleGenerator;

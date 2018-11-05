@@ -854,13 +854,14 @@ window.Vaadin.Flow.gridConnector = {
     grid.cellStyleGenerator = function(rowData, column) {
         console.log(rowData.item);
 
-        const style = rowData.item.style;
+        const itemStyle = rowData.item.style;
 
-        if (!style) {
-            return {};
+        if (!itemStyle) {
+            return column._style || {};
         }
 
-        return Object.assign({}, style['row'], style[column._id]);
+        return Object.assign({}, column._style,
+            itemStyle['row'], itemStyle[column._id]);
     }
   }
 }

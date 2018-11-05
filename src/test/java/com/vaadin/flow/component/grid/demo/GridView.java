@@ -1670,9 +1670,6 @@ public class GridView extends DemoView {
     }
 
     private void createCellStyleGenerator() {
-
-        // begin-source-example
-        // source-example-heading: Styling grid cells
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
 
@@ -1681,29 +1678,30 @@ public class GridView extends DemoView {
         Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
+        // begin-source-example
+        // source-example-heading: Styling Grid Cells
+        grid.setColumnStyleGenerator((column, style) -> {
+            if (column == nameColumn) {
+                style.set("color", "red").set("fontSize", "smaller");
+            }
+        });
+
         grid.setRowStyleGenerator((item, style) -> {
             if (item.getId() % 2 == 0) {
-                style.set("background", "yellow").set("fontSize", "smaller");
+                style.set("color", "yellow").set("background", "lightgrey")
+                        .set("fontSize", "larger");
             }
         });
 
         grid.setCellStyleGenerator((item, column, style) -> {
-            if (column == nameColumn) {
-                style.set("color", "red");
-            }
-
-            if (item.getId() == 3) {
-                style.set("fontSize", "24px");
-            }
-
-            if (column == nameColumn && item.getId() == 3) {
-                style.set("background", "blue");
+            if (column == nameColumn && item.getId() == 4) {
+                style.set("color", "green").set("fontWeight", "bold");
             }
         });
 
         // end-source-example
         grid.setId("grid-with-cell-style-generator");
-        addCard("Styling", "Styling grid cells", grid);
+        addCard("Styling", "Styling Grid Cells", grid);
     }
 
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
