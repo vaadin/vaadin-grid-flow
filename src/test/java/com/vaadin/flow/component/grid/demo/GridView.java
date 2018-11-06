@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -88,6 +89,7 @@ import com.vaadin.flow.router.Route;
  * View for {@link Grid} demo.
  */
 @Route("vaadin-grid")
+@HtmlImport("grid-demo-styles.html")
 public class GridView extends DemoView {
 
     public static List<Person> items = new ArrayList<>();
@@ -1735,6 +1737,13 @@ public class GridView extends DemoView {
             if (column == nameColumn && item.getId() == 4) {
                 style.set("color", "green").set("fontWeight", "bold");
             }
+        });
+
+        grid.setCellClassGenerator((item, column) -> {
+            if (column == ageColumn) {
+                return "age";
+            }
+            return "";
         });
 
         // end-source-example

@@ -852,7 +852,7 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     grid.cellStyleGenerator = function(rowData, column) {
-        console.log(rowData.item);
+//        console.log(rowData.item);
         const itemStyle = rowData.item.style;
 
         const colStyle = column && column._style;
@@ -860,6 +860,13 @@ window.Vaadin.Flow.gridConnector = {
         const cellStyle = column && itemStyle && itemStyle[column._id];
 
         return Object.assign({}, colStyle, rowStyle, cellStyle);
+    }
+
+    grid.cellClassGenerator = function(rowData, column) {
+        const itemStyle = rowData.item.style;
+
+        const cellClass = column && itemStyle && itemStyle[column._id + '-class'];
+        return cellClass ? [cellClass] : [];
     }
   }
 }

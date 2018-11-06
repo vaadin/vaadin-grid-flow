@@ -2826,9 +2826,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             extends SerializableTriConsumer<T, Column<T>, Style> {
     }
 
+    @FunctionalInterface
+    public static interface CellClassGenerator<T>
+            extends SerializableBiFunction<T, Column<T>, String> {
+    }
+
     private ColumnStyleGenerator columnStyleGenerator;
     private RowStyleGenerator rowStyleGenerator;
     private CellStyleGenerator cellStyleGenerator;
+    private SerializableBiFunction<T, Column<T>, String> cellClassGenerator;
 
     public void setColumnStyleGenerator(
             ColumnStyleGenerator<T> columnStyleGenerator) {
@@ -2848,6 +2854,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public void setCellStyleGenerator(
             CellStyleGenerator<T> cellStyleGenerator) {
         this.cellStyleGenerator = cellStyleGenerator;
+    }
+
+    public void setCellClassGenerator(
+            CellClassGenerator<T> cellClassGenerator) {
+        this.cellClassGenerator = cellClassGenerator;
     }
 
     /**
@@ -2873,7 +2884,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * </pre>
      */
     private void generateStyleData(T item, JsonObject jsonObject) {
-        if (rowStyleGenerator == null && cellStyleGenerator == null) {
+        if (rowStyleGenerator == null && cellStyleGenerator == null
+                && cellClassGenerator == null) {
             return;
         }
 
@@ -2893,6 +2905,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 cellStyleGenerator.accept(item, column, cellStyle);
                 if (cellStyle.size() > 0) {
                     styleObject.put(id, styleToJson(cellStyle));
+                }
+            });
+        }
+
+        if (cellClassGenerator != null) {
+            idToColumnMap.forEach((id, column) -> {
+                String cellClass = cellClassGenerator.apply(item, column);
+                if (cellClass != null && !cellClass.isEmpty()) {
+                    styleObject.put(id + "-class", cellClass);
                 }
             });
         }
