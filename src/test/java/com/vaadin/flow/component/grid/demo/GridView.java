@@ -636,6 +636,25 @@ public class GridView extends DemoView {
                 })).setHeader("Actions");
 
         grid.setSelectionMode(SelectionMode.NONE);
+
+        grid.setColumnStyleGenerator((column, style) -> {
+            if (column == grid.getColumns().get(0)) {
+                style.set("color", "red").set("fontSize", "smaller");
+            }
+        });
+
+        grid.setRowStyleGenerator((item, style) -> {
+            if (item.getId() % 2 == 0) {
+                style.set("color", "yellow").set("background", "lightgrey")
+                        .set("fontSize", "larger");
+            }
+        });
+
+        grid.setCellStyleGenerator((item, column, style) -> {
+            if (column == grid.getColumns().get(0) && item.getId() == 4) {
+                style.set("color", "green").set("fontWeight", "bold");
+            }
+        });
         // end-source-example
         grid.setId("template-renderer");
         addCard("Using templates", "Grid with columns using template renderer",
@@ -683,6 +702,25 @@ public class GridView extends DemoView {
         });
 
         grid.setSelectionMode(SelectionMode.NONE);
+
+        grid.setColumnStyleGenerator((column, style) -> {
+            if (column == grid.getColumns().get(0)) {
+                style.set("color", "red").set("fontSize", "smaller");
+            }
+        });
+
+        grid.setRowStyleGenerator((item, style) -> {
+            if (item.getId() % 2 == 0) {
+                style.set("color", "yellow").set("background", "lightgrey")
+                        .set("fontSize", "larger");
+            }
+        });
+
+        grid.setCellStyleGenerator((item, column, style) -> {
+            if (column == grid.getColumns().get(0) && item.getId() == 4) {
+                style.set("color", "green").set("fontWeight", "bold");
+            }
+        });
         // end-source-example
 
         grid.setId("component-renderer");
