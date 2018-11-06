@@ -1471,8 +1471,7 @@ public class GridView extends DemoView {
         grid.getEditor().setBinder(binder);
 
         TextField field = new TextField();
-        // Close the editor in case of navigation between components to the left
-        // side
+        // Close the editor in case of backward between components
         field.getElement()
                 .addEventListener("keydown", event -> grid.getEditor().cancel())
                 .setFilter(
@@ -1485,8 +1484,7 @@ public class GridView extends DemoView {
         binder.bind(checkbox, "subscriber");
         subscriberColumn.setEditorComponent(checkbox);
 
-        // Close the editor in case of navigation between components to the
-        // right side
+        // Close the editor in case of forward navigation between
         checkbox.getElement()
                 .addEventListener("keydown", event -> grid.getEditor().cancel())
                 .setFilter(
@@ -1641,8 +1639,7 @@ public class GridView extends DemoView {
         editor.setBinder(binder);
 
         TextField field = new TextField();
-        // Close the editor in case of navigation between components to the left
-        // side
+        // Close the editor in case of backward navigation between components
         field.getElement()
                 .addEventListener("keydown", event -> grid.getEditor().cancel())
                 .setFilter(
@@ -1653,8 +1650,7 @@ public class GridView extends DemoView {
         Checkbox checkbox = new Checkbox();
         binder.bind(checkbox, "subscriber");
         subscriberColumn.setEditorComponent(checkbox);
-        // Close the editor in case of navigation between components to the
-        // right side
+        // Close the editor in case of forward navigation between components
         checkbox.getElement().addEventListener("keydown", event -> {
             if (!checkbox.getValue()) {
                 grid.getEditor().cancel();
@@ -1671,8 +1667,7 @@ public class GridView extends DemoView {
                 return null;
             }
         });
-        // Close the editor in case of navigation between components to the
-        // right side
+        // Close the editor in case of forward navigation between components
         emailField.getElement()
                 .addEventListener("keydown", event -> grid.getEditor().cancel())
                 .setFilter(
