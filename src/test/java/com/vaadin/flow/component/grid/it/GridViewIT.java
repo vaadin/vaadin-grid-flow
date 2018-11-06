@@ -907,11 +907,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
         nameInput.sendKeys("foo");
         nameInput.sendKeys(Keys.ESCAPE);
 
-        Assert.assertFalse("Edit button should be visible", nameCell.$("vaadin-text-field").exists());
+        Assert.assertFalse("Edit button should be visible",
+                nameCell.$("vaadin-text-field").exists());
 
         nameColumn = grid.getColumn("Name");
         nameCell = row.getCell(nameColumn);
-        Assert.assertEquals("Field name should not have changed.", personName, nameCell.getText());
+        Assert.assertEquals("Field name should not have changed.", personName,
+                nameCell.getText());
 
     }
 
@@ -1252,7 +1254,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 .sendKeys(Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE)
                 .sendKeys("org").build().perform();
 
-        // close editor using navigation via Tab
+        // click on another row
         grid.getRow(1).click(10, 10);
 
         // New data should be shown in the grid cell
