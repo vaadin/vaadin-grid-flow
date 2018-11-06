@@ -2834,6 +2834,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private ColumnStyleGenerator columnStyleGenerator;
     private RowStyleGenerator rowStyleGenerator;
     private CellStyleGenerator cellStyleGenerator;
+    private SerializableFunction<Column<T>, String> columnClassGenerator;
     private SerializableFunction<T, String> rowClassGenerator;
     private SerializableBiFunction<T, Column<T>, String> cellClassGenerator;
 
@@ -2855,6 +2856,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public void setCellStyleGenerator(
             CellStyleGenerator<T> cellStyleGenerator) {
         this.cellStyleGenerator = cellStyleGenerator;
+    }
+
+    public void setColumnClassGenerator(
+            SerializableFunction<Column<T>, String> columnClassGenerator) {
+        this.columnClassGenerator = columnClassGenerator;
+        getColumns().forEach(col -> {
+            String colClass = columnClassGenerator.apply(col);
+            col.getElement().setProperty("_class", colClass);
+        });
+        // TODO: update also when adding a new column
     }
 
     public void setRowClassGenerator(
