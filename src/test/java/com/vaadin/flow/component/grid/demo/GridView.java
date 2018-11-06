@@ -1440,6 +1440,10 @@ public class GridView extends DemoView {
         Button cancel = new Button("Cancel", e -> editor.cancel());
         cancel.addClassName("cancel");
 
+        // Add a keypress listener that listens for an escape key down.
+        grid.getElement().addEventListener("keyup",
+                event -> editor.cancel()).setFilter("event.key == 'Escape'");
+
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
 
