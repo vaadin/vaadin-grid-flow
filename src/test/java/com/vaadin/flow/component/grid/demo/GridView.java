@@ -1739,6 +1739,8 @@ public class GridView extends DemoView {
             }
         });
 
+        grid.setRowClassGenerator(item -> item.getId() == 1 ? "pink" : "");
+
         grid.setCellClassGenerator((item, column) -> {
             if (column == ageColumn) {
                 return "age";

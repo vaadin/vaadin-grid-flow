@@ -2834,6 +2834,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private ColumnStyleGenerator columnStyleGenerator;
     private RowStyleGenerator rowStyleGenerator;
     private CellStyleGenerator cellStyleGenerator;
+    private SerializableFunction<T, String> rowClassGenerator;
     private SerializableBiFunction<T, Column<T>, String> cellClassGenerator;
 
     public void setColumnStyleGenerator(
@@ -2856,6 +2857,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         this.cellStyleGenerator = cellStyleGenerator;
     }
 
+    public void setRowClassGenerator(
+            SerializableFunction<T, String> rowClassGenerator) {
+        this.rowClassGenerator = rowClassGenerator;
+    }
+
     public void setCellClassGenerator(
             CellClassGenerator<T> cellClassGenerator) {
         this.cellClassGenerator = cellClassGenerator;
@@ -2863,29 +2869,32 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * A {@link DataGenerator}-method that creates a json-object, which contains
-     * css-properties to set for the whole row as well as individual cells based
-     * on their column.
+     * css-properties and class names to set for the whole row as well as
+     * individual cells based on their column.
      * <p>
      * An example of produced json:
      * 
      * <pre>
      *     style {
      *         row: {
-     *             background: yellow,
-     *             font-size: larger
+     *             background: "yellow",
+     *             font-size: "larger"
      *         },
      *         col0: {
-     *             color: red
+     *             color: "red"
      *         },
      *         col1: {
-     *             color: green
-     *         }
+     *             color: "green"
+     *         },
+     *
+     *         class: "classForFullRow",
+     *         col2-class: "classForOneCell"
      *     }
      * </pre>
      */
     private void generateStyleData(T item, JsonObject jsonObject) {
         if (rowStyleGenerator == null && cellStyleGenerator == null
-                && cellClassGenerator == null) {
+                && rowClassGenerator == null && cellClassGenerator == null) {
             return;
         }
 
@@ -2907,6 +2916,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                     styleObject.put(id, styleToJson(cellStyle));
                 }
             });
+        }
+
+        if (rowClassGenerator != null) {
+            String rowClass = rowClassGenerator.apply(item);
+            styleObject.put("class", rowClass);
         }
 
         if (cellClassGenerator != null) {

@@ -865,8 +865,10 @@ window.Vaadin.Flow.gridConnector = {
     grid.cellClassGenerator = function(rowData, column) {
         const itemStyle = rowData.item.style;
 
+        const rowClass = itemStyle && itemStyle['class'];
         const cellClass = column && itemStyle && itemStyle[column._id + '-class'];
-        return cellClass ? [cellClass] : [];
+
+        return [rowClass, cellClass].filter(c => c);
     }
   }
 }
