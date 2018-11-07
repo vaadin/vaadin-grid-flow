@@ -1475,30 +1475,11 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     private void assertComponentRendereredDetails(WebElement grid, int rowIndex,
             String personName) {
-        try {
-            /*
-             * Wait a bit for the changes to propagate from the server to the
-             * client. Without this wait, some elements can be stale when this
-             * method is executed, causing instability on the tests.
-             */
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        waitUntil(driver -> isElementPresent(
+                By.id("person-card-" + (rowIndex + 1))), 20);
 
-        waitUntil(driver -> {
-            List<WebElement> elements = grid
-                    .findElements(By.className("custom-details"));
-            return elements.stream()
-                    .filter(el -> el.getAttribute("id")
-                            .equals("person-card-" + (rowIndex + 1)))
-                    .findAny().isPresent();
-        }, 20);
-        WebElement element = grid.findElements(By.className("custom-details"))
-                .stream()
-                .filter(el -> el.getAttribute("id")
-                        .equals("person-card-" + (rowIndex + 1)))
-                .findFirst().get();
+        WebElement element = findElement(
+                By.id("person-card-" + (rowIndex + 1)));
 
         element = element.findElement(By.tagName("vaadin-horizontal-layout"));
         Assert.assertNotNull(element);
