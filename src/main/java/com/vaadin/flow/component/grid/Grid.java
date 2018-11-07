@@ -66,7 +66,6 @@ import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.HasDataGenerators;
-import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
@@ -285,6 +284,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         private Renderer<T> renderer;
         private Rendering<T> rendering;
+        private Rendering<T> editorRendering;
 
         /**
          * Constructs a new Column for use inside a Grid.
@@ -306,16 +306,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             comparator = (a, b) -> 0;
 
-            rendering = renderer.render(getElement(), (KeyMapper<T>) getGrid()
-                    .getDataCommunicator().getKeyMapper());
+            rendering = renderer.render(getElement(),
+                    getGrid().getDataCommunicator().getKeyMapper());
 
-            Optional<DataGenerator<T>> dataGenerator = rendering
-                    .getDataGenerator();
-
-            if (dataGenerator.isPresent()) {
-                columnDataGeneratorRegistration = grid
-                        .addDataGenerator(dataGenerator.get());
-            }
+            addColumnDataGenerator();
         }
 
         protected void destroyDataGenerators() {
@@ -751,17 +745,58 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         @Override
+        public void setVisible(boolean visible) {
+            boolean oldVisible = isVisible();
+            if (visible == oldVisible) {
+                return;
+            }
+            super.setVisible(visible);
+            if (visible) {
+                addColumnDataGenerator();
+                addEditorDataGenerator();
+                getGrid().getDataCommunicator().reset();
+            } else {
+                destroyDataGenerators();
+            }
+        }
+
+        @Override
         protected Column<?> getBottomLevelColumn() {
             return this;
         }
 
+        @SuppressWarnings("unchecked")
+        @Override
+        public Grid<T> getGrid() {
+            return (Grid<T>) super.getGrid();
+        }
+
+        private void addColumnDataGenerator() {
+            Optional<DataGenerator<T>> dataGenerator = rendering
+                    .getDataGenerator();
+
+            if (dataGenerator.isPresent()) {
+                columnDataGeneratorRegistration = getGrid()
+                        .addDataGenerator(dataGenerator.get());
+            }
+        }
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         private void setupColumnEditor() {
             editorRenderer = new EditorRenderer<>((Editor) grid.getEditor(),
                     columnInternalId);
 
-            Rendering<T> editorRendering = editorRenderer.render(getElement(),
-                    null, rendering.getTemplateElement());
+            editorRendering = editorRenderer.render(getElement(), null,
+                    rendering.getTemplateElement());
 
+            addEditorDataGenerator();
+        }
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        private void addEditorDataGenerator() {
+            if (editorRendering == null) {
+                return;
+            }
             Optional<DataGenerator<T>> dataGenerator = editorRendering
                     .getDataGenerator();
             if (dataGenerator.isPresent()) {
