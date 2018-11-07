@@ -65,7 +65,7 @@ public class ColumnPathRenderer<SOURCE> extends Renderer<SOURCE> {
             DataKeyMapper<SOURCE> keyMapper, Element contentTemplate) {
 
         Map<String, ValueProvider<SOURCE, ?>> valueProviders = getValueProviders();
-        if (valueProviders == null || valueProviders.size() != 1) {
+        if (valueProviders.size() != 1) {
             throw new IllegalStateException(
                     "There should be only one ValueProvider for the ColumnPathRenderer");
         }
@@ -83,7 +83,7 @@ public class ColumnPathRenderer<SOURCE> extends Renderer<SOURCE> {
         @Override
         public Optional<DataGenerator<SOURCE>> getDataGenerator() {
             Map<String, ValueProvider<SOURCE, ?>> valueProviders = getValueProviders();
-            if (valueProviders == null || valueProviders.size() != 1) {
+            if (valueProviders.size() != 1) {
                 throw new IllegalStateException(
                         "There should be only one ValueProvider for the ColumnPathRenderer");
             }
