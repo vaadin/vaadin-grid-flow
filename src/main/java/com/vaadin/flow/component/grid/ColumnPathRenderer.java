@@ -40,6 +40,15 @@ import com.vaadin.flow.internal.JsonSerializer;
  */
 public class ColumnPathRenderer<SOURCE> extends Renderer<SOURCE> {
 
+    /**
+     * Creates a new renderer based on the property and the value provider for
+     * that property.
+     * 
+     * @param property
+     *            the property name
+     * @param provider
+     *            the value provider for the property
+     */
     public ColumnPathRenderer(String property,
             ValueProvider<SOURCE, ?> provider) {
         setProperty(property, provider);
