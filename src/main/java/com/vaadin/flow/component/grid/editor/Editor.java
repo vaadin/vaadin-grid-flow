@@ -90,7 +90,7 @@ public interface Editor<T> extends Serializable {
     void cancel();
 
     /**
-     * Closes the editor when in unbuffered mode and fires a {@link
+     * Closes the editor when in unbuffered mode and fires an {@link
      * EditorCloseEvent} if the edited item is
      * not <code>null</code>.
      * <p>
