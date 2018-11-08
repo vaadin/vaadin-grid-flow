@@ -15,19 +15,25 @@
  */
 package com.vaadin.flow.component.grid;
 
-import com.vaadin.flow.data.renderer.Renderer;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.data.provider.DataCommunicator;
+import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.IconRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.function.SerializableComparator;
+import com.vaadin.flow.shared.Registration;
 
 public class GridColumnTest {
 
@@ -214,7 +220,8 @@ public class GridColumnTest {
 
     @Test
     public void createColumn_returnsNonNullAndBasicType() {
-        Column column = new Grid<Person>().createColumn(TemplateRenderer.of(""), "");
+        Column column = new Grid<Person>().createColumn(TemplateRenderer.of(""),
+                "");
         Assert.assertNotNull(column);
         Assert.assertEquals(Column.class, column.getClass());
     }
@@ -223,7 +230,8 @@ public class GridColumnTest {
     public void addColumn_extendedColumnTypeByOverridingCreateMethod() {
         Grid<Person> extendedGrid = new Grid<Person>() {
             @Override
-            protected Column<Person> createColumn(Renderer<Person> renderer, String columnId) {
+            protected Column<Person> createColumn(Renderer<Person> renderer,
+                    String columnId) {
                 return new ExtendedColumn<>(this, columnId, renderer);
             }
         };
@@ -232,6 +240,56 @@ public class GridColumnTest {
 
         Assert.assertNotNull(column);
         Assert.assertEquals(ExtendedColumn.class, column.getClass());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void hideColumn_dataGeneratorIsUnregistered() {
+        Registration registration = Mockito.mock(Registration.class);
+
+        AtomicInteger count = new AtomicInteger();
+        Grid<Person> grid = new Grid<Person>() {
+            @Override
+            public Registration addDataGenerator(
+                    DataGenerator<Person> dataGenerator) {
+                count.incrementAndGet();
+                return registration;
+            }
+        };
+
+        count.set(0);
+        Column<Person> nameColumn = grid.addColumn(Person::getName);
+        Assert.assertEquals(1, count.get());
+
+        nameColumn.setVisible(false);
+
+        Mockito.verify(registration).remove();
+
+        nameColumn.setVisible(true);
+        Assert.assertEquals(2, count.get());
+
+        Mockito.verifyNoMoreInteractions(registration);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void unhideColumn_dataCommunicatorIsReset() {
+        DataCommunicator<Person> dataCommunicator = Mockito
+                .mock(DataCommunicator.class);
+        Grid<Person> grid = new Grid<Person>() {
+            @Override
+            public DataCommunicator<Person> getDataCommunicator() {
+                return dataCommunicator;
+            }
+        };
+
+        Column<Person> nameColumn = grid.addColumn(Person::getName);
+        Mockito.verify(dataCommunicator, Mockito.times(2)).reset();
+
+        nameColumn.setVisible(false);
+        nameColumn.setVisible(true);
+
+        Mockito.verify(dataCommunicator, Mockito.times(3)).reset();
     }
 
     private static class ExtendedColumn<T> extends Column<T> {
