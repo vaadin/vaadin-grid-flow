@@ -15,14 +15,16 @@
  */
 package com.vaadin.flow.component.grid.it;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.demo.GridView.Person;
+import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 
 @Route("hidden-column")
@@ -38,16 +40,33 @@ public class HiddenColumnPage extends Div {
                 .setHeader("Name");
         grid.addColumn(Person::getEmail).setHeader("E-mail");
 
+        nameColumn.setEditorComponent(new TextField());
+
+        Binder<Person> binder = new Binder<>(Person.class);
+        Editor<Person> editor = grid.getEditor();
+        editor.setBinder(binder);
+
+        TextField field = new TextField();
+        binder.bind(field, "name");
+        nameColumn.setEditorComponent(field);
+
+        grid.addItemDoubleClickListener(
+                event -> grid.getEditor().editItem(event.getItem()));
+
+        grid.getElement()
+                .addEventListener("keyup", event -> grid.getEditor().cancel())
+                .setFilter("event.key === 'Escape' || even.key === 'Esc'");
+
         NativeButton hideUnhide = new NativeButton("Hide/unhide Name column",
                 event -> nameColumn.setVisible(!nameColumn.isVisible()));
-        hideUnhide.setId("hide-inhide");
+        hideUnhide.setId("hide-unhide");
 
-        NativeButton addItem = new NativeButton("Add an item", event -> {
-            grid.setItems(Arrays.asList(person,
-                    createPerson("bar", "baz@example.com")));
-        });
+        NativeButton update = new NativeButton("Replace the item",
+                event -> grid.setItems(createPerson("bar", "baz@example.com")));
 
-        add(grid, hideUnhide, addItem);
+        update.setId("update");
+
+        add(grid, hideUnhide, update);
     }
 
     private Person createPerson(String name, String email) {
