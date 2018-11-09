@@ -82,11 +82,10 @@ public interface Editor<T> extends Serializable {
      * changes made to the Editor fields to the edited bean if all validators
      * pass.
      * <p>
-     * A successful write will fire a {@link EditorSaveEvent} and close the
-     * editor that will fire a {@link EditorCloseEvent} if the edited item is
-     * not <code>null</code>.
+     * A successful write will fire an {@link EditorSaveEvent} and close the
+     * editor that will fire an {@link EditorCloseEvent}.
      * <p>
-     * If the write fails then there will be no event and the editor will stay
+     * If the write fails then there will be no events and the editor will stay
      * open.
      * <p>
      * Note! For an unbuffered editor calling save will have no effect and
@@ -100,17 +99,17 @@ public interface Editor<T> extends Serializable {
      * Cancel will discard any changes made in editor fields for a buffered
      * editor.
      * <p>
-     * Calling cancel will fire a {@link EditorCancelEvent} and close the
-     * editor that will fire a {@link EditorCloseEvent} if the edited item is
+     * Calling cancel will fire an {@link EditorCancelEvent} and close the
+     * editor that will fire an {@link EditorCloseEvent} if the edited item is
      * not <code>null</code>.
      */
     void cancel();
 
     /**
-     * Opens the editor component for the provided item and fires a {@link
+     * Opens the editor component for the provided item and fires an {@link
      * EditorOpenEvent}.
      * <p>
-     * In case there is an open editor a {@link EditorCloseEvent} will also be
+     * In case there is an open editor an {@link EditorCloseEvent} will also be
      * fired.
      *
      * @param item
