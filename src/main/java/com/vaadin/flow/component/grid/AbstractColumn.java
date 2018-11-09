@@ -74,8 +74,7 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
      * <p>
      * Note that column related data is sent to the client side even if the
      * column is invisible. Use {@link Grid#removeColumn(Column)} to remove
-     * column (or don't add the column all) and avoid sending extra data if you
-     * want to hide the column and optimize data communication.
+     * column (or don't add the column all) and avoid sending extra data.
      * </p>
      *
      * @see Grid#removeColumn(Column)
