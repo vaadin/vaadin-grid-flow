@@ -258,8 +258,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @param <T>
@@ -1257,8 +1256,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @param valueProvider
@@ -1298,8 +1296,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @param componentProvider
@@ -1327,8 +1324,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @see Column#setComparator(ValueProvider)
@@ -1364,8 +1360,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @param renderer
@@ -1435,8 +1430,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @see #removeColumn(Column)
@@ -1499,8 +1493,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @see #removeColumn(Column)
@@ -1566,8 +1559,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * Every added column sends data to the client side regardless of its
      * visibility state. Don't add a new column at all or use
-     * {@link Grid#removeColumn(Column)} to avoid sending extra data if you want
-     * to hide the column and optimize data communication.
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
      * @param propertyNames
