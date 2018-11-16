@@ -255,6 +255,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Server-side component for the {@code <vaadin-grid-column>} element.
      *
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
+     *
      * @param <T>
      *            type of the underlying grid this column is compatible with
      */
@@ -1266,12 +1272,19 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <em>NOTE:</em> For displaying components, see
      * {@link #addComponentColumn(ValueProvider)}. For using build-in renderers,
      * see {@link #addColumn(Renderer)}.
+     * </p>
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
      *
      * @param valueProvider
      *            the value provider
      * @return the created column
      * @see #addComponentColumn(ValueProvider)
      * @see #addColumn(Renderer)
+     * @see #removeColumn(Column)
      */
     public Column<T> addColumn(ValueProvider<T, ?> valueProvider) {
         String columnId = createColumnId(false);
@@ -1299,6 +1312,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * <em>NOTE:</em> Using {@link ComponentRenderer} is not as efficient as the
      * built in renderers or using {@link TemplateRenderer}.
+     * </p>
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
      *
      * @param componentProvider
      *            a value provider that will return a component for the given
@@ -1307,6 +1326,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the component type
      * @return the new column
      * @see #addColumn(Renderer)
+     * @see #removeColumn(Column)
      */
     public <V extends Component> Column<T> addComponentColumn(
             ValueProvider<T, V> componentProvider) {
@@ -1321,8 +1341,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * automatically configured using the return type of the given
      * {@link ValueProvider}.
      *
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
+     *
      * @see Column#setComparator(ValueProvider)
      * @see Column#setSortProperty(String...)
+     * @see #removeColumn(Column)
      *
      * @param valueProvider
      *            the value provider
@@ -1349,6 +1376,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link #addComponentColumn(ValueProvider)}, but using
      * {@link ComponentRenderer} is not as efficient as the built in renderers
      * or using {@link TemplateRenderer}.
+     * </p>
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
      *
      * @param renderer
      *            the renderer used to create the grid cell structure
@@ -1356,6 +1389,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *
      * @see TemplateRenderer#of(String)
      * @see #addComponentColumn(ValueProvider)
+     * @see #removeColumn(Column)
      */
     public Column<T> addColumn(Renderer<T> renderer) {
         String columnId = createColumnId(true);
@@ -1413,6 +1447,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * sorting property does not extend Comparable, no in-memory sorting is
      * configured for it.
      *
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
+     *
+     * @see #removeColumn(Column)
+     *
      * @param renderer
      *            the renderer used to create the grid cell structure
      * @param sortingProperties
@@ -1467,6 +1509,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * <strong>Note:</strong> This method can only be used for a Grid created
      * from a bean type with {@link #Grid(Class)}.
+     *
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
+     *
+     * @see #removeColumn(Column)
      *
      * @param propertyName
      *            the property name of the new column, not <code>null</code>
@@ -1526,9 +1576,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <strong>Note:</strong> This method can only be used for a Grid created
      * from a bean type with {@link #Grid(Class)}.
      *
+     * <p>
+     * Every added column sends data to the client side regardless of its
+     * visibility state. Don't add a new column at all or use
+     * {@link Grid#removeColumn(Column)} to avoid sending extra data.
+     * </p>
+     *
      * @param propertyNames
      *            the property names of the new columns, not <code>null</code>
      * @see #addColumn(String)
+     * @see #removeColumn(Column)
      */
     public void addColumns(String... propertyNames) {
         checkForBeanGrid();

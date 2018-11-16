@@ -51,7 +51,6 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
-import com.vaadin.flow.component.grid.HierarchicalTestBean;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -1411,7 +1410,10 @@ public class GridView extends DemoView {
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
             edit.addClassName("edit");
-            edit.addClickListener(e -> editor.editItem(person));
+            edit.addClickListener(e -> {
+                editor.editItem(person);
+                field.focus();
+            });
             return edit;
         });
 
@@ -1459,7 +1461,7 @@ public class GridView extends DemoView {
         TextField field = new TextField();
         // Close the editor in case of backward between components
         field.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().cancel())
+                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && event.shiftKey");
 
         binder.bind(field, "name");
@@ -1471,11 +1473,13 @@ public class GridView extends DemoView {
 
         // Close the editor in case of forward navigation between
         checkbox.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().cancel())
+                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && !event.shiftKey");
 
-        grid.addItemDoubleClickListener(
-                event -> grid.getEditor().editItem(event.getItem()));
+        grid.addItemDoubleClickListener(event -> {
+            grid.getEditor().editItem(event.getItem());
+            field.focus();
+        });
 
         grid.addItemClickListener(event -> {
             if (binder.getBean() != null) {
@@ -1577,7 +1581,10 @@ public class GridView extends DemoView {
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
             edit.addClassName("edit");
-            edit.addClickListener(e -> editor.editItem(person));
+            edit.addClickListener(e -> {
+                editor.editItem(person);
+                field.focus();
+            });
             return edit;
         });
 
@@ -1630,7 +1637,7 @@ public class GridView extends DemoView {
         TextField field = new TextField();
         // Close the editor in case of backward navigation between components
         field.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().cancel())
+                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && event.shiftKey");
         binder.bind(field, "name");
         nameColumn.setEditorComponent(field);
@@ -1641,7 +1648,7 @@ public class GridView extends DemoView {
         // Close the editor in case of forward navigation between components
         checkbox.getElement().addEventListener("keydown", event -> {
             if (!checkbox.getValue()) {
-                grid.getEditor().cancel();
+                grid.getEditor().closeEditor();
             }
         }).setFilter("event.key === 'Tab' && !event.shiftKey");
 
@@ -1656,15 +1663,17 @@ public class GridView extends DemoView {
         });
         // Close the editor in case of forward navigation between components
         emailField.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().cancel())
+                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && !event.shiftKey");
 
-        grid.addItemDoubleClickListener(
-                event -> grid.getEditor().editItem(event.getItem()));
+        grid.addItemDoubleClickListener(event -> {
+            grid.getEditor().editItem(event.getItem());
+            field.focus();
+        });
 
-        // Revalidates the editors every time something changes on the Binder.
+        // Re-validates the editors every time something changes on the Binder.
         // This is needed for the email column to turn into nothing when the
-        // checkbox is desselected, for example.
+        // checkbox is deselected, for example.
         binder.addValueChangeListener(event -> {
             grid.getEditor().refresh();
         });
