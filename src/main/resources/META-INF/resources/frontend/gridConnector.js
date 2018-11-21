@@ -851,5 +851,14 @@ window.Vaadin.Flow.gridConnector = {
         grid.$connector.clickedItem = null;
     }
 
+    grid.cellClassNameGenerator = function(rowData, column) {
+        const style = rowData.item.style;
+        if (!style) {
+            return;
+        }
+        var classes = style.row || '';
+        classes += ' ' + (column && style[column._id]) || '';
+        return classes;
+    }
   }
 }

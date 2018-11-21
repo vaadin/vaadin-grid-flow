@@ -292,6 +292,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         private Renderer<T> renderer;
         private Rendering<T> rendering;
 
+        private SerializableFunction<T, String> classNameGenerator = item -> null;
+
         /**
          * Constructs a new Column for use inside a Grid.
          *
@@ -756,6 +758,37 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return editorComponent;
         }
 
+        /**
+         * Sets the function that is used for generating CSS class names for
+         * cells in this column. Returning {@code null} from the generator
+         * results in no custom class name being set. Multiple class names can
+         * be returned from the generator as space-separated.
+         *
+         * @param classNameGenerator
+         *            the class name generator to set, not {@code null}
+         * @return this column
+         * @throws NullPointerException
+         *             if {@code classNameGenerator} is {@code null}
+         */
+        public Column<T> setClassNameGenerator(
+                SerializableFunction<T, String> classNameGenerator) {
+            Objects.requireNonNull(classNameGenerator,
+                    "Class name generator can not be null");
+            this.classNameGenerator = classNameGenerator;
+            getGrid().getDataCommunicator().reset();
+            return this;
+        }
+
+        /**
+         * Gets the function that is used for generating CSS class names for
+         * cells in this column.
+         *
+         * @return the class name generator
+         */
+        public SerializableFunction<T, String> getClassNameGenerator() {
+            return classNameGenerator;
+        }
+
         @Override
         protected Column<?> getBottomLevelColumn() {
             return this;
@@ -1019,6 +1052,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private boolean verticalScrollingEnabled = true;
 
+    private SerializableFunction<T, String> classNameGenerator = item -> null;
+
     /**
      * Creates a new instance, with page size of 50.
      */
@@ -1171,6 +1206,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 new UpdateQueueData(getElement(), getUniqueKeyProperty()));
         gridDataGenerator = new CompositeDataGenerator<>();
         gridDataGenerator.addDataGenerator(this::generateUniqueKeyData);
+        gridDataGenerator.addDataGenerator(this::generateStyleData);
 
         dataCommunicator = dataCommunicatorBuilder.build(getElement(),
                 gridDataGenerator, (U) arrayUpdater,
@@ -1378,6 +1414,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         Column<T> column = createColumn(renderer, columnId);
         idToColumnMap.put(columnId, column);
+        column.getElement().setProperty("_id", columnId);
 
         AbstractColumn<?> current = column;
         columnLayers.get(0).addColumn(column);
@@ -2860,6 +2897,55 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             editor = createEditor();
         }
         return editor;
+    }
+
+    /**
+     * Sets the function that is used for generating CSS class names for rows in
+     * this grid. Returning {@code null} from the generator results in no custom
+     * class name being set. Multiple class names can be returned from the
+     * generator as space-separated.
+     *
+     * @param classNameGenerator
+     *            the class name generator to set, not {@code null}
+     * @throws NullPointerException
+     *             if {@code classNameGenerator} is {@code null}
+     */
+    public void setClassNameGenerator(
+            SerializableFunction<T, String> classNameGenerator) {
+        Objects.requireNonNull(classNameGenerator,
+                "Class name generator can not be null");
+        this.classNameGenerator = classNameGenerator;
+        getDataCommunicator().reset();
+    }
+
+    /**
+     * Gets the function that is used for generating CSS class names for rows in
+     * this grid.
+     *
+     * @return the class name generator
+     */
+    public SerializableFunction<T, String> getClassNameGenerator() {
+        return classNameGenerator;
+    }
+
+    private void generateStyleData(T item, JsonObject jsonObject) {
+        JsonObject style = Json.createObject();
+
+        String rowClassName = classNameGenerator.apply(item);
+        if (rowClassName != null) {
+            style.put("row", rowClassName);
+        }
+
+        idToColumnMap.forEach((id, column) -> {
+            String cellClassName = column.getClassNameGenerator().apply(item);
+            if (cellClassName != null) {
+                style.put(id, cellClassName);
+            }
+        });
+
+        if (style.keys().length > 0) {
+            jsonObject.put("style", style);
+        }
     }
 
     /**
