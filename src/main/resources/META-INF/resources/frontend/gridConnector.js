@@ -857,7 +857,7 @@ window.Vaadin.Flow.gridConnector = {
             return;
         }
         var classes = style.row || '';
-        classes += ' ' + (column && style[column._id]) || '';
+        classes += ' ' + ((column && style[column._id]) || '');
         return classes;
     }
   }
