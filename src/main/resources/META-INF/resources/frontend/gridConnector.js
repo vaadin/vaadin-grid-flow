@@ -851,7 +851,7 @@ window.Vaadin.Flow.gridConnector = {
         grid.$connector.clickedItem = null;
     }
 
-    grid.cellClassNameGenerator = function(rowData, column) {
+    grid.cellClassNameGenerator = function(column, rowData) {
         const style = rowData.item.style;
         if (!style) {
             return;
