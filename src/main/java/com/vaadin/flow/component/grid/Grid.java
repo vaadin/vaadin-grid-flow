@@ -776,6 +776,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @return this column
          * @throws NullPointerException
          *             if {@code classNameGenerator} is {@code null}
+         * @see Grid#setClassNameGenerator(SerializableFunction)
          */
         public Column<T> setClassNameGenerator(
                 SerializableFunction<T, String> classNameGenerator) {
@@ -2922,6 +2923,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the class name generator to set, not {@code null}
      * @throws NullPointerException
      *             if {@code classNameGenerator} is {@code null}
+     * @see Column#setClassNameGenerator(SerializableFunction)
      */
     public void setClassNameGenerator(
             SerializableFunction<T, String> classNameGenerator) {
