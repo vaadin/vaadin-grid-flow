@@ -1422,7 +1422,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         Column<T> column = createColumn(renderer, columnId);
         idToColumnMap.put(columnId, column);
-        column.getElement().setProperty("_id", columnId);
+        getElement().callFunction("$connector.setColumnId", column.getElement(),
+                columnId);
 
         AbstractColumn<?> current = column;
         columnLayers.get(0).addColumn(column);
@@ -2395,6 +2396,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         column.destroyDataGenerators();
         keyToColumnMap.remove(column.getKey());
         idToColumnMap.remove(column.getInternalId());
+        getElement().callFunction("$connector.columnRemoved",
+                column.getInternalId());
     }
 
     private void removeColumnAndColumnGroupsIfNeeded(Column<?> column) {
