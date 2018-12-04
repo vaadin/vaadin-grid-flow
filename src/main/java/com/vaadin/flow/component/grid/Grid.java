@@ -1062,6 +1062,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private SerializableFunction<T, String> classNameGenerator = item -> null;
 
+    private Registration editorUpdateRegistration;
+
     /**
      * Creates a new instance, with page size of 50.
      */
@@ -1964,6 +1966,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     @Override
     public void setDataProvider(DataProvider<T, ?> dataProvider) {
         Objects.requireNonNull(dataProvider, "data provider cannot be null");
+        handleEditor(dataProvider);
+
         deselectAll();
         getDataCommunicator().setDataProvider(dataProvider, null);
 
@@ -2904,10 +2908,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the editor instance
      */
     public Editor<T> getEditor() {
-        if (editor == null) {
-            editor = createEditor();
-        }
-        return editor;
+        return getEditor(true);
     }
 
     /**
@@ -2964,6 +2965,24 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (style.keys().length > 0) {
             jsonObject.put("style", style);
         }
+    }
+
+    /**
+     * Gets the editor.
+     * <p>
+     * The editor is created using {@link #createEditor()} if {@code create} is
+     * {@code true}.
+     *
+     * @see #createEditor()
+     *
+     * @return the editor instance or null if {@code create} is {@code false}
+     *         and the editor has not been created yet
+     */
+    protected Editor<T> getEditor(boolean create) {
+        if (create && editor == null) {
+            editor = createEditor();
+        }
+        return editor;
     }
 
     /**
@@ -3050,5 +3069,23 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private static int compareComparables(Object a, Object b) {
         return ((Comparator) Comparator.nullsLast(Comparator.naturalOrder()))
                 .compare(a, b);
+    }
+
+    private void handleEditor(DataProvider<T, ?> dataProvider) {
+        closeEditor();
+
+        if (editorUpdateRegistration != null) {
+            editorUpdateRegistration.remove();
+        }
+
+        editorUpdateRegistration = dataProvider
+                .addDataProviderListener(event -> closeEditor());
+    }
+
+    private void closeEditor() {
+        Editor<T> editor = getEditor(false);
+        if (editor != null) {
+            getEditor().closeEditor();
+        }
     }
 }
