@@ -1420,6 +1420,7 @@ public class GridView extends DemoView {
                 editor.editItem(person);
                 field.focus();
             });
+            edit.setEnabled(!editor.isOpen());
             editButtons.add(edit);
             return edit;
         });
@@ -1604,6 +1605,7 @@ public class GridView extends DemoView {
                 editor.editItem(person);
                 field.focus();
             });
+            edit.setEnabled(!editor.isOpen());
             editButtons.add(edit);
             return edit;
         });
