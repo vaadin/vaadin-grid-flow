@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1409,23 +1410,24 @@ public class GridView extends DemoView {
         binder.bind(checkbox, "subscriber");
         subscriberColumn.setEditorComponent(checkbox);
 
-        Collection<Button> editButtons = new ArrayList<>();
+        Collection<Button> editButtons = Collections
+                .newSetFromMap(new WeakHashMap<>());
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
             edit.addClassName("edit");
             edit.addClickListener(e -> {
                 editor.editItem(person);
-                editButtons.stream().filter(button -> edit != button)
-                        .forEach(button -> button.setEnabled(false));
                 field.focus();
             });
             editButtons.add(edit);
             return edit;
         });
 
+        editor.addOpenListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
         editor.addCloseListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(true)));
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
@@ -1585,7 +1587,8 @@ public class GridView extends DemoView {
             }
         });
 
-        Collection<Button> editButtons = new ArrayList<>();
+        Collection<Button> editButtons = Collections
+                .newSetFromMap(new WeakHashMap<>());
 
         // Resets the binding function to use the bean state whenever the editor
         // is closed
@@ -1599,13 +1602,16 @@ public class GridView extends DemoView {
             edit.addClassName("edit");
             edit.addClickListener(e -> {
                 editor.editItem(person);
-                editButtons.stream().filter(button -> edit != button)
-                        .forEach(button -> button.setEnabled(false));
                 field.focus();
             });
             editButtons.add(edit);
             return edit;
         });
+
+        editor.addOpenListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
+        editor.addCloseListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
