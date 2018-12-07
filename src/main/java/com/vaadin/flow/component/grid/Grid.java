@@ -1377,7 +1377,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the value provider
      * @param sortingProperties
      *            the sorting properties to use with this column
-     * @param <V> the type of column
+     * @param <V> the type of the column
      * @return the created column
      */
     public <V extends Comparable<? super V>> Column<T> addColumn(

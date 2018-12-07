@@ -29,7 +29,7 @@ import com.vaadin.flow.shared.Registration;
  *
  * @author Vaadin Ltd
  *
- * @param <T> the type being edited
+ * @param <T> the type of the row/item being edited
  */
 public interface Editor<T> extends Serializable {
 
