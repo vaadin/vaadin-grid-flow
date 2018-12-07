@@ -941,12 +941,11 @@ public class GridViewIT extends TabbedComponentDemoTest {
         edit.click();
 
         // check that shown Edit buttons are disabled
-        List<WebElement> editButtons = findElements(By.className("edit"));
-        // self check
-        Assert.assertTrue(editButtons.size() > 1);
-        editButtons.stream()
-                .forEach(button -> Assert.assertEquals(Boolean.TRUE.toString(),
-                        button.getAttribute("disabled")));
+        WebElement nextEditButton = grid.getRow(1)
+                .getCell(grid.getAllColumns().get(2)).$("vaadin-button")
+                .first();
+        Assert.assertEquals(Boolean.TRUE.toString(),
+                nextEditButton.getAttribute("disabled"));
 
         GridTHTDElement subscriberCell = row.getCell(subscriberColumn);
 
@@ -1056,15 +1055,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         GridColumnElement editColumn = grid.getAllColumns().get(3);
 
-        row.getCell(editColumn).$("vaadin-button").first().click();
+        WebElement editButon = row.getCell(editColumn).$("vaadin-button")
+                .first();
+        editButon.click();
 
         // check that shown Edit buttons are disabled
-        List<WebElement> editButtons = findElements(By.className("edit"));
-        // self check
-        Assert.assertTrue(editButtons.size() > 1);
-        editButtons.stream()
-                .forEach(button -> Assert.assertEquals(Boolean.TRUE.toString(),
-                        button.getAttribute("disabled")));
+        WebElement nextEditButton = grid.getRow(1).getCell(editColumn)
+                .$("vaadin-button").first();
+        Assert.assertEquals(Boolean.TRUE.toString(),
+                nextEditButton.getAttribute("disabled"));
 
         TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
 
