@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BinaryOperator;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1061,7 +1060,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private Editor<T> editor;
 
-    private Supplier<Editor<T>> editorFactory = () -> createEditor();
+    private SerializableSupplier<Editor<T>> editorFactory = () -> createEditor();
 
     private boolean verticalScrollingEnabled = true;
 
@@ -3048,7 +3047,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *
      */
     protected void onDataProviderChange() {
-        Supplier<Editor<T>> factory = editorFactory;
+        SerializableSupplier<Editor<T>> factory = editorFactory;
         editorFactory = () -> null;
         try {
             Editor<T> editor = getEditor();
