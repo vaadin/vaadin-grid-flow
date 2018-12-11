@@ -481,13 +481,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         /**
          * Sets a comparator to use with in-memory sorting with this column
-         * based on the return type of the given {@link ValueProvider}. Sorting
-         * with a back-end is done using
-         * {@link Column#setSortProperty(String...)}.
-         * <p>
+         * based on the return type of the given {@link ValueProvider}.Sorting
+ with a back-end is done using
+        {@link Column#setSortProperty(String[])}.<p>
          * <strong>Note:</strong> calling this method automatically sets the
          * column as sortable with {@link #setSortable(boolean)}.
          *
+         * @param <V> the value of the column
          * @param keyExtractor
          *            the value provider used to extract the {@link Comparable}
          *            sort key
@@ -884,8 +884,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Class for managing visible details rows.
      *
-     * @param <T>
-     *            the grid bean type
      */
     private class DetailsManager extends AbstractGridExtension<T> {
 
@@ -1366,11 +1364,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Adds a new text column to this {@link Grid} with a value provider and
-     * sorting properties. The value is converted to a JSON value by using
-     * {@link JsonSerializer#toJson(Object)}. The sorting properties are used to
-     * configure backend sorting for this column. In-memory sorting is
-     * automatically configured using the return type of the given
-     * {@link ValueProvider}.
+     * sorting properties.The value is converted to a JSON value by using
+    {@link JsonSerializer#toJson(Object)}. The sorting properties are used to
+ configure backend sorting for this column. In-memory sorting is
+ automatically configured using the return type of the given
+ {@link ValueProvider}.
      *
      * <p>
      * Every added column sends data to the client side regardless of its
@@ -1386,6 +1384,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the value provider
      * @param sortingProperties
      *            the sorting properties to use with this column
+     * @param <V> the type of the column
      * @return the created column
      */
     public <V extends Comparable<? super V>> Column<T> addColumn(
@@ -1403,7 +1402,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * renderer options with type safe APIs. For a renderer using template
      * binding, use {@link TemplateRenderer#of(String)}.
      * <p>
-     * </><em>NOTE:</em> You can add component columns easily using the
+     * <em>NOTE:</em> You can add component columns easily using the
      * {@link #addComponentColumn(ValueProvider)}, but using
      * {@link ComponentRenderer} is not as efficient as the built in renderers
      * or using {@link TemplateRenderer}.
@@ -1447,7 +1446,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Creates a new column instance for this {@link Grid} instance.
-     * <p/>
+     * <p>
      * This method must not return <code>null</code>.
      *
      * @param renderer
