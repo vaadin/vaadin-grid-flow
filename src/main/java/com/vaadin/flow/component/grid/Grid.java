@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BinaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -62,9 +63,11 @@ import com.vaadin.flow.data.event.SortEvent.SortNotifier;
 import com.vaadin.flow.data.provider.ArrayUpdater;
 import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
+import com.vaadin.flow.data.provider.DataChangeEvent;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DataProviderListener;
 import com.vaadin.flow.data.provider.HasDataGenerators;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.Query;
@@ -1058,11 +1061,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private Editor<T> editor;
 
+    private Supplier<Editor<T>> editorFactory = () -> createEditor();
+
     private boolean verticalScrollingEnabled = true;
 
     private SerializableFunction<T, String> classNameGenerator = item -> null;
 
-    private Registration editorUpdateRegistration;
+    private Registration dataProviderChangeRegistration;
 
     /**
      * Creates a new instance, with page size of 50.
@@ -1966,7 +1971,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     @Override
     public void setDataProvider(DataProvider<T, ?> dataProvider) {
         Objects.requireNonNull(dataProvider, "data provider cannot be null");
-        handleEditor(dataProvider);
+        handleDataProviderChange(dataProvider);
 
         deselectAll();
         getDataCommunicator().setDataProvider(dataProvider, null);
@@ -2908,7 +2913,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the editor instance
      */
     public Editor<T> getEditor() {
-        return getEditor(true);
+        if (editor == null) {
+            editor = editorFactory.get();
+        }
+        return editor;
     }
 
     /**
@@ -2965,24 +2973,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (style.keys().length > 0) {
             jsonObject.put("style", style);
         }
-    }
-
-    /**
-     * Gets the editor.
-     * <p>
-     * The editor is created using {@link #createEditor()} if {@code create} is
-     * {@code true}.
-     *
-     * @see #createEditor()
-     *
-     * @return the editor instance or null if {@code create} is {@code false}
-     *         and the editor has not been created yet
-     */
-    protected Editor<T> getEditor(boolean create) {
-        if (create && editor == null) {
-            editor = createEditor();
-        }
-        return editor;
     }
 
     /**
@@ -3043,6 +3033,31 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return arrayUpdater;
     }
 
+    /**
+     * Callback which is called if a new data provider is set or any change
+     * happen in the current data provider (an {@link DataChangeEvent} event is
+     * fired).
+     *
+     * Default implementation closes the editor if it's opened.
+     *
+     * @see #setDataProvider(DataProvider)
+     * @see DataChangeEvent
+     * @see DataProviderListener
+     *
+     */
+    protected void onDataProviderChange() {
+        Supplier<Editor<T>> factory = editorFactory;
+        editorFactory = null;
+        try {
+            Editor<T> editor = getEditor();
+            if (editor != null) {
+                getEditor().closeEditor();
+            }
+        } finally {
+            editorFactory = factory;
+        }
+    }
+
     private static boolean hasCommonComparableBaseType(Object a, Object b) {
         if (a instanceof Comparable<?> && b instanceof Comparable<?>) {
             Class<?> aClass = a.getClass();
@@ -3071,21 +3086,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 .compare(a, b);
     }
 
-    private void handleEditor(DataProvider<T, ?> dataProvider) {
-        closeEditor();
+    private void handleDataProviderChange(DataProvider<T, ?> dataProvider) {
+        onDataProviderChange();
 
-        if (editorUpdateRegistration != null) {
-            editorUpdateRegistration.remove();
+        if (dataProviderChangeRegistration != null) {
+            dataProviderChangeRegistration.remove();
         }
 
-        editorUpdateRegistration = dataProvider
-                .addDataProviderListener(event -> closeEditor());
-    }
-
-    private void closeEditor() {
-        Editor<T> editor = getEditor(false);
-        if (editor != null) {
-            getEditor().closeEditor();
-        }
+        dataProviderChangeRegistration = dataProvider
+                .addDataProviderListener(event -> onDataProviderChange());
     }
 }
