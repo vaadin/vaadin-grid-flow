@@ -478,22 +478,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         /**
          * Sets a comparator to use with in-memory sorting with this column
-         * <<<<<<< HEAD based on the return type of the given
-         * {@link ValueProvider}. Sorting with a back-end is done using
-         * {@link Column#setSortProperty(String...)}. ======= based on the
-         * return type of the given {@link ValueProvider}.Sorting with a
-         * back-end is done using {@link Column#setSortProperty(String[])}.
-         * >>>>>>> 10c5d2f... Close editor whenever the data provider is changed
-         * or updated (#447)
+         * based on the return type of the given {@link ValueProvider}. Sorting
+         * with a back-end is done using
+         * {@link Column#setSortProperty(String...)}.
          * <p>
          * <strong>Note:</strong> calling this method automatically sets the
          * column as sortable with {@link #setSortable(boolean)}.
          *
-         * <<<<<<< HEAD =======
-         *
-         * @param <V>
-         *            the value of the column >>>>>>> 10c5d2f... Close editor
-         *            whenever the data provider is changed or updated (#447)
          * @param keyExtractor
          *            the value provider used to extract the {@link Comparable}
          *            sort key
@@ -1332,13 +1323,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Adds a new text column to this {@link Grid} with a value provider and
-     * <<<<<<< HEAD sorting properties. The value is converted to a JSON value
-     * by using ======= sorting properties.The value is converted to a JSON
-     * value by using >>>>>>> 10c5d2f... Close editor whenever the data provider
-     * is changed or updated (#447) {@link JsonSerializer#toJson(Object)}. The
-     * sorting properties are used to configure backend sorting for this column.
-     * In-memory sorting is automatically configured using the return type of
-     * the given {@link ValueProvider}.
+     * sorting properties. The value is converted to a JSON value by using
+     * {@link JsonSerializer#toJson(Object)}. The sorting properties are used to
+     * configure backend sorting for this column. In-memory sorting is
+     * automatically configured using the return type of the given
+     * {@link ValueProvider}.
      *
      * <p>
      * Every added column sends data to the client side regardless of its
@@ -1353,11 +1342,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param valueProvider
      *            the value provider
      * @param sortingProperties
-     *            the sorting properties to use with this column <<<<<<< HEAD
-     *            =======
-     * @param <V>
-     *            the type of the column >>>>>>> 10c5d2f... Close editor
-     *            whenever the data provider is changed or updated (#447)
+     *            the sorting properties to use with this column
      * @return the created column
      */
     public <V extends Comparable<? super V>> Column<T> addColumn(
@@ -2957,7 +2942,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see DataProviderListener
      *
      */
-    protected void onDataProviderChange() {
+    private void onDataProviderChange() {
         SerializableSupplier<Editor<T>> factory = editorFactory;
         editorFactory = () -> null;
         try {
