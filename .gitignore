@@ -13,3 +13,5 @@ target/
 #selenium
 error-screenshots
 reference-screenshots
+
+**/bower_components/**
