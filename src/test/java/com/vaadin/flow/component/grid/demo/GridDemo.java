@@ -595,32 +595,30 @@ public class GridDemo extends DemoView {
     @Override
     protected void initView() {
         createBasicUsage();//Basic Grid
-        createGridWithLazyLoading();//
+        createGridWithLazyLoading();
         addVariantFeature();
         createArrayData();//Assigning data
-        createDynamicHeight();//
-        createSingleSelect();//
-        createMultiSelect();//
-        createProgrammaticSelect();//
-//        createGridWithNoSelect();//
+        createDynamicHeight();
+        createSingleSelect();
+        createMultiSelect();
+        createProgrammaticSelect();
         createGridWithSortableColumns();//Sorting
         createGridWithTextFieldFilters();//Filtering
         createGridWithFilters();
         createGridWithDataTypeSpecificFilters();
         createConfiguringColumns();//Configuring Columns
         createManuallyDefiningColumns();
-        createFrozenColumns();//
-        createColumnAlignment();//
+        createFrozenColumns();
+        createColumnAlignment();
         createHeaderAndFooter();//Header and footer
         createColumnGrouping();
-        createHeaderAndFooterUsingComponents();//
+        createHeaderAndFooterUsingComponents();
         createFormattingText();//Formatting contents
         createHtmlTemplateRenderer();
         createGridUsingComponent();//Using components
         createGridUsingComponentFilters();
         createGridWithItemDetails();
-        createItemDetailsOpenedProgrammatically();//
-        //End Of reviewed Grid. The Below code is not reviewed yet 12-12-2018
+        createItemDetailsOpenedProgrammatically();
         createBasicTreeGridUsage();//TreeGrid
         createLazyLoadingTreeGridUsage();
         createContextMenu();//Context Menu
