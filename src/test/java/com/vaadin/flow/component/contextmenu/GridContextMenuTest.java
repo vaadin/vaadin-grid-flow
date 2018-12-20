@@ -27,4 +27,15 @@ public class GridContextMenuTest {
         gridContextMenu.setTarget(new NativeButton());
     }
 
+    @Test
+    public void addItemsWithNullClickListener_doesNotThrow() {
+        GridContextMenu<Object> gridContextMenu = new GridContextMenu<>();
+
+        GridMenuItem<Object> foo = gridContextMenu.addItem("foo", null);
+        gridContextMenu.addItem(new NativeButton(), null);
+
+        foo.getSubMenu().addItem("bar", null);
+        foo.getSubMenu().addItem(new NativeButton(), null);
+    }
+
 }
