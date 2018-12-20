@@ -48,22 +48,21 @@ public class ContextMenuGridPage extends Div {
                 .mapToObj(i -> new Person("Person " + i, 1900 + i)));
 
         GridContextMenu<Person> contextMenu = grid.addContextMenu();
-        contextMenu.addItem("Show name of context menu target item", e -> {
-            String name = e.getItem().map(Person::getName)
-                    .orElse("no target item");
-            message.setText(name);
-        });
-        contextMenu.addItem("Show connected grid id", e -> {
-            String id = e.getGrid().getId().get();
-            message.setText("Grid id: " + id);
-        });
+        addItems(contextMenu);
 
         NativeButton toggleOpenOnClick = new NativeButton(
                 "Toggle open on click",
                 e -> contextMenu.setOpenOnClick(!contextMenu.isOpenOnClick()));
         toggleOpenOnClick.setId("toggle-open-on-click");
 
-        add(grid, toggleOpenOnClick);
+        NativeButton addSubMenu = new NativeButton("Add sub-menu", e -> {
+            GridMenuItem<Person> parent = contextMenu.addItem("parent");
+            GridSubMenu<Person> subMenu = parent.getSubMenu();
+            addItems(subMenu);
+        });
+        addSubMenu.setId("add-sub-menu");
+
+        add(grid, toggleOpenOnClick, addSubMenu);
         grid.setId("grid-with-context-menu");
     }
 
@@ -79,5 +78,17 @@ public class ContextMenuGridPage extends Div {
                 e -> message.setText(e.getItem().orElse("no target item")));
 
         add(template);
+    }
+
+    private void addItems(HasGridMenuItems<Person> menu) {
+        menu.addItem("Show name of context menu target item", e -> {
+            String name = e.getItem().map(Person::getName)
+                    .orElse("no target item");
+            message.setText(name);
+        });
+        menu.addItem("Show connected grid id", e -> {
+            String id = e.getGrid().getId().get();
+            message.setText("Grid id: " + id);
+        });
     }
 }

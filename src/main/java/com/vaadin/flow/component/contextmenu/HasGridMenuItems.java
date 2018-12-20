@@ -16,6 +16,8 @@
 
 package com.vaadin.flow.component.contextmenu;
 
+import java.io.Serializable;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.contextmenu.GridContextMenu.GridContextMenuItemClickEvent;
@@ -26,7 +28,7 @@ import com.vaadin.flow.component.contextmenu.GridContextMenu.GridContextMenuItem
  * @param <T>
  *            the bean type of the context menu's target Grid
  */
-interface HasGridMenuItems<T> {
+interface HasGridMenuItems<T> extends Serializable {
 
     /**
      * Adds a new item component with the given text content and click listener
