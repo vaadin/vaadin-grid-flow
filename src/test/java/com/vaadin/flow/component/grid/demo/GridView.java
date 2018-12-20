@@ -85,7 +85,8 @@ import com.vaadin.flow.router.Route;
 /**
  * View for {@link Grid} demo.
  */
-@Route("vaadin-grid")
+@Route("vaadin-grid-it-demo")
+@HtmlImport("grid-demo-styles.html")
 public class GridView extends DemoView {
 
     public static List<Person> items = new ArrayList<>();
