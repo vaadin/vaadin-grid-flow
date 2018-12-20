@@ -435,8 +435,11 @@ window.Vaadin.Flow.gridConnector = {
       } else {
         delete cache[parentKey];
         let parentCache = grid.$connector.getCacheByKey(parentKey);
-        if(parentCache && parentCache.itemkeyCaches && parentCache.itemkeyCaches[parentKey]) {
-          parentCache.itemkeyCaches[parentKey].items = [];
+        if (parentCache && parentCache.itemkeyCaches && parentCache.itemkeyCaches[parentKey]) {
+          delete parentCache.itemkeyCaches[parentKey];
+        }
+        if (parentCache && parentCache.itemCaches && parentCache.itemCaches[parentKey]) {
+          delete parentCache.itemCaches[parentKey];
         }
         delete lastRequestedRanges[parentKey];
 
@@ -525,11 +528,13 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     grid.$connector.set = function(index, items, parentKey) {
+      if (index % grid.pageSize != 0) {
+        throw 'Got new data to index ' + index + ' which is not aligned with the page size of ' + grid.pageSize;
+      }
       let pkey = parentKey || root;
 
-      const firstPage = Math.floor(index / grid.pageSize);
+      const firstPage = index / grid.pageSize;
       const updatedPageCount = Math.ceil(items.length / grid.pageSize);
-      const sliceIndex = index % grid.pageSize;
 
       for (let i = 0; i < updatedPageCount; i++) {
         let page = firstPage + i;
@@ -537,14 +542,9 @@ window.Vaadin.Flow.gridConnector = {
         if(!cache[pkey]) {
           cache[pkey] = {};
         }
-        
-        if (!cache[pkey][page]) {
-          cache[pkey][page] = [];
-        }
-
+        cache[pkey][page] = slice;
         for(let j = 0; j < slice.length; j++) {
-          let item = slice[j];
-          cache[pkey][page][sliceIndex + j] = item;
+          let item = slice[j]
           if (item.selected && !isSelectedOnGrid(item)) {
             grid.$connector.doSelection(item);
           } else if (!item.selected && (selectedKeys[item.key] || isSelectedOnGrid(item))) {
@@ -610,16 +610,14 @@ window.Vaadin.Flow.gridConnector = {
       for (let i = 0; i < updatedPageCount; i++) {
         let page = firstPage + i;
         let items = cache[pkey][page];
-        if (items) {
-          for (let j = 0; j < items.length; j++) {
-            let item = items[j];
-            if (selectedKeys[item.key]) {
-              grid.$connector.doDeselection(item);
-            }
+        for (let j = 0; j < items.length; j++) {
+          let item = items[j];
+          if (selectedKeys[item.key]) {
+            grid.$connector.doDeselection(item);
           }
-          delete cache[pkey][page];
-          updateGridCache(page, parentKey);
         }
+        delete cache[pkey][page];
+        updateGridCache(page, parentKey);
       }
     };
 
