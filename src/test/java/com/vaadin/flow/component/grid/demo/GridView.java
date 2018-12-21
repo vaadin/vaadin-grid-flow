@@ -42,8 +42,6 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.contextmenu.GridContextMenu;
-import com.vaadin.flow.component.contextmenu.GridMenuItem;
-import com.vaadin.flow.component.contextmenu.GridSubMenu;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -1329,41 +1327,6 @@ public class GridView extends DemoView {
                 dataProvider.refreshAll();
             });
         });
-        GridMenuItem<Person> parent = contextMenu.addItem("Parent", null);
-
-        GridSubMenu<Person> subMenu = parent.getSubMenu();
-
-        GridMenuItem<Person> update = subMenu.addItem("Update", event -> {
-            event.getItem().ifPresent(person -> {
-                person.setName(person.getName() + " Updated");
-                ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) event
-                        .getGrid().getDataProvider();
-                dataProvider.refreshItem(person);
-            });
-        });
-
-        update.getSubMenu().addItem("foo", null);
-
-        GridMenuItem<Person> removeItem = subMenu.addItem("Remove", event -> {
-            event.getItem().ifPresent(person -> {
-                ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
-                        .getDataProvider();
-                dataProvider.getItems().remove(person);
-                dataProvider.refreshAll();
-            });
-        });
-
-        GridMenuItem<Person> parent2 = subMenu.addItem("parent", null);
-        GridSubMenu<Person> subMenu2 = parent2.getSubMenu();
-        subMenu2.addItem("Update", event -> {
-            event.getItem().ifPresent(person -> {
-                person.setName(person.getName() + " Updated");
-                ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) event
-                        .getGrid().getDataProvider();
-                dataProvider.refreshItem(person);
-            });
-        });
-
         // end-source-example
         grid.setId("context-menu-grid");
         addCard("Context Menu", "Using ContextMenu With Grid", grid,
