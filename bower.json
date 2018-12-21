@@ -1,6 +1,0 @@
-{
-  "name": "vaadin-grid-flow",
-  "dependencies": {
-    "vaadin-context-menu": "feature-nested-menu-items"
-  }
-}
