@@ -19,6 +19,14 @@ package com.vaadin.flow.component.contextmenu;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 
+/**
+ * API that allows adding content into the sub menus of a
+ * {@link GridContextMenu} to create hierarchical menus. Get it by calling
+ * {@link GridMenuItem#getSubMenu()} on the item component that should open the
+ * sub menu. Sub menu will be rendered only if content has been added inside it.
+ *
+ * @author Vaadin Ltd.
+ */
 public class GridSubMenu<T>
         extends SubMenuBase<GridContextMenu<T>, GridMenuItem<T>>
         implements HasGridMenuItems<T> {

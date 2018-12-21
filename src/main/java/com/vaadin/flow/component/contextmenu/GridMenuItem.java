@@ -19,8 +19,11 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 
 /**
- * Item component used inside {@link GridContextMenu}
- * 
+ * Item component used inside {@link GridContextMenu} and {@link GridSubMenu}.
+ * This component can be created and added to a menu overlay with
+ * {@link HasGridMenuItems#addItem(String, ComponentEventListener)} and similar
+ * methods.
+ *
  * @author Vaadin Ltd.
  */
 @SuppressWarnings("serial")
@@ -34,6 +37,16 @@ public class GridMenuItem<T>
         this.subMenu = new GridSubMenu<>(this);
     }
 
+    /**
+     * Adds the given click listener for this menu item. The fired
+     * {@link GridContextMenu.GridContextMenuItemClickEvent} contains
+     * information of which item inside the Grid was targeted when the context
+     * menu was opened.
+     * 
+     * @param clickListener
+     *            the click listener to add
+     * @return a handle for removing the listener
+     */
     public Registration addMenuItemClickListener(
             ComponentEventListener<GridContextMenu.GridContextMenuItemClickEvent<T>> clickListener) {
         return getElement().addEventListener("click", event -> {

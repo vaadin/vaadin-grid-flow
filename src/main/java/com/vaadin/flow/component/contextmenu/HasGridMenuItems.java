@@ -23,10 +23,13 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.contextmenu.GridContextMenu.GridContextMenuItemClickEvent;
 
 /**
- * A common interface for {@link GridContextMenu} and {@link GridSubMenu}.
- * 
- * @param <T>
- *            the bean type of the context menu's target Grid
+ * A common interface for components that can have {@link GridMenuItem}s with
+ * click listeners inside them.
+ *
+ * @see GridContextMenu
+ * @see GridSubMenu
+ *
+ * @author Vaadin Ltd.
  */
 interface HasGridMenuItems<T> extends Serializable {
 
@@ -35,19 +38,21 @@ interface HasGridMenuItems<T> extends Serializable {
      * to the context menu overlay.
      * <p>
      * This is a convenience method for the use case where you have a list of
-     * highlightable {@link MenuItem}s inside the overlay. If you want to
+     * highlightable {@link GridMenuItem}s inside the overlay. If you want to
      * configure the contents of the overlay without wrapping them inside
-     * {@link MenuItem}s, or if you just want to add some non-highlightable
-     * components between the items, use the {@link #add(Component...)} method.
+     * {@link GridMenuItem}s, or if you just want to add some non-highlightable
+     * components between the items, use the
+     * {@link GridContextMenu#add(Component...)} method.
      *
      * @param text
      *            the text content for the new item
      * @param clickListener
      *            the handler for clicking the new item, can be {@code null} to
      *            not add listener
-     * @return the added {@link MenuItem} component
+     * @return the added {@link GridMenuItem} component
      * @see #addItem(Component, ComponentEventListener)
-     * @see #add(Component...)
+     * @see GridContextMenu#add(Component...)
+     * @see GridSubMenu#add(Component...)
      */
     GridMenuItem<T> addItem(String text,
             ComponentEventListener<GridContextMenuItemClickEvent<T>> clickListener);
@@ -57,19 +62,21 @@ interface HasGridMenuItems<T> extends Serializable {
      * the context menu overlay.
      * <p>
      * This is a convenience method for the use case where you have a list of
-     * highlightable {@link MenuItem}s inside the overlay. If you want to
+     * highlightable {@link GridMenuItem}s inside the overlay. If you want to
      * configure the contents of the overlay without wrapping them inside
-     * {@link MenuItem}s, or if you just want to add some non-highlightable
-     * components between the items, use the {@link #add(Component...)} method.
+     * {@link GridMenuItem}s, or if you just want to add some non-highlightable
+     * components between the items, use the
+     * {@link GridContextMenu#add(Component...)} method.
      *
      * @param component
      *            the component inside the new item
      * @param clickListener
      *            the handler for clicking the new item, can be {@code null} to
      *            not add listener
-     * @return the added {@link MenuItem} component
+     * @return the added {@link GridMenuItem} component
      * @see #addItem(String, ComponentEventListener)
-     * @see #add(Component...)
+     * @see GridContextMenu#add(Component...)
+     * @see GridSubMenu#add(Component...)
      */
     GridMenuItem<T> addItem(Component component,
             ComponentEventListener<GridContextMenuItemClickEvent<T>> clickListener);

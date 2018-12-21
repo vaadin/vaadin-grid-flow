@@ -91,7 +91,7 @@ public class GridContextMenu<T>
     }
 
     /**
-     * Event that is fired when a {@link MenuItem} is clicked inside a
+     * Event that is fired when a {@link GridMenuItem} is clicked inside a
      * {@link GridContextMenu}.
      * 
      * @author Vaadin Ltd.
