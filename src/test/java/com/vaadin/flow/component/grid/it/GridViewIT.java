@@ -940,6 +940,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
         WebElement edit = findElement(By.className("edit"));
         edit.click();
 
+        // check that shown Edit buttons are disabled
+        WebElement nextEditButton = grid.getRow(1)
+                .getCell(grid.getAllColumns().get(2)).$("vaadin-button")
+                .first();
+        Assert.assertEquals(Boolean.TRUE.toString(),
+                nextEditButton.getAttribute("disabled"));
+
         GridTHTDElement subscriberCell = row.getCell(subscriberColumn);
 
         TestBenchElement subscriberCheckbox = subscriberCell
@@ -1048,7 +1055,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         GridColumnElement editColumn = grid.getAllColumns().get(3);
 
-        row.getCell(editColumn).$("vaadin-button").first().click();
+        WebElement editButon = row.getCell(editColumn).$("vaadin-button")
+                .first();
+        editButon.click();
+
+        // check that shown Edit buttons are disabled
+        WebElement nextEditButton = grid.getRow(1).getCell(editColumn)
+                .$("vaadin-button").first();
+        Assert.assertEquals(Boolean.TRUE.toString(),
+                nextEditButton.getAttribute("disabled"));
 
         TestBenchElement nameField = nameCell.$("vaadin-text-field").first();
 
@@ -1302,6 +1317,24 @@ public class GridViewIT extends TabbedComponentDemoTest {
         emailInput.click();
         emailInput.sendKeys(Keys.TAB);
         assertNotBufferedEditorClosed(grid);
+    }
+
+    @Test
+    public void stylingDemo_classNamesGenerated() {
+        openTabAndCheckForErrors("styling");
+        GridElement grid = $(GridElement.class).id("class-name-generator");
+
+        GridStylingIT.assertCellClassNames(grid, 0, 0, "subscriber");
+        GridStylingIT.assertCellClassNames(grid, 0, 1, "subscriber");
+        GridStylingIT.assertCellClassNames(grid, 0, 2, "subscriber");
+
+        GridStylingIT.assertCellClassNames(grid, 5, 0, "");
+        GridStylingIT.assertCellClassNames(grid, 5, 1, "minor");
+        GridStylingIT.assertCellClassNames(grid, 5, 2, "");
+
+        GridStylingIT.assertCellClassNames(grid, 9, 0, "subscriber");
+        GridStylingIT.assertCellClassNames(grid, 9, 1, "subscriber minor");
+        GridStylingIT.assertCellClassNames(grid, 9, 2, "subscriber");
     }
 
     private void assertElementHasFocus(WebElement element) {
@@ -1585,6 +1618,6 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     @Override
     protected String getTestPath() {
-        return "/vaadin-grid";
+        return "/vaadin-grid-it-demo";
     }
 }

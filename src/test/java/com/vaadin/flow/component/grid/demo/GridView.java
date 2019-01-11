@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -38,8 +38,10 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -62,7 +64,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
@@ -85,7 +86,8 @@ import com.vaadin.flow.router.Route;
 /**
  * View for {@link Grid} demo.
  */
-@Route("vaadin-grid")
+@Route("vaadin-grid-it-demo")
+@HtmlImport("grid-demo-styles.html")
 public class GridView extends DemoView {
 
     public static List<Person> items = new ArrayList<>();
@@ -397,6 +399,7 @@ public class GridView extends DemoView {
         createGridWithHeaderAndFooterRows();
         createHeaderAndFooterUsingComponents();
         createGridWithFilters();
+        createStyling();
         createBeanGrid();
         createHeightByRows();
         createBasicFeatures();
@@ -1407,6 +1410,9 @@ public class GridView extends DemoView {
         binder.bind(checkbox, "subscriber");
         subscriberColumn.setEditorComponent(checkbox);
 
+        Collection<Button> editButtons = Collections
+                .newSetFromMap(new WeakHashMap<>());
+
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
             edit.addClassName("edit");
@@ -1414,8 +1420,15 @@ public class GridView extends DemoView {
                 editor.editItem(person);
                 field.focus();
             });
+            edit.setEnabled(!editor.isOpen());
+            editButtons.add(edit);
             return edit;
         });
+
+        editor.addOpenListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
+        editor.addCloseListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
@@ -1461,7 +1474,8 @@ public class GridView extends DemoView {
         TextField field = new TextField();
         // Close the editor in case of backward between components
         field.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
+                .addEventListener("keydown",
+                        event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && event.shiftKey");
 
         binder.bind(field, "name");
@@ -1473,7 +1487,8 @@ public class GridView extends DemoView {
 
         // Close the editor in case of forward navigation between
         checkbox.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
+                .addEventListener("keydown",
+                        event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && !event.shiftKey");
 
         grid.addItemDoubleClickListener(event -> {
@@ -1536,14 +1551,13 @@ public class GridView extends DemoView {
         readOnlyEmail.setValue("Not a subscriber");
         readOnlyEmail.setReadOnly(true);
 
-        Supplier<Binding<Person, String>> bindEmail = () -> binder
-                .forField(emailField)
+        Runnable bindEmail = () -> binder.forField(emailField)
                 .withValidator(new EmailValidator("Invalid email"))
                 .withStatusLabel(validationStatus).bind("email");
 
         Runnable setEmail = () -> emailColumn.setEditorComponent(item -> {
             if (item.isSubscriber()) {
-                bindEmail.get();
+                bindEmail.run();
                 return emailField;
             } else {
                 return readOnlyEmail;
@@ -1564,7 +1578,7 @@ public class GridView extends DemoView {
                 // checkbox state into consideration instead
                 emailColumn.setEditorComponent(item -> {
                     if (checkbox.getValue()) {
-                        bindEmail.get();
+                        bindEmail.run();
                         return emailField;
                     } else {
                         return readOnlyEmail;
@@ -1574,9 +1588,15 @@ public class GridView extends DemoView {
             }
         });
 
+        Collection<Button> editButtons = Collections
+                .newSetFromMap(new WeakHashMap<>());
+
         // Resets the binding function to use the bean state whenever the editor
         // is closed
-        editor.addCloseListener(event -> setEmail.run());
+        editor.addCloseListener(event -> {
+            setEmail.run();
+            editButtons.stream().forEach(button -> button.setEnabled(true));
+        });
 
         Column<Person> editorColumn = grid.addComponentColumn(person -> {
             Button edit = new Button("Edit");
@@ -1585,8 +1605,15 @@ public class GridView extends DemoView {
                 editor.editItem(person);
                 field.focus();
             });
+            edit.setEnabled(!editor.isOpen());
+            editButtons.add(edit);
             return edit;
         });
+
+        editor.addOpenListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
+        editor.addCloseListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
@@ -1637,7 +1664,8 @@ public class GridView extends DemoView {
         TextField field = new TextField();
         // Close the editor in case of backward navigation between components
         field.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
+                .addEventListener("keydown",
+                        event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && event.shiftKey");
         binder.bind(field, "name");
         nameColumn.setEditorComponent(field);
@@ -1663,7 +1691,8 @@ public class GridView extends DemoView {
         });
         // Close the editor in case of forward navigation between components
         emailField.getElement()
-                .addEventListener("keydown", event -> grid.getEditor().closeEditor())
+                .addEventListener("keydown",
+                        event -> grid.getEditor().closeEditor())
                 .setFilter("event.key === 'Tab' && !event.shiftKey");
 
         grid.addItemDoubleClickListener(event -> {
@@ -1690,6 +1719,60 @@ public class GridView extends DemoView {
         grid.setId("not-buffered-dynamic-editor");
         addCard("Grid Editor", "Dynamic Editor in Not Buffered Mode", message,
                 grid);
+    }
+
+    private void createStyling() {
+        //@formatter:off
+        /*
+        // begin-source-example
+        // source-example-heading: Styling Grid Cells
+        // source-example-type: HTML
+        <dom-module id="my-grid-theme" theme-for="vaadin-grid">
+          <template>
+            <style>
+              [part~="cell"].subscriber {
+                 background: rgb(245, 245, 255);
+              }
+              [part~="cell"].minor {
+                color: red;
+                font-weight: bold;
+              }
+            </style>
+          </template>
+        </dom-module>
+        // end-source-example
+        */
+        //@formatter:on
+        String instructions = "<p>In order to inject styles into Grid cells, "
+                + "create a style-module like in the snippet below, "
+                + "put it into an html-file in your resources folder, "
+                + "and import it with <code>@HtmlImport</code>. "
+                + "After this you can apply the CSS classes "
+                + "(<code>subscriber</code> and <code>minor</code> in this case) "
+                + "into grid rows and cells as shown in the next example.</p>";
+        addCard("Styling", "Styling Grid Cells", new Html(instructions));
+
+        // begin-source-example
+        // source-example-heading: Generating CSS Class Names for Cells
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(getItems());
+        grid.setSelectionMode(SelectionMode.NONE);
+
+        grid.addColumn(Person::getName).setHeader("Name");
+        Column<Person> ageColumn = grid.addColumn(Person::getAge)
+                .setHeader("Age");
+        grid.addColumn(person -> person.isSubscriber ? "Yes" : "")
+                .setHeader("Subscriber");
+
+        grid.setClassNameGenerator(
+                person -> person.isSubscriber() ? "subscriber" : "");
+
+        ageColumn.setClassNameGenerator(
+                person -> person.getAge() < 18 ? "minor" : "");
+
+        // end-source-example
+        grid.setId("class-name-generator");
+        addCard("Styling", "Generating CSS Class Names for Cells", grid);
     }
 
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
