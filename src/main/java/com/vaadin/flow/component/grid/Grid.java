@@ -16,6 +16,7 @@
 package com.vaadin.flow.component.grid;
 
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -530,7 +531,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * <p>
          * <strong>Note:</strong> calling this method automatically sets the
          * column as sortable with {@link #setSortable(boolean)} and sets a comparator
-         * for in-memory sorting with {@link #setComparator(Comparator)}
+         * for in-memory sorting with {@link #setComparator(Comparator)}.
          *
          * @param properties
          *            the array of strings describing backend properties
@@ -542,28 +543,42 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             setSortable(true);
             sortOrderProvider = dir -> Arrays.stream(properties)
                     .map(s -> new QuerySortOrder(s, dir));
-            PropertySet<T> propertySet = (PropertySet<T>) getGrid().getPropertySet();
+            PropertySet<T> propertySet = (PropertySet<T>) getGrid()
+                    .getPropertySet();
             if (properties.length == 0 || propertySet == null) {
                 setComparator(Grid::compareMaybeComparables);
             } else {
-                ValueProvider<T, ?> lastGetter = getterById(propertySet, properties[properties.length - 1]);
-                SerializableComparator<T> fullComparator = (a, b) -> compareMaybeComparables(lastGetter.apply(a), lastGetter.apply(b));
+                // Queue properties as we want to handle them in an inverse order.
+                ArrayDeque<String> items = new ArrayDeque<>();
+                Arrays.stream(properties).forEach(items::push);
 
-                for (int i = properties.length - 2; i >= 0; i--) {
-                    String property = properties[i];
-                    ValueProvider<T, ?> getter = getterById(propertySet, property);
-                    SerializableComparator<T> aComparator = (a, b) -> compareMaybeComparablesChainable(getter.apply(a), getter.apply(b));
-                    fullComparator = aComparator.thenComparing(fullComparator)::compare;
+                // final comparator as non chainable
+                SerializableComparator<T> fullComparator = getComparator(
+                        propertySet, items.pop(), false);
+
+                while (!items.isEmpty()) {
+                    fullComparator = getComparator(propertySet, items.pop(),
+                            true).thenComparing(fullComparator)::compare;
                 }
                 setComparator(fullComparator);
             }
             return this;
         }
 
-        private ValueProvider<T, ?> getterById(PropertySet<T> propertySet, String property) {
-            return propertySet.getProperty(property)
-                    .orElseThrow(() -> new IllegalArgumentException("Property not defined: " + property))
-                    .getGetter();
+        private SerializableComparator<T> getComparator(
+                PropertySet<T> propertySet, String property,
+                boolean chainable) {
+            ValueProvider<T, ?> getter = propertySet.getProperty(property)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Property not defined: " + property)).getGetter();
+
+            if (chainable) {
+                return (a, b) -> compareMaybeComparablesChainable(
+                        getter.apply(a), getter.apply(b));
+            }
+            return (a, b) -> compareMaybeComparables(getter.apply(a),
+                    getter.apply(b));
+
         }
 
         /**
