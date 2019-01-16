@@ -28,6 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -1327,6 +1328,18 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return column;
     }
 
+    protected <C extends Column<T>> C addColumn(ValueProvider<T, ?> valueProvider, BiFunction<Renderer<T>, String, C> createColumn) {
+        String columnId = createColumnId(false);
+
+        C column = addColumn(new ColumnPathRenderer<T>(columnId,
+                value -> formatValueToSendToTheClient(
+                        valueProvider.apply(value))), createColumn);
+        Comparator<T> comparator = ((a, b) -> compareMaybeComparables(
+                valueProvider.apply(a), valueProvider.apply(b)));
+        column.setComparator(comparator);
+        return column;
+    }
+
     private String formatValueToSendToTheClient(Object value) {
         if (value == null) {
             return "";
@@ -1429,6 +1442,29 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getDataCommunicator().reset();
 
         Column<T> column = createColumn(renderer, columnId);
+        idToColumnMap.put(columnId, column);
+        getElement().callFunction("$connector.setColumnId", column.getElement(),
+                columnId);
+
+        AbstractColumn<?> current = column;
+        columnLayers.get(0).addColumn(column);
+
+        for (int i = 1; i < columnLayers.size(); i++) {
+            ColumnGroup group = new ColumnGroup(this, current);
+            columnLayers.get(i).addColumn(group);
+            current = group;
+        }
+        getElement().appendChild(current.getElement());
+
+        return column;
+    }
+
+    protected <C extends Column<T>> C addColumn(Renderer<T> renderer, BiFunction<Renderer<T>, String, C> createColumn) {
+        String columnId = createColumnId(true);
+
+        getDataCommunicator().reset();
+
+        C column = createColumn.apply(renderer, columnId);
         idToColumnMap.put(columnId, column);
         getElement().callFunction("$connector.setColumnId", column.getElement(),
                 columnId);
@@ -1570,10 +1606,42 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return addColumn(property);
     }
 
+    protected <C extends Column<T>> C addColumn(String propertyName, BiFunction<Renderer<T>, String, C> createColumn) {
+        checkForBeanGrid();
+        Objects.requireNonNull(propertyName, "Property name can't be null");
+
+        PropertyDefinition<T, ?> property;
+        try {
+            property = propertySet.getProperty(propertyName).get();
+        } catch (NoSuchElementException | IllegalArgumentException exception) {
+            throw new IllegalArgumentException("Can't resolve property name '"
+                    + propertyName + "' from '" + propertySet + "'");
+        }
+        return addColumn(property, createColumn);
+    }
+
     private Column<T> addColumn(PropertyDefinition<T, ?> property) {
         Column<T> column = addColumn(
                 item -> runPropertyValueGetter(property, item))
                         .setHeader(property.getCaption());
+        try {
+            column.setKey(property.getName());
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException(
+                    "Multiple columns for the same property: "
+                            + property.getName());
+        }
+
+        if (Comparable.class.isAssignableFrom(property.getType())) {
+            column.setSortable(true);
+        }
+        return column;
+    }
+
+    private <C extends Column<T>> C addColumn(PropertyDefinition<T, ?> property, BiFunction<Renderer<T>, String, C> createColumn) {
+        C column = (C) addColumn(
+                item -> runPropertyValueGetter(property, item), createColumn)
+                .setHeader(property.getCaption());
         try {
             column.setKey(property.getName());
         } catch (IllegalArgumentException exception) {
