@@ -60,6 +60,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     @Test
+    public void noHeaderIsShown() throws InterruptedException {
+        openTabAndCheckForErrors("");
+        GridElement grid = $(GridElement.class).id("noHeader");
+
+        Assert.assertFalse(grid.getHeaderCell(0).isDisplayed());
+        Assert.assertFalse(grid.getHeaderCell(1).isDisplayed());
+    }
+
+    @Test
     public void lazyDataIsShown() throws InterruptedException {
         openTabAndCheckForErrors("");
         GridElement grid = $(GridElement.class).id("lazy-loading");
