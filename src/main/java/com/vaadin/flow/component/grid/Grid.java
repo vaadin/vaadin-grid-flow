@@ -1548,6 +1548,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         Comparator<T> combinedComparator = (a, b) -> 0;
         Comparator nullsLastComparator = Comparator
                 .nullsLast(Comparator.naturalOrder());
+        column.setComparator(updateComparator(matchingSortingProperties, valueProviders, combinedComparator, nullsLastComparator));
+        return column;
+    }
+
+    protected Comparator<T> updateComparator(List<String> matchingSortingProperties, Map<String, ValueProvider<T, ?>> valueProviders, Comparator<T> combinedComparator, Comparator nullsLastComparator) {
         for (String sortProperty : matchingSortingProperties) {
             ValueProvider<T, ?> provider = valueProviders.get(sortProperty);
             combinedComparator = combinedComparator.thenComparing((a, b) -> {
@@ -1559,7 +1564,28 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 return nullsLastComparator.compare(aa, bb);
             });
         }
-        column.setComparator(combinedComparator);
+
+        return combinedComparator;
+    }
+
+    protected <C extends Column<T>> C addColumn(Renderer<T> renderer, BiFunction<Renderer<T>, String, C> createColumn, 
+            String... sortingProperties) {
+        C column = addColumn(renderer, createColumn);
+
+        Map<String, ValueProvider<T, ?>> valueProviders = renderer
+                .getValueProviders();
+        Set<String> valueProvidersKeySet = valueProviders.keySet();
+        List<String> matchingSortingProperties = Arrays
+                .stream(sortingProperties)
+                .filter(valueProvidersKeySet::contains)
+                .collect(Collectors.toList());
+
+        column.setSortProperty(matchingSortingProperties
+                .toArray(new String[matchingSortingProperties.size()]));
+        Comparator<T> combinedComparator = (a, b) -> 0;
+        Comparator nullsLastComparator = Comparator
+                .nullsLast(Comparator.naturalOrder());
+        column.setComparator(updateComparator(matchingSortingProperties, valueProviders, combinedComparator, nullsLastComparator));
         return column;
     }
 
