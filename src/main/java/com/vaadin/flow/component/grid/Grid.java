@@ -1309,6 +1309,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * visibility state. Don't add a new column at all or use
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
+     * <p>
+     * <em>NOTE:</em> This method is a shorthand for {@link #addColumn(ValueProvider, BiFunction)}
+     * </p>
      *
      * @param valueProvider
      *            the value provider
@@ -1316,6 +1319,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #addComponentColumn(ValueProvider)
      * @see #addColumn(Renderer)
      * @see #removeColumn(Column)
+     * @see #getDefaultColumnFactory()
+     * @see #addColumn(ValueProvider, BiFunction)
      */
     public Column<T> addColumn(ValueProvider<T, ?> valueProvider) {
         BiFunction<Renderer<T>, String, Column<T>> defaultFactory = getDefaultColumnFactory();
@@ -1342,6 +1347,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param columnFactory
      *            the method that creates a new column instance for this {@link Grid} instance.
      * @return the created column
+     * @see #addColumn(ValueProvider)
      * @see #addComponentColumn(ValueProvider)
      * @see #addColumn(Renderer)
      * @see #removeColumn(Column)
@@ -1446,6 +1452,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * visibility state. Don't add a new column at all or use
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
+     * <p>
+     * <em>NOTE:</em> This method is a shorthand for {@link #addColumn(Renderer, BiFunction)}
+     * </p>
      *
      * @param renderer
      *            the renderer used to create the grid cell structure
@@ -1454,6 +1463,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see TemplateRenderer#of(String)
      * @see #addComponentColumn(ValueProvider)
      * @see #removeColumn(Column)
+     * @see #addColumn(Renderer, BiFunction)
      */
     public Column<T> addColumn(Renderer<T> renderer) {
         BiFunction<Renderer<T>, String, Column<T>> defaultFactory = getDefaultColumnFactory();
@@ -1485,6 +1495,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the method that creates a new column instance for this {@link Grid} instance.
      * @return the created column
      *
+     * @see #addColumn(Renderer)
      * @see TemplateRenderer#of(String)
      * @see #addComponentColumn(ValueProvider)
      * @see #removeColumn(Column)
@@ -1530,12 +1541,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Gives a reference to the method used for column creation.
+     * Gives a reference to the column factory.
      * <p>
      * This method must not return <code>null</code>.
      *
      * @return method for column creation
-     * @see #createColumn(Renderer, String)
      */
     protected BiFunction<Renderer<T>, String, Column<T>> getDefaultColumnFactory() {
         return this::createColumn;
@@ -1565,6 +1575,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
+     * <p>
+     * <strong>Note:</strong> This method is a shorthand for {@link ##addColumn(Renderer, BiFunction, String...)}
+     * </p>
+     *
+     * @see #getDefaultColumnFactory()
+     * @see #addColumn(Renderer, BiFunction, String...)
      * @see #removeColumn(Column)
      *
      * @param renderer
@@ -1604,6 +1620,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
+     * @see #addColumn(Renderer, String...)
      * @see #removeColumn(Column)
      *
      * @param renderer
@@ -1669,6 +1686,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
+     * <p>
+     * <strong>Note:</strong> This method is a shorthand for {@link #addColumn(String, BiFunction)}
+     * </p>
+     *
+     * @see #getDefaultColumnFactory()
+     * @see #addColumn(String, BiFunction)
      * @see #removeColumn(Column)
      *
      * @param propertyName
@@ -1703,6 +1726,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      *
+     * @see #addColumn(String)
      * @see #removeColumn(Column)
      *
      * @param propertyName
