@@ -83,12 +83,18 @@ public class BeanGridTest {
         }
     }
 
-    @Test
-    public void addColumnForPropertyWithCustomCreateColumn() {
-        ExtendedColumn<Person> column = extendedGrid.addColumn("name", extendedGrid::createCustomColumn);
+    private void assertEqualColumnClasses(Class columnClass, Class compareTo) {
+        Assert.assertNotNull(columnClass);
+        Assert.assertEquals(compareTo, columnClass);
+    }
 
-        Assert.assertNotNull(column);
-        Assert.assertEquals(ExtendedColumn.class, column.getClass());
+    @Test
+    public void addRegularColumnAndExtendedColumn() {
+        Column<Person> regularColumn = extendedGrid.addColumn("name");
+        ExtendedColumn<Person> extendedColumn = extendedGrid.addColumn("name", extendedGrid::createCustomColumn);
+
+        assertEqualColumnClasses(regularColumn.getClass(), Column.class);
+        assertEqualColumnClasses(extendedColumn.getClass(), ExtendedColumn.class);
     }
 
     @Test
