@@ -1358,9 +1358,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         C column = addColumn(new ColumnPathRenderer<T>(columnId,
                 value -> formatValueToSendToTheClient(
                         valueProvider.apply(value))), columnFactory);
-        Comparator<T> comparator = ((a, b) -> compareMaybeComparables(
+        ((Column<T>)column).comparator = ((a, b) -> compareMaybeComparables(
                 valueProvider.apply(a), valueProvider.apply(b)));
-        column.setComparator(comparator);
         return column;
     }
 
@@ -1460,6 +1459,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the renderer used to create the grid cell structure
      * @return the created column
      *
+     * @see #getDefaultColumnFactory()
      * @see TemplateRenderer#of(String)
      * @see #addComponentColumn(ValueProvider)
      * @see #removeColumn(Column)
@@ -1533,9 +1533,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param columnId
      *            internal column id
      * @return column instance
+     * @deprecated This method should not be used outside. {@link #getDefaultColumnFactory} should
+     * be used instead.
      * @see #createColumnId(boolean)
      * @see Renderer
      */
+    @Deprecated
     protected Column<T> createColumn(Renderer<T> renderer, String columnId) {
         return new Column<>(this, columnId, renderer);
     }
