@@ -60,6 +60,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     @Test
+    public void noHeaderIsShown() throws InterruptedException {
+        openTabAndCheckForErrors("");
+        GridElement grid = $(GridElement.class).id("noHeader");
+
+        Assert.assertFalse(grid.getHeaderCell(0).isDisplayed());
+        Assert.assertFalse(grid.getHeaderCell(1).isDisplayed());
+    }
+
+    @Test
     public void lazyDataIsShown() throws InterruptedException {
         openTabAndCheckForErrors("");
         GridElement grid = $(GridElement.class).id("lazy-loading");
@@ -682,28 +691,24 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void basicRenderers_rowsAreRenderedAsExpected() {
         openTabAndCheckForErrors("using-renderers");
-        WebElement grid = findElement(By.id("grid-basic-renderers"));
+        GridElement grid = $(GridElement.class).id("grid-basic-renderers");
         scrollToElement(grid);
         waitUntilCellHasText(grid, "Item 1");
 
-        List<WebElement> cells = grid
-                .findElements(By.tagName("vaadin-grid-cell-content"));
+        Assert.assertEquals("Item 1", grid.getCell(0, 0).getText());
+        Assert.assertEquals("$ 73.10", grid.getCell(0, 1).getText());
+        Assert.assertEquals("1/10/18 11:43:59 AM", grid.getCell(0, 2).getText());
+        Assert.assertEquals("Jan 11, 2018", grid.getCell(0, 3).getText());
+        assertRendereredContent("$$$", grid.getCell(0, 4).getInnerHTML());
+        Assert.assertEquals("<button>Remove</button>", grid.getCell(0, 5).getInnerHTML());
 
-        int offset = getCellsOffsetFromTheHeaders(grid, cells);
+        Assert.assertEquals("Item 2", grid.getCell(1, 0).getText());
+        Assert.assertEquals("$ 24.05", grid.getCell(1, 1).getText());
+        Assert.assertEquals("1/10/18 11:07:31 AM", grid.getCell(1, 2).getText());
+        Assert.assertEquals("Jan 24, 2018", grid.getCell(1, 3).getText());
+        assertRendereredContent("$", grid.getCell(1, 4).getInnerHTML());
+        Assert.assertEquals("<button>Remove</button>", grid.getCell(1, 5).getInnerHTML());
 
-        assertCellContent("Item 1", cells.get(offset));
-        assertCellContent("$ 73.10", cells.get(offset + 1));
-        assertCellContent("1/10/18 11:43:59 AM", cells.get(offset + 2));
-        assertCellContent("Jan 11, 2018", cells.get(offset + 3));
-        assertRendereredContent("$$$", cells.get(offset + 4));
-        assertCellContent("<button>Remove</button>", cells.get(offset + 5));
-
-        assertCellContent("Item 2", cells.get(offset + 6));
-        assertCellContent("$ 24.05", cells.get(offset + 7));
-        assertCellContent("1/10/18 11:07:31 AM", cells.get(offset + 8));
-        assertCellContent("Jan 24, 2018", cells.get(offset + 9));
-        assertRendereredContent("$", cells.get(offset + 10));
-        assertCellContent("<button>Remove</button>", cells.get(offset + 11));
     }
 
     @Test
@@ -1380,17 +1385,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
         return 0;
     }
 
-    private void assertRendereredContent(String expected, WebElement cell) {
-        Assert.assertThat(cell.getAttribute("innerHTML"),
+    private void assertRendereredContent(String expected, String content) {
+        Assert.assertThat(content,
                 CoreMatchers.allOf(
                         CoreMatchers.startsWith("<flow-component-renderer"),
                         CoreMatchers.containsString(expected),
                         CoreMatchers.endsWith("</flow-component-renderer>")));
-    }
-
-    private void assertCellContent(String expected, WebElement cell) {
-        Assert.assertEquals("Wrong content of the rendered cell", expected,
-                cell.getAttribute("innerHTML"));
     }
 
     private static String getSelectionMessage(Object oldSelection,

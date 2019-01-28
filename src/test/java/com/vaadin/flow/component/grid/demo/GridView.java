@@ -383,6 +383,7 @@ public class GridView extends DemoView {
     @Override
     protected void initView() {
         createBasicUsage();
+        createNoHeaderGrid();
         createCallBackDataProvider();
         createSingleSelect();
         createMultiSelect();
@@ -447,6 +448,21 @@ public class GridView extends DemoView {
         grid.setId("basic");
 
         addCard("Grid Basics", grid);
+    }
+
+    private void createNoHeaderGrid() {
+        // begin-source-example
+        // source-example-heading: Grid Basic with no header
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(getItems());
+
+        grid.addColumn(Person::getName);
+        grid.addColumn(Person::getAge);
+
+        // end-source-example
+        grid.setId("noHeader");
+
+        addCard("Grid Basic with no header", grid);
     }
 
     private void createCallBackDataProvider() {
