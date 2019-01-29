@@ -20,7 +20,10 @@ import java.util.stream.IntStream;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Person;
 import com.vaadin.flow.component.grid.it.GridInATemplate;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.router.Route;
@@ -49,6 +52,7 @@ public class ContextMenuGridPage extends Div {
 
         GridContextMenu<Person> contextMenu = grid.addContextMenu();
         addItems(contextMenu);
+        contextMenu.addComponentAtIndex(1, new Hr());
 
         NativeButton toggleOpenOnClick = new NativeButton(
                 "Toggle open on click",
@@ -59,6 +63,7 @@ public class ContextMenuGridPage extends Div {
             GridMenuItem<Person> parent = contextMenu.addItem("parent");
             GridSubMenu<Person> subMenu = parent.getSubMenu();
             addItems(subMenu);
+            subMenu.addComponentAtIndex(1, new H1("bar"));
         });
         addSubMenu.setId("add-sub-menu");
 
@@ -81,14 +86,19 @@ public class ContextMenuGridPage extends Div {
     }
 
     private void addItems(HasGridMenuItems<Person> menu) {
-        menu.addItem("Show name of context menu target item", e -> {
-            String name = e.getItem().map(Person::getName)
+        menu.addItem("Show name of context menu target item", event -> {
+            String name = event.getItem().map(Person::getName)
                     .orElse("no target item");
             message.setText(name);
         });
         menu.addItem("Show connected grid id", e -> {
             String id = e.getGrid().getId().get();
             message.setText("Grid id: " + id);
+        });
+
+        Anchor link = new Anchor("foo", "Link");
+        menu.addItem(link, event -> {
+            message.setText("Link is clicked");
         });
     }
 }
