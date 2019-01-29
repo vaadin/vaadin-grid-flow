@@ -16,8 +16,12 @@
 
 package com.vaadin.flow.component.contextmenu;
 
+import java.util.Objects;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.function.SerializableBiFunction;
+import com.vaadin.flow.function.SerializableRunnable;
 
 /**
  * API that allows adding content into the sub menus of a
@@ -28,14 +32,26 @@ import com.vaadin.flow.component.ComponentEventListener;
  * @author Vaadin Ltd.
  */
 public class GridSubMenu<T>
-        extends SubMenuBase<GridContextMenu<T>, GridMenuItem<T>>
+        extends SubMenuBase<GridContextMenu<T>, GridMenuItem<T>, GridSubMenu<T>>
         implements HasGridMenuItems<T> {
 
-    GridSubMenu(GridMenuItem<T> parentMenuItem) {
+    private final SerializableRunnable contentReset;
+
+    /**
+     * Creates a new instance of submenu using the associated
+     * {@code parentMenuItem} (item which opens the submenu) and reset context
+     * menu callback.
+     *
+     * @param parentMenuItem
+     *            the associated menu item, not {@code null}
+     * @param contentReset
+     *            the context menu reset callback, not {@code null}
+     */
+    public GridSubMenu(GridMenuItem<T> parentMenuItem,
+            SerializableRunnable contentReset) {
         super(parentMenuItem);
-        menuContent = new MenuContent<>(getParentMenuItem().getContextMenu(),
-                GridMenuItem::new, GridMenuItem.class::isInstance,
-                getParentMenuItem());
+        Objects.requireNonNull(parentMenuItem);
+        this.contentReset = contentReset;
     }
 
     @Override
@@ -56,6 +72,17 @@ public class GridSubMenu<T>
             menuItem.addMenuItemClickListener(clickListener);
         }
         return menuItem;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    protected MenuManager<GridContextMenu<T>, GridMenuItem<T>, GridSubMenu<T>> createMenuManager() {
+        SerializableBiFunction itemFactory = (menu,
+                reset) -> new GridMenuItem<>((GridContextMenu<?>) menu,
+                        (SerializableRunnable) reset);
+        return new MenuManager(getParentMenuItem().getContextMenu(),
+                contentReset, itemFactory, GridMenuItem.class,
+                getParentMenuItem());
     }
 
 }

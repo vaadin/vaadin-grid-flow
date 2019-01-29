@@ -15,7 +15,10 @@
  */
 package com.vaadin.flow.component.contextmenu;
 
+import java.util.Objects;
+
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.shared.Registration;
 
 /**
@@ -27,14 +30,25 @@ import com.vaadin.flow.shared.Registration;
  * @author Vaadin Ltd.
  */
 @SuppressWarnings("serial")
-public class GridMenuItem<T>
-        extends MenuItemBase<GridContextMenu<T>, GridSubMenu<T>> {
+public class GridMenuItem<T> extends
+        MenuItemBase<GridContextMenu<T>, GridMenuItem<T>, GridSubMenu<T>> {
 
-    GridMenuItem(GridContextMenu<T> contextMenu) {
+    private final SerializableRunnable contentReset;
+
+    /**
+     * Creates a new instance using the context menu and its reset callback.
+     *
+     * @param contextMenu
+     *            the context menu, not {@code null}
+     * @param contentReset
+     *            the callback to reset the context menu, not {@code null}
+     */
+    public GridMenuItem(GridContextMenu<T> contextMenu,
+            SerializableRunnable contentReset) {
         super(contextMenu);
-        assert contextMenu != null;
-        this.contextMenu = contextMenu;
-        this.subMenu = new GridSubMenu<>(this);
+        Objects.requireNonNull(contextMenu);
+        Objects.requireNonNull(contentReset);
+        this.contentReset = contentReset;
     }
 
     /**
@@ -42,7 +56,7 @@ public class GridMenuItem<T>
      * {@link GridContextMenu.GridContextMenuItemClickEvent} contains
      * information of which item inside the Grid was targeted when the context
      * menu was opened.
-     * 
+     *
      * @param clickListener
      *            the click listener to add
      * @return a handle for removing the listener
@@ -54,6 +68,11 @@ public class GridMenuItem<T>
                     new GridContextMenu.GridContextMenuItemClickEvent<T>(this,
                             true));
         });
+    }
+
+    @Override
+    protected GridSubMenu<T> createSubMenu() {
+        return new GridSubMenu<>(this, contentReset);
     }
 
 }

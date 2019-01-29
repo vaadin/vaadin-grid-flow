@@ -21,30 +21,73 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.function.SerializableBiFunction;
+import com.vaadin.flow.function.SerializableRunnable;
 
 /**
  * Server-side component for {@code <vaadin-context-menu>} to be used with
  * {@link Grid}.
- * 
+ *
  * @author Vaadin Ltd.
  */
 @SuppressWarnings("serial")
-public class GridContextMenu<T>
-        extends ContextMenuBase<GridContextMenu<T>, GridMenuItem<T>>
+public class GridContextMenu<T> extends
+        ContextMenuBase<GridContextMenu<T>, GridMenuItem<T>, GridSubMenu<T>>
         implements HasGridMenuItems<T> {
+
+    /**
+     * Event that is fired when a {@link GridMenuItem} is clicked inside a
+     * {@link GridContextMenu}.
+     *
+     * @author Vaadin Ltd.
+     */
+    public static class GridContextMenuItemClickEvent<T>
+            extends ComponentEvent<GridMenuItem<T>> {
+
+        private Grid<T> grid;
+        private Optional<T> item;
+
+        @SuppressWarnings("unchecked")
+        GridContextMenuItemClickEvent(GridMenuItem<T> source,
+                boolean fromClient) {
+            super(source, fromClient);
+            grid = (Grid<T>) getSource().getContextMenu().getTarget();
+            item = Optional.ofNullable(grid.getDataCommunicator().getKeyMapper()
+                    .get(grid.getElement()
+                            .getProperty("_contextMenuTargetItemKey")));
+        }
+
+        /**
+         * Gets the Grid that the context menu is connected to.
+         *
+         * @return the Grid that the context menu is connected to.
+         */
+        public Grid<T> getGrid() {
+            return grid;
+        }
+
+        /**
+         * Gets the item in the Grid that was the target of the context-click,
+         * or an empty {@code Optional} if the context-click didn't target any
+         * item in the Grid (eg. if targeting a header).
+         *
+         * @return the target item of the context-click
+         */
+        public Optional<T> getItem() {
+            return item;
+        }
+    }
 
     /**
      * Creates an empty context menu to be used with a Grid.
      */
     public GridContextMenu() {
         super();
-        menuContent = new MenuContent<>(this, GridMenuItem::new,
-                GridMenuItem.class::isInstance, null);
     }
 
     /**
      * Creates an empty context menu with the given target component.
-     * 
+     *
      * @param target
      *            the target component for this context menu
      * @see #setTarget(Component)
@@ -56,7 +99,7 @@ public class GridContextMenu<T>
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the given target is not an instance of {@link Grid}
      */
@@ -73,7 +116,7 @@ public class GridContextMenu<T>
     @Override
     public GridMenuItem<T> addItem(String text,
             ComponentEventListener<GridContextMenuItemClickEvent<T>> clickListener) {
-        GridMenuItem<T> menuItem = menuContent.addItem(text);
+        GridMenuItem<T> menuItem = getMenuManager().addItem(text);
         if (clickListener != null) {
             menuItem.addMenuItemClickListener(clickListener);
         }
@@ -83,53 +126,22 @@ public class GridContextMenu<T>
     @Override
     public GridMenuItem<T> addItem(Component component,
             ComponentEventListener<GridContextMenuItemClickEvent<T>> clickListener) {
-        GridMenuItem<T> menuItem = menuContent.addItem(component);
+        GridMenuItem<T> menuItem = getMenuManager().addItem(component);
         if (clickListener != null) {
             menuItem.addMenuItemClickListener(clickListener);
         }
         return menuItem;
     }
 
-    /**
-     * Event that is fired when a {@link GridMenuItem} is clicked inside a
-     * {@link GridContextMenu}.
-     * 
-     * @author Vaadin Ltd.
-     */
-    public static class GridContextMenuItemClickEvent<T>
-            extends ComponentEvent<GridMenuItem<T>> {
-
-        private Grid<T> grid;
-        private Optional<T> item;
-
-        GridContextMenuItemClickEvent(GridMenuItem<T> source,
-                boolean fromClient) {
-            super(source, fromClient);
-            grid = (Grid<T>) getSource().getContextMenu().getTarget();
-            item = Optional.ofNullable(grid.getDataCommunicator().getKeyMapper()
-                    .get(grid.getElement()
-                            .getProperty("_contextMenuTargetItemKey")));
-        }
-
-        /**
-         * Gets the Grid that the context menu is connected to.
-         * 
-         * @return the Grid that the context menu is connected to.
-         */
-        public Grid<T> getGrid() {
-            return grid;
-        }
-
-        /**
-         * Gets the item in the Grid that was the target of the context-click,
-         * or an empty {@code Optional} if the context-click didn't target any
-         * item in the Grid (eg. if targeting a header).
-         * 
-         * @return the target item of the context-click
-         */
-        public Optional<T> getItem() {
-            return item;
-        }
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    protected MenuManager<GridContextMenu<T>, GridMenuItem<T>, GridSubMenu<T>> createMenuManager(
+            SerializableRunnable contentReset) {
+        SerializableBiFunction itemFactory = (menu,
+                reset) -> new GridMenuItem<>((GridContextMenu<?>) menu,
+                        (SerializableRunnable) reset);
+        return new MenuManager(this, contentReset, itemFactory,
+                GridMenuItem.class, null);
     }
 
 }
