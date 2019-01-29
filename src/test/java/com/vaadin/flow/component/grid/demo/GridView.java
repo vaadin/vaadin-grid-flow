@@ -1377,7 +1377,7 @@ public class GridView extends DemoView {
             dataProvider.refreshAll();
         });
         // end-source-example
-        grid.setId("context-menu-grid");
+        grid.setId("context-submenu-grid");
         addCard("Context Menu", "Using Context Sub Menu With Grid", grid,
                 contextMenu);
     }

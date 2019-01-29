@@ -106,6 +106,29 @@ public class ContextMenuGridIT extends AbstractComponentIT {
         assertMessage("Item 18");
     }
 
+    // @Test
+    // public void menuHasComponents_componentsAreNotItems() {
+    // verifyClosed();
+    //
+    // rightClickOn(By.id("context-menu-with-submenu-components-target"));
+    // verifyOpened(1);
+    //
+    // TestBenchElement menuOverlay = $(OVERLAY_TAG).first();
+    //
+    // TestBenchElement overlayContainer = menuOverlay.$("vaadin-list-box")
+    // .first();
+    // List<WebElement> items = overlayContainer.findElements(By.xpath("./*"));
+    // Assert.assertEquals(4, items.size());
+    // Assert.assertEquals("vaadin-item",
+    // items.get(0).getTagName().toLowerCase(Locale.ENGLISH));
+    // Assert.assertEquals("hr",
+    // items.get(1).getTagName().toLowerCase(Locale.ENGLISH));
+    // Assert.assertEquals("vaadin-item",
+    // items.get(2).getTagName().toLowerCase(Locale.ENGLISH));
+    // Assert.assertEquals("label",
+    // items.get(3).getTagName().toLowerCase(Locale.ENGLISH));
+    // }
+
     private void assertMessage(String expected) {
         Assert.assertEquals(expected, $("label").id("message").getText());
     }
