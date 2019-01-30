@@ -87,14 +87,14 @@ public class ContextMenuGridIT extends AbstractComponentIT {
     public void addSubMenu_itemClickGetsTargetItemAndGrid() {
         $("button").id("add-sub-menu").click();
         grid.getCell(45, 1).contextClick();
-        openSubMenu($("vaadin-item").get(2));
-        waitUntil(driver -> $("vaadin-context-menu-overlay").all().size() == 2);
+        openSubMenu($("vaadin-item").get(3));
+        waitUntil(driver -> $(OVERLAY_TAG).all().size() == 2);
         getSubMenuItems().get(0).click();
         assertMessage("Person 45");
         verifyClosed();
 
         grid.getCell(29, 0).contextClick();
-        openSubMenu($("vaadin-item").get(2));
+        openSubMenu($("vaadin-item").get(3));
         waitUntil(driver -> $("vaadin-context-menu-overlay").all().size() == 2);
         getSubMenuItems().get(1).click();
         assertMessage("Grid id: grid-with-context-menu");

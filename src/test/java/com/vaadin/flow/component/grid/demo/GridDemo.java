@@ -1136,7 +1136,6 @@ public class GridDemo extends DemoView {
                 .addColumn(person -> person.getAddress().getPostalCode())
                 .setHeader("Postal Code");
 
-
         maritalStatus = new ComboBox<>("Filter by marital status: ");
         maritalStatus.setItems(MaritalStatus.values());
         birthDateField = new DatePicker("Filter by birth date: ");
@@ -1260,7 +1259,6 @@ public class GridDemo extends DemoView {
         firstGrid.addColumn(Person::getBirthdate).setHeader("Birth Date")
                 .setWidth("200px");
 
-
         firstGrid.setColumnReorderingAllowed(true);
         ((GridMultiSelectionModel<?>) firstGrid
                 .setSelectionMode(Grid.SelectionMode.MULTI))
@@ -1271,16 +1269,21 @@ public class GridDemo extends DemoView {
         Grid<Person> secondGrid = new Grid<>();
         secondGrid.setItems(personList);
 
-
-        //Freezing any column
-        secondGrid.addColumn(Person::getId).setHeader("ID")
-                .setWidth("75px").setFrozen(true);
-        secondGrid.addColumn(Person::getfirstName).setHeader("First name").setFrozen(true);
-        secondGrid.addColumn(Person::getLastName).setHeader("Last name").setFrozen(true);
-        secondGrid.addColumn(Person::getPhoneNumber).setHeader("Phone number").setWidth("200px");
-        secondGrid.addColumn(Person::getAddress).setHeader("Adress").setWidth("200px");
-        secondGrid.addColumn(Person::getMaritalStatus).setHeader("Marital status").setWidth("200px");
-        secondGrid.addColumn(Person::getBirthdate).setHeader("Birth date").setWidth("200px");
+        // Freezing any column
+        secondGrid.addColumn(Person::getId).setHeader("ID").setWidth("75px")
+                .setFrozen(true);
+        secondGrid.addColumn(Person::getfirstName).setHeader("First name")
+                .setFrozen(true);
+        secondGrid.addColumn(Person::getLastName).setHeader("Last name")
+                .setFrozen(true);
+        secondGrid.addColumn(Person::getPhoneNumber).setHeader("Phone number")
+                .setWidth("200px");
+        secondGrid.addColumn(Person::getAddress).setHeader("Adress")
+                .setWidth("200px");
+        secondGrid.addColumn(Person::getMaritalStatus)
+                .setHeader("Marital status").setWidth("200px");
+        secondGrid.addColumn(Person::getBirthdate).setHeader("Birth date")
+                .setWidth("200px");
 
         // end-source-example
         firstGrid.setId("frozen-column-first-grid");
@@ -1411,7 +1414,8 @@ public class GridDemo extends DemoView {
                 .addColumn(person -> person.getAddress().getCity())
                 .setHeader(new Label("City"));
 
-        Column<Person> postalCodeColumn = grid.addColumn(person -> person.getAddress().getPostalCode())
+        Column<Person> postalCodeColumn = grid
+                .addColumn(person -> person.getAddress().getPostalCode())
                 .setHeader(new Label("Postal code"));
 
         // Create and combine the header
@@ -2037,9 +2041,7 @@ public class GridDemo extends DemoView {
         // Add a keypress listener that listens for an escape key up event.
         // Note! some browsers return key as Escape and some as Esc
         grid.getElement().addEventListener("keyup", event -> editor.cancel())
-                .setFilter("event.key 
-                           
-                           'Escape' || even.key === 'Esc'");
+                .setFilter("event.key === 'Escape' || even.key === 'Esc'");
 
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
