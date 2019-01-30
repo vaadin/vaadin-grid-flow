@@ -768,9 +768,6 @@ public class GridDemo extends DemoView {
         Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
-        ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
-                .getDataProvider();
-
         List<Person> personListForAdding = new ArrayList<>();
 
         Button addButton = new Button("Add Item", event -> {
@@ -829,8 +826,6 @@ public class GridDemo extends DemoView {
         ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                 .getDataProvider();
 
-        List<Person> personListForAdding = new ArrayList<>();
-
         Button addButton = new Button("Add Item", event -> {
 
             dataProvider.getItems().add(new Person(106, "X", "Y", 16,
@@ -872,7 +867,7 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("Name");
+        grid.addColumn(Person::getfirstName).setHeader("First name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -894,7 +889,7 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("First Name");
+        grid.addColumn(Person::getfirstName).setHeader("First name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.setSelectionMode(SelectionMode.MULTI);
@@ -946,10 +941,10 @@ public class GridDemo extends DemoView {
             secondGrid.asMultiSelect().setValue(foundpersons);
         });
 
-        firstGrid.addColumn(Person::getfirstName).setHeader("Name");
+        firstGrid.addColumn(Person::getfirstName).setHeader("First name");
         firstGrid.addColumn(Person::getAge).setHeader("Age");
 
-        secondGrid.addColumn(Person::getfirstName).setHeader("Name");
+        secondGrid.addColumn(Person::getfirstName).setHeader("First name");
         secondGrid.addColumn(Person::getAge).setHeader("Age");
 
         NativeButton deselectBtn = new NativeButton("Deselect all");
@@ -995,7 +990,7 @@ public class GridDemo extends DemoView {
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
         grid.setItems(personList);
-        grid.setSelectionMode(Grid.SelectionMode.NONE);
+        grid.setSelectionMode(SelectionMode.NONE);
 
         grid.addColumn(Person::getfirstName, "First name")
                 .setHeader("First name");
@@ -1141,7 +1136,6 @@ public class GridDemo extends DemoView {
                 .addColumn(person -> person.getAddress().getPostalCode())
                 .setHeader("Postal Code");
 
-        HeaderRow filterRow = grid.appendHeaderRow();
 
         maritalStatus = new ComboBox<>("Filter by marital status: ");
         maritalStatus.setItems(MaritalStatus.values());
@@ -1266,6 +1260,7 @@ public class GridDemo extends DemoView {
         firstGrid.addColumn(Person::getBirthdate).setHeader("Birth Date")
                 .setWidth("200px");
 
+
         firstGrid.setColumnReorderingAllowed(true);
         ((GridMultiSelectionModel<?>) firstGrid
                 .setSelectionMode(Grid.SelectionMode.MULTI))
@@ -1276,21 +1271,16 @@ public class GridDemo extends DemoView {
         Grid<Person> secondGrid = new Grid<>();
         secondGrid.setItems(personList);
 
-        // Freezing any column
-        secondGrid.addColumn(Person::getId).setHeader("ID").setWidth("75px")
-                .setFrozen(true);
-        secondGrid.addColumn(Person::getfirstName).setHeader("First name")
-                .setFrozen(true);
-        secondGrid.addColumn(Person::getLastName).setHeader("Last Name")
-                .setFrozen(true);
-        secondGrid.addColumn(Person::getPhoneNumber).setHeader("Phone Number")
-                .setWidth("200px");
-        secondGrid.addColumn(Person::getAddress).setHeader("Adress")
-                .setWidth("200px");
-        secondGrid.addColumn(Person::getMaritalStatus)
-                .setHeader("Marital Status").setWidth("200px");
-        secondGrid.addColumn(Person::getBirthdate).setHeader("Birth Date")
-                .setWidth("200px");
+
+        //Freezing any column
+        secondGrid.addColumn(Person::getId).setHeader("ID")
+                .setWidth("75px").setFrozen(true);
+        secondGrid.addColumn(Person::getfirstName).setHeader("First name").setFrozen(true);
+        secondGrid.addColumn(Person::getLastName).setHeader("Last name").setFrozen(true);
+        secondGrid.addColumn(Person::getPhoneNumber).setHeader("Phone number").setWidth("200px");
+        secondGrid.addColumn(Person::getAddress).setHeader("Adress").setWidth("200px");
+        secondGrid.addColumn(Person::getMaritalStatus).setHeader("Marital status").setWidth("200px");
+        secondGrid.addColumn(Person::getBirthdate).setHeader("Birth date").setWidth("200px");
 
         // end-source-example
         firstGrid.setId("frozen-column-first-grid");
@@ -1420,9 +1410,9 @@ public class GridDemo extends DemoView {
         Column<Person> streetColumn = grid
                 .addColumn(person -> person.getAddress().getCity())
                 .setHeader(new Label("City"));
-        Column<Person> postalCodeColumn = grid
-                .addColumn(person -> person.getAddress().getPostalCode())
-                .setHeader(new Label("Postal Code"));
+
+        Column<Person> postalCodeColumn = grid.addColumn(person -> person.getAddress().getPostalCode())
+                .setHeader(new Label("Postal code"));
 
         // Create and combine the header
         HeaderRow topRow = grid.prependHeaderRow();
@@ -2047,7 +2037,9 @@ public class GridDemo extends DemoView {
         // Add a keypress listener that listens for an escape key up event.
         // Note! some browsers return key as Escape and some as Esc
         grid.getElement().addEventListener("keyup", event -> editor.cancel())
-                .setFilter("event.key === 'Escape' || even.key === 'Esc'");
+                .setFilter("event.key 
+                           
+                           'Escape' || even.key === 'Esc'");
 
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
