@@ -429,7 +429,7 @@ public class GridView extends DemoView {
         // You can set any property by using `withProperty`, including
         // properties not present on the original bean.
         grid.addColumn(TemplateRenderer.<Person> of(
-                "<div title='[[item.name]]'>[[item.name]]<br><small>[[item.yearsOld]]</small></div>")
+                "<div title='[[item.firstName]]'>[[item.firstName]]<br><small>[[item.yearsOld]]</small></div>")
                 .withProperty("firstName", Person::getFirstName)
                 .withProperty("yearsOld",
                         person -> person.getAge() > 1
@@ -706,7 +706,7 @@ public class GridView extends DemoView {
         // details are opened and closed by clicking the rows.
         grid.setItemDetailsRenderer(TemplateRenderer.<Person> of(
                 "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                        + "<div>Hi! My name is <b>[[item.name]]!</b></div>"
+                        + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
                         + "<div><button on-click='handleClick'>Update Person</button></div>"
                         + "</div>")
                 .withProperty("firstName", Person::getFirstName)
