@@ -176,6 +176,25 @@ public class ContextMenuGridIT extends AbstractComponentIT {
         assertMessage("Person 0");
     }
 
+    @Test
+    public void removeContextMenu_menuIsNotShown() {
+        GridElement grid = $(GridElement.class).id("grid-with-context-menu");
+        scrollToElement(grid);
+        waitUntil(driver -> grid.getRowCount() > 0);
+
+        grid.getCell(0, 0).contextClick();
+        waitUntil(driver -> $(OVERLAY_TAG).all().size() == 1);
+        $(OVERLAY_TAG).get(0).$("vaadin-item").first().click();
+
+        verifyClosed();
+
+        $(TestBenchElement.class).id("remove-context-menu").click();
+
+        grid.getCell(0, 0).contextClick();
+
+        Assert.assertFalse(isElementPresent(By.tagName(OVERLAY_TAG)));
+    }
+
     private void assertMessage(String expected) {
         Assert.assertEquals(expected, $("label").id("message").getText());
     }
