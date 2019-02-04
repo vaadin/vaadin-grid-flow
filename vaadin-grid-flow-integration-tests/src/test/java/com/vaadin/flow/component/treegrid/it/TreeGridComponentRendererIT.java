@@ -4,12 +4,14 @@ import java.util.stream.IntStream;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
 import com.vaadin.flow.testutil.TestPath;
 
 @TestPath("treegrid-component-renderer")
+@Ignore
 public class TreeGridComponentRendererIT extends AbstractTreeGridIT {
 
     @Before
