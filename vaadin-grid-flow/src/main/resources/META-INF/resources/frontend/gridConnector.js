@@ -875,12 +875,18 @@ window.Vaadin.Flow.gridConnector = {
     const contextMenuListener = function(e) {
       // https://github.com/vaadin/vaadin-grid/issues/1318
       const path = e.composedPath();
-      const row = path[path.indexOf(grid.$.table) - 2]; // <tr> element in shadow dom
+      const index1 = path.indexOf(grid.$.table);
+      const row = path[index1 - 2]; // <tr> element in shadow dom
+      const cell = path[index1 - 3]; // cell element
       let key;
+      let colId;
       if (row && row._item) {
         key = row._item.key;
       }
-      grid.$server.updateContextMenuTargetItem(key);
+      if (cell && cell._column) {
+        colId = cell._column.id;
+      }
+      grid.$server.updateContextMenuTargetItem(key, colId);
     }
 
     grid.addEventListener('vaadin-context-menu-before-open', function(e) {
