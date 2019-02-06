@@ -21,6 +21,7 @@ public class TreeGridComponentRendererIT extends AbstractTreeGridIT {
     @Test
     public void treegridComponentRenderer_expandCollapseExpand_renderersShows() {
         getTreeGrid().expandWithClick(0);
+        waitForRowCount(6);
 
         assertCellTexts(0, 0, "Granddad 0");
         assertCellTexts(1, 0, "Dad 0/0");
