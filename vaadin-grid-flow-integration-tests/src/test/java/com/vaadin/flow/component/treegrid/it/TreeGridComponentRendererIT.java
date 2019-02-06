@@ -29,7 +29,7 @@ public class TreeGridComponentRendererIT extends AbstractTreeGridIT {
         assertCellTexts(3, 0, "Dad 0/2");
         assertCellTexts(4, 0, "Granddad 1");
         assertCellTexts(5, 0, "Granddad 2");
-        assertAllRowsHasTextField();
+        assertAllRowsHasTextField(6);
 
         getTreeGrid().collapseWithClick(0);
         waitForRowCount(3);
@@ -37,7 +37,7 @@ public class TreeGridComponentRendererIT extends AbstractTreeGridIT {
         assertCellTexts(0, 0, "Granddad 0");
         assertCellTexts(1, 0, "Granddad 1");
         assertCellTexts(2, 0, "Granddad 2");
-        assertAllRowsHasTextField();
+        assertAllRowsHasTextField(3);
 
         getTreeGrid().expandWithClick(0);
         waitForRowCount(6);
@@ -48,22 +48,20 @@ public class TreeGridComponentRendererIT extends AbstractTreeGridIT {
         assertCellTexts(3, 0, "Dad 0/2");
         assertCellTexts(4, 0, "Granddad 1");
         assertCellTexts(5, 0, "Granddad 2");
-        assertAllRowsHasTextField();
+        assertAllRowsHasTextField(6);
     }
 
     private void waitForRowCount(int count) {
         waitUntil(webDriver -> getTreeGrid().getRowCount() == count, 2000);
     }
 
-    private void assertAllRowsHasTextField() {
-        waitUntil(webDriver -> {
-            for (int i = 0; i < getTreeGrid().getRowCount(); i++) {
-                if (!getTreeGrid().hasComponentRenderer(i, 1,
-                        By.tagName("vaadin-text-field"))) {
-                    return false;
-                }
-            }
-            return true;
-        }, 2000);
+    private void assertAllRowsHasTextField(int rows) {
+        Assert.assertEquals("TreeGrid has a wrong number of rows", rows,
+                getTreeGrid().getRowCount());
+        waitUntil(webDriver -> IntStream.range(0, getTreeGrid().getRowCount())
+                        .mapToObj(i -> getTreeGrid().hasComponentRenderer(
+                                i, 1, By.tagName("vaadin-text-field")))
+                        .reduce((b, i) -> b && i).orElse(false),
+                2000);
     }
 }
