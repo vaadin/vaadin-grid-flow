@@ -4,8 +4,36 @@ window.Vaadin.Flow.gridConnector = {
     if (grid.$connector){
       return;
     }
+    grid.$connector = {};
 
-    Vaadin.Grid.ItemCache.prototype.ensureSubCacheForScaledIndex = function(scaledIndex) {
+    function createCache(parentCache, parentItem) {
+      // TODO(manolo) ugly, we need to change it when we can use ES6 imports
+      // as indicated in https://github.com/vaadin/vaadin-grid-flow/issues/509
+      const cache =
+        new grid._cache.__proto__.constructor(grid, parentCache, parentItem);
+
+      patchCache(cache);
+      return cache;
+    }
+
+    function patchCache(cache) {
+      // Apply the same monkey-patching than we applied to main grid cache instance
+      // TODO(manolo) this should be changed when we can use ES6 extension
+      cache.ensureSubCacheForScaledIndex = grid._cache.ensureSubCacheForScaledIndex;
+      cache.doEnsureSubCacheForScaledIndex = grid._cache.doEnsureSubCacheForScaledIndex;
+      cache.getCacheAndIndexByKey = grid._cache.getCacheAndIndexByKey;
+      cache.getCacheAndIndexByKey = grid._cache.getCacheAndIndexByKey;
+      cache.getLevel = grid._cache.getLevel;
+    }
+
+    grid.$connector.clearCache = grid.clearCache;
+
+    grid.clearCache = function() {
+      grid.$connector.clearCache.call(grid);
+      patchCache(cache);
+    }
+
+    grid._cache.ensureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
 
         if(ensureSubCacheDelay) {
@@ -16,9 +44,11 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    Vaadin.Grid.ItemCache.prototype.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
+    grid._cache.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
-        const subCache = new Vaadin.Grid.ItemCache(this.grid, this, this.items[scaledIndex]);
+        // TODO(manolo) ugly, change it when we can use ES6 imports
+        // as indicated in #509
+        const subCache = createCache(this, this.items[scaledIndex]);
         subCache.itemkeyCaches = {};
         if(!this.itemkeyCaches) {
           this.itemkeyCaches = {};
@@ -29,7 +59,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    Vaadin.Grid.ItemCache.prototype.getCacheAndIndexByKey = function(key) {
+    grid._cache.getCacheAndIndexByKey = function(key) {
       for (let index in this.items) {
         if(grid.getItemId(this.items[index]) === key) {
           return {cache: this, scaledIndex: index};
@@ -47,7 +77,7 @@ window.Vaadin.Flow.gridConnector = {
       return undefined;
     }
 
-    Vaadin.Grid.ItemCache.prototype.getLevel = function() {
+    grid._cache.getLevel = function() {
       let cache = this;
       let level = 0;
       while (cache.parentCache) {
@@ -94,8 +124,6 @@ window.Vaadin.Flow.gridConnector = {
     grid.size = 0; // To avoid NaN here and there before we get proper data
     grid.itemIdPath = 'key';
     
-    grid.$connector = {};
-
     grid.$connector.hasEnsureSubCacheQueue = function() {
         return ensureSubCacheQueue.length > 0;
     }
@@ -408,8 +436,10 @@ window.Vaadin.Flow.gridConnector = {
     }
     grid._createPropertyObserver("_previousSorters", sorterChangeListener);
 
+    grid.$connector.originalUpdateItem = grid._updateItem;
+
     grid._updateItem = function(row, item) {
-      Vaadin.GridElement.prototype._updateItem.call(grid, row, item);
+      this.$connector.originalUpdateItem.call(grid, row, item);
 
       // make sure that component renderers are updated
       Array.from(row.children).forEach(cell => {
@@ -957,3 +987,4 @@ window.Vaadin.Flow.gridConnector = {
     }
   }
 }
+
