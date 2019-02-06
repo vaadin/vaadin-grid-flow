@@ -5,7 +5,7 @@ window.Vaadin.Flow.gridConnector = {
       return;
     }
 
-    Vaadin.Grid.ItemCache.prototype.ensureSubCacheForScaledIndex = function(scaledIndex) {
+    grid._cache.ensureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
 
         if(ensureSubCacheDelay) {
@@ -16,9 +16,11 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    Vaadin.Grid.ItemCache.prototype.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
+    grid._cache.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
-        const subCache = new Vaadin.Grid.ItemCache(this.grid, this, this.items[scaledIndex]);
+        // TODO(manolo) ugly, change it when we can use ES6 imports
+        const subCache =
+          new this.grid._cache.__proto__.constructor(this.grid, this, this.items[scaledIndex]);
         subCache.itemkeyCaches = {};
         if(!this.itemkeyCaches) {
           this.itemkeyCaches = {};
@@ -29,7 +31,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    Vaadin.Grid.ItemCache.prototype.getCacheAndIndexByKey = function(key) {
+    grid._cache.getCacheAndIndexByKey = function(key) {
       for (let index in this.items) {
         if(grid.getItemId(this.items[index]) === key) {
           return {cache: this, scaledIndex: index};
@@ -47,7 +49,7 @@ window.Vaadin.Flow.gridConnector = {
       return undefined;
     }
 
-    Vaadin.Grid.ItemCache.prototype.getLevel = function() {
+    grid._cache.getLevel = function() {
       let cache = this;
       let level = 0;
       while (cache.parentCache) {
@@ -408,8 +410,9 @@ window.Vaadin.Flow.gridConnector = {
     }
     grid._createPropertyObserver("_previousSorters", sorterChangeListener);
 
+    grid.__updateItem = grid._updateItem;
     grid._updateItem = function(row, item) {
-      Vaadin.GridElement.prototype._updateItem.call(grid, row, item);
+      this.__updateItem(row, item);
 
       // make sure that component renderers are updated
       Array.from(row.children).forEach(cell => {
@@ -957,3 +960,4 @@ window.Vaadin.Flow.gridConnector = {
     }
   }
 }
+
