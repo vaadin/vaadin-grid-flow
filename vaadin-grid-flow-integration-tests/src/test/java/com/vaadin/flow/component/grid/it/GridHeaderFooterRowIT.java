@@ -16,12 +16,15 @@
 package com.vaadin.flow.component.grid.it;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -203,9 +206,8 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
         List<WebElement> groups = grid
                 .findElements(By.tagName("vaadin-grid-column-group"));
 
-        Assert.assertEquals(
-                "There should be no column or column-group elements after removing the only column",
-                0, columns.size() + groups.size());
+        // There should be no column or column-group elements after removing the only column
+        waitUntil(webDriver -> columns.size() + groups.size() == 0, 1000);
     }
 
     private void assertHeaderComponentsAreRendered() {
