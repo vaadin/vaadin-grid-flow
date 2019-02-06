@@ -52,7 +52,7 @@ public class TreeGridComponentRendererIT extends AbstractTreeGridIT {
     }
 
     private void waitForRowCount(int count) {
-        waitUntil(webDriver -> getTreeGrid().getRowCount() == count, 2000);
+        waitUntil(webDriver -> getTreeGrid().getRowCount() == count, 10);
     }
 
     private void assertAllRowsHasTextField(int rows) {
@@ -62,6 +62,6 @@ public class TreeGridComponentRendererIT extends AbstractTreeGridIT {
                         .mapToObj(i -> getTreeGrid().hasComponentRenderer(
                                 i, 1, By.tagName("vaadin-text-field")))
                         .reduce((b, i) -> b && i).orElse(false),
-                2000);
+                10);
     }
 }
