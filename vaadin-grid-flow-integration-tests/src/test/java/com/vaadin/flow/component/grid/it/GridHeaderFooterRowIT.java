@@ -207,7 +207,7 @@ public class GridHeaderFooterRowIT extends AbstractComponentIT {
                 .findElements(By.tagName("vaadin-grid-column-group"));
 
         // There should be no column or column-group elements after removing the only column
-        waitUntil(webDriver -> columns.size() + groups.size() == 0, 1000);
+        waitUntil(webDriver -> columns.size() + groups.size() == 0, 10);
     }
 
     private void assertHeaderComponentsAreRendered() {
