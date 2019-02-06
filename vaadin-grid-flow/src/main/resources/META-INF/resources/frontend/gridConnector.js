@@ -5,20 +5,22 @@ window.Vaadin.Flow.gridConnector = {
       return;
     }
 
-    Vaadin.Grid.ItemCache.prototype.ensureSubCacheForScaledIndex = function(scaledIndex) {
+    grid._cache.ensureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
 
         if(ensureSubCacheDelay) {
-          this.grid.$connector.beforeEnsureSubCacheForScaledIndex(this, scaledIndex);
+          grid.$connector.beforeEnsureSubCacheForScaledIndex(this, scaledIndex);
         } else {
-          this.doEnsureSubCacheForScaledIndex(scaledIndex);
+          grid.doEnsureSubCacheForScaledIndex(scaledIndex);
         }
       }
     }
 
-    Vaadin.Grid.ItemCache.prototype.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
-      if (!this.itemCaches[scaledIndex]) {
-        const subCache = new Vaadin.Grid.ItemCache(this.grid, this, this.items[scaledIndex]);
+    grid._cache.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
+      if (!grid.itemCaches[scaledIndex]) {
+        // TODO(manolo) ugly, change it when we can use ES6 imports
+        const subCache =
+          new this.grid._cache.__proto__.constructor(this.grid, this, this.items[scaledIndex]);
         subCache.itemkeyCaches = {};
         if(!this.itemkeyCaches) {
           this.itemkeyCaches = {};
@@ -29,7 +31,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    Vaadin.Grid.ItemCache.prototype.getCacheAndIndexByKey = function(key) {
+    grid._cache.getCacheAndIndexByKey = function(key) {
       for (let index in this.items) {
         if(grid.getItemId(this.items[index]) === key) {
           return {cache: this, scaledIndex: index};
@@ -47,7 +49,7 @@ window.Vaadin.Flow.gridConnector = {
       return undefined;
     }
 
-    Vaadin.Grid.ItemCache.prototype.getLevel = function() {
+    grid._cache.getLevel = function() {
       let cache = this;
       let level = 0;
       while (cache.parentCache) {
@@ -93,7 +95,7 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.size = 0; // To avoid NaN here and there before we get proper data
     grid.itemIdPath = 'key';
-    
+
     grid.$connector = {};
 
     grid.$connector.hasEnsureSubCacheQueue = function() {
@@ -103,7 +105,7 @@ window.Vaadin.Flow.gridConnector = {
     grid.$connector.hasParentRequestQueue = function() {
         return parentRequestQueue.length > 0;
     }
-    
+
     grid.$connector.beforeEnsureSubCacheForScaledIndex = function(targetCache, scaledIndex) {
       // add call to queue
       ensureSubCacheQueue.push({
@@ -408,9 +410,9 @@ window.Vaadin.Flow.gridConnector = {
     }
     grid._createPropertyObserver("_previousSorters", sorterChangeListener);
 
+    grid.__updateItem = grid._updateItem;
     grid._updateItem = function(row, item) {
-      Vaadin.GridElement.prototype._updateItem.call(grid, row, item);
-
+      grid.__updateItem(row, item);
       // make sure that component renderers are updated
       Array.from(row.children).forEach(cell => {
         if(cell._instance && cell._instance.children) {
@@ -435,11 +437,8 @@ window.Vaadin.Flow.gridConnector = {
       } else {
         delete cache[parentKey];
         let parentCache = grid.$connector.getCacheByKey(parentKey);
-        if (parentCache && parentCache.itemkeyCaches && parentCache.itemkeyCaches[parentKey]) {
-          delete parentCache.itemkeyCaches[parentKey];
-        }
-        if (parentCache && parentCache.itemCaches && parentCache.itemCaches[parentKey]) {
-          delete parentCache.itemCaches[parentKey];
+        if(parentCache && parentCache.itemkeyCaches && parentCache.itemkeyCaches[parentKey]) {
+          parentCache.itemkeyCaches[parentKey].items = [];
         }
         delete lastRequestedRanges[parentKey];
 
@@ -480,17 +479,9 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    /**
-     * Updates the cache for the given page for grid or tree-grid.
-     *
-     * @param page index of the page to update
-     * @param parentKey the key of the parent item for the page
-     * @returns an array of the updated items for the page, or undefined if no items were cached for the page
-     */
     const updateGridCache = function(page, parentKey) {
-      let items;
       if((parentKey || root) !== root) {
-        items = cache[parentKey][page];
+        const items = cache[parentKey][page];
         let parentCache = grid.$connector.getCacheByKey(parentKey);
         if(parentCache && parentCache.itemkeyCaches) {
           let _cache = parentCache.itemkeyCaches[parentKey];
@@ -500,65 +491,40 @@ window.Vaadin.Flow.gridConnector = {
         }
 
       } else {
-        items = cache[root][page];
+        const items = cache[root][page];
         _updateGridCache(page, items, rootPageCallbacks[page], grid._cache);
       }
-      return items;
-    };
+    }
 
     const _updateGridCache = function(page, items, callback, levelcache) {
       // Force update unless there's a callback waiting
-      if (!callback) {
+      if(!callback) {
         let rangeStart = page * grid.pageSize;
         let rangeEnd = rangeStart + grid.pageSize;
         if (!items) {
-          if (levelcache && levelcache.items) {
+          if(levelcache && levelcache.items) {
             for (let idx = rangeStart; idx < rangeEnd; idx++) {
               delete levelcache.items[idx];
             }
           }
+
         } else {
-          if (levelcache && levelcache.items) {
+          if(levelcache && levelcache.items) {
             for (let idx = rangeStart; idx < rangeEnd; idx++) {
               if (levelcache.items[idx]) {
                 levelcache.items[idx] = items[idx - rangeStart];
               }
             }
           }
+          itemsUpdated(items);
         }
+        /**
+         * Calls the _assignModels function from GridScrollerElement, that triggers
+         * the internal revalidation of the items based on the _cache of the DataProviderMixin.
+         */
+        grid._assignModels();
       }
-    };
-
-    /**
-     * Updates all visible grid rows in DOM.
-     */
-    const updateAllGridRowsInDomBasedOnCache = function () {
-      grid._assignModels();
     }
-
-    /**
-     * Update the given items in DOM if currently visible.
-     *
-     * @param array items the items to update in DOM
-     */
-    const updateGridItemsInDomBasedOnCache = function(items) {
-      if (!items) {
-        return;
-      }
-      /**
-       * Calls the _assignModels function from GridScrollerElement, that triggers
-       * the internal revalidation of the items based on the _cache of the DataProviderMixin.
-       * First mapping the item to physical (iron list) indexes, so that we update
-       * only items in with the correct index that are cached in the iron list.
-       */
-      const itemKeys = items.map(item => item.key);
-      const indexes = grid._physicalItems
-          .map((tr, index) => tr._item && tr._item.key && itemKeys.indexOf(tr._item.key) > -1 ? index : null)
-          .filter(idx => idx !== null);
-      if (indexes.length > 0) {
-        grid._assignModels(indexes);
-      }
-    };
 
     grid.$connector.set = function(index, items, parentKey) {
       if (index % grid.pageSize != 0) {
@@ -584,11 +550,7 @@ window.Vaadin.Flow.gridConnector = {
             grid.$connector.doDeselection(item);
           }
         }
-        const updatedItems = updateGridCache(page, pkey);
-        if (updatedItems) {
-          itemsUpdated(updatedItems);
-          updateGridItemsInDomBasedOnCache(updatedItems);
-        }
+        updateGridCache(page, pkey);
       }
     };
 
@@ -606,19 +568,12 @@ window.Vaadin.Flow.gridConnector = {
       return null;
     }
 
-    /**
-     * Updates the given items for a hierarchical grid.
-     *
-     * @param updatedItems the updated items array
-     */
-    grid.$connector.updateHierarchicalData = function(updatedItems) {
+    grid.$connector.updateData = function(items) {
       let pagesToUpdate = [];
-      // locate and update the items in cache
-      // find pages that need updating
-      for (let i = 0; i < updatedItems.length; i++) {
-        let cacheLocation = itemToCacheLocation(updatedItems[i]);
+      for (let i = 0; i < items.length; i++) {
+        let cacheLocation = itemToCacheLocation(items[i]);
         if (cacheLocation) {
-          cache[cacheLocation.parentKey][cacheLocation.page][cacheLocation.index] = updatedItems[i];
+          cache[cacheLocation.parentKey][cacheLocation.page][cacheLocation.index] = items[i];
           let key = cacheLocation.parentKey+':'+cacheLocation.page;
           if (!pagesToUpdate[key]) {
             pagesToUpdate[key] = {parentKey: cacheLocation.parentKey, page: cacheLocation.page};
@@ -629,37 +584,8 @@ window.Vaadin.Flow.gridConnector = {
       let keys = Object.keys(pagesToUpdate);
       for (var i = 0; i < keys.length; i++) {
         let pageToUpdate = pagesToUpdate[keys[i]];
-        const affectedUpdatedItems = updateGridCache(pageToUpdate.page, pageToUpdate.parentKey);
-        if (affectedUpdatedItems) {
-          itemsUpdated(affectedUpdatedItems);
-          updateGridItemsInDomBasedOnCache(affectedUpdatedItems);
-        }
+        updateGridCache(pageToUpdate.page, pageToUpdate.parentKey);
       }
-    };
-
-    /**
-     * Updates the given items for a non-hierarchical grid.
-     *
-     * @param updatedItems the updated items array
-     */
-    grid.$connector.updateFlatData = function(updatedItems) {
-      // update (flat) caches
-      for (let i = 0; i < updatedItems.length; i++) {
-        let cacheLocation = itemToCacheLocation(updatedItems[i]);
-        if (cacheLocation) {
-          // update connector cache
-          cache[cacheLocation.parentKey][cacheLocation.page][cacheLocation.index] = updatedItems[i];
-
-          // update grid's cache
-          const index = parseInt(cacheLocation.page) * grid.pageSize + parseInt(cacheLocation.index);
-          if (grid._cache.items[index]) {
-            grid._cache.items[index] = updatedItems[i];
-          }
-        }
-      }
-      itemsUpdated(updatedItems);
-
-      updateGridItemsInDomBasedOnCache(updatedItems);
     };
 
     grid.$connector.clearExpanded = function() {
@@ -690,11 +616,7 @@ window.Vaadin.Flow.gridConnector = {
           }
         }
         delete cache[pkey][page];
-        const updatedItems = updateGridCache(page, parentKey);
-        if (updatedItems) {
-          itemsUpdated(updatedItems);
-        }
-        updateGridItemsInDomBasedOnCache(items);
+        updateGridCache(page, parentKey);
       }
     };
 
@@ -724,7 +646,7 @@ window.Vaadin.Flow.gridConnector = {
       parentRequestDebouncer = undefined;
       ensureSubCacheQueue = [];
       parentRequestQueue = [];
-      updateAllGridRowsInDomBasedOnCache();
+      grid._assignModels();
     };
 
     const deleteObjectContents = function(obj) {
@@ -829,7 +751,7 @@ window.Vaadin.Flow.gridConnector = {
       grid._cache.itemCaches = {};
       grid._cache.itemkeyCaches = {};
 
-      updateAllGridRowsInDomBasedOnCache();
+      grid._assignModels();
     }
 
     grid.$connector.setSelectionMode = function(mode) {
@@ -886,7 +808,7 @@ window.Vaadin.Flow.gridConnector = {
     grid.addEventListener('vaadin-context-menu-before-open', function(e) {
       contextMenuListener(grid.$contextMenuConnector.openEvent);
     });
-    
+
     function _runWhenReady(){
         if ( grid.$ ){
             grid.$.scroller.addEventListener('click', _onClick);
@@ -897,63 +819,39 @@ window.Vaadin.Flow.gridConnector = {
             window.setTimeout(_runWhenReady, 0 );
         }
     }
-    
+
     _runWhenReady();
-    
+
     function _cellActivated(event){
         grid.$connector.clickedItem = event.detail.model.item;
     }
-    
+
     function _onClick(event){
         _fireClickEvent(event, 'item-click');
     }
-    
+
     function _onDblClick(event){
         _fireClickEvent(event, 'item-double-click');
     }
-    
+
     function _fireClickEvent(event, eventName){
         // if there was no click on item then don't do anything
         if (grid.$connector.clickedItem){
             event.itemKey = grid.$connector.clickedItem.key;
-            grid.dispatchEvent(new CustomEvent(eventName, 
-                    { 
+            grid.dispatchEvent(new CustomEvent(eventName,
+                    {
                         detail: event
                     }));
-            // can't clear the clicked item right away since there may be 
+            // can't clear the clicked item right away since there may be
             // not handled double click event (or may be not, it's not known)
             // schedule this for the next cycle
             window.setTimeout(_clearClickedItem, 0 );
         }
     }
-    
+
     function _clearClickedItem(){
         grid.$connector.clickedItem = null;
     }
 
-    grid.$connector.columnToIdMap = new Map();
-    grid.$connector.setColumnId = function(column, id) {
-        grid.$connector.columnToIdMap.set(column, id);
-    }
-
-    grid.$connector.columnRemoved = function(columnId) {
-        const entries = Array.from(grid.$connector.columnToIdMap);
-        const entryToRemove = entries.filter(function(entry) {
-            return entry[1] === columnId;
-        })[0];
-        if (entryToRemove) {
-            grid.$connector.columnToIdMap.delete(entryToRemove[0]);
-        }
-    }
-
-    grid.cellClassNameGenerator = function(column, rowData) {
-        const style = rowData.item.style;
-        if (!style) {
-            return;
-        }
-        const columnId = grid.$connector.columnToIdMap.get(column);
-
-        return (style.row || '') + ' ' + (style[columnId] || '');
-    }
   }
 }
