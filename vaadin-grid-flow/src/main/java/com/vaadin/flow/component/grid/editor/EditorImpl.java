@@ -30,6 +30,8 @@ import com.vaadin.flow.component.grid.ItemClickEvent;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.PropertySet;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.internal.ExecutionContext;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.JsonObject;
@@ -50,7 +52,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     private static final String EDITING = "_editing";
 
     private final Map<Class<?>, List<?>> listeners = new HashMap<>();
-
+	private SerializableConsumer<ExecutionContext> editItemRequest;
     private Binder<T> binder;
     private T edited;
     private boolean isBuffered;
@@ -124,11 +126,28 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
         close();
     }
 
+
     @Override
     public void editItem(T item) {
         Objects.requireNonNull(item, "Editor can't edit null");
 
-        validate(item);
+		final T _item = item;
+		if (editItemRequest == null) {
+			editItemRequest = context -> {
+				if (!context.isClientSideInitialized()) {
+
+				}
+				requestEditItem(_item);
+				editItemRequest = null;
+			};
+			getGrid().getElement().getNode().runWhenAttached(ui -> ui.getInternals().getStateTree()
+					.beforeClientResponse(getGrid().getElement().getNode(), editItemRequest));
+		}
+
+	}
+
+	private void requestEditItem(T item) {
+		validate(item);
 
         close();
         edited = item;
@@ -143,7 +162,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
 
         fireOpenEvent(new EditorOpenEvent<>(this, edited));
     }
-
+	
     @Override
     public void refresh() {
         if (!isOpen()) {
