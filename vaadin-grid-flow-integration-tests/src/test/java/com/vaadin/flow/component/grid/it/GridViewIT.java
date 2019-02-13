@@ -29,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
@@ -796,12 +797,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
         assertFirstCells(grid, "Person 1", "Person 2", "Person 3", "Person 4");
 
         grid.getCell(2, 0).contextClick();
-        $("vaadin-item").first().click(); // Update button
+        $("vaadin-context-menu-item").first().click(); // Update button
         assertFirstCells(grid, "Person 1", "Person 2", "Person 3 Updated",
                 "Person 4");
 
         grid.getCell(1, 0).contextClick();
-        $("vaadin-item").get(1).click(); // Remove button
+        $("vaadin-context-menu-item").get(1).click(); // Remove button
         assertFirstCells(grid, "Person 1", "Person 3 Updated", "Person 4",
                 "Person 5");
     }
@@ -1391,11 +1392,11 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         verifyOpened(1);
 
-        openSubMenu($(OVERLAY_TAG).first().$("vaadin-item").get(menuIndex));
+        openSubMenu($(OVERLAY_TAG).first().$("vaadin-context-menu-item").get(menuIndex));
 
         verifyOpened(2);
 
-        $(OVERLAY_TAG).all().get(1).$("vaadin-item").get(subMenuIndex).click();
+        $(OVERLAY_TAG).all().get(1).$("vaadin-context-menu-item").get(subMenuIndex).click();
     }
 
     private void assertElementHasFocus(WebElement element) {
