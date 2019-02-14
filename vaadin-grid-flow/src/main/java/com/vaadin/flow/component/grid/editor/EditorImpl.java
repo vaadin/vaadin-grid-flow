@@ -52,7 +52,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     private static final String EDITING = "_editing";
 
     private final Map<Class<?>, List<?>> listeners = new HashMap<>();
-	private SerializableConsumer<ExecutionContext> editItemRequest;
+    private SerializableConsumer<ExecutionContext> editItemRequest;
     private Binder<T> binder;
     private T edited;
     private boolean isBuffered;
@@ -126,28 +126,25 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
         close();
     }
 
-
     @Override
     public void editItem(T item) {
         Objects.requireNonNull(item, "Editor can't edit null");
 
-		final T _item = item;
-		if (editItemRequest == null) {
-			editItemRequest = context -> {
-				if (!context.isClientSideInitialized()) {
+        final T _item = item;
+        if (editItemRequest == null) {
+            editItemRequest = context -> {
+                requestEditItem(_item);
+                editItemRequest = null;
+            };
+            getGrid().getElement().getNode().runWhenAttached(
+                    ui -> ui.getInternals().getStateTree().beforeClientResponse(
+                            getGrid().getElement().getNode(), editItemRequest));
+        }
 
-				}
-				requestEditItem(_item);
-				editItemRequest = null;
-			};
-			getGrid().getElement().getNode().runWhenAttached(ui -> ui.getInternals().getStateTree()
-					.beforeClientResponse(getGrid().getElement().getNode(), editItemRequest));
-		}
+    }
 
-	}
-
-	private void requestEditItem(T item) {
-		validate(item);
+    private void requestEditItem(T item) {
+        validate(item);
 
         close();
         edited = item;
@@ -162,7 +159,7 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
 
         fireOpenEvent(new EditorOpenEvent<>(this, edited));
     }
-	
+
     @Override
     public void refresh() {
         if (!isOpen()) {
