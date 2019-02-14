@@ -17,6 +17,7 @@ package com.vaadin.flow.component.grid.contextmenu;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -122,8 +123,8 @@ public class ContextMenuGridIT extends AbstractComponentIT {
 
         TestBenchElement menuOverlay = $(OVERLAY_TAG).first();
 
-        TestBenchElement overlayContainer = menuOverlay.$("vaadin-context-menu-list-box")
-                .first();
+        TestBenchElement overlayContainer = menuOverlay
+                .$("vaadin-context-menu-list-box").first();
         List<WebElement> items = overlayContainer.findElements(By.xpath("./*"));
         Assert.assertEquals(4, items.size());
         Assert.assertEquals("vaadin-context-menu-item",
@@ -150,14 +151,15 @@ public class ContextMenuGridIT extends AbstractComponentIT {
         waitUntil(driver -> $(OVERLAY_TAG).all().size() == 1);
         TestBenchElement menuOverlay = $(OVERLAY_TAG).first();
 
-        TestBenchElement overlayContainer = menuOverlay.$("vaadin-context-menu-list-box")
-                .first();
+        TestBenchElement overlayContainer = menuOverlay
+                .$("vaadin-context-menu-list-box").first();
         openSubMenu(overlayContainer.$("vaadin-context-menu-item").get(3));
 
         waitUntil(driver -> $(OVERLAY_TAG).all().size() == 2);
         TestBenchElement subMenuOverlay = $(OVERLAY_TAG).get(1);
 
-        List<WebElement> items = subMenuOverlay.$("vaadin-context-menu-list-box").first()
+        List<WebElement> items = subMenuOverlay
+                .$("vaadin-context-menu-list-box").first()
                 .findElements(By.xpath("./*"));
         Assert.assertEquals(4, items.size());
         Assert.assertEquals("vaadin-context-menu-item",
@@ -192,6 +194,7 @@ public class ContextMenuGridIT extends AbstractComponentIT {
 
         grid.getCell(0, 0).contextClick();
 
+        getDriver().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         Assert.assertFalse(isElementPresent(By.tagName(OVERLAY_TAG)));
     }
 
