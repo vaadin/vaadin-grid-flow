@@ -649,10 +649,17 @@ public class GridViewIT extends TabbedComponentDemoTest {
         WebElement grid = findElement(By.id("bean-grid"));
         scrollToElement(grid);
 
+        findElement(By.id("show-address-information")).click();
+
+        List<?> cellTexts = (List<?>) getCommandExecutor().executeScript(
+                "var result = [];  var cells = arguments[0].querySelectorAll('vaadin-grid-cell-content');"
+                        + "for (i=0; i<cells.length; i++) { result.push(cells[i].innerText); } return result;",
+                grid);
+
         Assert.assertTrue(
                 "Address should be displayed as a String starting with the street name",
-                getCells(grid).stream()
-                        .anyMatch(cell -> cell.getText().startsWith("Street")));
+                cellTexts.stream().anyMatch(
+                        cell -> cell.toString().startsWith("Street")));
     }
 
     @Test
@@ -697,17 +704,21 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         Assert.assertEquals("Item 1", grid.getCell(0, 0).getText());
         Assert.assertEquals("$ 73.10", grid.getCell(0, 1).getText());
-        Assert.assertEquals("1/10/18 11:43:59 AM", grid.getCell(0, 2).getText());
+        Assert.assertEquals("1/10/18 11:43:59 AM",
+                grid.getCell(0, 2).getText());
         Assert.assertEquals("Jan 11, 2018", grid.getCell(0, 3).getText());
         assertRendereredContent("$$$", grid.getCell(0, 4).getInnerHTML());
-        Assert.assertEquals("<button>Remove</button>", grid.getCell(0, 5).getInnerHTML());
+        Assert.assertEquals("<button>Remove</button>",
+                grid.getCell(0, 5).getInnerHTML());
 
         Assert.assertEquals("Item 2", grid.getCell(1, 0).getText());
         Assert.assertEquals("$ 24.05", grid.getCell(1, 1).getText());
-        Assert.assertEquals("1/10/18 11:07:31 AM", grid.getCell(1, 2).getText());
+        Assert.assertEquals("1/10/18 11:07:31 AM",
+                grid.getCell(1, 2).getText());
         Assert.assertEquals("Jan 24, 2018", grid.getCell(1, 3).getText());
         assertRendereredContent("$", grid.getCell(1, 4).getInnerHTML());
-        Assert.assertEquals("<button>Remove</button>", grid.getCell(1, 5).getInnerHTML());
+        Assert.assertEquals("<button>Remove</button>",
+                grid.getCell(1, 5).getInnerHTML());
 
     }
 
