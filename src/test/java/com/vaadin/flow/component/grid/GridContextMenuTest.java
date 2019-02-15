@@ -16,8 +16,12 @@
 package com.vaadin.flow.component.grid;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.dom.DomListenerRegistration;
+import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.internal.StateNode;
 
 public class GridContextMenuTest {
 
@@ -25,6 +29,31 @@ public class GridContextMenuTest {
     public void setNonGridTargetForGridContextMenu_throws() {
         GridContextMenu<Object> gridContextMenu = new GridContextMenu<>();
         gridContextMenu.setTarget(new NativeButton());
+    }
+
+    @Test
+    public void setTarget_nullTarget_connectorIsRemovedFromPreviousTarget() {
+        Grid grid = Mockito.mock(Grid.class);
+        Element element = Mockito.mock(Element.class);
+        StateNode node = Mockito.mock(StateNode.class);
+        Mockito.when(grid.getElement()).thenReturn(element);
+        Mockito.when(element.getNode()).thenReturn(node);
+
+        DomListenerRegistration registration = Mockito
+                .mock(DomListenerRegistration.class);
+
+        Mockito.when(
+                element.addEventListener(Mockito.anyString(), Mockito.any()))
+                .thenReturn(registration);
+
+        GridContextMenu gridContextMenu = new GridContextMenu<>();
+        gridContextMenu.setTarget(grid);
+
+        gridContextMenu.setTarget(null);
+
+        Mockito.verify(registration).remove();
+        Mockito.verify(element)
+                .callFunction("$contextMenuConnector.removeConnector");
     }
 
 }

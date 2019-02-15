@@ -26,7 +26,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 /**
  * Server-side component for {@code <vaadin-context-menu>} to be used with
  * {@link Grid}.
- * 
+ *
  * @author Vaadin Ltd.
  */
 @SuppressWarnings("serial")
@@ -41,7 +41,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
 
     /**
      * Creates an empty context menu with the given target component.
-     * 
+     *
      * @param target
      *            the target component for this context menu
      * @see #setTarget(Component)
@@ -53,13 +53,13 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the given target is not an instance of {@link Grid}
      */
     @Override
     public void setTarget(Component target) {
-        if (!(target instanceof Grid<?>)) {
+        if (target != null && !(target instanceof Grid<?>)) {
             throw new IllegalArgumentException(
                     "Only an instance of Grid can be used as the target for GridContextMenu. "
                             + "Use ContextMenu for any other component.");
@@ -76,7 +76,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
      * configure the contents of the overlay without wrapping them inside
      * {@link MenuItem}s, or if you just want to add some non-highlightable
      * components between the items, use the {@link #add(Component...)} method.
-     * 
+     *
      * @param text
      *            the text content for the new item
      * @param clickListener
@@ -102,7 +102,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
      * configure the contents of the overlay without wrapping them inside
      * {@link MenuItem}s, or if you just want to add some non-highlightable
      * components between the items, use the {@link #add(Component...)} method.
-     * 
+     *
      * @param component
      *            the component inside the new item
      * @param clickListener
@@ -132,7 +132,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
     /**
      * Event that is fired when a {@link MenuItem} is clicked inside a
      * {@link GridContextMenu}.
-     * 
+     *
      * @author Vaadin Ltd.
      */
     public static class GridContextMenuItemClickEvent<T>
@@ -142,13 +142,12 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
 
         GridContextMenuItemClickEvent(MenuItem source, boolean fromClient) {
             super(source, fromClient);
-            grid = (Grid<T>) ((MenuItem) getSource()).getContextMenu()
-                    .getTarget();
+            grid = (Grid<T>) getSource().getContextMenu().getTarget();
         }
 
         /**
          * Gets the Grid that the context menu is connected to.
-         * 
+         *
          * @return the Grid that the context menu is connected to.
          */
         public Grid<T> getGrid() {
@@ -159,7 +158,7 @@ public class GridContextMenu<T> extends ContextMenuBase<GridContextMenu<T>> {
          * Gets the item in the Grid that was the target of the context-click,
          * or an empty {@code Optional} if the context-click didn't target any
          * item in the Grid (eg. if targeting a header).
-         * 
+         *
          * @return the target item of the context-click
          */
         public Optional<T> getItem() {

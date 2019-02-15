@@ -63,7 +63,11 @@ public class ContextMenuGridPage extends Div {
                 e -> contextMenu.setOpenOnClick(!contextMenu.isOpenOnClick()));
         toggleOpenOnClick.setId("toggle-open-on-click");
 
-        add(grid, toggleOpenOnClick);
+        NativeButton removeContextMenu = new NativeButton("Remove context menu",
+                event -> contextMenu.setTarget(null));
+        removeContextMenu.setId("remove-context-menu");
+
+        add(grid, toggleOpenOnClick, removeContextMenu);
         grid.setId("grid-with-context-menu");
     }
 

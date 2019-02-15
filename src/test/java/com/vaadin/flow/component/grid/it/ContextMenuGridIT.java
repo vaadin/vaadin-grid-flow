@@ -15,6 +15,8 @@
  */
 package com.vaadin.flow.component.grid.it;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,10 +25,12 @@ import org.openqa.selenium.By;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
+import com.vaadin.testbench.TestBenchElement;
 
 @TestPath("context-menu-grid")
 public class ContextMenuGridIT extends AbstractComponentIT {
 
+    private static final String OVERLAY_TAG = "vaadin-context-menu-overlay";
     private GridElement grid;
 
     @Before
@@ -68,7 +72,7 @@ public class ContextMenuGridIT extends AbstractComponentIT {
     public void setOpenOnClick_contextClickOnRow_noContextMenuOpen() {
         $("button").id("toggle-open-on-click").click();
         grid.getCell(22, 0).contextClick();
-        waitForElementNotPresent(By.tagName("vaadin-context-menu-overlay"));
+        waitForElementNotPresent(By.tagName(OVERLAY_TAG));
     }
 
     @Test
@@ -80,8 +84,32 @@ public class ContextMenuGridIT extends AbstractComponentIT {
         assertMessage("Item 18");
     }
 
+    @Test
+    public void removeContextMenu_menuIsNotShown() {
+        GridElement grid = $(GridElement.class).id("grid-with-context-menu");
+        scrollToElement(grid);
+        waitUntil(driver -> grid.getRowCount() > 0);
+
+        grid.getCell(0, 0).contextClick();
+        waitUntil(driver -> $(OVERLAY_TAG).all().size() == 1);
+        $(OVERLAY_TAG).get(0).$("vaadin-context-menu-item").first().click();
+
+        verifyClosed();
+
+        $(TestBenchElement.class).id("remove-context-menu").click();
+
+        grid.getCell(0, 0).contextClick();
+
+        getDriver().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        Assert.assertFalse(isElementPresent(By.tagName(OVERLAY_TAG)));
+    }
+
     private void assertMessage(String expected) {
         Assert.assertEquals(expected, $("label").id("message").getText());
+    }
+
+    private void verifyClosed() {
+        waitForElementNotPresent(By.tagName(OVERLAY_TAG));
     }
 
 }
