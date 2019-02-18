@@ -130,10 +130,10 @@ public class EditorImpl<T> extends AbstractGridExtension<T>
     public void editItem(T item) {
         Objects.requireNonNull(item, "Editor can't edit null");
 
-        final T _item = item;
+        final T it = item;
         if (editItemRequest == null) {
             editItemRequest = context -> {
-                requestEditItem(_item);
+                requestEditItem(it);
                 editItemRequest = null;
             };
             getGrid().getElement().getNode().runWhenAttached(ui -> ui.getInternals().getStateTree()
