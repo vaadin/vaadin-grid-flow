@@ -92,7 +92,7 @@ public class ContextMenuGridIT extends AbstractComponentIT {
 
         grid.getCell(0, 0).contextClick();
         waitUntil(driver -> $(OVERLAY_TAG).all().size() == 1);
-        $(OVERLAY_TAG).get(0).$("vaadin-context-menu-item").first().click();
+        $(OVERLAY_TAG).get(0).$("vaadin-item").first().click();
 
         verifyClosed();
 
