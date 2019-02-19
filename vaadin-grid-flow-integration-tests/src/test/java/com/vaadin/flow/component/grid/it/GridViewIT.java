@@ -159,11 +159,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
         openTabAndCheckForErrors("selection");
         GridElement grid = $(GridElement.class).id("single-selection");
         grid.scrollIntoView();
-        GridTHTDElement person2cell =grid.getCell("Person 2"); 
+        GridTHTDElement person2cell = grid.getCell("Person 2");
         GridTRElement person2row = person2cell.getRowElement();
 
-        WebElement toggleButton =  $(TestBenchElement.class).id("single-selection-toggle");
-        WebElement messageDiv = $(TestBenchElement.class).id("single-selection-message");
+        WebElement toggleButton = $(TestBenchElement.class)
+                .id("single-selection-toggle");
+        WebElement messageDiv = $(TestBenchElement.class)
+                .id("single-selection-message");
 
         toggleButton.click();
         Assert.assertEquals(
@@ -178,13 +180,21 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertFalse("Person 1 was marked as selected",
                 isRowSelected(grid, 0));
 
-        // should be the cell in the first column's second row
         person2row.select();
         Assert.assertTrue("Person 2 was not marked as selected",
                 isRowSelected(grid, 1));
         Assert.assertEquals(
                 getSelectionMessage(null, GridView.items.get(1), true),
                 messageDiv.getText());
+
+        // deselect non-selected row
+        grid.getCell("Person 3").getRowElement().deselect(); // NO-OP
+        Assert.assertTrue("Person 2 was not marked as selected",
+                isRowSelected(grid, 1));
+        Assert.assertEquals(
+                getSelectionMessage(null, GridView.items.get(1), true),
+                messageDiv.getText());
+
         person2row.deselect();
         Assert.assertFalse("Person 2 was marked as selected",
                 isRowSelected(grid, 1));
