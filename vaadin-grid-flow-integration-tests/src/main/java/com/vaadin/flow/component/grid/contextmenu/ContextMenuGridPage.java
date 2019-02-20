@@ -31,7 +31,7 @@ import com.vaadin.flow.router.Route;
 @Route("context-menu-grid")
 public class ContextMenuGridPage extends Div {
 
-    private static final String NO_TARGET_TEM = "no target item";
+    private static final String NO_TARGET_ITEM = "no target item";
 
     private Label message;
     private Grid<Person> grid;
@@ -58,7 +58,7 @@ public class ContextMenuGridPage extends Div {
 
         contextMenu.addGridContextMenuOpenedListener(event -> {
             String name = event.getItem().map(Person::getFirstName)
-                    .orElse(NO_TARGET_TEM);
+                    .orElse(NO_TARGET_ITEM);
             String columnId = event.getColumnId().orElse("No column");
             message.setText("pre-open: name="+name+", colId="+columnId);
         });
@@ -93,7 +93,7 @@ public class ContextMenuGridPage extends Div {
 
         GridContextMenu<String> contextMenu = gridInATemplate.addContextMenu();
         contextMenu.addItem("Show name of context menu target item",
-                e -> message.setText(e.getItem().orElse(NO_TARGET_TEM)));
+                e -> message.setText(e.getItem().orElse(NO_TARGET_ITEM)));
 
         add(template);
     }
@@ -101,7 +101,7 @@ public class ContextMenuGridPage extends Div {
     private void addItems(HasGridMenuItems<Person> menu) {
         menu.addItem("Show name of context menu target item", event -> {
             String name = event.getItem().map(Person::getFirstName)
-                    .orElse(NO_TARGET_TEM);
+                    .orElse(NO_TARGET_ITEM);
             message.setText(name);
         });
         menu.addItem("Show connected grid id", e -> {
