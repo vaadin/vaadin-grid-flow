@@ -48,7 +48,7 @@ public class GridContextMenu<T> extends
             extends ComponentEvent<GridMenuItem<T>> {
 
         private Grid<T> grid;
-        private Optional<T> item;
+        private transient Optional<T> item;
 
         @SuppressWarnings("unchecked")
         GridContextMenuItemClickEvent(GridMenuItem<T> source,
@@ -85,8 +85,8 @@ public class GridContextMenu<T> extends
             extends OpenedChangeEvent<GridContextMenu<T>> {
 
         private final Grid<T> grid;
-        private final Optional<T> item;
-        private final Optional<String> columnId;
+        private final transient Optional<T> item;
+        private final transient Optional<String> columnId;
 
         public GridContextMenuOpenedEvent(GridContextMenu<T> source, boolean fromClient) {
             super(source, fromClient);

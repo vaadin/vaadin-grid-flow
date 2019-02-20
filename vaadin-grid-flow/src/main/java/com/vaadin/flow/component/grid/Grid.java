@@ -1060,7 +1060,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private Editor<T> editor;
 
-    private SerializableSupplier<Editor<T>> editorFactory = () -> createEditor();
+    private SerializableSupplier<Editor<T>> editorFactory = this::createEditor;
 
     private boolean verticalScrollingEnabled = true;
 

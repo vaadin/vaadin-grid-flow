@@ -1874,14 +1874,12 @@ public class GridDemo extends DemoView {
         grid.addColumn(Person::getAge).setHeader("Age").setId("Age");
         grid.setSelectionMode(SelectionMode.MULTI);
         GridContextMenu<Person> contextMenu = new GridContextMenu<>(grid);
-        contextMenu.addItem("Update", event -> {
-            event.getItem().ifPresent(person -> {
-                person.setfirstName(person.getfirstName() + " Updated");
-                ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) event
-                        .getGrid().getDataProvider();
-                dataProvider.refreshItem(person);
-            });
-        });
+        contextMenu.addItem("Update", event -> event.getItem().ifPresent(person -> {
+            person.setfirstName(person.getfirstName() + " Updated");
+            ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) event
+                    .getGrid().getDataProvider();
+            dataProvider.refreshItem(person);
+        }));
         contextMenu.addItem("Remove", event -> {
             event.getItem().ifPresent(person -> {
                 ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
@@ -1890,11 +1888,10 @@ public class GridDemo extends DemoView {
                 dataProvider.refreshAll();
             });
         });
-        contextMenu.addGridContextMenuOpenedListener(event -> {
-            message.setValue(String.format("Menu opened on\n Row: '%s'\n Column: '%s'",
-                    event.getItem().map(p -> p.toString()).orElse("-no item-"),
-                    event.getColumnId().orElse("-no column-")));
-        });
+        contextMenu.addGridContextMenuOpenedListener(event ->
+                message.setValue(String.format("Menu opened on\n Row: '%s'\n Column: '%s'",
+                    event.getItem().map(Person::toString).orElse("-no item-"),
+                    event.getColumnId().orElse("-no column-"))));
         // end-source-example
         grid.setId("context-menu-grid");
         addCard("Context Menu", "Using ContextMenu With Grid", grid,
