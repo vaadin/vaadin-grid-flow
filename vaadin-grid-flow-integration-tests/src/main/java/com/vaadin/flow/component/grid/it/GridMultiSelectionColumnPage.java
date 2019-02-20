@@ -17,12 +17,17 @@ package com.vaadin.flow.component.grid.it;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.NativeButton;
@@ -52,6 +57,7 @@ public class GridMultiSelectionColumnPage extends Div {
 
         createLazyGrid();
         createInMemoryGrid();
+        createInMemoryGridWithNoSelectColumn();
         createGridWithSwappedDataProvider();
 
         add(message);
@@ -78,6 +84,24 @@ public class GridMultiSelectionColumnPage extends Div {
         setUp(grid);
         grid.setId("in-memory-grid");
         add(new H2("In-memory grid"), grid);
+    }
+
+    private void createInMemoryGridWithNoSelectColumn() {
+        Grid<String> grid = new Grid<>();
+        grid.setItems(
+                IntStream.range(0, ITEM_COUNT).mapToObj(Integer::toString));
+        setUp(grid);
+        ((GridMultiSelectionModel)grid.getSelectionModel()).setSelectionColumnVisible(false);
+        grid.setId("in-memory-grid-no-select");
+        Button addSelect = new Button("Add Selection", event -> {
+            Set<Integer> selIns = grid.asMultiSelect().getSelectedItems().stream().map(Integer::parseInt).collect(Collectors.toSet());
+            IntStream.range(0, ITEM_COUNT).filter(i -> !selIns.contains(i)).findFirst().ifPresent(i -> {
+                selIns.add(i);
+                grid.asMultiSelect().select(selIns.stream().map(Object::toString).collect(Collectors.toList()));
+            });
+        });
+        addSelect.setId("in-memory-add-select-button");
+        add(new H2("In-memory grid with no select column"), grid, addSelect);
     }
 
     private void createGridWithSwappedDataProvider() {
