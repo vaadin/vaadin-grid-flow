@@ -45,14 +45,21 @@ public class ContextMenuGridPage extends Div {
 
     private void gridWithContextMenu() {
         grid = new Grid<>();
-        grid.addColumn(Person::getFirstName).setHeader("Name");
-        grid.addColumn(Person::getAge).setHeader("Born");
+        grid.addColumn(Person::getFirstName).setHeader("Name").setId("Name-Id");
+        grid.addColumn(Person::getAge).setHeader("Born").setId("Born-Id");
         grid.setItems(IntStream.range(0, 77)
                 .mapToObj(i -> new Person("Person " + i, 1900 + i)));
 
         GridContextMenu<Person> contextMenu = grid.addContextMenu();
         addItems(contextMenu);
         contextMenu.addComponentAtIndex(1, new Hr());
+
+        contextMenu.addGridContextMenuOpenedListener(event -> {
+            String name = event.getItem().map(Person::getFirstName)
+                    .orElse("no target item");
+            String columnId = event.getColumnId().orElse("No column");
+            message.setText("pre-open: name="+name+", colId="+columnId);
+        });
 
         NativeButton toggleOpenOnClick = new NativeButton(
                 "Toggle open on click",
