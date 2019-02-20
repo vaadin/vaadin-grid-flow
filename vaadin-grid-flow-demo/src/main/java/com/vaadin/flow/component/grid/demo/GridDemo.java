@@ -1895,7 +1895,7 @@ public class GridDemo extends DemoView {
         // end-source-example
         grid.setId("context-menu-grid");
         addCard("Context Menu", "Using ContextMenu With Grid", grid,
-                contextMenu, message);        // end-source-example
+                contextMenu, message);
     }
 
     // Context sub Menu begin
