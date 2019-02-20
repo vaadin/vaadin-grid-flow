@@ -1887,7 +1887,7 @@ public class GridDemo extends DemoView {
                 dataProvider.refreshAll();
             });
         });
-        contextMenu.addGridContextMenuOpenedChangeListener(event -> {
+        contextMenu.addGridContextMenuOpenedListener(event -> {
             message.setValue(String.format("Menu opened on\n Row: '%s'\n Column: '%s'",
                     event.getItem().map(p -> p.toString()).orElse("-no item-"),
                     event.getColumnId().orElse("-no column-")));

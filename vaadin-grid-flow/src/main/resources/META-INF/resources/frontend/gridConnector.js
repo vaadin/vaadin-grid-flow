@@ -875,9 +875,9 @@ window.Vaadin.Flow.gridConnector = {
     const contextMenuListener = function(e) {
       // https://github.com/vaadin/vaadin-grid/issues/1318
       const path = e.composedPath();
-      const index1 = path.indexOf(grid.$.table);
-      const row = path[index1 - 2]; // <tr> element in shadow dom
-      const cell = path[index1 - 3]; // cell element
+      const index = path.indexOf(grid.$.table);
+      const row = path[index - 2]; // <tr> element in shadow dom
+      const cell = path[index - 3]; // cell element
       let key;
       let colId;
       if (row && row._item) {

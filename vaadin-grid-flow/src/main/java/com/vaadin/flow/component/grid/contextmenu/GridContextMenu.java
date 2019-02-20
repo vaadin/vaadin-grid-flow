@@ -81,14 +81,14 @@ public class GridContextMenu<T> extends
         }
     }
 
-    public static class GridContextMenuOpenedChangeEvent<T>
+    public static class GridContextMenuOpenedEvent<T>
             extends OpenedChangeEvent<GridContextMenu<T>> {
 
         private final Grid<T> grid;
         private final Optional<T> item;
         private final Optional<String> columnId;
 
-        public GridContextMenuOpenedChangeEvent(GridContextMenu<T> source, boolean fromClient) {
+        public GridContextMenuOpenedEvent(GridContextMenu<T> source, boolean fromClient) {
             super(source, fromClient);
             grid = (Grid<T>) getSource().getTarget();
             item = Optional.ofNullable(grid.getDataCommunicator().getKeyMapper()
@@ -196,9 +196,9 @@ public class GridContextMenu<T> extends
      *            the listener to add
      * @return a Registration for removing the event listener
      */
-    public Registration addGridContextMenuOpenedChangeListener(
-            ComponentEventListener<GridContextMenuOpenedChangeEvent<T>> listener) {
-        return super.addOpenedChangeListener(ev -> listener.onComponentEvent(new GridContextMenuOpenedChangeEvent<>(ev.getSource(), ev.isFromClient())));
+    public Registration addGridContextMenuOpenedListener(
+            ComponentEventListener<GridContextMenuOpenedEvent<T>> listener) {
+        return super.addOpenedChangeListener(ev -> listener.onComponentEvent(new GridContextMenuOpenedEvent<>(ev.getSource(), ev.isFromClient())));
     }
 
 }
