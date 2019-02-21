@@ -1681,7 +1681,10 @@ public class GridView extends DemoView {
         // This is needed for the email column to turn into nothing when the
         // checkbox is desselected, for example.
         binder.addValueChangeListener(event -> {
-            grid.getEditor().refresh();
+            // Only updates from the client-side should be taken into account
+            if (event.isFromClient()) {
+                grid.getEditor().refresh();
+            }
         });
 
         grid.addItemClickListener(event -> {
