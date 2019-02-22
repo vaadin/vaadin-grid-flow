@@ -904,8 +904,11 @@ public class GridDemo extends DemoView {
         grid.asMultiSelect().select(personList.get(0), personList.get(1));
         // end-source-example
         grid.setId("multi-selection");
+        Checkbox selColVisibleCB = new Checkbox("Show Selection Column");
+        selColVisibleCB.setValue(true);
+        selColVisibleCB.addValueChangeListener(ev -> ((GridMultiSelectionModel)grid.getSelectionModel()).setSelectionColumnVisible(ev.getValue()));
         messageDiv.setId("multi-selection-message");
-        addCard("Selection", "Grid Multi Selection", grid, messageDiv);
+        addCard("Selection", "Grid Multi Selection", grid, selColVisibleCB, messageDiv);
     }
 
     private void createProgrammaticSelect() {
