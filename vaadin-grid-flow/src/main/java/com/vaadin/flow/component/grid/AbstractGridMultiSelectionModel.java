@@ -406,14 +406,4 @@ public abstract class AbstractGridMultiSelectionModel<T>
         removedItems.forEach(getGrid().getDataCommunicator()::refresh);
         getGrid().doClientSideDeselection(removedItems);
     }
-
-    @Override
-    public void setSelectionColumnVisible(boolean visible) {
-        selectionColumn.setVisible(visible);
-    }
-
-    @Override
-    public boolean isSelectionColumnVisible() {
-        return selectionColumn.isVisible();
-    }
 }

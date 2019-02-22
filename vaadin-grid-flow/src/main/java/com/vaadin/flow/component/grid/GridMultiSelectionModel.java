@@ -137,19 +137,4 @@ public interface GridMultiSelectionModel<T>
      * @return whether the selection column is frozen
      */
     boolean isSelectionColumnFrozen();
-
-    /**
-     * Sets the selection column's visible state (default: true).
-     *
-     * @param visible
-     *            whether to display or not the selection column
-     */
-    void setSelectionColumnVisible(boolean visible);
-
-    /**
-     * Gets the the selection column's visible state.
-     *
-     * @return whether the selection column is visible
-     */
-    boolean isSelectionColumnVisible();
 }
