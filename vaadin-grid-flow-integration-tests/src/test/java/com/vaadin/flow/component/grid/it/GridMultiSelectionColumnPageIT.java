@@ -79,33 +79,6 @@ public class GridMultiSelectionColumnPageIT extends AbstractComponentIT {
     }
 
     @Test
-    public void hiddenSelectColumn() {
-        open();
-
-        WebElement grid = findElement(By.id("in-memory-grid-no-select"));
-        WebElement selectAllCheckbox = grid
-                .findElement(By.id("selectAllCheckbox"));
-        Assert.assertFalse(
-                "selectAllCheckbox should not be displayed for this test",
-                selectAllCheckbox.isDisplayed());
-
-        WebElement message = findElement(By.id("selected-item-count"));
-
-        WebElement addSelButton = findElement(By.id("in-memory-add-select-button"));
-
-        for (int i = 0; i < 5; ++i) {
-            addSelButton.click();
-            Assert.assertEquals(
-                    "Selected item count: "+ (i+1),
-                    message.getText());
-            WebElement selectCheckbox = grid
-                    .findElements(By.tagName("vaadin-checkbox")).get(i);
-            Assert.assertFalse("Row checkbox should not be visible", selectCheckbox.isDisplayed());
-        }
-
-    }
-
-    @Test
     public void gridWithSwappedDataProvider_selectAllIsNotVisible_swapingDataProvidersChangeItsState() {
         open();
 
