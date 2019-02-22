@@ -1877,14 +1877,12 @@ public class GridDemo extends DemoView {
                     .getGrid().getDataProvider();
             dataProvider.refreshItem(person);
         }));
-        contextMenu.addItem("Remove", event -> {
-            event.getItem().ifPresent(person -> {
-                ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
-                        .getDataProvider();
-                dataProvider.getItems().remove(person);
-                dataProvider.refreshAll();
-            });
-        });
+        contextMenu.addItem("Remove", event -> event.getItem().ifPresent(person -> {
+            ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
+                    .getDataProvider();
+            dataProvider.getItems().remove(person);
+            dataProvider.refreshAll();
+        }));
         contextMenu.addGridContextMenuOpenedListener(event ->
                 message.setValue(String.format("Menu opened on\n Row: '%s'\n Column: '%s'",
                     event.getItem().map(Person::toString).orElse("-no item-"),
