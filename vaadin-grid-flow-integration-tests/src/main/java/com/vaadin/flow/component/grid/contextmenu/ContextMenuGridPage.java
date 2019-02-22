@@ -34,7 +34,6 @@ public class ContextMenuGridPage extends Div {
     private static final String NO_TARGET_ITEM = "no target item";
 
     private Label message;
-    private Grid<Person> grid;
 
     public ContextMenuGridPage() {
         message = new Label("-");
@@ -46,7 +45,7 @@ public class ContextMenuGridPage extends Div {
     }
 
     private void gridWithContextMenu() {
-        grid = new Grid<>();
+        final Grid<Person> grid = new Grid<>();
         grid.addColumn(Person::getFirstName).setHeader("Name").setId("Name-Id");
         grid.addColumn(Person::getAge).setHeader("Born").setId("Born-Id");
         grid.setItems(IntStream.range(0, 77)
