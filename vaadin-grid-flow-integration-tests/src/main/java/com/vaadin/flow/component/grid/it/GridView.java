@@ -1327,7 +1327,7 @@ public class GridView extends DemoView {
         // Add a keypress listener that listens for an escape key up event.
         // Note! some browsers return key as Escape and some as Esc
         grid.getElement().addEventListener("keyup", event -> editor.cancel())
-                .setFilter("event.key === 'Escape' || even.key === 'Esc'");
+                .setFilter("event.key === 'Escape' || event.key === 'Esc'");
 
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
@@ -1512,7 +1512,7 @@ public class GridView extends DemoView {
         // Add a keypress listener that listens for an escape key up event.
         // Note! some browsers return key as Escape and some as Esc
         grid.getElement().addEventListener("keyup", event -> editor.cancel())
-                .setFilter("event.key === 'Escape' || even.key === 'Esc'");
+                .setFilter("event.key === 'Escape' || event.key === 'Esc'");
 
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
@@ -1593,7 +1593,10 @@ public class GridView extends DemoView {
         // This is needed for the email column to turn into nothing when the
         // checkbox is deselected, for example.
         binder.addValueChangeListener(event -> {
-            grid.getEditor().refresh();
+            // Only updates from the client-side should be taken into account
+            if (event.isFromClient()) {
+                grid.getEditor().refresh();
+            }
         });
 
         grid.addItemClickListener(event -> {
