@@ -1043,6 +1043,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private final List<GridSortOrder<T>> sortOrder = new ArrayList<>();
 
+    private Class<T> beanType;
     private PropertySet<T> propertySet;
 
     private DataGenerator<T> itemDetailsDataGenerator;
@@ -1116,6 +1117,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public Grid(Class<T> beanType, boolean autoCreateColumns) {
         this();
         Objects.requireNonNull(beanType, "Bean type can't be null");
+        this.beanType = beanType;
         propertySet = BeanPropertySet.get(beanType);
         if (autoCreateColumns) {
             propertySet.getProperties()
@@ -3011,6 +3013,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 Objects.toString(b, ""));
     }
 
+    /**
+     * Returns the Class of bean this Grid is constructed with via
+     * {@link #Grid(Class)}. Or null if not constructed from a bean type.
+     * 
+     * @return the Class of bean this Grid is constructed with
+     */
+    public Class<T> getBeanType() {
+    	return beanType;
+    }
+    
     /**
      * Returns {@link PropertySet} of bean this Grid is constructed with via
      * {@link #Grid(Class)}. Or null if not constructed from a bean type.
