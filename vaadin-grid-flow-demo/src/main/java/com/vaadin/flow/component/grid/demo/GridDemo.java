@@ -25,6 +25,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.demo.data.*;
+import com.vaadin.flow.component.grid.demo.entity.*;
+import com.vaadin.flow.component.grid.demo.service.AccountService;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.flow.component.Component;
@@ -70,11 +78,11 @@ import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
-import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.demo.DemoView;
-import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.Route;
+
+import static com.vaadin.flow.component.grid.demo.data.CountryData.UNITED_STATES;
 
 @Route("vaadin-grid")
 @HtmlImport("grid-demo-styles.html")
@@ -650,7 +658,6 @@ public class GridDemo extends DemoView {
         createBasicTreeGridUsage();// TreeGrid
         createLazyLoadingTreeGridUsage();
         createContextMenu();// Context Menu
-        createContextSubMenu();// Context Sub Menu
         createClickListener();// Click Listener
         createDoubleClickListener();
         createBufferedEditor();// Grid Editor
@@ -1660,6 +1667,7 @@ public class GridDemo extends DemoView {
     private Map<PersonWithLevel, List<PersonWithLevel>> childMap;
 
     private void createBasicTreeGridUsage() {
+        DepartmentData departmentData = new DepartmentData();
         childMap = new HashMap<>();
         TextArea message = new TextArea("");
         message.setHeight("100px");
@@ -1667,19 +1675,12 @@ public class GridDemo extends DemoView {
 
         // begin-source-example
         // source-example-heading: TreeGrid Basics
-        TreeGrid<PersonWithLevel> grid = new TreeGrid<>();
-        grid.setItems(getRootItems(), item -> {
-            if ((item.getLevel() == 0 && item.getId() > 10)
-                    || item.getLevel() > 1) {
-                return Collections.emptyList();
-            }
-            if (!childMap.containsKey(item)) {
-                childMap.put(item, createSubItems(81, item.getLevel() + 1));
-            }
-            return childMap.get(item);
-        });
-        grid.addHierarchyColumn(Person::getfirstName).setHeader("Hierarchy");
-        grid.addColumn(Person::getAge).setHeader("Age");
+        TreeGrid<Department> grid = new TreeGrid<>();
+
+        grid.setItems(departmentData.getRootDepartments(), department ->
+                departmentData.getChildDepartments(department));
+        grid.addHierarchyColumn(Department::getName).setHeader("Hierarchy");
+        grid.addColumn(Department::getDescription).setHeader("Description");
 
         grid.addExpandListener(event -> message.setValue(
                 String.format("Expanded %s item(s)", event.getItems().size())
@@ -1690,196 +1691,120 @@ public class GridDemo extends DemoView {
 
         // end-source-example
         grid.setId("treegridbasic");
-
-        TextField name = new TextField("Name of selected person");
-        grid.addSelectionListener(event -> name.setValue(event
-                .getFirstSelectedItem().map(Person::getfirstName).orElse("")));
-        NativeButton save = new NativeButton("Save", event -> {
-            grid.getSelectionModel().getFirstSelectedItem()
-                    .ifPresent(person -> person.setfirstName(name.getValue()));
-            grid.getSelectionModel().getFirstSelectedItem().ifPresent(
-                    person -> grid.getDataProvider().refreshItem(person));
-        });
-        HorizontalLayout nameEditor = new HorizontalLayout(name, save);
-
         addCard("TreeGrid", "TreeGrid Basics", withTreeGridToggleButtons(
-                getRootItems(), grid, nameEditor, message));
+                departmentData.getRootDepartments().get(0), grid, message));
     }
 
-    private <T> Component[] withTreeGridToggleButtons(List<T> roots,
-            TreeGrid<T> grid, Component... other) {
+    private <T> Component[] withTreeGridToggleButtons(T root,
+                                                      TreeGrid<T> grid, Component... other) {
         NativeButton toggleFirstItem = new NativeButton("Toggle first item",
                 evt -> {
-                    if (grid.isExpanded(roots.get(0))) {
-                        grid.collapse(roots.get(0));
+                    if (grid.isExpanded(root)) {
+                        grid.collapseRecursively(Collections.singleton(root), 0);
                     } else {
-                        grid.expand(roots.get(0));
+                        grid.expandRecursively(Collections.singleton(root), 0);
                     }
                 });
         toggleFirstItem.setId("treegrid-toggle-first-item");
         Div div1 = new Div(toggleFirstItem);
 
-        NativeButton toggleSeveralItems = new NativeButton(
-                "Toggle first three items", evt -> {
-                    List<T> collapse = new ArrayList<>();
-                    List<T> expand = new ArrayList<>();
-                    roots.stream().limit(3).collect(Collectors.toList())
-                            .forEach(p -> {
-                                if (grid.isExpanded(p)) {
-                                    collapse.add(p);
-                                } else {
-                                    expand.add(p);
-                                }
-                            });
-                    if (!expand.isEmpty()) {
-                        grid.expand(expand);
-                    }
-                    if (!collapse.isEmpty()) {
-                        grid.collapse(collapse);
-                    }
-                });
-        toggleSeveralItems.setId("treegrid-toggle-first-five-item");
-        Div div2 = new Div(toggleSeveralItems);
-
         NativeButton toggleRecursivelyFirstItem = new NativeButton(
                 "Toggle first item recursively", evt -> {
-                    if (grid.isExpanded(roots.get(0))) {
-                        grid.collapseRecursively(roots.stream().limit(1), 2);
-                    } else {
-                        grid.expandRecursively(roots.stream().limit(1), 2);
-                    }
-                });
+            if (grid.isExpanded(root)) {
+                grid.collapseRecursively(Collections.singleton(root), 2);
+            } else {
+                grid.expandRecursively(Collections.singleton(root), 2);
+            }
+        });
         toggleFirstItem.setId("treegrid-toggle-first-item-recur");
         Div div3 = new Div(toggleRecursivelyFirstItem);
-
-        NativeButton toggleAllRecursively = new NativeButton(
-                "Toggle all recursively", evt -> {
-                    List<T> collapse = new ArrayList<>();
-                    List<T> expand = new ArrayList<>();
-                    roots.forEach(p -> {
-                        if (grid.isExpanded(p)) {
-                            collapse.add(p);
-                        } else {
-                            expand.add(p);
-                        }
-                    });
-                    if (!expand.isEmpty()) {
-                        grid.expandRecursively(expand, 2);
-                    }
-                    if (!collapse.isEmpty()) {
-                        grid.collapseRecursively(collapse, 2);
-                    }
-                });
-        toggleAllRecursively.setId("treegrid-toggle-all-recur");
-        Div div4 = new Div(toggleAllRecursively);
-
-        return Stream.concat(Stream.of(grid, div1, div2, div3, div4),
+        return Stream.concat(Stream.of(grid, div1, div3),
                 Stream.of(other)).toArray(Component[]::new);
     }
 
     // TreeGrid with lazy loading
     private void createLazyLoadingTreeGridUsage() {
+        AccountService accountService = new AccountService();
         TextArea message = new TextArea("");
         message.setHeight("100px");
         message.setReadOnly(true);
 
         // begin-source-example
         // source-example-heading: TreeGrid with lazy loading
-        TreeGrid<HierarchicalTestBean> grid = new TreeGrid<>();
-        grid.addHierarchyColumn(HierarchicalTestBean::toString)
-                .setHeader("Hierarchy");
-        grid.addColumn(HierarchicalTestBean::getDepth).setHeader("Depth");
-        grid.addColumn(HierarchicalTestBean::getIndex)
-                .setHeader("Index on this depth");
-        grid.setDataProvider(
-                new AbstractBackEndHierarchicalDataProvider<HierarchicalTestBean, Void>() {
+        TreeGrid<Account> grid = new TreeGrid<>();
+        grid.addHierarchyColumn(Account::toString).setHeader("Hierarchy");
+        grid.addColumn(Account::getCode).setHeader("Code");
 
-                    private final int nodesPerLevel = 3;
-                    private final int depth = 2;
+        HierarchicalDataProvider dataProvider =
+                new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
 
-                    @Override
-                    public int getChildCount(
-                            HierarchicalQuery<HierarchicalTestBean, Void> query) {
+            @Override
+            public int getChildCount(HierarchicalQuery<Account, Void> query) {
+                return (int) accountService.getChildCount(query.getParent());
+            }
+            @Override
+            public boolean hasChildren(Account item) {
+                return accountService.hasChildren(item);
+            }
+            @Override
+            protected Stream<Account> fetchChildrenFromBackEnd(
+                    HierarchicalQuery<Account, Void> query) {
+                return accountService.fetchChildren(query.getParent()).stream();
+            }
+        };
 
-                        Optional<Integer> count = query.getParentOptional()
-                                .flatMap(parent -> Optional.of(Integer
-                                        .valueOf((internalHasChildren(parent)
-                                                ? nodesPerLevel
-                                                : 0))));
-
-                        return count.orElse(nodesPerLevel);
-                    }
-
-                    @Override
-                    public boolean hasChildren(HierarchicalTestBean item) {
-                        return internalHasChildren(item);
-                    }
-
-                    private boolean internalHasChildren(
-                            HierarchicalTestBean node) {
-                        return node.getDepth() < depth;
-                    }
-
-                    @Override
-                    protected Stream<HierarchicalTestBean> fetchChildrenFromBackEnd(
-                            HierarchicalQuery<HierarchicalTestBean, Void> query) {
-                        final int depth = query.getParentOptional().isPresent()
-                                ? query.getParent().getDepth() + 1
-                                : 0;
-                        final Optional<String> parentKey = query
-                                .getParentOptional()
-                                .flatMap(parent -> Optional.of(parent.getId()));
-
-                        List<HierarchicalTestBean> list = new ArrayList<>();
-                        int limit = Math.min(query.getLimit(), nodesPerLevel);
-                        for (int i = 0; i < limit; i++) {
-                            list.add(new HierarchicalTestBean(
-                                    parentKey.orElse(null), depth,
-                                    i + query.getOffset()));
-                        }
-                        return list.stream();
-                    }
-                });
+        grid.setDataProvider(dataProvider);
 
         // end-source-example
         grid.setId("treegridlazy");
-
-        grid.addExpandListener(event -> message.setValue(
-                String.format("Expanded %s item(s)", event.getItems().size())
-                        + "\n" + message.getValue()));
-        grid.addCollapseListener(event -> message.setValue(
-                String.format("Collapsed %s item(s)", event.getItems().size())
-                        + "\n" + message.getValue()));
-
-        addCard("TreeGrid", "TreeGrid with lazy loading",
-                withTreeGridToggleButtons(grid.getDataProvider().fetch(
-                        new HierarchicalQuery<HierarchicalTestBean, SerializablePredicate<HierarchicalTestBean>>(
-                                null, null))
-                        .collect(Collectors.toList()), grid, message));
+        addCard("TreeGrid", "TreeGrid with lazy loading", grid);
     }
 
     // Context Menu begin
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void createContextMenu() {
+        TaskData taskData = new TaskData();
+        List<Task> taskList = taskData.getTasks();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
         // begin-source-example
         // source-example-heading: Using ContextMenu With Grid
-        Grid<Person> grid = new Grid<>();
-        grid.setItems(getItems());
-        grid.addColumn(Person::getfirstName).setHeader("First name");
-        grid.addColumn(Person::getAge).setHeader("Age");
-        GridContextMenu<Person> contextMenu = new GridContextMenu<>(grid);
-        contextMenu.addItem("Update", event -> {
-            event.getItem().ifPresent(person -> {
-                person.setfirstName(person.getfirstName() + " Updated");
-                ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) event
-                        .getGrid().getDataProvider();
-                dataProvider.refreshItem(person);
-            });
+        Grid<Task> grid = new Grid<>();
+        ListDataProvider<Task> dataProvider = DataProvider
+                .ofCollection(taskData.getTasks());
+
+        grid.setDataProvider(dataProvider);
+        grid.addColumn(Task::getName).setHeader("Task name");
+        grid.addColumn(Task::getDueDate).setHeader("Due date");
+        GridContextMenu<Task> contextMenu = new GridContextMenu<>(grid);
+        GridMenuItem<Task> insert = contextMenu.addItem("Insert");
+
+        insert.getSubMenu().addItem("Add a task before", event -> {
+            Optional<Task> item = event.getItem();
+            if (!item.isPresent()) {
+                return;
+            }
+            List<Task> items = (List) dataProvider.getItems();
+            items.add(items.indexOf(item.get()),
+                 new Task(100, "New Task", LocalDate.parse("02/01/2019", formatter)));
+            dataProvider.refreshAll();
         });
+        insert.getSubMenu().add(new Hr());
+        insert.getSubMenu().addItem("Add a task after", event -> {
+            Optional<Task> item = event.getItem();
+            if (!item.isPresent()) {
+                // no selected row
+                return;
+            }
+            List<Task> items = (List) dataProvider.getItems();
+            items.add(items.indexOf(item.get()) + 1,
+                 new Task(100, "New Task", LocalDate.parse("02/01/2019", formatter)));
+            dataProvider.refreshAll();
+        });
+
         contextMenu.addItem("Remove", event -> {
-            event.getItem().ifPresent(person -> {
-                ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
-                        .getDataProvider();
-                dataProvider.getItems().remove(person);
+            event.getItem().ifPresent(task -> {
+                dataProvider.getItems().remove(task);
                 dataProvider.refreshAll();
             });
         });
@@ -1889,54 +1814,12 @@ public class GridDemo extends DemoView {
                 contextMenu);
     }
 
-    // Context sub Menu begin
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void createContextSubMenu() {
-        // begin-source-example
-        // source-example-heading: Using Context Sub Menu With Grid
-        Grid<Person> grid = new Grid<>();
-
-        ListDataProvider<Person> dataProvider = DataProvider
-                .ofCollection(new PersonService().fetchAll());
-
-        grid.setDataProvider(dataProvider);
-
-        grid.addColumn(Person::getfirstName).setHeader("First name");
-        grid.addColumn(Person::getAge).setHeader("Age");
-        GridContextMenu<Person> contextMenu = new GridContextMenu<>(grid);
-        GridMenuItem<Person> insert = contextMenu.addItem("Insert");
-
-        insert.getSubMenu().addItem("Insert a row above", event -> {
-            Optional<Person> item = event.getItem();
-            if (!item.isPresent()) {
-                // no selected row
-                return;
-            }
-            List<Person> items = (List) dataProvider.getItems();
-            items.add(items.indexOf(item.get()), createItems(1).get(0));
-            dataProvider.refreshAll();
-        });
-        insert.getSubMenu().add(new Hr());
-        insert.getSubMenu().addItem("Insert a row below", event -> {
-            Optional<Person> item = event.getItem();
-            if (!item.isPresent()) {
-                // no selected row
-                return;
-            }
-            List<Person> items = (List) dataProvider.getItems();
-            items.add(items.indexOf(item.get()) + 1, createItems(1).get(0));
-            dataProvider.refreshAll();
-        });
-        // end-source-example
-        grid.setId("context-menu-grid");
-        addCard("Context Menu", "Using Context Sub Menu With Grid", grid,
-                contextMenu);
-    }
-
     // Click Listener Begin
     private void createClickListener() {
-        Div message = new Div();
-        message.setId("clicked-item");
+
+        FormLayout formLayout = new FormLayout();
+        Label name = new Label();
+        Label age = new Label();
 
         // begin-source-example
         // source-example-heading: Item Click Listener
@@ -1948,19 +1831,28 @@ public class GridDemo extends DemoView {
         // Disable selection: will receive only click events instead
         grid.setSelectionMode(Grid.SelectionMode.NONE);
 
+        formLayout.add(name,age);
+        formLayout.addFormItem(name, "Name");
+        formLayout.addFormItem(age, "Age");
+
         grid.addItemClickListener(
-                event -> message.setText("Clicked Item: " + event.getItem()));
+                event -> {
+                    name.setText(event.getItem().getfirstName());
+                    age.setText(String.valueOf(event.getItem().getAge()));
+                });
 
         // end-source-example
         grid.setId("item-click-listener");
-
-        message.addClickListener(event -> message.setText(""));
-        addCard("Click Listeners", "Item Click Listener", message, grid);
+        addCard("Click Listeners", "Item Click Listener",grid,formLayout);
     }
 
     private void createDoubleClickListener() {
         Div message = new Div();
         message.setId("doubleclicked-item");
+        FormLayout formLayout = new FormLayout();
+        Label name = new Label();
+        Label age = new Label();
+
 
         // begin-source-example
         // source-example-heading: Item Double Click Listener
@@ -1969,17 +1861,25 @@ public class GridDemo extends DemoView {
         grid.addColumn(Person::getfirstName).setHeader("First name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
-        grid.addItemDoubleClickListener(event -> message
-                .setText("Double Clicked Item: " + event.getItem()));
+        formLayout.add(name, age);
+        formLayout.addFormItem(name, "Name");
+        formLayout.addFormItem(age, "Age");
+
+        grid.addItemDoubleClickListener(event -> {
+            name.setText(event.getItem().getfirstName());
+            age.setText(String.valueOf(event.getItem().getAge()));
+        });
 
         // end-source-example
         grid.setId("item-doubleclick-listener");
         message.addClickListener(event -> message.setText(""));
-        addCard("Click Listeners", "Item Double Click Listener", message, grid);
+        addCard("Click Listeners", "Item Double Click Listener", grid, formLayout);
     }
 
     // Grid Editor
     private void createBufferedEditor() {
+        PersonService personService = new PersonService();
+        List<Person> personList = personService.fetchAll();
         Div message = new Div();
         message.setId("buffered-editor-msg");
 
@@ -1988,10 +1888,10 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         List<Person> persons = getItems();
         grid.setItems(persons);
-        Grid.Column<Person> nameColumn = grid.addColumn(Person::getfirstName)
+        Grid.Column<Person> firstNameColumn = grid.addColumn(Person::getfirstName)
                 .setHeader("First name");
-        Grid.Column<Person> subscriberColumn = grid
-                .addColumn(Person::isSubscriber).setHeader("Subscriber");
+        Grid.Column<Person> ageColumn = grid
+                .addColumn(Person::getAge).setHeader("Age");
 
         Binder<Person> binder = new Binder<>(Person.class);
         Editor<Person> editor = grid.getEditor();
@@ -2001,16 +1901,18 @@ public class GridDemo extends DemoView {
         Div validationStatus = new Div();
         validationStatus.setId("validation");
 
-        TextField field = new TextField();
-        binder.forField(field)
-                .withValidator(name -> name.startsWith("Person"),
-                        "Name should start with Person")
+        TextField firstNameField = new TextField();
+        binder.forField(firstNameField)
+                .withValidator( new StringLengthValidator("First name length must be between 3 and 50.", 3, 50))
                 .withStatusLabel(validationStatus).bind("firstName");
-        nameColumn.setEditorComponent(field);
+        firstNameColumn.setEditorComponent(firstNameField);
 
-        Checkbox checkbox = new Checkbox();
-        binder.bind(checkbox, "subscriber");
-        subscriberColumn.setEditorComponent(checkbox);
+        TextField ageField = new TextField();
+        binder.forField(ageField)
+                .withConverter(
+                        new StringToIntegerConverter("Age must be a number."))
+                .withStatusLabel(validationStatus).bind("age");
+        ageColumn.setEditorComponent(ageField);
 
         Collection<Button> editButtons = Collections
                 .newSetFromMap(new WeakHashMap<>());
@@ -2020,17 +1922,11 @@ public class GridDemo extends DemoView {
             edit.addClassName("edit");
             edit.addClickListener(e -> {
                 editor.editItem(person);
-                field.focus();
+                firstNameField.focus();
             });
             edit.setEnabled(!editor.isOpen());
-            editButtons.add(edit);
             return edit;
         });
-
-        editor.addOpenListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editor.isOpen())));
-        editor.addCloseListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
@@ -2048,7 +1944,7 @@ public class GridDemo extends DemoView {
 
         editor.addSaveListener(
                 event -> message.setText(event.getItem().getfirstName() + ", "
-                        + event.getItem().isSubscriber));
+                        + event.getItem().getAge()));
 
         // end-source-example
         grid.setId("buffered-editor");
@@ -2057,6 +1953,7 @@ public class GridDemo extends DemoView {
     }
 
     private void createNotBufferedEditor() {
+        PersonService personService = new PersonService();
         Div message = new Div();
         message.setId("not-buffered-editor-msg");
 
@@ -2066,42 +1963,45 @@ public class GridDemo extends DemoView {
         List<Person> persons = getItems();
         grid.setItems(persons);
         Grid.Column<Person> nameColumn = grid.addColumn(Person::getfirstName)
-                .setHeader("First name");
-        Grid.Column<Person> subscriberColumn = grid
-                .addColumn(Person::isSubscriber).setHeader("Subscriber");
+                .setHeader("First Name");
+        Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
+                .setHeader("Age");
 
         Binder<Person> binder = new Binder<>(Person.class);
         grid.getEditor().setBinder(binder);
 
-        TextField field = new TextField();
+        TextField firstNameField = new TextField();
+        TextField ageField = new TextField();
         // Close the editor in case of backward between components
-        field.getElement()
+        firstNameField.getElement()
                 .addEventListener("keydown",
-                        event -> grid.getEditor().closeEditor())
+                        event -> grid.getEditor().cancel())
                 .setFilter("event.key === 'Tab' && event.shiftKey");
 
-        binder.bind(field, "firstName");
-        nameColumn.setEditorComponent(field);
+        binder.forField(firstNameField)
+                .withValidator(new StringLengthValidator("First name length must be between 3 and 50.", 3, 50))
+                .bind("firstName");
+        nameColumn.setEditorComponent(firstNameField);
 
-        Checkbox checkbox = new Checkbox();
-        binder.bind(checkbox, "subscriber");
-        subscriberColumn.setEditorComponent(checkbox);
-
-        // Close the editor in case of forward navigation between
-        checkbox.getElement()
+        ageField.getElement()
                 .addEventListener("keydown",
-                        event -> grid.getEditor().closeEditor())
-                .setFilter("event.key === 'Tab' && !event.shiftKey");
+                        event -> grid.getEditor().cancel())
+                .setFilter("event.key === 'Tab'");
+        binder.forField(ageField)
+                .withConverter(
+                        new StringToIntegerConverter("Age must be a number."))
+                .bind("age");
+        ageColumn.setEditorComponent(ageField);
 
         grid.addItemDoubleClickListener(event -> {
             grid.getEditor().editItem(event.getItem());
-            field.focus();
+            firstNameField.focus();
         });
 
-        grid.addItemClickListener(event -> {
+        grid.getEditor().addCloseListener(event -> {
             if (binder.getBean() != null) {
                 message.setText(binder.getBean().getfirstName() + ", "
-                        + binder.getBean().isSubscriber());
+                        + binder.getBean().getAge());
             }
         });
 
@@ -2113,109 +2013,106 @@ public class GridDemo extends DemoView {
     private void createBufferedDynamicEditor() {
         Div message = new Div();
         message.setId("buffered-dynamic-editor-msg");
+        CustomerData customerData = new CustomerData();
+        List<Customer> customerList = customerData.getAllCustomers();
+
+        StatesData statesData = new StatesData();
+        List<String> stateList = statesData.getAllStates();
+
+        CountryData countryData = new CountryData();
+        List<String> countryList = countryData.getAllCountries();
 
         // begin-source-example
         // source-example-heading: Dynamic Editor in Buffered Mode
-        Grid<Person> grid = new Grid<>();
-        List<Person> persons = new ArrayList<>();
-        persons.addAll(createItems());
-        grid.setItems(persons);
+        Grid<Customer> grid = new Grid<>();
+        grid.setItems(customerList);
 
-        Grid.Column<Person> nameColumn = grid.addColumn(Person::getfirstName)
-                .setHeader("Name");
-        Grid.Column<Person> subscriberColumn = grid
-                .addColumn(Person::isSubscriber).setHeader("Subscriber");
-        Grid.Column<Person> emailColumn = grid.addColumn(Person::getEmail)
-                .setHeader("E-mail");
+        Grid.Column<Customer> firstNameColumn = grid.addColumn(Customer::getFirstName)
+                .setHeader("First name");
+        Grid.Column<Customer> countryColumn = grid.addColumn(Customer::getCountry)
+                .setHeader("Country");
+        Grid.Column<Customer> stateColumn = grid
+                .addColumn(Customer::getState).setHeader("State/Province");
 
-        Binder<Person> binder = new Binder<>(Person.class);
-        Editor<Person> editor = grid.getEditor();
+        Binder<Customer> binder = new Binder<>(Customer.class);
+        Editor<Customer> editor = grid.getEditor();
         editor.setBinder(binder);
         editor.setBuffered(true);
 
-        TextField field = new TextField();
-        binder.bind(field, "firstName");
-        nameColumn.setEditorComponent(field);
+        TextField firstNameField = new TextField();
+        binder.bind(firstNameField, "firstName");
+        firstNameColumn.setEditorComponent(firstNameField);
 
-        Div validationStatus = new Div();
-        validationStatus.getStyle().set("color", "red");
-        validationStatus.setId("email-validation");
+        Select<String> countrySelect = new Select<>();
+        countrySelect.setItems(countryList);
+        binder.bind(countrySelect, "country");
+        countryColumn.setEditorComponent(countrySelect);
 
-        Checkbox checkbox = new Checkbox();
-        binder.bind(checkbox, "subscriber");
-        subscriberColumn.setEditorComponent(checkbox);
+        TextField stateTextField = new TextField();
 
-        TextField emailField = new TextField();
+        Select<String> stateSelect = new Select<>();
+        stateSelect.setItems(stateList);
 
-        // When not a subscriber, we want to show a read-only text-field that
-        // ignores whatever is set to it
-        TextField readOnlyEmail = new TextField();
-        readOnlyEmail.setValue("Not a subscriber");
-        readOnlyEmail.setReadOnly(true);
+        Runnable bindStateTextField = () -> {
+            binder.forField(stateTextField)
+                    .bind("state");
+        };
 
-        Runnable bindEmail = () -> binder.forField(emailField)
-                .withValidator(new EmailValidator("Invalid email"))
-                .withStatusLabel(validationStatus).bind("email");
+        Runnable bindStateSelect = () -> {
+            binder.forField(stateSelect).bind("state");
+        };
 
-        Runnable setEmail = () -> emailColumn.setEditorComponent(item -> {
-            if (item.isSubscriber()) {
-                bindEmail.run();
-                return emailField;
+        Runnable setState = () -> stateColumn.setEditorComponent(item -> {
+            if (UNITED_STATES.equals(item.getCountry())) {
+                bindStateSelect.run();
+                return stateSelect;
             } else {
-                return readOnlyEmail;
+                bindStateTextField.run();
+                return stateTextField;
             }
         });
 
-        // Sets the binding based on the Person bean state
-        setEmail.run();
+        // Sets the binding based on the Person's country
+        setState.run();
 
-        // Refresh subscriber editor component when checkbox value is changed
-        checkbox.addValueChangeListener(event -> {
+        // Refresh state editor component when country is changed
+        countrySelect.addValueChangeListener(event -> {
             // Only updates from the client-side should be taken into account
             if (event.isFromClient()) {
 
                 // When using buffered mode, the partial updates shouldn't be
                 // propagated to the bean before the Save button is clicked, so
                 // here we need to override the binding function to take the
-                // checkbox state into consideration instead
-                emailColumn.setEditorComponent(item -> {
-                    if (checkbox.getValue()) {
-                        bindEmail.run();
-                        return emailField;
+                // country value into consideration instead
+                stateColumn.setEditorComponent(item -> {
+                    if (UNITED_STATES.equals(event.getValue())) {
+                        bindStateSelect.run();
+                        return stateSelect;
                     } else {
-                        return readOnlyEmail;
+                        bindStateTextField.run();
+                        return stateTextField;
                     }
                 });
                 grid.getEditor().refresh();
             }
         });
 
-        Collection<Button> editButtons = Collections
-                .newSetFromMap(new WeakHashMap<>());
-
         // Resets the binding function to use the bean state whenever the editor
         // is closed
         editor.addCloseListener(event -> {
-            setEmail.run();
-            editButtons.stream().forEach(button -> button.setEnabled(true));
+            setState.run();
         });
 
-        Grid.Column<Person> editorColumn = grid.addComponentColumn(person -> {
+        Grid.Column<Customer> editorColumn = grid.addComponentColumn(customer -> {
             Button edit = new Button("Edit");
             edit.addClassName("edit");
             edit.addClickListener(e -> {
-                editor.editItem(person);
-                field.focus();
+                editor.editItem(customer);
+                firstNameField.focus();
             });
             edit.setEnabled(!editor.isOpen());
-            editButtons.add(edit);
             return edit;
         });
-
-        editor.addOpenListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editor.isOpen())));
-        editor.addCloseListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
@@ -2232,75 +2129,85 @@ public class GridDemo extends DemoView {
         editorColumn.setEditorComponent(buttons);
 
         editor.addSaveListener(
-                event -> message.setText(event.getItem().getfirstName() + ", "
-                        + event.getItem().isSubscriber + ", "
-                        + event.getItem().getEmail()));
-
+                event -> message.setText(event.getItem().getFirstName() + ", "
+                        + event.getItem().getCountry() + ", "
+                        + event.getItem().getState()));
         // end-source-example
         grid.setId("buffered-dynamic-editor");
-        addCard("Grid Editor", "Dynamic Editor in Buffered Mode", message,
-                validationStatus, grid);
+        addCard("Grid Editor", "Dynamic Editor in Buffered Mode", message, grid);
     }
 
     private void createNotBufferedDynamicEditor() {
         Div message = new Div();
         message.setId("not-buffered-dynamic-editor-msg");
+        CustomerData customerData = new CustomerData();
+        List<Customer> customerList = customerData.getAllCustomers();
+
+        StatesData statesData = new StatesData();
+        List<String> stateList = statesData.getAllStates();
+
+        CountryData countryData = new CountryData();
+        List<String> countryList = countryData.getAllCountries();
 
         // begin-source-example
         // source-example-heading: Dynamic Editor in Not Buffered Mode
-        Grid<Person> grid = new Grid<>();
-        List<Person> persons = new ArrayList<>();
-        persons.addAll(createItems());
-        grid.setItems(persons);
+        Grid<Customer> grid = new Grid<>();
+        grid.setItems(customerList);
 
-        Grid.Column<Person> nameColumn = grid.addColumn(Person::getfirstName)
-                .setHeader("Name");
-        Grid.Column<Person> subscriberColumn = grid
-                .addColumn(Person::isSubscriber).setHeader("Subscriber");
-        Grid.Column<Person> emailColumn = grid.addColumn(Person::getEmail)
-                .setHeader("E-mail");
+        Grid.Column<Customer> firstNameColumn = grid.addColumn(Customer::getFirstName)
+                .setHeader("First name");
+        Grid.Column<Customer> countryColumn = grid
+                .addColumn(Customer::getCountry).setHeader("Country");
+        Grid.Column<Customer> stateColumn = grid.addColumn(Customer::getState)
+                .setHeader("State");
 
-        Binder<Person> binder = new Binder<>(Person.class);
-        Editor<Person> editor = grid.getEditor();
+        Binder<Customer> binder = new Binder<>(Customer.class);
+        Editor<Customer> editor = grid.getEditor();
         editor.setBinder(binder);
 
-        TextField field = new TextField();
+        TextField firstNameField = new TextField();
         // Close the editor in case of backward navigation between components
-        field.getElement()
+        firstNameField.getElement()
                 .addEventListener("keydown",
-                        event -> grid.getEditor().closeEditor())
+                        event -> grid.getEditor().cancel())
                 .setFilter("event.key === 'Tab' && event.shiftKey");
-        binder.bind(field, "firstName");
-        nameColumn.setEditorComponent(field);
+        binder.bind(firstNameField, "firstName");
+        firstNameColumn.setEditorComponent(firstNameField);
 
-        Checkbox checkbox = new Checkbox();
-        binder.bind(checkbox, "subscriber");
-        subscriberColumn.setEditorComponent(checkbox);
+        Select<String> countrySelect = new Select<>();
+        countrySelect.setItems(countryList);
+        binder.bind(countrySelect, "country");
+        countryColumn.setEditorComponent(countrySelect);
         // Close the editor in case of forward navigation between components
-        checkbox.getElement().addEventListener("keydown", event -> {
-            if (!checkbox.getValue()) {
-                grid.getEditor().closeEditor();
+        countrySelect.getElement().addEventListener("keydown", event -> {
+            if (UNITED_STATES.equals(countrySelect.getValue())) {
+                grid.getEditor().cancel();
             }
         }).setFilter("event.key === 'Tab' && !event.shiftKey");
 
-        TextField emailField = new TextField();
-        emailColumn.setEditorComponent(item -> {
-            if (item.isSubscriber()) {
-                binder.bind(emailField, "email");
-                return emailField;
+        TextField stateTextField = new TextField();
+        Select<String> stateSelect = new Select<>();
+        stateSelect.setItems(stateList);
+        binder.bind(stateSelect, "state");
+
+        stateColumn.setEditorComponent(item -> {
+            if (UNITED_STATES.equals(item.getCountry())) {
+                binder.bind(stateSelect, "state");
+                return stateSelect;
             } else {
-                return null;
+                binder.bind(stateTextField, "state");
+                return stateTextField;
             }
         });
         // Close the editor in case of forward navigation between components
-        emailField.getElement()
+        stateTextField.getElement()
                 .addEventListener("keydown",
-                        event -> grid.getEditor().closeEditor())
+                        event -> grid.getEditor().cancel())
                 .setFilter("event.key === 'Tab' && !event.shiftKey");
 
         grid.addItemDoubleClickListener(event -> {
             grid.getEditor().editItem(event.getItem());
-            field.focus();
+            stateTextField.focus();
         });
 
         // Re-validates the editors every time something changes on the Binder.
@@ -2310,11 +2217,11 @@ public class GridDemo extends DemoView {
             grid.getEditor().refresh();
         });
 
-        grid.addItemClickListener(event -> {
+        grid.getEditor().addCloseListener(event -> {
             if (binder.getBean() != null) {
-                message.setText(binder.getBean().getfirstName() + ", "
-                        + binder.getBean().isSubscriber() + ", "
-                        + binder.getBean().getEmail());
+                message.setText(binder.getBean().getFirstName() + ", "
+                        + binder.getBean().getCountry() + ", "
+                        + binder.getBean().getState());
             }
         });
 
