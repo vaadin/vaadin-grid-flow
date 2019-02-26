@@ -41,7 +41,7 @@ public class GridTRElement extends TestBenchElement {
 
     /**
      * Gets the row details for this row.
-     * 
+     *
      * @return the details cell
      */
     public GridTHTDElement getDetails() {
@@ -78,27 +78,10 @@ public class GridTRElement extends TestBenchElement {
         getGrid().deselect(this);
     }
 
-    /**
-     * Gets the grid containing this element.
-     *
-     * @return the grid for this element
-     */
-    public GridElement getGrid() {
+    private GridElement getGrid() {
         return ((TestBenchElement) executeScript(
                 "return arguments[0].getRootNode().host", this))
                         .wrap(GridElement.class);
     }
 
-    /**
-     * Gets the details container for this row.
-     *
-     * @return the element containing the details, if any
-     */
-    public GridTHTDElement getDetailsRow() {
-        return ((TestBenchElement) executeScript("const tr = arguments[0];"
-                + "const grid = tr.getRootNode().host;" //
-                + "return grid._detailsCells" //
-                + ".filter(function(cell) {return cell.parentElement.rowIndex && cell.parentElement.rowIndex == tr.rowIndex;})[0]"
-                + ";", this)).wrap(GridTHTDElement.class);
-    }
 }
