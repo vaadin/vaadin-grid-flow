@@ -542,7 +542,7 @@ window.Vaadin.Flow.gridConnector = {
      * @param array items the items to update in DOM
      */
     const updateGridItemsInDomBasedOnCache = function(items) {
-      if (!items) {
+      if (!items || !grid._physicalItems) {
         return;
       }
       /**
@@ -811,6 +811,12 @@ window.Vaadin.Flow.gridConnector = {
           let callback = rootPageCallbacks[page];
           delete rootPageCallbacks[page];
           callback(cache[root][page] || new Array(grid.pageSize));
+          // Makes sure to push all new rows before this stack execution is done so any timeout expiration called after will be applied on a fully updated grid
+          //Resolves https://github.com/vaadin/vaadin-grid-flow/issues/511
+          if(grid._debounceIncreasePool){
+              grid._debounceIncreasePool.flush();
+          }
+
         }
       }
 
@@ -875,12 +881,18 @@ window.Vaadin.Flow.gridConnector = {
     const contextMenuListener = function(e) {
       // https://github.com/vaadin/vaadin-grid/issues/1318
       const path = e.composedPath();
-      const row = path[path.indexOf(grid.$.table) - 2]; // <tr> element in shadow dom
+      const index = path.indexOf(grid.$.table);
+      const row = path[index - 2]; // <tr> element in shadow dom
+      const cell = path[index - 3]; // cell element
       let key;
+      let colId;
       if (row && row._item) {
         key = row._item.key;
       }
-      grid.$server.updateContextMenuTargetItem(key);
+      if (cell && cell._column) {
+        colId = cell._column.id;
+      }
+      grid.$server.updateContextMenuTargetItem(key, colId);
     }
 
     grid.addEventListener('vaadin-context-menu-before-open', function(e) {

@@ -155,6 +155,91 @@ public class GridViewIT extends TabbedComponentDemoTest {
     }
 
     @Test
+    public void gridAsSingleSelectTestBenchAPI() {
+        openTabAndCheckForErrors("selection");
+        GridElement grid = $(GridElement.class).id("single-selection");
+        grid.scrollIntoView();
+        GridTHTDElement person2cell = grid.getCell("Person 2");
+        GridTRElement person2row = person2cell.getRowElement();
+
+        WebElement toggleButton = $(TestBenchElement.class)
+                .id("single-selection-toggle");
+        WebElement messageDiv = $(TestBenchElement.class)
+                .id("single-selection-message");
+
+        toggleButton.click();
+        Assert.assertEquals(
+                getSelectionMessage(null, GridView.items.get(0), false),
+                messageDiv.getText());
+        Assert.assertTrue("Person 1 was not marked as selected",
+                isRowSelected(grid, 0));
+        toggleButton.click();
+        Assert.assertEquals(
+                getSelectionMessage(GridView.items.get(0), null, false),
+                messageDiv.getText());
+        Assert.assertFalse("Person 1 was marked as selected",
+                isRowSelected(grid, 0));
+
+        person2row.select();
+        Assert.assertTrue("Person 2 was not marked as selected",
+                isRowSelected(grid, 1));
+        Assert.assertEquals(
+                getSelectionMessage(null, GridView.items.get(1), true),
+                messageDiv.getText());
+
+        // deselect non-selected row
+        grid.getCell("Person 3").getRowElement().deselect(); // NO-OP
+        Assert.assertTrue("Person 2 was not marked as selected",
+                isRowSelected(grid, 1));
+        Assert.assertEquals(
+                getSelectionMessage(null, GridView.items.get(1), true),
+                messageDiv.getText());
+
+        person2row.deselect();
+        Assert.assertFalse("Person 2 was marked as selected",
+                isRowSelected(grid, 1));
+
+        person2row.select();
+        toggleButton.click();
+        Assert.assertTrue("Person 1 was not marked as selected",
+                isRowSelected(grid, 0));
+        Assert.assertFalse("Person 2 was marked as selected",
+                isRowSelected(grid, 1));
+        Assert.assertEquals(getSelectionMessage(GridView.items.get(1),
+                GridView.items.get(0), false), messageDiv.getText());
+        toggleButton.click();
+        Assert.assertFalse("Person 1 was marked as selected",
+                isRowSelected(grid, 0));
+
+        // scroll to bottom
+        for (int i = 0; i < 10; i++) {
+            scroll(grid, 100 + (100 * i));
+        }
+        waitUntilCellHasText(grid, "Person 499");
+        // select item that is not in cache
+        toggleButton.click();
+        Assert.assertEquals(
+                getSelectionMessage(null, GridView.items.get(0), false),
+                messageDiv.getText());
+        // scroll back up
+        scroll(grid, 100);
+        WebElement table = findInShadowRoot(grid, By.id("table")).get(0);
+        // Actually scroll up to have grid do a correct event.
+        while (!getCells(grid).stream()
+                .filter(cell -> "Person 1".equals(cell.getText())).findFirst()
+                .isPresent()) {
+            executeScript("arguments[0].scrollTop -= 100;", table);
+        }
+        // scroll the first row so it is visible.
+        scroll(grid, 0);
+        Assert.assertTrue("Person 1 was not marked as selected",
+                isRowSelected(grid, 0));
+
+        Assert.assertFalse(
+                getLogEntries(Level.SEVERE).stream().findAny().isPresent());
+    }
+
+    @Test
     public void gridAsMultiSelect() {
         openTabAndCheckForErrors("selection");
         GridElement grid = $(GridElement.class).id("multi-selection");
@@ -661,10 +746,15 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         findElement(By.id("show-address-information")).click();
 
+        List<?> cellTexts = (List<?>) getCommandExecutor().executeScript(
+                "var result = [];  var cells = arguments[0].querySelectorAll('vaadin-grid-cell-content');"
+                        + "for (i=0; i<cells.length; i++) { result.push(cells[i].innerText); } return result;",
+                grid);
+
         Assert.assertTrue(
                 "Address should be displayed as a String starting with the street name",
-                getCells(grid).stream()
-                        .anyMatch(cell -> cell.getText().startsWith("Street")));
+                cellTexts.stream().anyMatch(
+                        cell -> cell.toString().startsWith("Street")));
     }
 
     @Test
@@ -791,12 +881,12 @@ public class GridViewIT extends TabbedComponentDemoTest {
         assertFirstCells(grid, "Person 1", "Person 2", "Person 3", "Person 4");
 
         grid.getCell(2, 0).contextClick();
-        $("vaadin-item").first().click(); // Update button
+        $("vaadin-context-menu-item").first().click(); // Update button
         assertFirstCells(grid, "Person 1", "Person 2", "Person 3 Updated",
                 "Person 4");
 
         grid.getCell(1, 0).contextClick();
-        $("vaadin-item").get(1).click(); // Remove button
+        $("vaadin-context-menu-item").get(1).click(); // Remove button
         assertFirstCells(grid, "Person 1", "Person 3 Updated", "Person 4",
                 "Person 5");
     }
@@ -1386,11 +1476,11 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         verifyOpened(1);
 
-        openSubMenu($(OVERLAY_TAG).first().$("vaadin-item").get(menuIndex));
+        openSubMenu($(OVERLAY_TAG).first().$("vaadin-context-menu-item").get(menuIndex));
 
         verifyOpened(2);
 
-        $(OVERLAY_TAG).all().get(1).$("vaadin-item").get(subMenuIndex).click();
+        $(OVERLAY_TAG).all().get(1).$("vaadin-context-menu-item").get(subMenuIndex).click();
     }
 
     private void assertElementHasFocus(WebElement element) {
