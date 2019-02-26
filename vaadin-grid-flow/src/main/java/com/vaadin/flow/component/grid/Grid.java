@@ -3020,9 +3020,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the Class of bean this Grid is constructed with
      */
     public Class<T> getBeanType() {
-    	return beanType;
+        return beanType;
     }
-    
+
     /**
      * Returns {@link PropertySet} of bean this Grid is constructed with via
      * {@link #Grid(Class)}. Or null if not constructed from a bean type.
