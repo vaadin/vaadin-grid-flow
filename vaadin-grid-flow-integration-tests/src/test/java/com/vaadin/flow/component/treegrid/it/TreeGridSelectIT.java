@@ -15,17 +15,14 @@
  */
 package com.vaadin.flow.component.treegrid.it;
 
-import com.vaadin.flow.component.grid.testbench.TreeGridElement;
-import com.vaadin.flow.testutil.TestPath;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
-import static junit.framework.TestCase.assertNotNull;
+import com.vaadin.flow.component.grid.testbench.TreeGridElement;
+import com.vaadin.flow.testutil.TestPath;
+
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @TestPath(TreeGridBasicFeaturesPage.VIEW)
@@ -59,36 +56,6 @@ public class TreeGridSelectIT extends AbstractTreeGridIT {
         clickSelectAll(getTreeGrid());
         getTreeGrid().expandWithClick(2, 1);
         assertAllRowsDeselected(getTreeGrid());
-    }
-
-    @Test
-    public void selectAllCheckbox() {
-        findElement(By.id("TreeDataProvider")).click();
-        findElementByText("Selection mode - multi").click();
-
-        assertAllRowsDeselected(getTreeGrid());
-        clickSelectAll(getTreeGrid());
-        assertAllRowsSelected(getTreeGrid());
-
-        WebElement selectAllCheckbox = getTreeGrid()
-                .findElement(By.id("selectAllCheckbox"));
-
-        WebElement selectCheckbox = getTreeGrid()
-                .findElements(By.tagName("vaadin-checkbox")).get(0);
-
-        Assert.assertEquals("true", selectCheckbox.getAttribute("checked"));
-
-        selectCheckbox.click();
-
-        assertNull("Select all checked even though not all items selected",
-                selectAllCheckbox.getAttribute("checked"));
-
-        selectCheckbox.click();
-
-        assertNotNull("Select all not checked even though all items selected",
-                selectAllCheckbox.getAttribute("checked"));
-
-
     }
 
     private void assertAllRowsSelected(TreeGridElement grid) {
