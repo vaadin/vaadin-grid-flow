@@ -96,17 +96,9 @@ public abstract class AbstractGridMultiSelectionModel<T>
         if (added) {
             fireSelectionEvent(new MultiSelectionEvent<>(getGrid(),
                     getGrid().asMultiSelect(), oldSelection, true));
-            DataProvider<T, ?> dataProvider = this.getGrid().getDataCommunicator().getDataProvider();
 
-            long size;
-
-            if (dataProvider instanceof HierarchicalDataProvider) {
-                size = countAllHierarchical((HierarchicalDataProvider<T, ?>) dataProvider);
-            } else {
-                size = dataProvider.size(new Query<>());
-            }
-
-            selectionColumn.setSelectAllCheckboxState(size == selected.size());
+            selectionColumn.setSelectAllCheckboxState(getGrid().getDataCommunicator().getDataProvider()
+                    .size(new Query<>()) == selected.size());
         }
     }
 
@@ -365,41 +357,6 @@ public abstract class AbstractGridMultiSelectionModel<T>
         return children.stream()
                 .flatMap(child -> Stream.concat(Stream.of(child),
                         fetchAllDescendants(child, dataProvider)));
-    }
-
-    /**
-     * Count all items from the given hierarchical data provider.
-     *
-     * @param dataProvider
-     *            the data provider to fetch from
-     * @return items count in the data provider
-     */
-    private long countAllHierarchical(
-            HierarchicalDataProvider<T, ?> dataProvider) {
-        return countAllDescendants(null, dataProvider);
-    }
-
-    /**
-     * Count all the descendants of the given parent item from the given data
-     * provider.
-     *
-     * @param parent
-     *            the parent item to fetch descendants for
-     * @param dataProvider
-     *            the data provider to fetch from
-     * @return the count of all descendant items
-     */
-    private long countAllDescendants(T parent,
-                                     HierarchicalDataProvider<T, ?> dataProvider) {
-        if (parent != null && !dataProvider.hasChildren(parent)) {
-            return 0;
-        }
-        long childrenSize = dataProvider
-                .size(new HierarchicalQuery<>(null, parent));
-
-        return childrenSize + dataProvider
-                .fetchChildren(new HierarchicalQuery<>(null, parent)).map(child -> countAllDescendants(child, dataProvider)).mapToLong(x -> x).sum();
-
     }
 
     private void clientDeselectAll() {
