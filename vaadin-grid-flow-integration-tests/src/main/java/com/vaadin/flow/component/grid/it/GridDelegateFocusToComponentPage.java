@@ -36,22 +36,7 @@ public class GridDelegateFocusToComponentPage extends Div {
         div.setId("info");
 
         grid.addColumn(item -> item);
-        grid.addComponentColumn(item -> {
-            TextField hiddenTextField = new TextField();
-            hiddenTextField.setValue("hidden");
-            hiddenTextField.getElement().setAttribute("hidden", true);
-            TextField disabledTextField = new TextField();
-            disabledTextField.setValue("disabled");
-            disabledTextField.setEnabled(false);
-            TextField focusableTextField = new TextField();
-            focusableTextField.setValue(item);
-            focusableTextField.setId(item);
-            Button nextFocusableComponent = new Button("OK");
-            VerticalLayout layout = new VerticalLayout(hiddenTextField, disabledTextField, focusableTextField, nextFocusableComponent);
-
-            Button anotherFocusableComponent = new Button("NO");
-            return new Div(layout, anotherFocusableComponent);
-        })
+        grid.addComponentColumn(this::buildComplexComponent)
        .setHeader("Components");
 
         grid.addComponentColumn(item -> {
@@ -60,6 +45,23 @@ public class GridDelegateFocusToComponentPage extends Div {
 
         grid.setItems("foo", "bar");
         add(grid, div);
+    }
+
+    private Div buildComplexComponent(String item){
+        TextField hiddenTextField = new TextField();
+        hiddenTextField.setValue("hidden");
+        hiddenTextField.getElement().setAttribute("hidden", true);
+        TextField disabledTextField = new TextField();
+        disabledTextField.setValue("disabled");
+        disabledTextField.setEnabled(false);
+        TextField focusableTextField = new TextField();
+        focusableTextField.setValue(item);
+        focusableTextField.setId(item);
+        Button nextFocusableComponent = new Button("OK");
+        VerticalLayout layout = new VerticalLayout(hiddenTextField, disabledTextField, focusableTextField, nextFocusableComponent);
+
+        Button anotherFocusableComponent = new Button("NO");
+        return new Div(layout, anotherFocusableComponent);
     }
 
 
