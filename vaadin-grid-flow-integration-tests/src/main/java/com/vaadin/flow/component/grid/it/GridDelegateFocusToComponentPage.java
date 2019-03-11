@@ -36,12 +36,8 @@ public class GridDelegateFocusToComponentPage extends Div {
         div.setId("info");
 
         grid.addColumn(item -> item);
-        grid.addComponentColumn(this::buildComplexComponent)
-       .setHeader("Components");
-
-        grid.addComponentColumn(item -> {
-            return new Button(item, e -> div.setText(item));
-        }).setHeader("Components");
+        grid.addComponentColumn(this::buildComplexComponent).setHeader("Components");
+        grid.addComponentColumn(item -> new Button(item, e -> div.setText(item))).setHeader("Components");
 
         grid.setItems("foo", "bar");
         add(grid, div);
