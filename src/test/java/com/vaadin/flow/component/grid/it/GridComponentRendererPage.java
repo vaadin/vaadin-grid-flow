@@ -48,11 +48,13 @@ public class GridComponentRendererPage extends Div {
         grid.setItems(items);
 
         SerializableBiConsumer<TextField, String> itemTextFieldConsumer =(text, val) -> {
-            text.setId("vaadin-text-field-" +index++);
+            text.setId("vaadin-text-field-" +index);
+            index++;
         };
 
         SerializableBiConsumer<ComboBox<String>, String> itemComboBoxConsumer = (comboBox, val) -> {
-            comboBox.setId("vaadin-combo-box-" + index++);
+            comboBox.setId("vaadin-combo-box-" + index);
+            index++;
         };
 
         grid.addColumn(new ComponentRenderer<>(TextField::new, itemTextFieldConsumer)).setHeader("Header 1");
@@ -62,10 +64,13 @@ public class GridComponentRendererPage extends Div {
         grid.addColumn(new ComponentRenderer<>(ComboBox<String>::new, itemComboBoxConsumer)).setHeader("Header 5");
 
         NativeButton addRowButton = new NativeButton("add row", event -> {
-            items.add(String.valueOf(index++));
+            items.add(String.valueOf(index));
+            index++;
             grid.getDataProvider().refreshAll();
         });
+
         addRowButton.setId("add-row-button");
+
         add(addRowButton, grid);
 
     }
