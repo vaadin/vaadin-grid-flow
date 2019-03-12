@@ -38,20 +38,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Route("grid-component-renderer")
 public class GridComponentRendererPage extends Div {
 
+    int index = 1;
+
     public GridComponentRendererPage() {
         final List<String> items = new ArrayList<>();
-        AtomicInteger index = new AtomicInteger(1);
 
         Grid<String> grid = new Grid<>();
         grid.setId("grid");
         grid.setItems(items);
 
         SerializableBiConsumer<TextField, String> itemTextFieldConsumer =(text, val) -> {
-            text.setId("vaadin-text-field-" +index.getAndIncrement());
+            text.setId("vaadin-text-field-" +index++);
         };
 
         SerializableBiConsumer<ComboBox<String>, String> itemComboBoxConsumer = (comboBox, val) -> {
-            comboBox.setId("vaadin-combo-box-" + index.getAndIncrement());
+            comboBox.setId("vaadin-combo-box-" + index++);
         };
 
         grid.addColumn(new ComponentRenderer<>(TextField::new, itemTextFieldConsumer)).setHeader("Header 1");
@@ -61,7 +62,7 @@ public class GridComponentRendererPage extends Div {
         grid.addColumn(new ComponentRenderer<>(ComboBox<String>::new, itemComboBoxConsumer)).setHeader("Header 5");
 
         NativeButton addRowButton = new NativeButton("add row", event -> {
-            items.add(index.getAndIncrement() + "");
+            items.add(String.valueOf(index++));
             grid.getDataProvider().refreshAll();
         });
         addRowButton.setId("add-row-button");

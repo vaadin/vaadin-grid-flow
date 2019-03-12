@@ -63,8 +63,6 @@ public class GridComponentRendererIT extends AbstractComponentIT {
                 Assert.assertTrue("Combobox is not displayed!", cell.$("vaadin-combo-box").first().isDisplayed());
             }
         }
-        System.out.println();
-
 
     }
 }
