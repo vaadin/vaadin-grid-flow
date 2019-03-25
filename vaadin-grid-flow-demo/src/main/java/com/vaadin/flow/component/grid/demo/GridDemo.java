@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,16 +22,21 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.DropLocation;
+import com.vaadin.flow.component.grid.DropMode;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridDragStartEvent;
+import com.vaadin.flow.component.grid.GridDropEvent;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -50,10 +56,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.hierarchy.TreeData;
+import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 import com.vaadin.flow.data.renderer.LocalDateRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.NativeButtonRenderer;
@@ -170,7 +179,7 @@ public class GridDemo extends DemoView {
         }
 
         public String getEmail() {
-            return email;
+            return this.lastName + "@example.com";
         }
 
         public void setEmail(String email) {
@@ -612,6 +621,11 @@ public class GridDemo extends DemoView {
         createNotBufferedEditor();
         createBufferedDynamicEditor();
         createNotBufferedDynamicEditor();
+        createRowReordering();
+        createDragRowsBetweenGrids();
+        createDropLocations();
+        createDragData();
+        createDragDropFilters();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -699,7 +713,7 @@ public class GridDemo extends DemoView {
 
         addVariantsDemo(() -> {
             return grid;
-        }, Grid::addThemeVariants, Grid::removeThemeVariants,
+        } , Grid::addThemeVariants, Grid::removeThemeVariants,
                 GridVariant::getVariantName, GridVariant.LUMO_NO_BORDER,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
     }
@@ -938,7 +952,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(TemplateRenderer.<Person> of(
                 "<div>[[item.city]]<br><small>[[item.postalCode]]</small></div>")
 
-                .withProperty("city", person -> person.getAddress().getCity())
+        .withProperty("city", person -> person.getAddress().getCity())
                 .withProperty("postalCode",
                         person -> person.getAddress().getPostalCode()),
                 "city", "postalCode").setHeader("Address");
@@ -1448,8 +1462,9 @@ public class GridDemo extends DemoView {
 
         // You can also set complex objects directly. Internal properties of the
         // bean are accessible in the template.
-        grid.addColumn(TemplateRenderer.<Order> of(
-                "<div>[[item.name]],[[item.price]] <br> purchased on: <small>[[item.purchasedate]]</small></div>")
+        grid.addColumn(TemplateRenderer
+                .<Order> of(
+                        "<div>[[item.name]],[[item.price]] <br> purchased on: <small>[[item.purchasedate]]</small></div>")
                 .withProperty("name", Order::getName)
                 // NumberRenderer to render numbers in general
                 .withProperty("price",
@@ -1458,11 +1473,14 @@ public class GridDemo extends DemoView {
                         order -> formatter.format(order.getPurchaseDate())))
                 .setHeader("Purchase").setFlexGrow(6);
 
-        grid.addColumn(TemplateRenderer.<Order> of(
-                "<div>Estimated delivery date: <small>[[item.estimatedDeliveryDate]]<small> <br>to: <small>[[item.address.city]],[[item.address.postalCode]]</small> </div>")
-                .withProperty("estimatedDeliveryDate",
-                        order -> formatter.format(order.getPurchaseDate()))
-                .withProperty("address", order -> order.getAddress()))
+        grid.addColumn(
+                TemplateRenderer
+                        .<Order> of(
+                                "<div>Estimated delivery date: <small>[[item.estimatedDeliveryDate]]<small> <br>to: <small>[[item.address.city]],[[item.address.postalCode]]</small> </div>")
+                        .withProperty("estimatedDeliveryDate",
+                                order -> formatter
+                                        .format(order.getPurchaseDate()))
+                        .withProperty("address", order -> order.getAddress()))
                 .setHeader("Delivery").setFlexGrow(6);
 
         // end-source-example
@@ -1526,11 +1544,12 @@ public class GridDemo extends DemoView {
 
         // You can use any renderer for the item details. By default, the
         // details are opened and closed by clicking the rows.
-        grid.setItemDetailsRenderer(TemplateRenderer.<Person> of(
-                "<div style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                        + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
-                        + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
-                        + "</div>")
+        grid.setItemDetailsRenderer(TemplateRenderer
+                .<Person> of(
+                        "<div style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
+                                + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
+                                + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
+                                + "</div>")
                 .withProperty("firstName", Person::getfirstName)
                 .withProperty("lastname", Person::getLastName)
                 .withProperty("address", Person::getAddress)
@@ -1563,10 +1582,11 @@ public class GridDemo extends DemoView {
 
         // You can use any renderer for the item details. By default, the
         // details are opened and closed by clicking the rows.
-        grid.setItemDetailsRenderer(TemplateRenderer.<Person> of(
-                "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                        + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
-                        + "</div>")
+        grid.setItemDetailsRenderer(TemplateRenderer
+                .<Person> of(
+                        "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
+                                + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
+                                + "</div>")
                 .withProperty("firstName", Person::getfirstName)
                 // This is now how we open the details
                 .withEventHandler("handleClick", person -> {
@@ -2057,6 +2077,322 @@ public class GridDemo extends DemoView {
         grid.setId("not-buffered-dynamic-editor");
         addCard("Grid Editor", "Dynamic Editor in Not Buffered Mode", message,
                 grid);
+    }
+
+    // Drag and drop
+
+    private List<Person> draggedItems;
+
+    private void createRowReordering() {
+        // begin-source-example
+        // source-example-heading: Row Reordering
+
+        Grid<Person> grid = new Grid<>(Person.class);
+        grid.setColumns("firstName", "lastName", "phoneNumber");
+        List<Person> items = new PersonService().fetch(0, 5);
+        grid.setItems(items);
+
+        grid.setRowsDraggable(true);
+        grid.setDropMode(DropMode.BETWEEN);
+
+        grid.addDragStartListener(
+                event -> draggedItems = event.getDraggedItems());
+
+        grid.addDropListener(event -> {
+            if (event.getDropTargetRow().isPresent()) {
+                items.remove(draggedItems.get(0));
+                int dropIndex = items.indexOf(event.getDropTargetRow().get())
+                        + (event.getDropLocation() == DropLocation.BELOW ? 1
+                                : 0);
+                items.add(dropIndex, draggedItems.get(0));
+                grid.setItems(items);
+                draggedItems = null;
+            }
+        });
+
+        // end-source-example
+
+        addCard("Drag and Drop", "Row Reordering", grid);
+    }
+
+    private void createDragRowsBetweenGrids() {
+        // begin-source-example
+        // source-example-heading: Drag Rows Between Grids
+
+        ComponentEventListener<GridDragStartEvent<Person>> dragStartListener = event -> {
+            draggedItems = event.getDraggedItems();
+        };
+
+        ComponentEventListener<GridDropEvent<Person>> dropListener = event -> {
+            Grid<Person> sourceGrid = (Grid<Person>) event
+                    .getDragSourceComponent().get();
+            if (!(sourceGrid instanceof Grid) || draggedItems == null) {
+                return;
+            }
+
+            // Remove the items from the source grid
+            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) sourceGrid
+                    .getDataProvider();
+            List<Person> sourceItems = new ArrayList<Person>(
+                    sourceDataProvider.getItems());
+            sourceItems.removeAll(draggedItems);
+            sourceGrid.setItems(sourceItems);
+
+            // Add dragged items to the target Grid
+            Grid<Person> targetGrid = event.getComponent();
+            ListDataProvider<Person> targetDataProvider = (ListDataProvider<Person>) targetGrid
+                    .getDataProvider();
+            List<Person> targetItems = new ArrayList<Person>(
+                    targetDataProvider.getItems());
+
+            int index = targetItems.size();
+            if (event.getDropTargetRow().isPresent()) {
+                index = targetItems.indexOf(event.getDropTargetRow().get())
+                        + (event.getDropLocation() == DropLocation.BELOW ? 1
+                                : 0);
+            }
+
+            targetItems.addAll(index, draggedItems);
+            targetGrid.setItems(targetItems);
+
+            draggedItems = null;
+        };
+
+        PersonService personService = new PersonService();
+
+        Grid<Person> grid = new Grid<>(Person.class);
+        grid.setItems(personService.fetch(0, 5));
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addDropListener(dropListener);
+        grid.addDragStartListener(dragStartListener);
+        grid.setRowsDraggable(true);
+        grid.setDropMode(DropMode.BETWEEN);
+        grid.setColumns("firstName", "lastName");
+
+        Grid<Person> grid2 = new Grid<>(Person.class);
+        grid2.setItems(personService.fetch(5, 1));
+        grid2.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid2.addDropListener(dropListener);
+        grid2.addDragStartListener(dragStartListener);
+        grid2.setRowsDraggable(true);
+        grid2.setDropMode(DropMode.BETWEEN);
+        grid2.setColumns("firstName", "lastName");
+
+        // end-source-example
+
+        HorizontalLayout hl = new HorizontalLayout(grid, grid2);
+
+        addCard("Drag and Drop", "Drag Rows Between Grids", hl);
+    }
+
+    private void createDropLocations() {
+
+        // begin-source-example
+        // source-example-heading: Drop Location
+        PersonService personService = new PersonService();
+
+        Grid<Person> grid = new Grid<>(Person.class);
+        grid.setItems(personService.fetch(0, 50));
+
+        grid.addDragStartListener(
+                event -> draggedItems = event.getDraggedItems());
+        grid.setColumns("firstName", "lastName", "phoneNumber");
+        grid.setRowsDraggable(true);
+
+        TreeData<Person> td = new TreeData<>();
+        td.addItems(null, personService.fetch(51, 2));
+
+        TreeGrid<Person> treeGrid = new TreeGrid<>();
+        treeGrid.setDataProvider(new TreeDataProvider<Person>(td));
+        /*
+         * This enables dropping in between or on top of the existing grid rows.
+         */
+        treeGrid.setDropMode(DropMode.ON_TOP_OR_BETWEEN);
+        treeGrid.addHierarchyColumn(Person::getfirstName)
+                .setHeader("firstName");
+        treeGrid.addColumn(Person::getLastName).setHeader("lastName");
+        treeGrid.addColumn(Person::getPhoneNumber).setHeader("phoneNumber");
+        treeGrid.addDropListener(event -> {
+            // Remove the items from the source grid
+            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid
+                    .getDataProvider();
+            List<Person> sourceItems = new ArrayList<Person>(
+                    sourceDataProvider.getItems());
+            sourceItems.remove(draggedItems.get(0));
+            grid.setItems(sourceItems);
+
+            // Add the item to target grid
+            Optional<Person> dropOverItem = event.getDropTargetRow();
+            if (DropLocation.ON_TOP.equals(event.getDropLocation())) {
+                td.addItem(dropOverItem.get(), draggedItems.get(0));
+            } else {
+                Person parent = td.getParent(dropOverItem.get());
+                td.addItem(parent, draggedItems.get(0));
+
+                List<Person> siblings = td.getChildren(parent);
+                int dropIndex = td.getChildren(parent)
+                        .indexOf(dropOverItem.get()) - 1
+                        + (event.getDropLocation() == DropLocation.BELOW ? 1
+                                : 0);
+                td.moveAfterSibling(draggedItems.get(0),
+                        siblings.get(dropIndex));
+            }
+
+            treeGrid.getDataProvider().refreshAll();
+
+        });
+
+        // end-source-example
+
+        HorizontalLayout hl = new HorizontalLayout(grid, treeGrid);
+
+        addCard("Drag and Drop", "Drop Location", hl);
+    }
+
+    private void createDragData() {
+
+        // begin-source-example
+        // source-example-heading: Custom Drag Data
+        PersonService personService = new PersonService();
+
+        Grid<Person> grid = new Grid<>(Person.class);
+        List<Person> persons = new ArrayList<Person>(
+                personService.fetch(0, 50));
+        List<Person> availablePersons = new ArrayList<Person>(
+                personService.fetch(0, 50));
+
+        grid.setItems(persons);
+
+        grid.addDragStartListener(
+                event -> draggedItems = event.getDraggedItems());
+        grid.setColumns("firstName", "lastName", "phoneNumber");
+        grid.setRowsDraggable(true);
+        grid.setDropMode(DropMode.BETWEEN);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addDragStartListener(
+                event -> draggedItems = event.getDraggedItems());
+
+        grid.setDragDataGenerator("text",
+                person -> String.valueOf(person.getId()));
+
+        grid.addDropListener(event -> {
+            String text = event.getDataTransferText();
+            // The drag data tokens are separated by line breaks
+            Arrays.asList(text.split("\n")).forEach(idString -> {
+                Optional<Person> matchOptional = availablePersons
+                        .stream().filter(person -> String
+                                .valueOf(person.getId()).equals(idString))
+                        .findFirst();
+
+                if (matchOptional.isPresent()) {
+                    Person match = matchOptional.get();
+                    Person clone = new Person(match.getId(),
+                            match.getfirstName(), match.getLastName(),
+                            match.getAge(), match.getAddress(),
+                            match.getPhoneNumber());
+
+                    int dropIndex = persons
+                            .indexOf(event.getDropTargetRow().get())
+                            + (event.getDropLocation() == DropLocation.BELOW ? 1
+                                    : 0);
+                    persons.add(dropIndex, clone);
+                }
+            });
+            grid.getDataProvider().refreshAll();
+        });
+
+        grid.addDragEndListener(event -> {
+            // Additional validation logic might be needed to verify
+            // the drop was successful (on another browser window)
+            // The demo just removes the items regardless of whether the drop
+            // was legal.
+            persons.removeAll(draggedItems);
+            grid.getDataProvider().refreshAll();
+        });
+
+        // end-source-example
+
+        addCard("Drag and Drop", "Custom Drag Data", grid);
+    }
+
+    private void createDragDropFilters() {
+        // begin-source-example
+        // source-example-heading: Drag and Drop Filters
+        PersonService personService = new PersonService();
+
+        TreeGrid<Person> grid = new TreeGrid<>();
+        TreeData<Person> td = new TreeData<>();
+
+        // Disallow dragging supervisors
+        grid.setDragFilter(person -> td.getParent(person) != null);
+
+        grid.setDropFilter(person -> {
+            return td.getRootItems().contains(person) // Only support dropping
+                                                      // on top of supervisors
+                    && td.getChildren(person).size() < 4 // Don't allow more
+                                                         // than 4 subordinates
+                    && !td.getChildren(person).contains(draggedItems.get(0)); // Disallow
+                                                                              // dropping
+                                                                              // on
+                                                                              // own
+                                                                              // supervisor
+        });
+
+        grid.addHierarchyColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getLastName).setHeader("Last name");
+        grid.addColumn(Person::getPhoneNumber).setHeader("Phone");
+        grid.setRowsDraggable(true);
+
+        td.addItems(null, personService.fetch(0, 3));
+        td.addItems(td.getRootItems().get(0), personService.fetch(3, 3));
+        td.addItems(td.getRootItems().get(1), personService.fetch(6, 2));
+
+        grid.setDataProvider(new TreeDataProvider<Person>(td));
+        grid.expand(td.getRootItems());
+
+        grid.addDragStartListener(event -> {
+            draggedItems = event.getDraggedItems();
+            grid.setDropMode(DropMode.ON_TOP);
+
+            // Refresh all related items to get the drop filter run for them
+            td.getRootItems().forEach(supervisor -> {
+                grid.getDataProvider().refreshItem(supervisor);
+
+                td.getChildren(supervisor).forEach(subordinate -> {
+                    grid.getDataProvider().refreshItem(subordinate);
+                });
+            });
+
+        });
+
+        grid.addDragEndListener(event -> grid.setDropMode(null));
+
+        grid.addDropListener(event -> {
+            Optional<Person> supervisor = event.getDropTargetRow();
+            if (supervisor.isPresent()) {
+                // Remove the item from it's previous supervisor's subordinates
+                // list
+                td.removeItem(draggedItems.get(0));
+
+                // Avoid a tree-grid issue
+                td.getRootItems().forEach(root -> {
+                    if (td.getChildren(root).isEmpty()) {
+                        grid.collapse(root);
+                    }
+                });
+
+                // Add the item to the target supervisor's subordinates list
+                td.addItem(supervisor.get(), draggedItems.get(0));
+
+                grid.getDataProvider().refreshAll();
+            }
+
+        });
+
+        // end-source-example
+        VerticalLayout vl = new VerticalLayout(new Label("Supervisors"), grid);
+
+        addCard("Drag and Drop", "Drag and Drop Filters", vl);
     }
 
     private List<Person> getItems() {
