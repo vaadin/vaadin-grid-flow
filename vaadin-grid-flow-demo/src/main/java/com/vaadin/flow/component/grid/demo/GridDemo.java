@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,13 +15,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -56,7 +51,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.treegrid.demo.TreeGridDemo.PersonWithLevel;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -2242,107 +2236,4 @@ public class GridDemo extends DemoView {
         }
     }
     // end-source-example
-
-    /**
-     * Helper class used for generating stable random data for demo purposes.
-     *
-     * @author Vaadin Ltd.
-     */
-    static class PeopleGenerator extends BeanGenerator {
-
-        private static final AtomicInteger treeIds = new AtomicInteger(0);
-
-        public List<Person> generatePeople(int amount) {
-            return IntStream.range(0, amount)
-                    .mapToObj(index -> createPerson(index + 1))
-                    .collect(Collectors.toList());
-        }
-
-        public List<PersonWithLevel> generatePeopleWithLevels(int amount,
-                int level) {
-            return IntStream.range(0, amount)
-                    .mapToObj(index -> createPersonWithLevel(index + 1, level))
-                    .collect(Collectors.toList());
-        }
-
-        private PersonWithLevel createPersonWithLevel(int index, int level) {
-            PersonWithLevel person = createPerson(PersonWithLevel::new, index,
-                    treeIds.getAndIncrement());
-            person.setLevel(level);
-            return person;
-        }
-
-        public Person createPerson(int index) {
-            return createPerson(Person::new, index, index);
-        }
-
-        private <T extends Person> T createPerson(Supplier<T> constructor,
-                int index, int id) {
-            boolean isSubscriber = getRandom("subscriber").nextBoolean();
-
-            return createPerson(constructor, "Person " + index, id,
-                    13 + getRandom("age").nextInt(50), isSubscriber,
-                    isSubscriber ? generateEmail() : "",
-                    "Street " + generateChar(getRandom("street"), false),
-                    1 + getRandom("street").nextInt(50), String.valueOf(
-                            10000 + getRandom("postalCode").nextInt(8999)));
-        }
-
-        private <T extends Person> T createPerson(Supplier<T> constructor,
-                String name, int id, int age, boolean subscriber, String email,
-                String street, int addressNumber, String postalCode) {
-            T person = constructor.get();
-            person.setId(id);
-            person.setfirstName(name);
-            person.setAge(age);
-            person.setSubscriber(subscriber);
-            person.setEmail(email);
-
-            Address address = new Address();
-            address.setStreet(street);
-            address.setNumber(addressNumber);
-            address.setPostalCode(postalCode);
-
-            person.setAddress(address);
-
-            return person;
-        }
-
-        private String generateEmail() {
-            StringBuilder builder = new StringBuilder("mail");
-            builder.append(generateChar(getRandom("email"), true));
-            builder.append(generateChar(getRandom("email"), true));
-            builder.append("@example.com");
-            return builder.toString();
-        }
-
-        private char generateChar(Random random, boolean lowerCase) {
-            return ((char) ((lowerCase ? 'a' : 'A') + random.nextInt(26)));
-        }
-
-    }
-
-    static class ItemGenerator extends BeanGenerator {
-
-        public List<Item> generateItems(int amount) {
-            LocalDate baseDate = LocalDate.of(2018, 1, 10);
-            return IntStream.range(0, amount)
-                    .mapToObj(index -> createItem(index + 1, baseDate))
-                    .collect(Collectors.toList());
-        }
-
-        private Item createItem(int index, LocalDate baseDate) {
-            Item item = new Item();
-            item.setName("Item " + index);
-            item.setPrice(100 * getRandom("price").nextDouble());
-            item.setPurchaseDate(baseDate.atTime(12, 0).minus(
-                    1 + getRandom("purchaseDate").nextInt(3600),
-                    ChronoUnit.SECONDS));
-            item.setEstimatedDeliveryDate(baseDate.plus(
-                    1 + getRandom("estimatedDeliveryDate").nextInt(15),
-                    ChronoUnit.DAYS));
-            return item;
-        }
-
-    }
 }
