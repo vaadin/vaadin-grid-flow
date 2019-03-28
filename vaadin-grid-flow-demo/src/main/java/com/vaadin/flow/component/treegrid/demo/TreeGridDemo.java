@@ -45,10 +45,7 @@ public class TreeGridDemo extends DemoView {
         }
     }
 
-    public static final List<PersonWithLevel> rootItems;
-    static {
-        rootItems = createRootItems();
-    }
+    public static final List<PersonWithLevel> rootItems = createRootItems();
 
     @Override
     protected void initView() {
@@ -99,8 +96,8 @@ public class TreeGridDemo extends DemoView {
         });
         HorizontalLayout nameEditor = new HorizontalLayout(name, save);
 
-        addCard("TreeGrid", "TreeGrid Basics", withTreeGridToggleButtons(
-                getRootItems(), grid, nameEditor, message));
+        addCard("TreeGrid Basics", withTreeGridToggleButtons(getRootItems(),
+                grid, nameEditor, message));
     }
 
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
@@ -248,11 +245,11 @@ public class TreeGridDemo extends DemoView {
                 String.format("Collapsed %s item(s)", event.getItems().size())
                         + "\n" + message.getValue()));
 
-        addCard("TreeGrid", "TreeGrid with lazy loading",
-                withTreeGridToggleButtons(grid.getDataProvider().fetch(
-                        new HierarchicalQuery<HierarchicalTestBean, SerializablePredicate<HierarchicalTestBean>>(
-                                null, null))
-                        .collect(Collectors.toList()), grid, message));
+        addCard("TreeGrid with lazy loading", withTreeGridToggleButtons(grid
+                .getDataProvider()
+                .fetch(new HierarchicalQuery<HierarchicalTestBean, SerializablePredicate<HierarchicalTestBean>>(
+                        null, null))
+                .collect(Collectors.toList()), grid, message));
     }
 
     private static List<PersonWithLevel> getRootItems() {
