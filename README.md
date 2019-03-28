@@ -12,7 +12,7 @@ for use from the server side with [Vaadin Flow](https://github.com/vaadin/flow).
 Run from the command line:
 - `mvn  -pl vaadin-grid-flow-demo -Pwar install jetty:run`
 
-Then navigate to `http://localhost:9998/vaadin-grid`
+Then navigate to `http://localhost:9998/vaadin-grid` or `http://localhost:9998/vaadin-tree-grid`. 
 
 ## Installing the component
 Run from the command line:

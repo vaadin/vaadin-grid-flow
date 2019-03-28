@@ -75,11 +75,8 @@ import com.vaadin.flow.router.Route;
 @HtmlImport("grid-demo-styles.html")
 public class GridDemo extends DemoView {
 
-    public static final List<Person> items;
+    public static final List<Person> items = createItems();
 
-    static {
-        items = createItems();
-    }
     // begin-source-example
     // source-example-heading: Grid example model
 
@@ -646,7 +643,6 @@ public class GridDemo extends DemoView {
         // source-example-heading: Grid Basics
         List<Person> personList = new ArrayList<>();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         personList.add(new Person(100, "Lucas", "Kane", 68,
                 new Address("12080", "Washington"), "127-942-237"));
         personList.add(new Person(101, "Peter", "Buchanan", 38,

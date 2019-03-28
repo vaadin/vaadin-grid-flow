@@ -40,6 +40,13 @@
             <artifactId>vaadin-grid-flow</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <!-- This module also tests the demos -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-grid-flow-demo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--Flow and friends -->
         <dependency>

@@ -33,6 +33,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
 import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.demo.GridDemo;
 import com.vaadin.flow.component.grid.testbench.GridColumnElement;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.component.grid.testbench.GridTHTDElement;
@@ -42,9 +43,9 @@ import com.vaadin.flow.demo.TabbedComponentDemoTest;
 import com.vaadin.testbench.TestBenchElement;
 
 /**
- * Integration tests for the {@link GridView}.
+ * Integration tests for the {@link GridDemo}.
  */
-public class GridViewIT extends TabbedComponentDemoTest {
+public class GridDemoIT extends TabbedComponentDemoTest {
 
     private static final String OVERLAY_TAG = "vaadin-context-menu-overlay";
 
@@ -92,13 +93,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         clickElementWithJs(toggleButton);
         Assert.assertEquals(
-                getSelectionMessage(null, GridView.items.get(0), false),
+                getSelectionMessage(null, GridDemo.items.get(0), false),
                 messageDiv.getText());
         Assert.assertTrue("Person 1 was not marked as selected",
                 isRowSelected(grid, 0));
         clickElementWithJs(toggleButton);
         Assert.assertEquals(
-                getSelectionMessage(GridView.items.get(0), null, false),
+                getSelectionMessage(GridDemo.items.get(0), null, false),
                 messageDiv.getText());
         Assert.assertFalse("Person 1 was marked as selected",
                 isRowSelected(grid, 0));
@@ -108,7 +109,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertTrue("Person 2 was not marked as selected",
                 isRowSelected(grid, 1));
         Assert.assertEquals(
-                getSelectionMessage(null, GridView.items.get(1), true),
+                getSelectionMessage(null, GridDemo.items.get(1), true),
                 messageDiv.getText());
         clickElementWithJs(getCell(grid, "Person 2"));
         Assert.assertFalse("Person 2 was marked as selected",
@@ -120,8 +121,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 isRowSelected(grid, 0));
         Assert.assertFalse("Person 2 was marked as selected",
                 isRowSelected(grid, 1));
-        Assert.assertEquals(getSelectionMessage(GridView.items.get(1),
-                GridView.items.get(0), false), messageDiv.getText());
+        Assert.assertEquals(getSelectionMessage(GridDemo.items.get(1),
+                GridDemo.items.get(0), false), messageDiv.getText());
         clickElementWithJs(toggleButton);
         Assert.assertFalse("Person 1 was marked as selected",
                 isRowSelected(grid, 0));
@@ -134,7 +135,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         // select item that is not in cache
         clickElementWithJs(toggleButton);
         Assert.assertEquals(
-                getSelectionMessage(null, GridView.items.get(0), false),
+                getSelectionMessage(null, GridDemo.items.get(0), false),
                 messageDiv.getText());
         // scroll back up
         scroll(grid, 100);
@@ -169,13 +170,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         toggleButton.click();
         Assert.assertEquals(
-                getSelectionMessage(null, GridView.items.get(0), false),
+                getSelectionMessage(null, GridDemo.items.get(0), false),
                 messageDiv.getText());
         Assert.assertTrue("Person 1 was not marked as selected",
                 isRowSelected(grid, 0));
         toggleButton.click();
         Assert.assertEquals(
-                getSelectionMessage(GridView.items.get(0), null, false),
+                getSelectionMessage(GridDemo.items.get(0), null, false),
                 messageDiv.getText());
         Assert.assertFalse("Person 1 was marked as selected",
                 isRowSelected(grid, 0));
@@ -184,7 +185,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertTrue("Person 2 was not marked as selected",
                 isRowSelected(grid, 1));
         Assert.assertEquals(
-                getSelectionMessage(null, GridView.items.get(1), true),
+                getSelectionMessage(null, GridDemo.items.get(1), true),
                 messageDiv.getText());
 
         // deselect non-selected row
@@ -192,7 +193,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertTrue("Person 2 was not marked as selected",
                 isRowSelected(grid, 1));
         Assert.assertEquals(
-                getSelectionMessage(null, GridView.items.get(1), true),
+                getSelectionMessage(null, GridDemo.items.get(1), true),
                 messageDiv.getText());
 
         person2row.deselect();
@@ -205,8 +206,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 isRowSelected(grid, 0));
         Assert.assertFalse("Person 2 was marked as selected",
                 isRowSelected(grid, 1));
-        Assert.assertEquals(getSelectionMessage(GridView.items.get(1),
-                GridView.items.get(0), false), messageDiv.getText());
+        Assert.assertEquals(getSelectionMessage(GridDemo.items.get(1),
+                GridDemo.items.get(0), false), messageDiv.getText());
         toggleButton.click();
         Assert.assertFalse("Person 1 was marked as selected",
                 isRowSelected(grid, 0));
@@ -219,7 +220,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         // select item that is not in cache
         toggleButton.click();
         Assert.assertEquals(
-                getSelectionMessage(null, GridView.items.get(0), false),
+                getSelectionMessage(null, GridDemo.items.get(0), false),
                 messageDiv.getText());
         // scroll back up
         scroll(grid, 100);
@@ -250,8 +251,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         clickElementWithJs(selectBtn);
         Assert.assertEquals(
-                getSelectionMessage(GridView.items.subList(0, 2),
-                        GridView.items.subList(0, 5), false),
+                getSelectionMessage(GridDemo.items.subList(0, 2),
+                        GridDemo.items.subList(0, 5), false),
                 messageDiv.getText());
         assertRowsSelected(grid, 0, 5);
 
@@ -260,8 +261,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
         checkbox = getCellContent(grid.getCell(1, 0));
         checkbox.click();
         Assert.assertEquals(
-                getSelectionMessage(GridView.items.subList(1, 5),
-                        GridView.items.subList(2, 5), true),
+                getSelectionMessage(GridDemo.items.subList(1, 5),
+                        GridDemo.items.subList(2, 5), true),
                 messageDiv.getText());
         assertRowsSelected(grid, 2, 5);
 
@@ -1476,11 +1477,13 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         verifyOpened(1);
 
-        openSubMenu($(OVERLAY_TAG).first().$("vaadin-context-menu-item").get(menuIndex));
+        openSubMenu($(OVERLAY_TAG).first().$("vaadin-context-menu-item")
+                .get(menuIndex));
 
         verifyOpened(2);
 
-        $(OVERLAY_TAG).all().get(1).$("vaadin-context-menu-item").get(subMenuIndex).click();
+        $(OVERLAY_TAG).all().get(1).$("vaadin-context-menu-item")
+                .get(subMenuIndex).click();
     }
 
     private void assertElementHasFocus(WebElement element) {
@@ -1753,6 +1756,6 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     @Override
     protected String getTestPath() {
-        return "/vaadin-grid-it-demo";
+        return "/vaadin-grid";
     }
 }
