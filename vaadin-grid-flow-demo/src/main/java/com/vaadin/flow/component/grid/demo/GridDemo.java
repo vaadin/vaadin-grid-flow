@@ -31,8 +31,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
-import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -46,6 +44,8 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
+import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
@@ -1864,6 +1864,7 @@ public class GridDemo extends DemoView {
         // source-example-heading: Using ContextMenu With Grid
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
+
         grid.addColumn(Person::getfirstName).setHeader("First name");
         grid.addColumn(Person::getAge).setHeader("Age");
         GridContextMenu<Person> contextMenu = new GridContextMenu<>(grid);
@@ -1883,6 +1884,7 @@ public class GridDemo extends DemoView {
                 dataProvider.refreshAll();
             });
         });
+
         // end-source-example
         grid.setId("context-menu-grid");
         addCard("Context Menu", "Using ContextMenu With Grid", grid,
@@ -2003,8 +2005,8 @@ public class GridDemo extends DemoView {
 
         TextField field = new TextField();
         binder.forField(field)
-                .withValidator(name -> name.startsWith("Person"),
-                        "Name should start with Person")
+                .withValidator(name -> !name.isEmpty(),
+                        "Name should not be empty")
                 .withStatusLabel(validationStatus).bind("firstName");
         nameColumn.setEditorComponent(field);
 
