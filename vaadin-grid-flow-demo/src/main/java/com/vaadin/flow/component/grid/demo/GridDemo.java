@@ -32,7 +32,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
-import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
@@ -69,11 +68,8 @@ import com.vaadin.flow.router.Route;
 @HtmlImport("grid-demo-styles.html")
 public class GridDemo extends DemoView {
 
-    public static final List<Person> items;
+    public static final List<Person> items = createItems();
 
-    static {
-        items = createItems();
-    }
     // begin-source-example
     // source-example-heading: Grid example model
 
@@ -248,6 +244,11 @@ public class GridDemo extends DemoView {
 
         }
 
+        public Address(String postalCode, String city) {
+            this.postalCode = postalCode;
+            this.city = city;
+        }
+
         public String getStreet() {
             return street;
         }
@@ -283,19 +284,6 @@ public class GridDemo extends DemoView {
         @Override
         public String toString() {
             return String.format("%s %s", postalCode, city);
-        }
-
-        public Address(String street, int number, String postalCode) {
-            super();
-            this.street = street;
-            this.number = number;
-            this.postalCode = postalCode;
-        }
-
-        public Address(String postalCode, String city) {
-            super();
-            this.postalCode = postalCode;
-            this.city = city;
         }
 
     }
@@ -400,7 +388,14 @@ public class GridDemo extends DemoView {
         private LocalDate EstimatedDeliveryDate;
 
         public Item() {
+        }
 
+        public Item(String name, double price, LocalDateTime purchaseDate,
+                LocalDate estimatedDeliveryDate) {
+            this.name = name;
+            this.price = price;
+            this.purchaseDate = purchaseDate;
+            EstimatedDeliveryDate = estimatedDeliveryDate;
         }
 
         public String getName() {
@@ -435,15 +430,6 @@ public class GridDemo extends DemoView {
             EstimatedDeliveryDate = estimatedDeliveryDate;
         }
 
-        public Item(String name, double price, LocalDateTime purchaseDate,
-                LocalDate estimatedDeliveryDate) {
-            super();
-            this.name = name;
-            this.price = price;
-            this.purchaseDate = purchaseDate;
-            EstimatedDeliveryDate = estimatedDeliveryDate;
-        }
-
         @Override
         public String toString() {
             return getName();
@@ -457,9 +443,21 @@ public class GridDemo extends DemoView {
         private int numberOfOrder;
         private float price;
         private LocalDateTime purchaseDate;
-        private LocalDate EstimatedDeliveryDate;
+        private LocalDate estimatedDeliveryDate;
         private String personName;
         private Address address;
+
+        public Order(String name, int numberOfOrder, float price,
+                LocalDateTime purchaseDate, LocalDate estimatedDeliveryDate,
+                String personName, Address address) {
+            this.name = name;
+            this.numberOfOrder = numberOfOrder;
+            this.price = price;
+            this.purchaseDate = purchaseDate;
+            this.estimatedDeliveryDate = estimatedDeliveryDate;
+            this.personName = personName;
+            this.address = address;
+        }
 
         public String getName() {
             return name;
@@ -486,11 +484,11 @@ public class GridDemo extends DemoView {
         }
 
         public LocalDate getEstimatedDeliveryDate() {
-            return EstimatedDeliveryDate;
+            return estimatedDeliveryDate;
         }
 
         public void setEstimatedDeliveryDate(LocalDate estimatedDeliveryDate) {
-            EstimatedDeliveryDate = estimatedDeliveryDate;
+            this.estimatedDeliveryDate = estimatedDeliveryDate;
         }
 
         public String getPersonName() {
@@ -517,18 +515,6 @@ public class GridDemo extends DemoView {
             this.address = address;
         }
 
-        public Order(String name, int numberOfOrder, float price,
-                LocalDateTime purchaseDate, LocalDate estimatedDeliveryDate,
-                String personName, Address address) {
-            super();
-            this.name = name;
-            this.numberOfOrder = numberOfOrder;
-            this.price = price;
-            this.purchaseDate = purchaseDate;
-            EstimatedDeliveryDate = estimatedDeliveryDate;
-            this.personName = personName;
-            this.address = address;
-        }
     }
 
     public static class Benefit {
@@ -538,6 +524,16 @@ public class GridDemo extends DemoView {
         private int quarter2;
         private int quarter3;
         private int quarter4;
+
+        public Benefit(int year, int quarter1, int quarter2, int quarter3,
+                int quarter4) {
+
+            this.year = year;
+            this.quarter1 = quarter1;
+            this.quarter2 = quarter2;
+            this.quarter3 = quarter3;
+            this.quarter4 = quarter4;
+        }
 
         public int getYear() {
             return year;
@@ -576,16 +572,6 @@ public class GridDemo extends DemoView {
         }
 
         public void setQuarter4(int quarter4) {
-            this.quarter4 = quarter4;
-        }
-
-        public Benefit(int year, int quarter1, int quarter2, int quarter3,
-                int quarter4) {
-
-            this.year = year;
-            this.quarter1 = quarter1;
-            this.quarter2 = quarter2;
-            this.quarter3 = quarter3;
             this.quarter4 = quarter4;
         }
 
@@ -640,7 +626,6 @@ public class GridDemo extends DemoView {
         // source-example-heading: Grid Basics
         List<Person> personList = new ArrayList<>();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         personList.add(new Person(100, "Lucas", "Kane", 68,
                 new Address("12080", "Washington"), "127-942-237"));
         personList.add(new Person(101, "Peter", "Buchanan", 38,
@@ -734,10 +719,7 @@ public class GridDemo extends DemoView {
                 .addColumn(Person::getfirstName).setHeader("First name");
         Grid.Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
                 .setHeader("Last name");
-        Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
-                .setHeader("Age");
-
-        List<Person> personListForAdding = new ArrayList<>();
+        grid.addColumn(Person::getAge).setHeader("Age");
 
         Button addButton = new Button("Add Item", event -> {
 
@@ -936,21 +918,6 @@ public class GridDemo extends DemoView {
                 deselectBtn);
     }
 
-    private void createGridWithNoSelect() {
-        // begin-source-example
-        // source-example-heading: Grid with No Selection Enabled
-        Grid<Person> grid = new Grid<>();
-        grid.setItems(getItems());
-
-        grid.addColumn(Person::getfirstName).setHeader("First name");
-        grid.addColumn(Person::getAge).setHeader("Age");
-
-        grid.setSelectionMode(Grid.SelectionMode.NONE);
-        // end-source-example
-        grid.setId("none-selection");
-        addCard("Selection", "Grid with No Selection Enabled", grid);
-    }
-
     // Sorting Begin
     private void createGridWithSortableColumns() {
         Div messageDiv = new Div();
@@ -1094,15 +1061,10 @@ public class GridDemo extends DemoView {
                 personList);
         grid.setDataProvider(dataProvider);
 
-        Grid.Column<Person> firstNameColumn = grid
-                .addColumn(Person::getfirstName).setHeader("Name");
-        Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
-                .setHeader("Age");
-        Grid.Column<Person> birthDateColumn = grid
-                .addColumn(person -> person.getBirthdate())
-                .setHeader("Birth date");
-        Grid.Column<Person> postalCodeColumn = grid
-                .addColumn(person -> person.getAddress().getPostalCode())
+        grid.addColumn(Person::getfirstName).setHeader("Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
+        grid.addColumn(person -> person.getBirthdate()).setHeader("Birth date");
+        grid.addColumn(person -> person.getAddress().getPostalCode())
                 .setHeader("Postal Code");
 
         maritalStatus = new ComboBox<>("Filter by marital status: ");
@@ -1173,15 +1135,14 @@ public class GridDemo extends DemoView {
 
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
-        GridSelectionModel<Person> selectionMode = grid
-                .setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setItems(personList);
 
         Grid.Column<Person> idColumn = grid.addColumn(Person::getId)
                 .setHeader("ID").setFlexGrow(0).setWidth("75px");
 
         // Combination of properties
-        Grid.Column<Person> nameColumn = grid.addColumn(
+        grid.addColumn(
                 Person -> Person.getfirstName() + " " + Person.getLastName())
                 .setHeader("Full name").setResizable(true);
 
@@ -1330,8 +1291,7 @@ public class GridDemo extends DemoView {
         Grid<Benefit> grid = new Grid<>();
         grid.setItems(benefitList);
 
-        Grid.Column<Benefit> year = grid.addColumn(Benefit::getYear)
-                .setHeader("Year");
+        grid.addColumn(Benefit::getYear).setHeader("Year");
         // Setting the alignment of columns
         Grid.Column<Benefit> quarter1 = grid.addColumn(Benefit::getQuarter1, "")
                 .setHeader("Quarter 1").setTextAlign(ColumnTextAlign.END);
@@ -1642,8 +1602,8 @@ public class GridDemo extends DemoView {
         contextMenu.addItem("Update",
                 event -> event.getItem().ifPresent(person -> {
                     person.setfirstName(person.getfirstName() + " Updated");
-                    ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) event
-                            .getGrid().getDataProvider();
+                    DataProvider<Person, ?> dataProvider = grid
+                            .getDataProvider();
                     dataProvider.refreshItem(person);
                 }));
         contextMenu.addItem("Remove",
