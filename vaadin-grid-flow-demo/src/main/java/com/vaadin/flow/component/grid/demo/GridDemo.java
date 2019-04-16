@@ -593,6 +593,7 @@ public class GridDemo extends DemoView {
         createGridWithDataTypeSpecificFilters();
         createConfiguringColumns();// Configuring Columns
         createManuallyDefiningColumns();
+        createAutoWidthColumns();
         createFrozenColumns();
         createColumnAlignment();
         createHeaderAndFooter();// Header and footer
@@ -1166,6 +1167,31 @@ public class GridDemo extends DemoView {
         userReordering.setId("toggle-user-reordering");
         addCard("Configuring columns", "Manually defining columns", grid,
                 new VerticalLayout(grid, idColumnVisibility, userReordering));
+    }
+
+    private void createAutoWidthColumns() {
+        // begin-source-example
+        // source-example-heading: Columns with automatic width
+
+        List<Person> personList = getItems();
+        Grid<Person> grid = new Grid<>(Person.class);
+        grid.setItems(personList);
+
+        grid.removeAllColumns();
+        grid.addColumn("firstName").setAutoWidth(true);
+        grid.addColumn("lastName").setAutoWidth(true);
+        grid.addColumn("age").setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn("phoneNumber").setAutoWidth(true);
+        grid.addColumn("address").setAutoWidth(true);
+        grid.addColumn("birthdate").setAutoWidth(true);
+        // end-source-example
+
+        Button buttonRecalculateWidths = new Button("Recalculate column widths");
+        buttonRecalculateWidths.addClickListener(buttonClickEvent -> grid.recalculateColumnWidths());
+
+        grid.setId("column-auto-width-grid");
+        buttonRecalculateWidths.setId("column-auto-width-button");
+        addCard("Configuring columns", "Columns with automatic width", grid, buttonRecalculateWidths);
     }
 
     private void createFrozenColumns() {
