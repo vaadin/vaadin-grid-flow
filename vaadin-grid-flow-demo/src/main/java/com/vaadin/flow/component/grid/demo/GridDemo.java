@@ -1823,7 +1823,7 @@ public class GridDemo extends DemoView {
         List<Person> persons = getItems();
         grid.setItems(persons);
         Grid.Column<Person> nameColumn = grid.addColumn(Person::getfirstName)
-                .setHeader("First Name");
+                .setHeader("First name");
         Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
@@ -1918,9 +1918,7 @@ public class GridDemo extends DemoView {
                     .bind("state");
         };
 
-        Runnable bindStateSelect = () -> {
-            binder.forField(stateSelect).bind("state");
-        };
+        Runnable bindStateSelect = () -> binder.forField(stateSelect).bind("state");
 
         Runnable setState = () -> stateColumn.setEditorComponent(item -> {
             if (UNITED_STATES.equals(item.getCountry())) {

@@ -3,9 +3,17 @@ package com.vaadin.flow.component.grid.demo.entity;
 public class Customer {
     private int id;
     private String firstName;
-    private String LastName;
-    private String Country;
-    private String State;
+    private String lastName;
+    private String country;
+    private String state;
+
+    public Customer(int id, String firstName, String lastName, String country, String state) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.country = country;
+        this.state = state;
+    }
 
     public int getId() {
         return id;
@@ -24,34 +32,26 @@ public class Customer {
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        LastName = lastName;
+        this.lastName = lastName;
     }
 
     public String getCountry() {
-        return Country;
+        return country;
     }
 
     public void setCountry(String country) {
-        Country = country;
+        this.country = country;
     }
 
     public String getState() {
-        return State;
+        return state;
     }
 
     public void setState(String state) {
-        State = state;
-    }
-
-    public Customer(int id, String firstName, String lastName, String country, String state) {
-        this.id = id;
-        this.firstName = firstName;
-        LastName = lastName;
-        Country = country;
-        State = state;
+        this.state = state;
     }
 }
