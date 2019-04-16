@@ -61,7 +61,7 @@ public class GridDemo extends DemoView {
     /**
      * Example object.
      */
-    public static class Person implements Cloneable {
+    public static class Person {
         private int id;
         private String firstName;
         private String lastName;
@@ -69,12 +69,37 @@ public class GridDemo extends DemoView {
         private Address address;
         private String phoneNumber;
         private MaritalStatus maritalStatus;
-        private LocalDate birthdate;
+        private LocalDate birthDate;
         private boolean isSubscriber;
         private String email;
 
         public Person() {
 
+        }
+
+        public Person(int id, String firstName, String lastName, int age,
+                      Address address, String phoneNumber) {
+            super();
+            this.id = id;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.age = age;
+            this.address = address;
+            this.phoneNumber = phoneNumber;
+        }
+
+        public Person(int id, String firstName, String lastName, int age,
+                      Address address, String phoneNumber,
+                      MaritalStatus maritalStatus, LocalDate birthDate) {
+            super();
+            this.id = id;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.age = age;
+            this.address = address;
+            this.phoneNumber = phoneNumber;
+            this.maritalStatus = maritalStatus;
+            this.birthDate = birthDate;
         }
 
         public int getId() {
@@ -85,11 +110,11 @@ public class GridDemo extends DemoView {
             this.id = id;
         }
 
-        public String getfirstName() {
+        public String getFirstName() {
             return firstName;
         }
 
-        public void setfirstName(String firstName) {
+        public void setFirstName(String firstName) {
             this.firstName = firstName;
         }
 
@@ -133,12 +158,12 @@ public class GridDemo extends DemoView {
             this.maritalStatus = maritalStatus;
         }
 
-        public LocalDate getBirthdate() {
-            return birthdate;
+        public LocalDate getBirthDate() {
+            return birthDate;
         }
 
-        public void setBirthdate(LocalDate birthdate) {
-            this.birthdate = birthdate;
+        public void setBirthDate(LocalDate birthDate) {
+            this.birthDate = birthDate;
         }
 
         public String getImage() {
@@ -178,44 +203,9 @@ public class GridDemo extends DemoView {
             return id == other.id;
         }
 
-        public Person(int id, String firstName, String lastName, int age,
-                      Address address, String phoneNumber) {
-            super();
-            this.id = id;
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.age = age;
-            this.address = address;
-            this.phoneNumber = phoneNumber;
-        }
-
-        public Person(int id, String firstName, String lastName, int age,
-                      Address address, String phoneNumber,
-                      MaritalStatus maritalStatus, LocalDate birthDate) {
-            super();
-            this.id = id;
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.age = age;
-            this.address = address;
-            this.phoneNumber = phoneNumber;
-            this.maritalStatus = maritalStatus;
-            this.birthdate = birthDate;
-        }
-
         @Override
         public String toString() {
             return firstName;
-        }
-
-        @Override
-        public Person clone() {
-            try {
-                return (Person) super.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(
-                        "The Person object could not be cloned.", e);
-            }
         }
     }
 
@@ -320,7 +310,7 @@ public class GridDemo extends DemoView {
          * @param person the person to be inside inside the cell
          */
         public void setPerson(Person person) {
-            text = "Hi, i'm the component for " + person.getfirstName() + "!";
+            text = "Hi, i'm the component for " + person.getFirstName() + "!";
             setText(text);
         }
     }
@@ -340,7 +330,7 @@ public class GridDemo extends DemoView {
             setId("person-card-" + person.getId());
 
             VerticalLayout layout1 = new VerticalLayout();
-            layout1.add(new Label("Name: " + person.getfirstName()));
+            layout1.add(new Label("Name: " + person.getFirstName()));
             layout1.add(new Label("Id: " + person.getId()));
             layout1.add(new Label("Age: " + person.getAge()));
 
@@ -655,8 +645,8 @@ public class GridDemo extends DemoView {
                         query -> personService.count());
         grid.setDataProvider(provider);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name");
-        grid.addColumn(Person::getLastName).setHeader("Last name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
+        grid.addColumn(Person::getLastName).setHeader("Last Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         // end-source-example
@@ -672,8 +662,8 @@ public class GridDemo extends DemoView {
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
         grid.setItems(personList);
-        grid.addColumn(Person::getfirstName).setHeader("First name");
-        grid.addColumn(Person::getAge).setHeader("age");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
 
@@ -698,9 +688,9 @@ public class GridDemo extends DemoView {
         grid.setItems(personList);
 
         Grid.Column<Person> firstNameColumn = grid
-                .addColumn(Person::getfirstName).setHeader("First name");
+                .addColumn(Person::getFirstName).setHeader("First Name");
         Grid.Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
-                .setHeader("Last name");
+                .setHeader("Last Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         Button addButton = new Button("Add Item", event -> {
@@ -750,9 +740,9 @@ public class GridDemo extends DemoView {
         grid.setItems(personList);
 
         Grid.Column<Person> firstNameColumn = grid
-                .addColumn(Person::getfirstName).setHeader("First name");
+                .addColumn(Person::getFirstName).setHeader("First Name");
         Grid.Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
-                .setHeader("Last name");
+                .setHeader("Last Name");
         Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
@@ -800,7 +790,7 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -822,7 +812,7 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.setSelectionMode(SelectionMode.MULTI);
@@ -860,7 +850,7 @@ public class GridDemo extends DemoView {
         filterField.setValueChangeMode(ValueChangeMode.EAGER);
         filterField.addValueChangeListener(event -> {
             Optional<Person> foundPerson = personList.stream()
-                    .filter(person -> person.getfirstName().toLowerCase()
+                    .filter(person -> person.getFirstName().toLowerCase()
                             .startsWith(event.getValue().toLowerCase()))
                     .findFirst();
 
@@ -868,16 +858,16 @@ public class GridDemo extends DemoView {
 
             secondGrid.getSelectionModel().deselectAll();
             Set<Person> foundpersons = personList.stream()
-                    .filter(person -> person.getfirstName().toLowerCase()
+                    .filter(person -> person.getFirstName().toLowerCase()
                             .startsWith(event.getValue().toLowerCase()))
                     .collect(Collectors.toSet());
             secondGrid.asMultiSelect().setValue(foundpersons);
         });
 
-        firstGrid.addColumn(Person::getfirstName).setHeader("First name");
+        firstGrid.addColumn(Person::getFirstName).setHeader("First Name");
         firstGrid.addColumn(Person::getAge).setHeader("Age");
 
-        secondGrid.addColumn(Person::getfirstName).setHeader("First name");
+        secondGrid.addColumn(Person::getFirstName).setHeader("First Name");
         secondGrid.addColumn(Person::getAge).setHeader("Age");
 
         NativeButton deselectBtn = new NativeButton("Deselect all");
@@ -910,9 +900,9 @@ public class GridDemo extends DemoView {
         grid.setItems(personList);
         grid.setSelectionMode(SelectionMode.NONE);
 
-        grid.addColumn(Person::getfirstName, "First name")
-                .setHeader("First name");
-        grid.addColumn(Person::getLastName, "last name").setHeader("Last name");
+        grid.addColumn(Person::getFirstName, "First Name")
+                .setHeader("First Name");
+        grid.addColumn(Person::getLastName, "Last Name").setHeader("Last Name");
         grid.addColumn(Person::getAge, "age").setHeader("Age");
 
         // addColumn is not Comparable so it uses toString method to sort the
@@ -963,7 +953,7 @@ public class GridDemo extends DemoView {
         grid.setDataProvider(dataProvider);
 
         Grid.Column<Person> firstNameColumn = grid
-                .addColumn(Person::getfirstName).setHeader("Name");
+                .addColumn(Person::getFirstName).setHeader("Name");
         Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
         Grid.Column<Person> cityColumn = grid
@@ -971,13 +961,13 @@ public class GridDemo extends DemoView {
                 .setHeader("City");
         Grid.Column<Person> postalCodeColumn = grid
                 .addColumn(person -> person.getAddress().getPostalCode())
-                .setHeader("Postal code");
+                .setHeader("Postal Code");
 
         HeaderRow filterRow = grid.appendHeaderRow();
         // First filter
         TextField firstNameField = new TextField();
         firstNameField.addValueChangeListener(event -> dataProvider.addFilter(
-                person -> StringUtils.containsIgnoreCase(person.getfirstName(),
+                person -> StringUtils.containsIgnoreCase(person.getFirstName(),
                         firstNameField.getValue())));
 
         firstNameField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -1043,9 +1033,9 @@ public class GridDemo extends DemoView {
                 personList);
         grid.setDataProvider(dataProvider);
 
-        grid.addColumn(Person::getfirstName).setHeader("Name");
+        grid.addColumn(Person::getFirstName).setHeader("Name");
         grid.addColumn(Person::getAge).setHeader("Age");
-        grid.addColumn(person -> person.getBirthdate()).setHeader("Birth date");
+        grid.addColumn(person -> person.getBirthDate()).setHeader("Birth Date");
         grid.addColumn(person -> person.getAddress().getPostalCode())
                 .setHeader("Postal Code");
 
@@ -1070,7 +1060,7 @@ public class GridDemo extends DemoView {
         dataProvider.clearFilters();
         if (birthDateField.getValue() != null)
             dataProvider.addFilter(person -> Objects
-                    .equals(birthDateField.getValue(), person.getBirthdate()));
+                    .equals(birthDateField.getValue(), person.getBirthDate()));
         if (maritalStatus.getValue() != null)
             dataProvider.addFilter(person -> maritalStatus.getValue() == person
                     .getMaritalStatus());
@@ -1125,8 +1115,8 @@ public class GridDemo extends DemoView {
 
         // Combination of properties
         grid.addColumn(
-                Person -> Person.getfirstName() + " " + Person.getLastName())
-                .setHeader("Full name").setResizable(true);
+                Person -> Person.getFirstName() + " " + Person.getLastName())
+                .setHeader("Full Name").setResizable(true);
 
         // Setting a column-key allows fetching the column later
         grid.addColumn(Person::getAge).setHeader("Age").setKey("age");
@@ -1160,15 +1150,15 @@ public class GridDemo extends DemoView {
         firstGrid.setItems(personList);
 
         firstGrid.addColumn(Person::getId).setHeader("ID").setWidth("75px");
-        firstGrid.addColumn(Person::getfirstName).setHeader("First name");
-        firstGrid.addColumn(Person::getLastName).setHeader("Last name");
+        firstGrid.addColumn(Person::getFirstName).setHeader("First Name");
+        firstGrid.addColumn(Person::getLastName).setHeader("Last Name");
         firstGrid.addColumn(Person::getPhoneNumber).setHeader("Phone Number")
                 .setWidth("200px");
         firstGrid.addColumn(Person::getAddress).setHeader("Adress")
                 .setWidth("200px");
         firstGrid.addColumn(Person::getMaritalStatus)
-                .setHeader("Marital Status").setWidth("200px");
-        firstGrid.addColumn(Person::getBirthdate).setHeader("Birth Date")
+                .setHeader("Marital status").setWidth("200px");
+        firstGrid.addColumn(Person::getBirthDate).setHeader("Birth Date")
                 .setWidth("200px");
 
         firstGrid.setColumnReorderingAllowed(true);
@@ -1184,17 +1174,17 @@ public class GridDemo extends DemoView {
         // Freezing any column
         secondGrid.addColumn(Person::getId).setHeader("ID").setWidth("75px")
                 .setFrozen(true);
-        secondGrid.addColumn(Person::getfirstName).setHeader("First name")
+        secondGrid.addColumn(Person::getFirstName).setHeader("First Name")
                 .setFrozen(true);
-        secondGrid.addColumn(Person::getLastName).setHeader("Last name")
+        secondGrid.addColumn(Person::getLastName).setHeader("Last Name")
                 .setFrozen(true);
-        secondGrid.addColumn(Person::getPhoneNumber).setHeader("Phone number")
+        secondGrid.addColumn(Person::getPhoneNumber).setHeader("Phone Number")
                 .setWidth("200px");
         secondGrid.addColumn(Person::getAddress).setHeader("Adress")
                 .setWidth("200px");
         secondGrid.addColumn(Person::getMaritalStatus)
                 .setHeader("Marital status").setWidth("200px");
-        secondGrid.addColumn(Person::getBirthdate).setHeader("Birth date")
+        secondGrid.addColumn(Person::getBirthDate).setHeader("Birth Date")
                 .setWidth("200px");
 
         // end-source-example
@@ -1212,7 +1202,7 @@ public class GridDemo extends DemoView {
 
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
 
         // Setting a column-key allows fetching the column later
         grid.addColumn(Person::getAge).setHeader("Age").setKey("age");
@@ -1244,7 +1234,7 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name")
+        grid.addColumn(Person::getFirstName).setHeader("First Name")
                 .setFooter("Total: " + personList.size() + " people");
 
         long averageOfAge = Math.round(personList.stream()
@@ -1316,9 +1306,9 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         grid.setDataProvider(dataProvider);
 
-        Grid.Column<Person> nameColumn = grid.addColumn(Person::getfirstName)
+        Grid.Column<Person> nameColumn = grid.addColumn(Person::getFirstName)
                 .setHeader(new Label("Name")).setComparator((p1, p2) -> p1
-                        .getfirstName().compareToIgnoreCase(p2.getfirstName()));
+                        .getFirstName().compareToIgnoreCase(p2.getFirstName()));
         Column<Person> ageColumn = grid.addColumn(Person::getAge, "age")
                 .setHeader(new Label("Age"));
         Column<Person> streetColumn = grid
@@ -1327,7 +1317,7 @@ public class GridDemo extends DemoView {
 
         Column<Person> postalCodeColumn = grid
                 .addColumn(person -> person.getAddress().getPostalCode())
-                .setHeader(new Label("Postal code"));
+                .setHeader(new Label("Postal Code"));
 
         // Create and combine the header
         HeaderRow topRow = grid.prependHeaderRow();
@@ -1390,12 +1380,12 @@ public class GridDemo extends DemoView {
         grid.addColumn(new LocalDateTimeRenderer<>(Item::getPurchaseDate,
                 DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT,
                         FormatStyle.MEDIUM)))
-                .setHeader("Purchase date and time").setFlexGrow(2);
+                .setHeader("Purchase Date and Time").setFlexGrow(2);
 
         // LocalDateRenderer for dates
         grid.addColumn(new LocalDateRenderer<>(Item::getEstimatedDeliveryDate,
                 DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
-                .setHeader("Estimated delivery date");
+                .setHeader("Estimated Delivery Date");
 
         // end-source-example
 
@@ -1501,7 +1491,7 @@ public class GridDemo extends DemoView {
 
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.setSelectionMode(Grid.SelectionMode.NONE);
@@ -1513,7 +1503,7 @@ public class GridDemo extends DemoView {
                         + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
                         + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
                         + "</div>")
-                .withProperty("firstName", Person::getfirstName)
+                .withProperty("firstName", Person::getFirstName)
                 .withProperty("lastname", Person::getLastName)
                 .withProperty("address", Person::getAddress)
                 .withProperty("image", Person::getImage)
@@ -1538,7 +1528,7 @@ public class GridDemo extends DemoView {
 
         grid.setItems(personList);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.setSelectionMode(Grid.SelectionMode.NONE);
@@ -1549,7 +1539,7 @@ public class GridDemo extends DemoView {
                 "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
                         + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
                         + "</div>")
-                .withProperty("firstName", Person::getfirstName)
+                .withProperty("firstName", Person::getFirstName)
                 // This is now how we open the details
                 .withEventHandler("handleClick", person -> {
                     grid.getDataProvider().refreshItem(person);
@@ -1584,8 +1574,8 @@ public class GridDemo extends DemoView {
                 .ofCollection(taskData.getTasks());
 
         grid.setDataProvider(dataProvider);
-        grid.addColumn(Task::getName).setHeader("Task name");
-        grid.addColumn(Task::getDueDate).setHeader("Due date");
+        grid.addColumn(Task::getName).setHeader("Task Name");
+        grid.addColumn(Task::getDueDate).setHeader("Due Date");
         GridContextMenu<Task> contextMenu = new GridContextMenu<>(grid);
         GridMenuItem<Task> insert = contextMenu.addItem("Insert");
 
@@ -1643,7 +1633,7 @@ public class GridDemo extends DemoView {
 
         grid.setDataProvider(dataProvider);
 
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
         GridContextMenu<Person> contextMenu = new GridContextMenu<>(grid);
         GridMenuItem<Person> insert = contextMenu.addItem("Insert");
@@ -1685,7 +1675,7 @@ public class GridDemo extends DemoView {
         // source-example-heading: Item Click Listener
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         // Disable selection: will receive only click events instead
@@ -1697,7 +1687,7 @@ public class GridDemo extends DemoView {
 
         grid.addItemClickListener(
                 event -> {
-                    name.setText(event.getItem().getfirstName());
+                    name.setText(event.getItem().getFirstName());
                     age.setText(String.valueOf(event.getItem().getAge()));
                 });
 
@@ -1718,7 +1708,7 @@ public class GridDemo extends DemoView {
         // source-example-heading: Item Double Click Listener
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
-        grid.addColumn(Person::getfirstName).setHeader("First name");
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         formLayout.add(name, age);
@@ -1726,7 +1716,7 @@ public class GridDemo extends DemoView {
         formLayout.addFormItem(age, "Age");
 
         grid.addItemDoubleClickListener(event -> {
-            name.setText(event.getItem().getfirstName());
+            name.setText(event.getItem().getFirstName());
             age.setText(String.valueOf(event.getItem().getAge()));
         });
 
@@ -1748,8 +1738,8 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         List<Person> persons = getItems();
         grid.setItems(persons);
-        Grid.Column<Person> firstNameColumn = grid.addColumn(Person::getfirstName)
-                .setHeader("First name");
+        Grid.Column<Person> firstNameColumn = grid.addColumn(Person::getFirstName)
+                .setHeader("First Name");
         Grid.Column<Person> ageColumn = grid
                 .addColumn(Person::getAge).setHeader("Age");
 
@@ -1803,7 +1793,7 @@ public class GridDemo extends DemoView {
         editorColumn.setEditorComponent(buttons);
 
         editor.addSaveListener(
-                event -> message.setText(event.getItem().getfirstName() + ", "
+                event -> message.setText(event.getItem().getFirstName() + ", "
                         + event.getItem().getAge()));
 
         // end-source-example
@@ -1822,8 +1812,8 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>();
         List<Person> persons = getItems();
         grid.setItems(persons);
-        Grid.Column<Person> nameColumn = grid.addColumn(Person::getfirstName)
-                .setHeader("First name");
+        Grid.Column<Person> nameColumn = grid.addColumn(Person::getFirstName)
+                .setHeader("First Name");
         Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
@@ -1860,7 +1850,7 @@ public class GridDemo extends DemoView {
 
         grid.getEditor().addCloseListener(event -> {
             if (binder.getBean() != null) {
-                message.setText(binder.getBean().getfirstName() + ", "
+                message.setText(binder.getBean().getFirstName() + ", "
                         + binder.getBean().getAge());
             }
         });
@@ -1888,7 +1878,7 @@ public class GridDemo extends DemoView {
         grid.setItems(customerList);
 
         Grid.Column<Customer> firstNameColumn = grid.addColumn(Customer::getFirstName)
-                .setHeader("First name");
+                .setHeader("First Name");
         Grid.Column<Customer> countryColumn = grid.addColumn(Customer::getCountry)
                 .setHeader("Country");
         Grid.Column<Customer> stateColumn = grid
@@ -2013,7 +2003,7 @@ public class GridDemo extends DemoView {
         grid.setItems(customerList);
 
         Grid.Column<Customer> firstNameColumn = grid.addColumn(Customer::getFirstName)
-                .setHeader("First name");
+                .setHeader("First Name");
         Grid.Column<Customer> countryColumn = grid
                 .addColumn(Customer::getCountry).setHeader("Country");
         Grid.Column<Customer> stateColumn = grid.addColumn(Customer::getState)
