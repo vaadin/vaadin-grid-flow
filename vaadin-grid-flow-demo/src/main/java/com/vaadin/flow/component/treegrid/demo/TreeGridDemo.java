@@ -65,7 +65,7 @@ public class TreeGridDemo extends DemoView {
 
         grid.setItems(departmentData.getRootDepartments(), department ->
                 departmentData.getChildDepartments(department));
-        grid.addHierarchyColumn(Department::getName).setHeader("Hierarchy");
+        grid.addHierarchyColumn(Department::getName).setHeader("Department Name");
         grid.addColumn(Department::getDescription).setHeader("Description");
 
         grid.addExpandListener(event -> message.setValue(
