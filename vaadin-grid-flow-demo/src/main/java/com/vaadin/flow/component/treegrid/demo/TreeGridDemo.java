@@ -120,7 +120,7 @@ public class TreeGridDemo extends DemoView {
         // begin-source-example
         // source-example-heading: TreeGrid with lazy loading
         TreeGrid<Account> grid = new TreeGrid<>();
-        grid.addHierarchyColumn(Account::toString).setHeader("Hierarchy");
+        grid.addHierarchyColumn(Account::toString).setHeader("Account Title");
         grid.addColumn(Account::getCode).setHeader("Code");
 
         HierarchicalDataProvider dataProvider =
