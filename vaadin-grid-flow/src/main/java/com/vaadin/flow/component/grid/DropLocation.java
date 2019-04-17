@@ -5,11 +5,11 @@ public enum DropLocation {
 
     private final String clientName;
 
-    private DropLocation(String clientName) {
+    DropLocation(String clientName) {
         this.clientName = clientName;
     }
 
-    public String getClientName() {
+    String getClientName() {
         return clientName;
     }
 

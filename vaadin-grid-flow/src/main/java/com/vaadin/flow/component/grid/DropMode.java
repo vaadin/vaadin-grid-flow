@@ -10,7 +10,8 @@ public enum DropMode {
         this.clientName = clientName;
     }
 
-    public String getClientName() {
+    String getClientName() {
         return clientName;
     }
+
 }

@@ -1290,8 +1290,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         protected DataCommunicator<T> build(Element element,
                 CompositeDataGenerator<T> dataGenerator, U arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
-            return new DataCommunicator<>(dataGenerator,
-                    arrayUpdater, data -> element
+            return new DataCommunicator<>(
+                    dataGenerator, arrayUpdater, data -> element
                             .callFunction("$connector.updateFlatData", data),
                     element.getNode());
         }
@@ -2922,9 +2922,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         // Back-end sort properties
         List<QuerySortOrder> sortProperties = new ArrayList<>();
-        sortOrder.stream()
-                .map(order -> order.getSorted()
-                        .getSortOrder(order.getDirection()))
+        sortOrder.stream().map(
+                order -> order.getSorted().getSortOrder(order.getDirection()))
                 .forEach(s -> s.forEach(sortProperties::add));
         getDataCommunicator().setBackEndSorting(sortProperties);
 
@@ -2946,9 +2945,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
              */
             return comparator1.thenComparing(comparator2)::compare;
         };
-        return sortOrder.stream()
-                .map(order -> order.getSorted()
-                        .getComparator(order.getDirection()))
+        return sortOrder.stream().map(
+                order -> order.getSorted().getComparator(order.getDirection()))
                 .reduce(operator).orElse(null);
     }
 
@@ -3376,9 +3374,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     public DropMode getDropMode() {
         String dropMode = getElement().getProperty("dropMode");
-        Optional<DropMode> mode = Arrays.asList(DropMode.values()).stream()
+        Optional<DropMode> mode = Arrays.stream(DropMode.values())
                 .filter(dm -> dm.getClientName().equals(dropMode)).findFirst();
-        return mode.isPresent() ? mode.get() : null;
+        return mode.orElse(null);
     }
 
     public void setRowsDraggable(boolean rowsRraggable) {
@@ -3419,5 +3417,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             types.set(types.length(), t);
         });
         this.getElement().setPropertyJson("__dragDataTypes", types);
+        getDataCommunicator().reset();
     }
 }

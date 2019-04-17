@@ -3,6 +3,7 @@ package com.vaadin.flow.component.grid;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
@@ -28,11 +29,11 @@ public class GridDropEvent<T> extends DropEvent<Grid<T>> {
         super(source, new HashMap<String, String>(), (Component) ComponentUtil
                 .getData(UI.getCurrent(), "drag-source"));
 
-        for (int i = 0; i < dragData.length(); i++) {
+        IntStream.range(0, dragData.length()).forEach(i -> {
             JsonObject data = dragData.getObject(i);
             getDataTransferData().put(data.getString("type"),
                     data.getString("data"));
-        }
+        });
 
         if (item != null) {
             this.dropTargetRow = source.getDataCommunicator().getKeyMapper()
