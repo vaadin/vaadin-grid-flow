@@ -2085,8 +2085,8 @@ public class GridDemo extends DemoView {
 
         Grid<Person> grid = new Grid<>(Person.class);
         grid.setColumns("firstName", "lastName", "phoneNumber");
-        List<Person> items = new PersonService().fetch(0, 5);
-        grid.setItems(items);
+        List<Person> gridItems = new PersonService().fetch(0, 5);
+        grid.setItems(gridItems);
         grid.setSelectionMode(SelectionMode.NONE);
 
         grid.setRowsDraggable(true);
@@ -2104,11 +2104,12 @@ public class GridDemo extends DemoView {
         grid.addDropListener(event -> {
             if (event.getDropTargetItem().isPresent() && !event
                     .getDropTargetItem().get().equals(draggedItems.get(0))) {
-                items.remove(draggedItems.get(0));
-                int dropIndex = items.indexOf(event.getDropTargetItem().get())
+                gridItems.remove(draggedItems.get(0));
+                int dropIndex = gridItems
+                        .indexOf(event.getDropTargetItem().get())
                         + (event.getDropLocation() == DropLocation.BELOW ? 1
                                 : 0);
-                items.add(dropIndex, draggedItems.get(0));
+                gridItems.add(dropIndex, draggedItems.get(0));
                 grid.getDataProvider().refreshAll();
             }
         });
@@ -2272,6 +2273,7 @@ public class GridDemo extends DemoView {
 
         // begin-source-example
         // source-example-heading: Custom Drag Data
+
         PersonService personService = new PersonService();
 
         Grid<Person> grid = new Grid<>(Person.class);
@@ -2301,17 +2303,12 @@ public class GridDemo extends DemoView {
                         .findFirst();
 
                 matchOptional.ifPresent(match -> {
-                    Person clone = new Person(match.getId(),
-                            match.getfirstName(), match.getLastName(),
-                            match.getAge(), match.getAddress(),
-                            match.getPhoneNumber());
-
-                    int index = event.getDropTargetItem().map(person -> {
-                        return persons.indexOf(person)
-                                + (event.getDropLocation() == DropLocation.BELOW
-                                        ? 1
-                                        : 0);
-                    }).orElse(0);
+                    Person clone = match.clone();
+                    int index = event.getDropTargetItem().map(person -> persons
+                            .indexOf(person)
+                            + (event.getDropLocation() == DropLocation.BELOW ? 1
+                                    : 0))
+                            .orElse(0);
                     persons.add(index, clone);
                 });
             });
@@ -2320,7 +2317,7 @@ public class GridDemo extends DemoView {
 
         grid.addDragEndListener(event -> {
             // Additional validation logic might be needed to verify
-            // the drop was successful (on another browser window)
+            // the drop was successful (on another browser window).
             // The demo just removes the items regardless of whether the drop
             // was legal.
             persons.removeAll(draggedItems);
@@ -2375,9 +2372,8 @@ public class GridDemo extends DemoView {
             td.getRootItems().forEach(supervisor -> {
                 grid.getDataProvider().refreshItem(supervisor);
 
-                td.getChildren(supervisor).forEach(subordinate -> {
-                    grid.getDataProvider().refreshItem(subordinate);
-                });
+                td.getChildren(supervisor).forEach(subordinate -> grid
+                        .getDataProvider().refreshItem(subordinate));
             });
 
         });

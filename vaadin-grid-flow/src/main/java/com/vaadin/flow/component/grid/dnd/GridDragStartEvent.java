@@ -20,10 +20,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 
 import elemental.json.JsonArray;
@@ -45,18 +43,15 @@ public class GridDragStartEvent<T> extends ComponentEvent<Grid<T>> {
 
     public GridDragStartEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail") JsonObject details) {
-        super(source, true);
+        super(source, fromClient);
         JsonArray items = details.getArray("items");
 
-        ComponentUtil.setData(UI.getCurrent(), "drag-source", source);
-
-        List<T> draggedItems = new ArrayList<>();
+        draggedItems = new ArrayList<>();
         for (int i = 0; i < items.length(); i++) {
             String itemKey = items.getObject(i).getString("key");
             T item = source.getDataCommunicator().getKeyMapper().get(itemKey);
             draggedItems.add(item);
         }
-        this.draggedItems = draggedItems;
     }
 
     /**

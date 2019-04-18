@@ -49,12 +49,12 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
             @EventData("event.detail.item") JsonObject item,
             @EventData("event.detail.dropLocation") String dropLocation,
             @EventData("event.detail.dragData") JsonArray dragData) {
-        super(source, true);
+        super(source, fromClient);
 
         data = new HashMap<>();
         IntStream.range(0, dragData.length()).forEach(i -> {
-            JsonObject data = dragData.getObject(i);
-            this.data.put(data.getString("type"), data.getString("data"));
+            JsonObject jsonData = dragData.getObject(i);
+            data.put(jsonData.getString("type"), jsonData.getString("data"));
         });
 
         if (item != null) {

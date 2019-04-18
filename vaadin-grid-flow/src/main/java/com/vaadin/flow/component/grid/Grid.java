@@ -3219,9 +3219,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private void generateDragData(T item, JsonObject jsonObject) {
         JsonObject dragData = Json.createObject();
 
-        this.dragDataGenerators.entrySet().forEach(entry -> {
-            dragData.put(entry.getKey(), entry.getValue().apply(item));
-        });
+        this.dragDataGenerators.entrySet().forEach(entry -> dragData
+                .put(entry.getKey(), entry.getValue().apply(item)));
 
         if (dragData.keys().length > 0) {
             jsonObject.put("dragData", dragData);
@@ -3403,8 +3402,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * When using {@link DropMode#BETWEEN} or
      * {@link DropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in the
      * grid, any drop after the last row in the grid will get the last row as
-     * the {@link GridDropEvent#getDropTargetItem()}. If there are no rows in the
-     * grid, then it will return an empty optional.
+     * the {@link GridDropEvent#getDropTargetItem()}. If there are no rows in
+     * the grid, then it will return an empty optional.
      * <p>
      * If using {@link DropMode#ON_GRID}, then the drop will not happen on any
      * row, but instead just "on the grid". The target row will not be present
@@ -3564,9 +3563,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         JsonArray types = Json.createArray();
 
-        this.dragDataGenerators.keySet().forEach(t -> {
-            types.set(types.length(), t);
-        });
+        this.dragDataGenerators.keySet()
+                .forEach(t -> types.set(types.length(), t));
         this.getElement().setPropertyJson("__dragDataTypes", types);
         getDataCommunicator().reset();
     }
