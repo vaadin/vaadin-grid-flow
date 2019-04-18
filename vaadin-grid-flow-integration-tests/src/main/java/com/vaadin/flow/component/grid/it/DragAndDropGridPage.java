@@ -22,9 +22,9 @@ import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.dependency.JavaScript;
-import com.vaadin.flow.component.grid.DropMode;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.dnd.DropMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.router.Route;

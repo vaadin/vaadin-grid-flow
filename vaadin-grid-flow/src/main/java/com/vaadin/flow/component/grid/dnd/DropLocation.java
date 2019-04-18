@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.grid;
+package com.vaadin.flow.component.grid.dnd;
 
 /**
  * Defines drop locations within a Grid row.
@@ -49,7 +49,7 @@ public enum DropLocation {
         this.clientName = clientName;
     }
 
-    String getClientName() {
+    public String getClientName() {
         return clientName;
     }
 

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.grid;
+package com.vaadin.flow.component.grid.dnd;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import com.vaadin.flow.component.grid.Grid;
 
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
