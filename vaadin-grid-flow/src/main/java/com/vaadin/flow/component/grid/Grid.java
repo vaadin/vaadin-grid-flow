@@ -3346,6 +3346,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 .addDataProviderListener(event -> onDataProviderChange());
     }
 
+    /**
+     * Adds a drop listener to this component.
+     *
+     * @param listener
+     *            the listener to add, not <code>null</code>
+     * @return a handle that can be used for removing the listener
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Registration addDropListener(
             ComponentEventListener<GridDropEvent<T>> listener) {
@@ -3353,6 +3360,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 (ComponentEventListener) listener);
     }
 
+    /**
+     * Adds a drag start listener to this component.
+     *
+     * @param listener
+     *            the listener to add, not <code>null</code>
+     * @return a handle that can be used for removing the listener
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Registration addDragStartListener(
             ComponentEventListener<GridDragStartEvent<T>> listener) {
@@ -3360,6 +3374,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 (ComponentEventListener) listener);
     }
 
+    /**
+     * Adds a drag end listener to this component.
+     *
+     * @param listener
+     *            the listener to add, not <code>null</code>
+     * @return a handle that can be used for removing the listener
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Registration addDragEndListener(
             ComponentEventListener<GridDragEndEvent<T>> listener) {
@@ -3367,11 +3388,46 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 (ComponentEventListener) listener);
     }
 
+    /**
+     * Sets the drop mode of this drop target.
+     * <p>
+     * When using {@link DropMode#ON_TOP}, and the grid is either empty or has
+     * empty space after the last row, the drop can still happen on the empty
+     * space, and the {@link GridDropEvent#getDropTargetRow()} will return an
+     * empty optional.
+     * <p>
+     * When using {@link DropMode#BETWEEN} or
+     * {@link DropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in the
+     * grid, any drop after the last row in the grid will get the last row as
+     * the {@link GridDropEvent#getDropTargetRow()}. If there are no rows in the
+     * grid, then it will return an empty optional.
+     * <p>
+     * If using {@link DropMode#ON_GRID}, then the drop will not happen on any
+     * row, but instead just "on the grid". The target row will not be present
+     * in this case.
+     * <p>
+     * <em>NOTE: Prefer not using a row specific {@link DropMode} with a grid
+     * that enables sorting. If for example a new row gets added to a specific
+     * location on drop event, it might not end up in the location of the drop
+     * but rather where the active sorting configuration prefers to place it.
+     * This behavior might feel unexpected for the users.
+     * 
+     * @param dropMode
+     *            Drop mode that describes the allowed drop locations within the
+     *            Grid's row.
+     * @see GridDropEvent#getDropLocation()
+     */
     public void setDropMode(DropMode dropMode) {
         getElement().setProperty("dropMode",
                 dropMode == null ? null : dropMode.getClientName());
     }
 
+    /**
+     * Gets the drop mode of this drop target.
+     *
+     * @return Drop mode that describes the allowed drop locations within the
+     *         Grid's row.
+     */
     public DropMode getDropMode() {
         String dropMode = getElement().getProperty("dropMode");
         Optional<DropMode> mode = Arrays.stream(DropMode.values())
@@ -3379,34 +3435,125 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return mode.orElse(null);
     }
 
+    /**
+     * Sets whether the user can drag the grid rows or not.
+     *
+     * @param rowsRraggable
+     *            {@code true} if the rows can be dragged by the user;
+     *            {@code false} if not
+     */
     public void setRowsDraggable(boolean rowsRraggable) {
         getElement().setProperty("rowsDraggable", rowsRraggable);
     }
 
+    /**
+     * Gets whether rows of the grid can be dragged.
+     *
+     * @return {@code true} if the rows are draggable, {@code false} otherwise
+     */
     public boolean isRowsDraggable() {
         return getElement().getProperty("rowsDraggable", false);
     }
 
+    /**
+     * Gets the active drop filter.
+     * 
+     * @return The drop filter function
+     */
     public SerializableFunction<T, Boolean> getDropFilter() {
         return this.dropFilter;
     }
 
+    /**
+     * Gets the active drag filter.
+     * 
+     * @return The drag filter function
+     */
     public SerializableFunction<T, Boolean> getDragFilter() {
         return this.dragFilter;
     }
 
+    /**
+     * Sets the drop filter for this drag target.
+     * <p>
+     * When the drop mode of the grid has been set to one of
+     * {@link DropMode#BETWEEN}, {@link DropMode#ON_TOP} or
+     * {@link DropMode#ON_TOP_OR_BETWEEN}, by default all the visible rows can
+     * be dropped over.
+     * <p>
+     * A drop filter function can be used to specify the rows that are available
+     * for dropping over. The function receives an item and should return
+     * {@code true} if the row can be dropped over, {@code false} otherwise.
+     * <p>
+     * <em>NOTE: If the filter conditions depend on a specific row that's
+     * currently being dragged, you might want to have the grid's drop mode
+     * disabled by default and set its value only on drag start to avoid the
+     * small period of time during which the user might be able to drop over
+     * unwanted rows. Once the drop end event occurs, the drop mode can be set
+     * back to {@code null} to keep this consistent.
+     * <p>
+     * <em>NOTE: If the filtering conditions change dynamically, remember to
+     * explicitly invoke {@code getDataProvider().refreshItem(item)} for the
+     * relevant items to get the filters re-run for them.
+     */
     public void setDropFilter(SerializableFunction<T, Boolean> dropFilter) {
         Objects.requireNonNull(dropFilter, "Drop filter can not be null");
         this.dropFilter = dropFilter;
         getDataCommunicator().reset();
     }
 
+    /**
+     * Sets the drag filter for this drag source.
+     * <p>
+     * When the {@link #setRowsDraggable(boolean)} has been used to enable
+     * dragging, by default all the visible rows can be dragged.
+     * <p>
+     * A drag filter function can be used to specify the rows that are available
+     * for dragging. The function receives an item and returns {@code true} if
+     * the row can be dragged, {@code false} otherwise.
+     * <p>
+     * <em>NOTE: If the filtering conditions change dynamically, remember to
+     * explicitly invoke {@code getDataProvider().refreshItem(item)} for the
+     * relevant items to get the filters re-run for them.
+     */
     public void setDragFilter(SerializableFunction<T, Boolean> dragFilter) {
         Objects.requireNonNull(dragFilter, "Drag filter can not be null");
         this.dragFilter = dragFilter;
         getDataCommunicator().reset();
     }
 
+    /**
+     * Sets a generator function for customizing drag data. The generated value
+     * will be accessible using the same {@code type} as the generator is set
+     * here. The function is executed for each item in the Grid during data
+     * generation. Return a {@link String} to be appended to the row as {@code
+     * type} data.
+     * <p>
+     * Example, building a JSON object that contains the item's values:
+     *
+     * <pre>
+     *     dragSourceExtension.setDragDataGenerator("application/json", item ->
+     * {
+     *         StringBuilder builder = new StringBuilder();
+     *         builder.append("{");
+     *         getParent().getColumns().forEach(column -> {
+     *             builder.append("\"" + column.getCaption() + "\"");
+     *             builder.append(":");
+     *             builder.append("\"" + column.getValueProvider().apply(item) + "\"");
+     *             builder.append(",");
+     *         });
+     *         builder.setLength(builder.length() - 1); // Remove last comma
+     *         builder.append("}");
+     *         return builder.toString();
+     *     }
+     * </pre>
+     *
+     * @param type
+     *            Type of the generated data. The generated value will be
+     *            accessible during drop using this type.
+     * @param dragDataGenerator
+     *            Function to be executed on row data generation.
+     */
     public void setDragDataGenerator(String type,
             SerializableFunction<T, String> dragDataGenerator) {
         this.dragDataGenerators.put(type, dragDataGenerator);
