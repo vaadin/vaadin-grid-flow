@@ -1,38 +1,59 @@
+/*
+ * Copyright 2000-2019 Vaadin Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.vaadin.flow.component.grid;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import com.vaadin.flow.component.UI;
 
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
+/**
+ * Drop event on an HTML5 drop target {@link Grid} row.
+ *
+ * @param <T>
+ *            The Grid bean type.
+ * @author Vaadin Ltd.
+ * @see Grid#addDropListener(GridDropListener)
+ */
 @SuppressWarnings("serial")
 @DomEvent("grid-drop")
-public class GridDropEvent<T> extends DropEvent<Grid<T>> {
+public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
 
-    // TODO: Use Optional
     private final T dropTargetRow;
     private final DropLocation dropLocation;
+    private final Map<String, String> data;
 
     public GridDropEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.item") JsonObject item,
             @EventData("event.detail.dropLocation") String dropLocation,
             @EventData("event.detail.dragData") JsonArray dragData) {
-        super(source, new HashMap<String, String>(), (Component) ComponentUtil
-                .getData(UI.getCurrent(), "drag-source"));
+        super(source, true);
 
+        data = new HashMap<>();
         IntStream.range(0, dragData.length()).forEach(i -> {
             JsonObject data = dragData.getObject(i);
-            getDataTransferData().put(data.getString("type"),
-                    data.getString("data"));
+            this.data.put(data.getString("type"), data.getString("data"));
         });
 
         if (item != null) {
@@ -47,12 +68,90 @@ public class GridDropEvent<T> extends DropEvent<Grid<T>> {
                 .findFirst().get();
     }
 
+    /**
+     * Get the row the drop happened on.
+     * <p>
+     * If the drop was not on top of a row (see {@link #getDropLocation()}) or
+     * {@link DropMode#ON_GRID} is used, then returns an empty optional.
+     *
+     * @return The row the drop happened on, or an empty optional if drop was
+     *         not on a row
+     */
     public Optional<T> getDropTargetRow() {
         return Optional.ofNullable(dropTargetRow);
     }
 
+    /**
+     * Get the location of the drop within the row.
+     * <p>
+     * <em>NOTE: the location will be {@link DropLocation#EMPTY} if:
+     * <ul>
+     * <li>dropped on an empty grid</li>
+     * <li>dropping on rows was not possible because of
+     * {@link DropMode#ON_GRID } was used</li>
+     * <li>{@link DropMode#ON_TOP} is used and the drop happened on empty space
+     * after last row or on top of the header / footer</li>
+     * </ul>
+     * </em>
+     *
+     * @return location of the drop in relative to the
+     *         {@link #getDropTargetRow()} or {@link DropLocation#EMPTY} if no
+     *         target row present
+     * @see Grid#setDropMode(DropMode)
+     */
     public DropLocation getDropLocation() {
         return dropLocation;
+    }
+
+    /**
+     * Get data from the {@code DataTransfer} object.
+     *
+     * @param type
+     *            Data format, e.g. {@code text/plain} or {@code text/uri-list}.
+     * @return Optional data for the given format if exists in the {@code
+     * DataTransfer}, otherwise {@code Optional.empty()}.
+     */
+    public Optional<String> getDataTransferData(String type) {
+        return Optional.ofNullable(data.get(type));
+    }
+
+    /**
+     * Get data of any of the types {@code "text"}, {@code "Text"} or {@code
+     * "text/plain"}.
+     * <p>
+     * IE 11 transfers data dropped from the desktop as {@code "Text"} while
+     * most other browsers transfer textual data as {@code "text/plain"}.
+     *
+     * @return First existing data of types in order {@code "text"}, {@code
+     * "Text"} or {@code "text/plain"}, or {@code null} if none of them exist.
+     */
+    public String getDataTransferText() {
+        // Read data type "text"
+        String text = data.get("text");
+
+        // IE stores data dragged from the desktop as "Text"
+        if (text == null) {
+            text = data.get("Text");
+        }
+
+        // Browsers may store the key as "text/plain"
+        if (text == null) {
+            text = data.get("text/plain");
+        }
+
+        return text;
+    }
+
+    /**
+     * Get all of the transfer data from the {@code DataTransfer} object. The
+     * data can be iterated to find the most relevant data as it preserves the
+     * order in which the data was set to the drag source element.
+     *
+     * @return Map of type/data pairs, containing all the data from the {@code
+     * DataTransfer} object.
+     */
+    public Map<String, String> getDataTransferData() {
+        return data;
     }
 
 }

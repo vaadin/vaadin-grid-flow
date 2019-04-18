@@ -713,7 +713,7 @@ public class GridDemo extends DemoView {
 
         addVariantsDemo(() -> {
             return grid;
-        } , Grid::addThemeVariants, Grid::removeThemeVariants,
+        }, Grid::addThemeVariants, Grid::removeThemeVariants,
                 GridVariant::getVariantName, GridVariant.LUMO_NO_BORDER,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
     }
@@ -952,7 +952,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(TemplateRenderer.<Person> of(
                 "<div>[[item.city]]<br><small>[[item.postalCode]]</small></div>")
 
-        .withProperty("city", person -> person.getAddress().getCity())
+                .withProperty("city", person -> person.getAddress().getCity())
                 .withProperty("postalCode",
                         person -> person.getAddress().getPostalCode()),
                 "city", "postalCode").setHeader("Address");
@@ -1462,9 +1462,8 @@ public class GridDemo extends DemoView {
 
         // You can also set complex objects directly. Internal properties of the
         // bean are accessible in the template.
-        grid.addColumn(TemplateRenderer
-                .<Order> of(
-                        "<div>[[item.name]],[[item.price]] <br> purchased on: <small>[[item.purchasedate]]</small></div>")
+        grid.addColumn(TemplateRenderer.<Order> of(
+                "<div>[[item.name]],[[item.price]] <br> purchased on: <small>[[item.purchasedate]]</small></div>")
                 .withProperty("name", Order::getName)
                 // NumberRenderer to render numbers in general
                 .withProperty("price",
@@ -1473,14 +1472,11 @@ public class GridDemo extends DemoView {
                         order -> formatter.format(order.getPurchaseDate())))
                 .setHeader("Purchase").setFlexGrow(6);
 
-        grid.addColumn(
-                TemplateRenderer
-                        .<Order> of(
-                                "<div>Estimated delivery date: <small>[[item.estimatedDeliveryDate]]<small> <br>to: <small>[[item.address.city]],[[item.address.postalCode]]</small> </div>")
-                        .withProperty("estimatedDeliveryDate",
-                                order -> formatter
-                                        .format(order.getPurchaseDate()))
-                        .withProperty("address", order -> order.getAddress()))
+        grid.addColumn(TemplateRenderer.<Order> of(
+                "<div>Estimated delivery date: <small>[[item.estimatedDeliveryDate]]<small> <br>to: <small>[[item.address.city]],[[item.address.postalCode]]</small> </div>")
+                .withProperty("estimatedDeliveryDate",
+                        order -> formatter.format(order.getPurchaseDate()))
+                .withProperty("address", order -> order.getAddress()))
                 .setHeader("Delivery").setFlexGrow(6);
 
         // end-source-example
@@ -1544,12 +1540,11 @@ public class GridDemo extends DemoView {
 
         // You can use any renderer for the item details. By default, the
         // details are opened and closed by clicking the rows.
-        grid.setItemDetailsRenderer(TemplateRenderer
-                .<Person> of(
-                        "<div style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                                + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
-                                + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
-                                + "</div>")
+        grid.setItemDetailsRenderer(TemplateRenderer.<Person> of(
+                "<div style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
+                        + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
+                        + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
+                        + "</div>")
                 .withProperty("firstName", Person::getfirstName)
                 .withProperty("lastname", Person::getLastName)
                 .withProperty("address", Person::getAddress)
@@ -1582,11 +1577,10 @@ public class GridDemo extends DemoView {
 
         // You can use any renderer for the item details. By default, the
         // details are opened and closed by clicking the rows.
-        grid.setItemDetailsRenderer(TemplateRenderer
-                .<Person> of(
-                        "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                                + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
-                                + "</div>")
+        grid.setItemDetailsRenderer(TemplateRenderer.<Person> of(
+                "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
+                        + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
+                        + "</div>")
                 .withProperty("firstName", Person::getfirstName)
                 // This is now how we open the details
                 .withEventHandler("handleClick", person -> {
@@ -2082,6 +2076,7 @@ public class GridDemo extends DemoView {
     // Drag and drop
 
     private List<Person> draggedItems;
+    private Grid<Person> dragSource;
 
     private void createRowReordering() {
         // begin-source-example
@@ -2121,25 +2116,24 @@ public class GridDemo extends DemoView {
 
         ComponentEventListener<GridDragStartEvent<Person>> dragStartListener = event -> {
             draggedItems = event.getDraggedItems();
+            dragSource = event.getSource();
         };
 
         ComponentEventListener<GridDropEvent<Person>> dropListener = event -> {
-            Grid<Person> sourceGrid = (Grid<Person>) event
-                    .getDragSourceComponent().get();
-            if (!(sourceGrid instanceof Grid) || draggedItems == null) {
+            if (dragSource == null || draggedItems == null) {
                 return;
             }
 
             // Remove the items from the source grid
-            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) sourceGrid
+            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) dragSource
                     .getDataProvider();
             List<Person> sourceItems = new ArrayList<Person>(
                     sourceDataProvider.getItems());
             sourceItems.removeAll(draggedItems);
-            sourceGrid.setItems(sourceItems);
+            dragSource.setItems(sourceItems);
 
             // Add dragged items to the target Grid
-            Grid<Person> targetGrid = event.getComponent();
+            Grid<Person> targetGrid = event.getSource();
             ListDataProvider<Person> targetDataProvider = (ListDataProvider<Person>) targetGrid
                     .getDataProvider();
             List<Person> targetItems = new ArrayList<Person>(
