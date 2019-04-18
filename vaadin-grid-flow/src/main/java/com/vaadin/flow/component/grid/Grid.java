@@ -95,6 +95,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
@@ -1070,8 +1071,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private boolean verticalScrollingEnabled = true;
 
     private SerializableFunction<T, String> classNameGenerator = item -> null;
-    private SerializableFunction<T, Boolean> dropFilter = item -> true;
-    private SerializableFunction<T, Boolean> dragFilter = item -> true;
+    private SerializablePredicate<T> dropFilter = item -> true;
+    private SerializablePredicate<T> dragFilter = item -> true;
     private Map<String, SerializableFunction<T, String>> dragDataGenerators = new HashMap<>();
 
     private Registration dataProviderChangeRegistration;
@@ -3200,11 +3201,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private void generateRowsDragAndDropAccess(T item, JsonObject jsonObject) {
-        if (getDropMode() != null && !dropFilter.apply(item)) {
+        if (getDropMode() != null && !dropFilter.test(item)) {
             jsonObject.put("dropDisabled", true);
         }
 
-        if (this.isRowsDraggable() && !dragFilter.apply(item)) {
+        if (this.isRowsDraggable() && !dragFilter.test(item)) {
             jsonObject.put("dragDisabled", true);
         }
     }
@@ -3458,7 +3459,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * 
      * @return The drop filter function
      */
-    public SerializableFunction<T, Boolean> getDropFilter() {
+    public SerializablePredicate<T> getDropFilter() {
         return dropFilter;
     }
 
@@ -3467,7 +3468,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * 
      * @return The drag filter function
      */
-    public SerializableFunction<T, Boolean> getDragFilter() {
+    public SerializablePredicate<T> getDragFilter() {
         return dragFilter;
     }
 
@@ -3494,7 +3495,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * explicitly invoke {@code getDataProvider().refreshItem(item)} for the
      * relevant items to get the filters re-run for them.
      */
-    public void setDropFilter(SerializableFunction<T, Boolean> dropFilter) {
+    public void setDropFilter(SerializablePredicate<T> dropFilter) {
         Objects.requireNonNull(dropFilter, "Drop filter can not be null");
         this.dropFilter = dropFilter;
         getDataCommunicator().reset();
@@ -3514,7 +3515,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * explicitly invoke {@code getDataProvider().refreshItem(item)} for the
      * relevant items to get the filters re-run for them.
      */
-    public void setDragFilter(SerializableFunction<T, Boolean> dragFilter) {
+    public void setDragFilter(SerializablePredicate<T> dragFilter) {
         Objects.requireNonNull(dragFilter, "Drag filter can not be null");
         this.dragFilter = dragFilter;
         getDataCommunicator().reset();
