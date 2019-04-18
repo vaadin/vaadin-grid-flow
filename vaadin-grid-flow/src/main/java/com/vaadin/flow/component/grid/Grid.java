@@ -3527,25 +3527,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * here. The function is executed for each item in the Grid during data
      * generation. Return a {@link String} to be appended to the row as {@code
      * type} data.
-     * <p>
-     * Example, building a JSON object that contains the item's values:
-     *
-     * <pre>
-     *     dragSourceExtension.setDragDataGenerator("application/json", item ->
-     * {
-     *         StringBuilder builder = new StringBuilder();
-     *         builder.append("{");
-     *         getParent().getColumns().forEach(column -> {
-     *             builder.append("\"" + column.getCaption() + "\"");
-     *             builder.append(":");
-     *             builder.append("\"" + column.getValueProvider().apply(item) + "\"");
-     *             builder.append(",");
-     *         });
-     *         builder.setLength(builder.length() - 1); // Remove last comma
-     *         builder.append("}");
-     *         return builder.toString();
-     *     }
-     * </pre>
      *
      * @param type
      *            Type of the generated data. The generated value will be
