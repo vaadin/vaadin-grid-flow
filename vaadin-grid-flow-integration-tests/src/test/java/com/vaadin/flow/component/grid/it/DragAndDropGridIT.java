@@ -106,6 +106,24 @@ public class DragAndDropGridIT extends AbstractComponentIT {
     }
 
     @Test
+    public void multiSelectGrid_dragStartEventHasAllDraggedItems() {
+        click("ON_GRID");
+        click("multiselect");
+        fireDragStart(0);
+        assertMessages("0,1", "", "");
+    }
+
+    @Test
+    public void multiSelectGrid_defaultDragTextDataGenerator_dropEventHasGeneratedTransferText() {
+        click("ON_GRID");
+        click("multiselect");
+        fireDragStart(0);
+        fireDrop(2, "on-top");
+        Assert.assertEquals("0-1",
+                findElement(By.id("drop-data-text-message")).getText());
+    }
+
+    @Test
     public void setDragTextDataGenerator_dropEventHasGeneratedTransferText() {
         click("set-generators");
         click("ON_GRID");
@@ -124,6 +142,43 @@ public class DragAndDropGridIT extends AbstractComponentIT {
         Assert.assertEquals("<b>2</b>",
                 findElement(By.id("drop-data-html-message"))
                         .getAttribute("innerHTML"));
+    }
+
+    @Test
+    public void setDragFilter_draggable() {
+        click("set-filters");
+        fireDragStart(1);
+        assertMessages("1", "", "");
+    }
+
+    @Test
+    public void setDragFilter_undraggable() {
+        click("set-filters");
+        fireDragStart(0);
+        assertMessages("", "", "");
+    }
+
+    @Test
+    public void setDropFilter_droppable() {
+        click("ON_TOP");
+        click("set-filters");
+        fireDrop(2, "on-top");
+        assertMessages("", "", "grid ON_TOP 2");
+    }
+
+    @Test
+    public void setDropFilter_undroppable() {
+        click("ON_TOP");
+        click("set-filters");
+        fireDrop(0, "on-top");
+        assertMessages("", "", "");
+    }
+
+    @Test
+    public void setDropFilter_undroppable_noDropMode() {
+        click("set-filters");
+        fireDrop(2, "on-top");
+        assertMessages("", "", "");
     }
 
     private void assertMessages(String expectedStartMessage,

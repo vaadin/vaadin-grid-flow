@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-window.dragData = {};
+window.dragData = {text: 'foo'};
 
 window.fireDragStart = draggable => {
   const event = new Event('dragstart', {
@@ -26,8 +26,9 @@ window.fireDragStart = draggable => {
     },
     setData: (type, data) => dragData[type] = data
   };
-  draggable.dispatchEvent(event);
-  return event;
+  if (draggable.getAttribute('draggable') === 'true') {
+	  draggable.dispatchEvent(event);
+  }
 };
 
 
@@ -38,7 +39,6 @@ window.fireDragEnd = grid => {
     composed: true
   });
   grid.$.table.dispatchEvent(event);
-  return event;
 };
 
 window.fireDrop = (draggable, location) => {
@@ -55,8 +55,11 @@ window.fireDrop = (draggable, location) => {
     getData: type => dragData[type],
     types: Object.keys(dragData)
   };
-  draggable.dispatchEvent(event);
-  return event;
+  // Draggable is the vaadin-grid-cell-content element
+  const row = draggable.assignedSlot.parentNode.parentNode;
+  if (!row.hasAttribute('drop-disabled')) {
+	  draggable.dispatchEvent(event);
+  }
 };
 
 
@@ -77,5 +80,4 @@ window.fireDragOver = (row, location) => {
     event.clientY = rect.bottom + rect.height / 2;
   }
   row.dispatchEvent(event);
-  return event;
 };

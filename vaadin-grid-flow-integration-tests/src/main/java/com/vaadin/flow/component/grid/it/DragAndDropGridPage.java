@@ -42,7 +42,7 @@ public class DragAndDropGridPage extends Div {
         grid.addColumn(item -> item).setHeader("Header");
         grid.setItems(items);
         grid.setId("grid");
-        grid.setSelectionMode(SelectionMode.NONE);
+        grid.setSelectionMode(SelectionMode.MULTI);
 
         grid.setRowsDraggable(true);
 
@@ -77,7 +77,8 @@ public class DragAndDropGridPage extends Div {
                     + e.getDropLocation().toString() + " "
                     + e.getDropTargetRow().orElse(null));
 
-            dropDataTextMessage.add(e.getDataTransferText());
+            dropDataTextMessage
+                    .add(e.getDataTransferText().replaceAll("\n", "-"));
 
             String htmlData = e.getDataTransferData().get("text/html");
             if (htmlData != null) {
@@ -112,6 +113,20 @@ public class DragAndDropGridPage extends Div {
                 });
         setGeneratorsButton.setId("set-generators");
         add(setGeneratorsButton);
+
+        NativeButton setFiltersButton = new NativeButton("set filters", e -> {
+            grid.setDragFilter(item -> "1".equals(item));
+            grid.setDropFilter(item -> "2".equals(item));
+        });
+        setFiltersButton.setId("set-filters");
+        add(setFiltersButton);
+
+        NativeButton multiSelectButton = new NativeButton("multiselect", e -> {
+            grid.select("0");
+            grid.select("1");
+        });
+        multiSelectButton.setId("multiselect");
+        add(multiSelectButton);
     }
 
 }
