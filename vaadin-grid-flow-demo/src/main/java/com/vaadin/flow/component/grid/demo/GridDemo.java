@@ -2087,6 +2087,7 @@ public class GridDemo extends DemoView {
         grid.setColumns("firstName", "lastName", "phoneNumber");
         List<Person> items = new PersonService().fetch(0, 5);
         grid.setItems(items);
+        grid.setSelectionMode(SelectionMode.NONE);
 
         grid.setRowsDraggable(true);
 
@@ -2095,7 +2096,10 @@ public class GridDemo extends DemoView {
             grid.setDropMode(DropMode.BETWEEN);
         });
 
-        grid.addDragEndListener(event -> grid.setDropMode(null));
+        grid.addDragEndListener(event -> {
+            draggedItems = null;
+            grid.setDropMode(null);
+        });
 
         grid.addDropListener(event -> {
             if (event.getDropTargetItem().isPresent() && !event
@@ -2105,8 +2109,7 @@ public class GridDemo extends DemoView {
                         + (event.getDropLocation() == DropLocation.BELOW ? 1
                                 : 0);
                 items.add(dropIndex, draggedItems.get(0));
-                grid.setItems(items);
-                draggedItems = null;
+                grid.getDataProvider().refreshAll();
             }
         });
 
@@ -2147,7 +2150,7 @@ public class GridDemo extends DemoView {
             // Remove the items from the source grid
             ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) dragSource
                     .getDataProvider();
-            List<Person> sourceItems = new ArrayList<Person>(
+            List<Person> sourceItems = new ArrayList<>(
                     sourceDataProvider.getItems());
             sourceItems.removeAll(draggedItems);
             dragSource.setItems(sourceItems);
@@ -2156,7 +2159,7 @@ public class GridDemo extends DemoView {
             Grid<Person> targetGrid = event.getSource();
             ListDataProvider<Person> targetDataProvider = (ListDataProvider<Person>) targetGrid
                     .getDataProvider();
-            List<Person> targetItems = new ArrayList<Person>(
+            List<Person> targetItems = new ArrayList<>(
                     targetDataProvider.getItems());
 
             int index = target.map(person -> {
@@ -2202,6 +2205,7 @@ public class GridDemo extends DemoView {
 
         TreeGrid<Person> treeGrid = new TreeGrid<>();
         Grid<Person> grid = new Grid<>(Person.class);
+        grid.setSelectionMode(SelectionMode.NONE);
         grid.setItems(personService.fetch(0, 50));
 
         grid.addDragStartListener(event -> {
@@ -2228,12 +2232,12 @@ public class GridDemo extends DemoView {
                 .setHeader("firstName");
         treeGrid.addColumn(Person::getLastName).setHeader("lastName");
         treeGrid.addColumn(Person::getPhoneNumber).setHeader("phoneNumber");
+        treeGrid.setSelectionMode(SelectionMode.NONE);
         treeGrid.addDropListener(event -> {
             // Remove the items from the source grid
             ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid
                     .getDataProvider();
-            List<Person> sourceItems = new ArrayList<Person>(
-                    sourceDataProvider.getItems());
+            Collection<Person> sourceItems = sourceDataProvider.getItems();
             sourceItems.remove(draggedItems.get(0));
             grid.setItems(sourceItems);
 
@@ -2271,9 +2275,8 @@ public class GridDemo extends DemoView {
         PersonService personService = new PersonService();
 
         Grid<Person> grid = new Grid<>(Person.class);
-        List<Person> persons = new ArrayList<Person>(
-                personService.fetch(0, 50));
-        List<Person> availablePersons = new ArrayList<Person>(
+        List<Person> persons = new ArrayList<>(personService.fetch(0, 50));
+        List<Person> availablePersons = new ArrayList<>(
                 personService.fetch(0, 50));
 
         grid.setItems(persons);
