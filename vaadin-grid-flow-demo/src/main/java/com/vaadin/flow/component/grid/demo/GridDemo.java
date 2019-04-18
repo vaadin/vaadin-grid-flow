@@ -2163,12 +2163,9 @@ public class GridDemo extends DemoView {
             List<Person> targetItems = new ArrayList<>(
                     targetDataProvider.getItems());
 
-            int index = target.map(person -> {
-                return targetItems.indexOf(person)
-                        + (event.getDropLocation() == DropLocation.BELOW ? 1
-                                : 0);
-            }).orElse(0);
-
+            int index = target.map(person -> targetItems.indexOf(person)
+                    + (event.getDropLocation() == DropLocation.BELOW ? 1 : 0))
+                    .orElse(0);
             targetItems.addAll(index, draggedItems);
             targetGrid.setItems(targetItems);
         };
@@ -2340,17 +2337,13 @@ public class GridDemo extends DemoView {
         // Disallow dragging supervisors
         grid.setDragFilter(person -> td.getParent(person) != null);
 
-        grid.setDropFilter(person -> {
-            return td.getRootItems().contains(person) // Only support dropping
-                                                      // on top of supervisors
-                    && td.getChildren(person).size() < 4 // Don't allow more
-                                                         // than 4 subordinates
-                    && !td.getChildren(person).contains(draggedItems.get(0)); // Disallow
-                                                                              // dropping
-                                                                              // on
-                                                                              // own
-                                                                              // supervisor
-        });
+        grid.setDropFilter(person ->
+        // Only support droppingon top of supervisors
+        td.getRootItems().contains(person)
+                // Don't allow more than 4 subordinates
+                && td.getChildren(person).size() < 4
+                // Disallow dropping on own supervisor
+                && !td.getChildren(person).contains(draggedItems.get(0)));
 
         grid.addHierarchyColumn(Person::getfirstName).setHeader("First name");
         grid.addColumn(Person::getLastName).setHeader("Last name");

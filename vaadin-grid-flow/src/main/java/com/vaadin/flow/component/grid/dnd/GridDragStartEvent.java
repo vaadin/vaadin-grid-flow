@@ -18,6 +18,7 @@ package com.vaadin.flow.component.grid.dnd;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
@@ -47,11 +48,11 @@ public class GridDragStartEvent<T> extends ComponentEvent<Grid<T>> {
         JsonArray items = details.getArray("items");
 
         draggedItems = new ArrayList<>();
-        for (int i = 0; i < items.length(); i++) {
+        IntStream.range(0, items.length()).forEach(i -> {
             String itemKey = items.getObject(i).getString("key");
             T item = source.getDataCommunicator().getKeyMapper().get(itemKey);
             draggedItems.add(item);
-        }
+        });
     }
 
     /**

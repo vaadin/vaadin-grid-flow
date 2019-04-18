@@ -3392,7 +3392,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Sets the drop mode of this drop target.
+     * Sets the drop mode of this drop target. When set to not {@code null},
+     * grid fires drop events upon data drop over the grid or the grid rows.
      * <p>
      * When using {@link DropMode#ON_TOP}, and the grid is either empty or has
      * empty space after the last row, the drop can still happen on the empty
@@ -3417,7 +3418,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * 
      * @param dropMode
      *            Drop mode that describes the allowed drop locations within the
-     *            Grid's row.
+     *            Grid's row. Can be {@code null} to disable dropping on the
+     *            grid.
      * @see GridDropEvent#getDropLocation()
      */
     public void setDropMode(DropMode dropMode) {
@@ -3429,7 +3431,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Gets the drop mode of this drop target.
      *
      * @return Drop mode that describes the allowed drop locations within the
-     *         Grid's row.
+     *         Grid's row. {@code null} if dropping is not enabled.
      */
     public DropMode getDropMode() {
         String dropMode = getElement().getProperty("dropMode");
@@ -3464,7 +3466,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return The drop filter function
      */
     public SerializableFunction<T, Boolean> getDropFilter() {
-        return this.dropFilter;
+        return dropFilter;
     }
 
     /**
@@ -3473,7 +3475,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return The drag filter function
      */
     public SerializableFunction<T, Boolean> getDragFilter() {
-        return this.dragFilter;
+        return dragFilter;
     }
 
     /**

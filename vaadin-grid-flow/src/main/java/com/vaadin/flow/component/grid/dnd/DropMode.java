@@ -42,8 +42,8 @@ public enum DropMode {
      * top part of the row,</li>
      * <li><i>below</i> when the cursor is over a specified portion of the
      * bottom part of the row, or</li>
-     * <li><i>on top</i> when the cursor is over the row but doesn't match the
-     * above conditions.</li>
+     * <li><i>on top</i> when the cursor is over the middle portions of the
+     * row.</li>
      * </ul>
      */
     ON_TOP_OR_BETWEEN("on-top-or-between"),
@@ -52,8 +52,7 @@ public enum DropMode {
      * The drop event will not happen on any specific row, it will show the drop
      * target outline around the whole grid. For this drop target, the drop
      * event will not contain any target row information. This is the drop
-     * target used when the grid is completely empty. It can also be configured
-     * to be used automatically when the user has sorted the grid.
+     * target used when the grid is completely empty.
      */
     ON_GRID("on-grid");
 
