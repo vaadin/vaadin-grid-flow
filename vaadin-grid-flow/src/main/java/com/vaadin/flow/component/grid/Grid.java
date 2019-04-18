@@ -3200,19 +3200,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private void generateRowsDragAndDropAccess(T item, JsonObject jsonObject) {
-        if (this.getDropMode() != null) {
-            Boolean dropEnabled = this.getDropMode() != null
-                    && dropFilter.apply(item);
-            if (!dropEnabled) {
-                jsonObject.put("dropDisabled", true);
-            }
+        if (getDropMode() != null && !dropFilter.apply(item)) {
+            jsonObject.put("dropDisabled", true);
         }
 
-        if (this.isRowsDraggable()) {
-            Boolean dragEnabled = dragFilter.apply(item);
-            if (!dragEnabled) {
-                jsonObject.put("dragDisabled", true);
-            }
+        if (this.isRowsDraggable() && !dragFilter.apply(item)) {
+            jsonObject.put("dragDisabled", true);
         }
     }
 

@@ -2271,6 +2271,14 @@ public class GridDemo extends DemoView {
         // begin-source-example
         // source-example-heading: Custom Drag Data
 
+        // Operating with the drag event text data enables you to process drag
+        // and drop between different application windows. The default payload
+        // of the drag event is generated from the visible grid columns and
+        // items as a line break separated list of tab-separated values.
+        //
+        // Hint: Try dragging the grid's rows to the grid of the same demo but
+        // on another browser window.
+
         PersonService personService = new PersonService();
 
         Grid<Person> grid = new Grid<>(Person.class);
@@ -2287,6 +2295,8 @@ public class GridDemo extends DemoView {
         grid.setDropMode(DropMode.BETWEEN);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
+        // Generate the drag data to consist of person IDs. This makes it
+        // easier for the receiving grid to interpret the data drop.
         grid.setDragDataGenerator("text",
                 person -> String.valueOf(person.getId()));
 
@@ -2377,8 +2387,7 @@ public class GridDemo extends DemoView {
         });
 
         grid.addDropListener(event -> {
-            Optional<Person> supervisor = event.getDropTargetItem();
-            if (supervisor.isPresent()) {
+            event.getDropTargetItem().ifPresent(supervisor -> {
                 // Remove the item from it's previous supervisor's subordinates
                 // list
                 td.removeItem(draggedItems.get(0));
@@ -2391,11 +2400,10 @@ public class GridDemo extends DemoView {
                 });
 
                 // Add the item to the target supervisor's subordinates list
-                td.addItem(supervisor.get(), draggedItems.get(0));
+                td.addItem(supervisor, draggedItems.get(0));
 
                 grid.getDataProvider().refreshAll();
-            }
-
+            });
         });
 
         // end-source-example
