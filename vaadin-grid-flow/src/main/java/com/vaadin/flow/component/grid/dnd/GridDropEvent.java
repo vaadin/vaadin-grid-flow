@@ -41,7 +41,7 @@ import elemental.json.JsonObject;
 @DomEvent("grid-drop")
 public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
 
-    private final T dropTargetRow;
+    private final T dropTargetItem;
     private final DropLocation dropLocation;
     private final Map<String, String> data;
 
@@ -58,10 +58,10 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
         });
 
         if (item != null) {
-            this.dropTargetRow = source.getDataCommunicator().getKeyMapper()
+            this.dropTargetItem = source.getDataCommunicator().getKeyMapper()
                     .get(item.getString("key"));
         } else {
-            this.dropTargetRow = null;
+            this.dropTargetItem = null;
         }
 
         this.dropLocation = Arrays.asList(DropLocation.values()).stream()
@@ -75,11 +75,11 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
      * If the drop was not on top of a row (see {@link #getDropLocation()}) or
      * {@link DropMode#ON_GRID} is used, then returns an empty optional.
      *
-     * @return The row the drop happened on, or an empty optional if drop was
-     *         not on a row
+     * @return The item of the row the drop happened on, or an empty optional if
+     *         drop was not on a row
      */
-    public Optional<T> getDropTargetRow() {
-        return Optional.ofNullable(dropTargetRow);
+    public Optional<T> getDropTargetItem() {
+        return Optional.ofNullable(dropTargetItem);
     }
 
     /**
@@ -96,7 +96,7 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
      * </em>
      *
      * @return location of the drop in relative to the
-     *         {@link #getDropTargetRow()} or {@link DropLocation#EMPTY} if no
+     *         {@link #getDropTargetItem()} or {@link DropLocation#EMPTY} if no
      *         target row present
      * @see Grid#setDropMode(DropMode)
      */

@@ -75,7 +75,7 @@ public class DragAndDropGridPage extends Div {
         grid.addDropListener(e -> {
             dropMessage.add(e.getSource().getId().get() + " "
                     + e.getDropLocation().toString() + " "
-                    + e.getDropTargetRow().orElse(null));
+                    + e.getDropTargetItem().orElse(null));
 
             dropDataTextMessage
                     .add(e.getDataTransferText().replaceAll("\n", "-"));

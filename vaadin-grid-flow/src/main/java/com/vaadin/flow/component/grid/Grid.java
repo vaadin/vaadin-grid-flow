@@ -3397,13 +3397,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * When using {@link DropMode#ON_TOP}, and the grid is either empty or has
      * empty space after the last row, the drop can still happen on the empty
-     * space, and the {@link GridDropEvent#getDropTargetRow()} will return an
+     * space, and the {@link GridDropEvent#getDropTargetItem()} will return an
      * empty optional.
      * <p>
      * When using {@link DropMode#BETWEEN} or
      * {@link DropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in the
      * grid, any drop after the last row in the grid will get the last row as
-     * the {@link GridDropEvent#getDropTargetRow()}. If there are no rows in the
+     * the {@link GridDropEvent#getDropTargetItem()}. If there are no rows in the
      * grid, then it will return an empty optional.
      * <p>
      * If using {@link DropMode#ON_GRID}, then the drop will not happen on any
