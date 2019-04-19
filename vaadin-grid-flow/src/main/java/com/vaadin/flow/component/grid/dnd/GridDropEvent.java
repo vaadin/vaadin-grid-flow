@@ -16,6 +16,7 @@
 package com.vaadin.flow.component.grid.dnd;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -152,7 +153,7 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
      * DataTransfer} object.
      */
     public Map<String, String> getDataTransferData() {
-        return data;
+        return Collections.unmodifiableMap(data);
     }
 
 }

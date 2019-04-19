@@ -2077,39 +2077,39 @@ public class GridDemo extends DemoView {
     // Drag and drop
 
     private List<Person> draggedItems;
+    private Person draggedItem;
     private Grid<Person> dragSource;
 
     private void createRowReordering() {
         // begin-source-example
         // source-example-heading: Row Reordering
 
+        List<Person> gridItems = new PersonService().fetch(0, 5);
+
         Grid<Person> grid = new Grid<>(Person.class);
         grid.setColumns("firstName", "lastName", "phoneNumber");
-        List<Person> gridItems = new PersonService().fetch(0, 5);
         grid.setItems(gridItems);
         grid.setSelectionMode(SelectionMode.NONE);
-
         grid.setRowsDraggable(true);
 
         grid.addDragStartListener(event -> {
-            draggedItems = event.getDraggedItems();
+            draggedItem = event.getDraggedItems().get(0);
             grid.setDropMode(DropMode.BETWEEN);
         });
 
         grid.addDragEndListener(event -> {
-            draggedItems = null;
+            draggedItem = null;
             grid.setDropMode(null);
         });
 
         grid.addDropListener(event -> {
-            if (event.getDropTargetItem().isPresent() && !event
-                    .getDropTargetItem().get().equals(draggedItems.get(0))) {
-                gridItems.remove(draggedItems.get(0));
-                int dropIndex = gridItems
-                        .indexOf(event.getDropTargetItem().get())
+            Person dropOverItem = event.getDropTargetItem().get();
+            if (!dropOverItem.equals(draggedItem)) {
+                gridItems.remove(draggedItem);
+                int dropIndex = gridItems.indexOf(dropOverItem)
                         + (event.getDropLocation() == DropLocation.BELOW ? 1
                                 : 0);
-                gridItems.add(dropIndex, draggedItems.get(0));
+                gridItems.add(dropIndex, draggedItem);
                 grid.getDataProvider().refreshAll();
             }
         });
@@ -2142,9 +2142,7 @@ public class GridDemo extends DemoView {
 
         ComponentEventListener<GridDropEvent<Person>> dropListener = event -> {
             Optional<Person> target = event.getDropTargetItem();
-            if (dragSource == null || draggedItems == null
-                    || (target.isPresent()
-                            && draggedItems.contains(target.get()))) {
+            if (target.isPresent() && draggedItems.contains(target.get())) {
                 return;
             }
 
@@ -2207,12 +2205,12 @@ public class GridDemo extends DemoView {
         grid.setItems(personService.fetch(0, 50));
 
         grid.addDragStartListener(event -> {
-            draggedItems = event.getDraggedItems();
+            draggedItem = event.getDraggedItems().get(0);
             treeGrid.setDropMode(DropMode.ON_TOP_OR_BETWEEN);
         });
 
         grid.addDragEndListener(event -> {
-            draggedItems = null;
+            draggedItem = null;
             treeGrid.setDropMode(null);
         });
         grid.setColumns("firstName", "lastName", "phoneNumber");
@@ -2236,22 +2234,22 @@ public class GridDemo extends DemoView {
             ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid
                     .getDataProvider();
             Collection<Person> sourceItems = sourceDataProvider.getItems();
-            sourceItems.remove(draggedItems.get(0));
+            sourceItems.remove(draggedItem);
             grid.setItems(sourceItems);
 
             // Add the item to target grid
             Person dropOverItem = event.getDropTargetItem().get();
             if (DropLocation.ON_TOP == event.getDropLocation()) {
-                td.addItem(dropOverItem, draggedItems.get(0));
+                td.addItem(dropOverItem, draggedItem);
             } else {
                 Person parent = td.getParent(dropOverItem);
-                td.addItem(parent, draggedItems.get(0));
+                td.addItem(parent, draggedItem);
 
                 List<Person> siblings = td.getChildren(parent);
                 int dropIndex = siblings.indexOf(dropOverItem)
                         + (event.getDropLocation() == DropLocation.BELOW ? 1
                                 : 0);
-                td.moveAfterSibling(draggedItems.get(0),
+                td.moveAfterSibling(draggedItem,
                         dropIndex > 0 ? siblings.get(dropIndex - 1) : null);
             }
 
@@ -2288,8 +2286,10 @@ public class GridDemo extends DemoView {
 
         grid.setItems(persons);
 
-        grid.addDragStartListener(
-                event -> draggedItems = event.getDraggedItems());
+        grid.addDragStartListener(event -> {
+            draggedItems = event.getDraggedItems();
+            grid.setDropMode(null);
+        });
         grid.setColumns("firstName", "lastName", "phoneNumber");
         grid.setRowsDraggable(true);
         grid.setDropMode(DropMode.BETWEEN);
@@ -2310,13 +2310,12 @@ public class GridDemo extends DemoView {
                         .findFirst();
 
                 matchOptional.ifPresent(match -> {
-                    Person clone = match.clone();
-                    int index = event.getDropTargetItem().map(person -> persons
-                            .indexOf(person)
-                            + (event.getDropLocation() == DropLocation.BELOW ? 1
-                                    : 0))
+                    int index = event.getDropTargetItem()
+                            .map(person -> persons.indexOf(person)
+                                    + (event.getDropLocation() == DropLocation.BELOW
+                                            ? 1 : 0))
                             .orElse(0);
-                    persons.add(index, clone);
+                    persons.add(index, match.clone());
                 });
             });
             grid.getDataProvider().refreshAll();
@@ -2329,6 +2328,7 @@ public class GridDemo extends DemoView {
             // was legal.
             persons.removeAll(draggedItems);
             grid.getDataProvider().refreshAll();
+            grid.setDropMode(DropMode.BETWEEN);
         });
 
         // end-source-example
@@ -2348,17 +2348,18 @@ public class GridDemo extends DemoView {
         grid.setDragFilter(person -> td.getParent(person) != null);
 
         grid.setDropFilter(person ->
-        // Only support droppingon top of supervisors
+        // Only support dropping on top of supervisors
         td.getRootItems().contains(person)
                 // Don't allow more than 4 subordinates
                 && td.getChildren(person).size() < 4
                 // Disallow dropping on own supervisor
-                && !td.getChildren(person).contains(draggedItems.get(0)));
+                && !td.getChildren(person).contains(draggedItem));
 
         grid.addHierarchyColumn(Person::getfirstName).setHeader("First name");
         grid.addColumn(Person::getLastName).setHeader("Last name");
         grid.addColumn(Person::getPhoneNumber).setHeader("Phone");
         grid.setRowsDraggable(true);
+        grid.setSelectionMode(Grid.SelectionMode.NONE);
 
         td.addItems(null, personService.fetch(0, 3));
         td.addItems(td.getRootItems().get(0), personService.fetch(3, 3));
@@ -2368,7 +2369,7 @@ public class GridDemo extends DemoView {
         grid.expand(td.getRootItems());
 
         grid.addDragStartListener(event -> {
-            draggedItems = event.getDraggedItems();
+            draggedItem = event.getDraggedItems().get(0);
             grid.setDropMode(DropMode.ON_TOP);
 
             // Refresh all related items to get the drop filter run for them
@@ -2382,7 +2383,7 @@ public class GridDemo extends DemoView {
         });
 
         grid.addDragEndListener(event -> {
-            draggedItems = null;
+            draggedItem = null;
             grid.setDropMode(null);
         });
 
@@ -2390,9 +2391,9 @@ public class GridDemo extends DemoView {
             event.getDropTargetItem().ifPresent(supervisor -> {
                 // Remove the item from it's previous supervisor's subordinates
                 // list
-                td.removeItem(draggedItems.get(0));
+                td.removeItem(draggedItem);
 
-                // Avoid a tree-grid issue
+                // Close empty parents to avoid a TreeGrid issue
                 td.getRootItems().forEach(root -> {
                     if (td.getChildren(root).isEmpty()) {
                         grid.collapse(root);
@@ -2400,7 +2401,7 @@ public class GridDemo extends DemoView {
                 });
 
                 // Add the item to the target supervisor's subordinates list
-                td.addItem(supervisor, draggedItems.get(0));
+                td.addItem(supervisor, draggedItem);
 
                 grid.getDataProvider().refreshAll();
             });
