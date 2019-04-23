@@ -40,8 +40,8 @@ import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
-import com.vaadin.flow.component.grid.dnd.DropLocation;
-import com.vaadin.flow.component.grid.dnd.DropMode;
+import com.vaadin.flow.component.grid.dnd.GridDropLocation;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
 import com.vaadin.flow.component.grid.dnd.GridDropEvent;
@@ -2094,7 +2094,7 @@ public class GridDemo extends DemoView {
 
         grid.addDragStartListener(event -> {
             draggedItem = event.getDraggedItems().get(0);
-            grid.setDropMode(DropMode.BETWEEN);
+            grid.setDropMode(GridDropMode.BETWEEN);
         });
 
         grid.addDragEndListener(event -> {
@@ -2107,7 +2107,7 @@ public class GridDemo extends DemoView {
             if (!dropOverItem.equals(draggedItem)) {
                 gridItems.remove(draggedItem);
                 int dropIndex = gridItems.indexOf(dropOverItem)
-                        + (event.getDropLocation() == DropLocation.BELOW ? 1
+                        + (event.getDropLocation() == GridDropLocation.BELOW ? 1
                                 : 0);
                 gridItems.add(dropIndex, draggedItem);
                 grid.getDataProvider().refreshAll();
@@ -2129,8 +2129,8 @@ public class GridDemo extends DemoView {
         ComponentEventListener<GridDragStartEvent<Person>> dragStartListener = event -> {
             draggedItems = event.getDraggedItems();
             dragSource = event.getSource();
-            grid.setDropMode(DropMode.BETWEEN);
-            grid2.setDropMode(DropMode.BETWEEN);
+            grid.setDropMode(GridDropMode.BETWEEN);
+            grid2.setDropMode(GridDropMode.BETWEEN);
         };
 
         ComponentEventListener<GridDragEndEvent<Person>> dragEndListener = event -> {
@@ -2162,7 +2162,7 @@ public class GridDemo extends DemoView {
                     targetDataProvider.getItems());
 
             int index = target.map(person -> targetItems.indexOf(person)
-                    + (event.getDropLocation() == DropLocation.BELOW ? 1 : 0))
+                    + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0))
                     .orElse(0);
             targetItems.addAll(index, draggedItems);
             targetGrid.setItems(targetItems);
@@ -2210,7 +2210,7 @@ public class GridDemo extends DemoView {
              * This enables dropping in between or on top of the existing grid
              * rows.
              */
-            treeGrid.setDropMode(DropMode.ON_TOP_OR_BETWEEN);
+            treeGrid.setDropMode(GridDropMode.ON_TOP_OR_BETWEEN);
         });
 
         grid.addDragEndListener(event -> {
@@ -2239,7 +2239,7 @@ public class GridDemo extends DemoView {
 
             // Add the item to target grid
             Person dropOverItem = event.getDropTargetItem().get();
-            if (DropLocation.ON_TOP == event.getDropLocation()) {
+            if (GridDropLocation.ON_TOP == event.getDropLocation()) {
                 td.addItem(dropOverItem, draggedItem);
             } else {
                 Person parent = td.getParent(dropOverItem);
@@ -2247,7 +2247,7 @@ public class GridDemo extends DemoView {
 
                 List<Person> siblings = td.getChildren(parent);
                 int dropIndex = siblings.indexOf(dropOverItem)
-                        + (event.getDropLocation() == DropLocation.BELOW ? 1
+                        + (event.getDropLocation() == GridDropLocation.BELOW ? 1
                                 : 0);
                 td.moveAfterSibling(draggedItem,
                         dropIndex > 0 ? siblings.get(dropIndex - 1) : null);
@@ -2292,7 +2292,7 @@ public class GridDemo extends DemoView {
         });
         grid.setColumns("firstName", "lastName", "phoneNumber");
         grid.setRowsDraggable(true);
-        grid.setDropMode(DropMode.BETWEEN);
+        grid.setDropMode(GridDropMode.BETWEEN);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         // Generate the drag data to consist of person IDs. This makes it
@@ -2312,7 +2312,7 @@ public class GridDemo extends DemoView {
                 matchOptional.ifPresent(match -> {
                     int index = event.getDropTargetItem().map(person -> persons
                             .indexOf(person)
-                            + (event.getDropLocation() == DropLocation.BELOW ? 1
+                            + (event.getDropLocation() == GridDropLocation.BELOW ? 1
                                     : 0))
                             .orElse(0);
                     persons.add(index, match.clone());
@@ -2328,7 +2328,7 @@ public class GridDemo extends DemoView {
             // was legal.
             persons.removeAll(draggedItems);
             grid.getDataProvider().refreshAll();
-            grid.setDropMode(DropMode.BETWEEN);
+            grid.setDropMode(GridDropMode.BETWEEN);
         });
 
         // end-source-example
@@ -2370,7 +2370,7 @@ public class GridDemo extends DemoView {
 
         grid.addDragStartListener(event -> {
             draggedItem = event.getDraggedItems().get(0);
-            grid.setDropMode(DropMode.ON_TOP);
+            grid.setDropMode(GridDropMode.ON_TOP);
 
             // Refresh all related items to get the drop filter run for them
             //

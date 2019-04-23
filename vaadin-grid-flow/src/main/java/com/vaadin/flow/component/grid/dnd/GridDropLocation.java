@@ -20,7 +20,7 @@ package com.vaadin.flow.component.grid.dnd;
  *
  * @author Vaadin Ltd.
  */
-public enum DropLocation {
+public enum GridDropLocation {
 
     /**
      * Drop on top of the row.
@@ -39,13 +39,13 @@ public enum DropLocation {
 
     /**
      * Dropping into an empty grid, or to the empty area below the grid rows
-     * when {@link DropMode#ON_TOP} is used.
+     * when {@link GridDropMode#ON_TOP} is used.
      */
     EMPTY("empty");
 
     private final String clientName;
 
-    DropLocation(String clientName) {
+    GridDropLocation(String clientName) {
         this.clientName = clientName;
     }
 

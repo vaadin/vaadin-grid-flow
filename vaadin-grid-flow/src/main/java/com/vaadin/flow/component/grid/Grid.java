@@ -50,7 +50,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
-import com.vaadin.flow.component.grid.dnd.DropMode;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
 import com.vaadin.flow.component.grid.dnd.GridDropEvent;
@@ -3389,22 +3389,22 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Sets the drop mode of this drop target. When set to not {@code null},
      * grid fires drop events upon data drop over the grid or the grid rows.
      * <p>
-     * When using {@link DropMode#ON_TOP}, and the grid is either empty or has
+     * When using {@link GridDropMode#ON_TOP}, and the grid is either empty or has
      * empty space after the last row, the drop can still happen on the empty
      * space, and the {@link GridDropEvent#getDropTargetItem()} will return an
      * empty optional.
      * <p>
-     * When using {@link DropMode#BETWEEN} or
-     * {@link DropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in the
+     * When using {@link GridDropMode#BETWEEN} or
+     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in the
      * grid, any drop after the last row in the grid will get the last row as
      * the {@link GridDropEvent#getDropTargetItem()}. If there are no rows in
      * the grid, then it will return an empty optional.
      * <p>
-     * If using {@link DropMode#ON_GRID}, then the drop will not happen on any
+     * If using {@link GridDropMode#ON_GRID}, then the drop will not happen on any
      * row, but instead just "on the grid". The target row will not be present
      * in this case.
      * <p>
-     * <em>NOTE: Prefer not using a row specific {@link DropMode} with a grid
+     * <em>NOTE: Prefer not using a row specific {@link GridDropMode} with a grid
      * that enables sorting. If for example a new row gets added to a specific
      * location on drop event, it might not end up in the location of the drop
      * but rather where the active sorting configuration prefers to place it.
@@ -3416,7 +3416,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            grid.
      * @see GridDropEvent#getDropLocation()
      */
-    public void setDropMode(DropMode dropMode) {
+    public void setDropMode(GridDropMode dropMode) {
         getElement().setProperty("dropMode",
                 dropMode == null ? null : dropMode.getClientName());
     }
@@ -3427,9 +3427,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return Drop mode that describes the allowed drop locations within the
      *         Grid's row. {@code null} if dropping is not enabled.
      */
-    public DropMode getDropMode() {
+    public GridDropMode getDropMode() {
         String dropMode = getElement().getProperty("dropMode");
-        Optional<DropMode> mode = Arrays.stream(DropMode.values())
+        Optional<GridDropMode> mode = Arrays.stream(GridDropMode.values())
                 .filter(dm -> dm.getClientName().equals(dropMode)).findFirst();
         return mode.orElse(null);
     }
@@ -3476,8 +3476,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Sets the drop filter for this drag target.
      * <p>
      * When the drop mode of the grid has been set to one of
-     * {@link DropMode#BETWEEN}, {@link DropMode#ON_TOP} or
-     * {@link DropMode#ON_TOP_OR_BETWEEN}, by default all the visible rows can
+     * {@link GridDropMode#BETWEEN}, {@link GridDropMode#ON_TOP} or
+     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, by default all the visible rows can
      * be dropped over.
      * <p>
      * A drop filter function can be used to specify the rows that are available

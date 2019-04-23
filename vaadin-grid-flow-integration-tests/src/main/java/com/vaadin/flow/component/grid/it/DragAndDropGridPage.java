@@ -24,7 +24,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.dnd.DropMode;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.router.Route;
@@ -98,7 +98,7 @@ public class DragAndDropGridPage extends Div {
         toggleRowsDraggable.setId("toggle-rows-draggable");
         add(toggleRowsDraggable);
 
-        Arrays.stream(DropMode.values()).forEach(mode -> {
+        Arrays.stream(GridDropMode.values()).forEach(mode -> {
             NativeButton button = new NativeButton(mode.toString(),
                     e -> grid.setDropMode(mode));
             button.setId(mode.toString());

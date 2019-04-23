@@ -20,7 +20,7 @@ package com.vaadin.flow.component.grid.dnd;
  *
  * @author Vaadin Ltd.
  */
-public enum DropMode {
+public enum GridDropMode {
 
     /**
      * The drop event can happen between Grid rows. The drop is above a row when
@@ -58,7 +58,7 @@ public enum DropMode {
 
     private final String clientName;
 
-    DropMode(String clientName) {
+    GridDropMode(String clientName) {
         this.clientName = clientName;
     }
 

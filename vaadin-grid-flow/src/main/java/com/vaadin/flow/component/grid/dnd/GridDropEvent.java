@@ -43,7 +43,7 @@ import elemental.json.JsonObject;
 public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
 
     private final T dropTargetItem;
-    private final DropLocation dropLocation;
+    private final GridDropLocation dropLocation;
     private final Map<String, String> data;
 
     public GridDropEvent(Grid<T> source, boolean fromClient,
@@ -65,7 +65,7 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
             this.dropTargetItem = null;
         }
 
-        this.dropLocation = Arrays.asList(DropLocation.values()).stream()
+        this.dropLocation = Arrays.asList(GridDropLocation.values()).stream()
                 .filter(dl -> dl.getClientName().equals(dropLocation))
                 .findFirst().get();
     }
@@ -74,7 +74,7 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
      * Get the row the drop happened on.
      * <p>
      * If the drop was not on top of a row (see {@link #getDropLocation()}) or
-     * {@link DropMode#ON_GRID} is used, then returns an empty optional.
+     * {@link GridDropMode#ON_GRID} is used, then returns an empty optional.
      *
      * @return The item of the row the drop happened on, or an empty optional if
      *         drop was not on a row
@@ -86,22 +86,22 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
     /**
      * Get the location of the drop within the row.
      * <p>
-     * <em>NOTE: the location will be {@link DropLocation#EMPTY} if:
+     * <em>NOTE: the location will be {@link GridDropLocation#EMPTY} if:
      * <ul>
      * <li>dropped on an empty grid</li>
      * <li>dropping on rows was not possible because of
-     * {@link DropMode#ON_GRID } was used</li>
-     * <li>{@link DropMode#ON_TOP} is used and the drop happened on empty space
+     * {@link GridDropMode#ON_GRID } was used</li>
+     * <li>{@link GridDropMode#ON_TOP} is used and the drop happened on empty space
      * after last row or on top of the header / footer</li>
      * </ul>
      * </em>
      *
      * @return location of the drop in relative to the
-     *         {@link #getDropTargetItem()} or {@link DropLocation#EMPTY} if no
+     *         {@link #getDropTargetItem()} or {@link GridDropLocation#EMPTY} if no
      *         target row present
-     * @see Grid#setDropMode(DropMode)
+     * @see Grid#setDropMode(GridDropMode)
      */
-    public DropLocation getDropLocation() {
+    public GridDropLocation getDropLocation() {
         return dropLocation;
     }
 
