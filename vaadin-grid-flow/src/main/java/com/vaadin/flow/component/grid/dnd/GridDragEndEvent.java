@@ -31,6 +31,15 @@ import com.vaadin.flow.component.grid.Grid;
 @DomEvent("grid-dragend")
 public class GridDragEndEvent<T> extends ComponentEvent<Grid<T>> {
 
+    /**
+     * Creates a grid drag end event.
+     *
+     * @param source
+     *            Component that was dragged.
+     * @param fromClient
+     *            <code>true</code> if the event originated from the client
+     *            side, <code>false</code> otherwise
+     */
     public GridDragEndEvent(Grid<T> source, boolean fromClient) {
         super(source, true);
     }

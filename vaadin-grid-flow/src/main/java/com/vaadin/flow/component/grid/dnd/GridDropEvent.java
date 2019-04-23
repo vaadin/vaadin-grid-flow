@@ -46,6 +46,19 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
     private final GridDropLocation dropLocation;
     private final Map<String, String> data;
 
+    /**
+     * Creates a grid drop event.
+     *
+     * @param source
+     *            Component that was dragged.
+     * @param fromClient
+     *            <code>true</code> if the event originated from the client
+     *            side, <code>false</code> otherwise
+     * @param dropLocation
+     *            Drop location from {@code detail.dropLocation}.
+     * @param dragData
+     *            Drag data from {@code detail.dragData}.
+     */
     public GridDropEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.item") JsonObject item,
             @EventData("event.detail.dropLocation") String dropLocation,
@@ -91,14 +104,14 @@ public class GridDropEvent<T> extends ComponentEvent<Grid<T>> {
      * <li>dropped on an empty grid</li>
      * <li>dropping on rows was not possible because of
      * {@link GridDropMode#ON_GRID } was used</li>
-     * <li>{@link GridDropMode#ON_TOP} is used and the drop happened on empty space
-     * after last row or on top of the header / footer</li>
+     * <li>{@link GridDropMode#ON_TOP} is used and the drop happened on empty
+     * space after last row or on top of the header / footer</li>
      * </ul>
      * </em>
      *
      * @return location of the drop in relative to the
-     *         {@link #getDropTargetItem()} or {@link GridDropLocation#EMPTY} if no
-     *         target row present
+     *         {@link #getDropTargetItem()} or {@link GridDropLocation#EMPTY} if
+     *         no target row present
      * @see Grid#setDropMode(GridDropMode)
      */
     public GridDropLocation getDropLocation() {
