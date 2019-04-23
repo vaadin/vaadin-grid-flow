@@ -40,11 +40,11 @@ import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
-import com.vaadin.flow.component.grid.dnd.GridDropLocation;
-import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
 import com.vaadin.flow.component.grid.dnd.GridDropEvent;
+import com.vaadin.flow.component.grid.dnd.GridDropLocation;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
@@ -180,7 +180,7 @@ public class GridDemo extends DemoView {
         }
 
         public String getEmail() {
-            return this.lastName + "@example.com";
+            return email;
         }
 
         public void setEmail(String email) {
@@ -2162,7 +2162,8 @@ public class GridDemo extends DemoView {
                     targetDataProvider.getItems());
 
             int index = target.map(person -> targetItems.indexOf(person)
-                    + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0))
+                    + (event.getDropLocation() == GridDropLocation.BELOW ? 1
+                            : 0))
                     .orElse(0);
             targetItems.addAll(index, draggedItems);
             targetGrid.setItems(targetItems);
@@ -2312,7 +2313,8 @@ public class GridDemo extends DemoView {
                 matchOptional.ifPresent(match -> {
                     int index = event.getDropTargetItem().map(person -> persons
                             .indexOf(person)
-                            + (event.getDropLocation() == GridDropLocation.BELOW ? 1
+                            + (event.getDropLocation() == GridDropLocation.BELOW
+                                    ? 1
                                     : 0))
                             .orElse(0);
                     persons.add(index, match.clone());
