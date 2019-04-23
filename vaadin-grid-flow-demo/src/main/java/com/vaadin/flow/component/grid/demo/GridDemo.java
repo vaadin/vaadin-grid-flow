@@ -2206,6 +2206,10 @@ public class GridDemo extends DemoView {
 
         grid.addDragStartListener(event -> {
             draggedItem = event.getDraggedItems().get(0);
+            /*
+             * This enables dropping in between or on top of the existing grid
+             * rows.
+             */
             treeGrid.setDropMode(DropMode.ON_TOP_OR_BETWEEN);
         });
 
@@ -2220,10 +2224,6 @@ public class GridDemo extends DemoView {
         td.addItems(null, personService.fetch(51, 2));
 
         treeGrid.setDataProvider(new TreeDataProvider<Person>(td));
-        /*
-         * This enables dropping in between or on top of the existing grid rows.
-         */
-
         treeGrid.addHierarchyColumn(Person::getfirstName)
                 .setHeader("firstName");
         treeGrid.addColumn(Person::getLastName).setHeader("lastName");
@@ -2310,10 +2310,10 @@ public class GridDemo extends DemoView {
                         .findFirst();
 
                 matchOptional.ifPresent(match -> {
-                    int index = event.getDropTargetItem()
-                            .map(person -> persons.indexOf(person)
-                                    + (event.getDropLocation() == DropLocation.BELOW
-                                            ? 1 : 0))
+                    int index = event.getDropTargetItem().map(person -> persons
+                            .indexOf(person)
+                            + (event.getDropLocation() == DropLocation.BELOW ? 1
+                                    : 0))
                             .orElse(0);
                     persons.add(index, match.clone());
                 });
