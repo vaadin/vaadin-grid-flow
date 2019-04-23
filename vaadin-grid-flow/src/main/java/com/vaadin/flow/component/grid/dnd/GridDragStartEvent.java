@@ -51,7 +51,7 @@ public class GridDragStartEvent<T> extends ComponentEvent<Grid<T>> {
      *            <code>true</code> if the event originated from the client
      *            side, <code>false</code> otherwise
      * @param details
-     *            Drop location from {@code detail}.
+     *            Event details from {@code detail}.
      */
     public GridDragStartEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail") JsonObject details) {
