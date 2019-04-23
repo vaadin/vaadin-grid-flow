@@ -421,9 +421,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * contents when this is set to {@code true}.
          * <p>
          * For performance reasons the column width is calculated automatically
-         * only once when the grid items are rendered for the first time and
-         * the calculation only considers the rows which are currently rendered
-         * in DOM (a bit more than what is currently visible). If the grid is
+         * only once when the grid items are rendered for the first time and the
+         * calculation only considers the rows which are currently rendered in
+         * DOM (a bit more than what is currently visible). If the grid is
          * scrolled, or the cell content changes, the column width might not
          * match the contents anymore.
          * <p>
@@ -432,15 +432,17 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * hidden.
          * <p>
          * You can manually trigger the auto sizing behavior again by calling
-         * {@see Grid#recalculateColumnWidths()}.
+         * {@link Grid#recalculateColumnWidths()}.
          * <p>
          * The column width may still grow larger when {@code flexGrow} is not
          * 0.
          *
          * @see Grid#recalculateColumnWidths()
+         * @see Column#setFlexGrow
          *
          * @param autoWidth
-         *            whether to enable or disable automatic width on this column
+         *            whether to enable or disable automatic width on this
+         *            column
          * @return this column, for method chaining
          */
         public Column<T> setAutoWidth(boolean autoWidth) {
@@ -453,7 +455,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          *
          * @return whether this column has automatic width enabled
          */
-        @Synchronize("auto-width-changed")
         public boolean isAutoWidth() {
             return getElement().getProperty("autoWidth", false);
         }
