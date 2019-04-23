@@ -31,7 +31,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
 /**
- * Drop event on an HTML5 drop target {@link Grid} row.
+ * Drop event that occurs on the {@link Grid} or its rows.
  *
  * @param <T>
  *            The Grid bean type.

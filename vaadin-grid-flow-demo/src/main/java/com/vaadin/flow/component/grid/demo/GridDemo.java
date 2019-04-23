@@ -2373,6 +2373,10 @@ public class GridDemo extends DemoView {
             grid.setDropMode(DropMode.ON_TOP);
 
             // Refresh all related items to get the drop filter run for them
+            //
+            // For flat grids, dataProvider.refreshAll() does the job well but
+            // for a TreeGrid with nodes expanded, it's more efficient to
+            // refresh the items individually
             td.getRootItems().forEach(supervisor -> {
                 grid.getDataProvider().refreshItem(supervisor);
 

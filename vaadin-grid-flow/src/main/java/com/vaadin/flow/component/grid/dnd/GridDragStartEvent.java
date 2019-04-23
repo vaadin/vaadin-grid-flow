@@ -29,7 +29,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
 /**
- * Drag start event on an HTML5 drag source {@link Grid} row.
+ * Drag start event of {@link Grid} rows.
  *
  * @param <T>
  *            The Grid bean type.

@@ -20,7 +20,7 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.grid.Grid;
 
 /**
- * Drop event on an HTML5 drop target {@link Grid} row.
+ * Drag end event of {@link Grid} rows.
  *
  * @param <T>
  *            The Grid bean type.

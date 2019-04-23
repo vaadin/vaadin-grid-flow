@@ -62,6 +62,12 @@ public enum DropMode {
         this.clientName = clientName;
     }
 
+    /**
+     * Gets name that is used in the client side representation of the
+     * component.
+     *
+     * @return the name used in the client side representation of the component.
+     */
     public String getClientName() {
         return clientName;
     }
