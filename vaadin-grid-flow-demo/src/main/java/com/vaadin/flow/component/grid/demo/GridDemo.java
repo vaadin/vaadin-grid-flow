@@ -1177,21 +1177,21 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>(Person.class);
         grid.setItems(personList);
 
-        grid.removeAllColumns();
-        grid.addColumn("firstName").setAutoWidth(true);
-        grid.addColumn("lastName").setAutoWidth(true);
-        grid.addColumn("age").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn("phoneNumber").setAutoWidth(true);
-        grid.addColumn("address").setAutoWidth(true);
-        grid.addColumn("birthdate").setAutoWidth(true);
+        grid.setColumns("firstName", "lastName", "age", "birthdate", "address",
+                "phoneNumber");
+        grid.getColumns()
+                .forEach(personColumn -> personColumn.setAutoWidth(true));
+
+        Button recalculateWidthsButton = new Button(
+                "Recalculate column widths");
+        recalculateWidthsButton.addClickListener(
+                buttonClickEvent -> grid.recalculateColumnWidths());
         // end-source-example
 
-        Button buttonRecalculateWidths = new Button("Recalculate column widths");
-        buttonRecalculateWidths.addClickListener(buttonClickEvent -> grid.recalculateColumnWidths());
-
         grid.setId("column-auto-width-grid");
-        buttonRecalculateWidths.setId("column-auto-width-button");
-        addCard("Configuring columns", "Columns with automatic width", grid, buttonRecalculateWidths);
+        recalculateWidthsButton.setId("column-auto-width-button");
+        addCard("Configuring columns", "Columns with automatic width", grid,
+                recalculateWidthsButton);
     }
 
     private void createFrozenColumns() {
