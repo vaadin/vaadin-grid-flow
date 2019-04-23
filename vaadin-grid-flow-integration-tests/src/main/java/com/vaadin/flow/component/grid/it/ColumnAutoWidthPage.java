@@ -29,6 +29,8 @@ public class ColumnAutoWidthPage extends Div {
     public ColumnAutoWidthPage() {
         Grid<Person> grid = new Grid<>();
         grid.setId(GRID_ID);
+        grid.getStyle().set("--lumo-font-family",
+                "Arial, Helvetica, sans-serif");
         grid.setItems(new Person("Jorma", 2018));
 
         grid.addComponentColumn(person -> {
