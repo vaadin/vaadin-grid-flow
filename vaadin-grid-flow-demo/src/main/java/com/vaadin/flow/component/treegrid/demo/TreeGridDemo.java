@@ -72,7 +72,7 @@ public class TreeGridDemo extends DemoView {
             }
             return childMap.get(item);
         });
-        grid.addHierarchyColumn(Person::getfirstName).setHeader("Hierarchy");
+        grid.addHierarchyColumn(Person::getFirstName).setHeader("Hierarchy");
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.addExpandListener(event -> message.setValue(
@@ -87,10 +87,10 @@ public class TreeGridDemo extends DemoView {
 
         TextField name = new TextField("Name of selected person");
         grid.addSelectionListener(event -> name.setValue(event
-                .getFirstSelectedItem().map(Person::getfirstName).orElse("")));
+                .getFirstSelectedItem().map(Person::getFirstName).orElse("")));
         NativeButton save = new NativeButton("Save", event -> {
             grid.getSelectionModel().getFirstSelectedItem()
-                    .ifPresent(person -> person.setfirstName(name.getValue()));
+                    .ifPresent(person -> person.setFirstName(name.getValue()));
             grid.getSelectionModel().getFirstSelectedItem().ifPresent(
                     person -> grid.getDataProvider().refreshItem(person));
         });
