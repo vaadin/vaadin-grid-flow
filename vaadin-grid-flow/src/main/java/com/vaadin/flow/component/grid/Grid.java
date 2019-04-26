@@ -46,10 +46,14 @@ import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
+import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
+import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
+import com.vaadin.flow.component.grid.dnd.GridDropEvent;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.grid.editor.EditorImpl;
 import com.vaadin.flow.component.grid.editor.EditorRenderer;
@@ -91,6 +95,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
@@ -407,6 +412,51 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         @Synchronize("flex-grow-changed")
         public int getFlexGrow() {
             return getElement().getProperty("flexGrow", 1);
+        }
+
+        /**
+         * Enables or disables automatic width for this column.
+         * <p>
+         * Automatically sets the width of the column based on the column
+         * contents when this is set to {@code true}.
+         * <p>
+         * For performance reasons the column width is calculated automatically
+         * only once when the grid items are rendered for the first time and the
+         * calculation only considers the rows which are currently rendered in
+         * DOM (a bit more than what is currently visible). If the grid is
+         * scrolled, or the cell content changes, the column width might not
+         * match the contents anymore.
+         * <p>
+         * Hidden columns are ignored in the calculation and their widths are
+         * not automatically updated when you show a column that was initially
+         * hidden.
+         * <p>
+         * You can manually trigger the auto sizing behavior again by calling
+         * {@link Grid#recalculateColumnWidths()}.
+         * <p>
+         * The column width may still grow larger when {@code flexGrow} is not
+         * 0.
+         *
+         * @see Grid#recalculateColumnWidths()
+         * @see Column#setFlexGrow
+         *
+         * @param autoWidth
+         *            whether to enable or disable automatic width on this
+         *            column
+         * @return this column, for method chaining
+         */
+        public Column<T> setAutoWidth(boolean autoWidth) {
+            getElement().setProperty("autoWidth", autoWidth);
+            return this;
+        }
+
+        /**
+         * Gets this column's auto width state.
+         *
+         * @return whether this column has automatic width enabled
+         */
+        public boolean isAutoWidth() {
+            return getElement().getProperty("autoWidth", false);
         }
 
         /**
@@ -1066,6 +1116,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private boolean verticalScrollingEnabled = true;
 
     private SerializableFunction<T, String> classNameGenerator = item -> null;
+    private SerializablePredicate<T> dropFilter = item -> true;
+    private SerializablePredicate<T> dragFilter = item -> true;
+    private Map<String, SerializableFunction<T, String>> dragDataGenerators = new HashMap<>();
 
     private Registration dataProviderChangeRegistration;
 
@@ -1223,6 +1276,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         gridDataGenerator = new CompositeDataGenerator<>();
         gridDataGenerator.addDataGenerator(this::generateUniqueKeyData);
         gridDataGenerator.addDataGenerator(this::generateStyleData);
+        gridDataGenerator.addDataGenerator(this::generateRowsDragAndDropAccess);
+        gridDataGenerator.addDataGenerator(this::generateDragData);
 
         dataCommunicator = dataCommunicatorBuilder.build(getElement(),
                 gridDataGenerator, (U) arrayUpdater,
@@ -1285,8 +1340,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         protected DataCommunicator<T> build(Element element,
                 CompositeDataGenerator<T> dataGenerator, U arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
-            return new DataCommunicator<>(dataGenerator, arrayUpdater,
-                    data -> element.callFunction("$connector.updateFlatData", data),
+            return new DataCommunicator<>(
+                    dataGenerator, arrayUpdater, data -> element
+                            .callFunction("$connector.updateFlatData", data),
                     element.getNode());
         }
     }
@@ -1298,8 +1354,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Adds a new text column to this {@link Grid} with a value provider and
-     * default column factory. The value is converted to String when sent to
-     * the client by using {@link String#valueOf(Object)}.
+     * default column factory. The value is converted to String when sent to the
+     * client by using {@link String#valueOf(Object)}.
      * <p>
      * <em>NOTE:</em> For displaying components, see
      * {@link #addComponentColumn(ValueProvider)}. For using build-in renderers,
@@ -1311,7 +1367,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      * <p>
-     * <em>NOTE:</em> This method is a shorthand for {@link #addColumn(ValueProvider, BiFunction)}
+     * <em>NOTE:</em> This method is a shorthand for
+     * {@link #addColumn(ValueProvider, BiFunction)}
      * </p>
      *
      * @param valueProvider
@@ -1346,20 +1403,24 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param valueProvider
      *            the value provider
      * @param columnFactory
-     *            the method that creates a new column instance for this {@link Grid} instance.
+     *            the method that creates a new column instance for this
+     *            {@link Grid} instance.
      * @return the created column
      * @see #addColumn(ValueProvider)
      * @see #addComponentColumn(ValueProvider)
      * @see #addColumn(Renderer)
      * @see #removeColumn(Column)
      */
-    protected <C extends Column<T>> C addColumn(ValueProvider<T, ?> valueProvider, BiFunction<Renderer<T>, String, C> columnFactory) {
+    protected <C extends Column<T>> C addColumn(
+            ValueProvider<T, ?> valueProvider,
+            BiFunction<Renderer<T>, String, C> columnFactory) {
         String columnId = createColumnId(false);
 
         C column = addColumn(new ColumnPathRenderer<T>(columnId,
                 value -> formatValueToSendToTheClient(
-                        valueProvider.apply(value))), columnFactory);
-        ((Column<T>)column).comparator = ((a, b) -> compareMaybeComparables(
+                        valueProvider.apply(value))),
+                columnFactory);
+        ((Column<T>) column).comparator = ((a, b) -> compareMaybeComparables(
                 valueProvider.apply(a), valueProvider.apply(b)));
         return column;
     }
@@ -1453,7 +1514,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * {@link Grid#removeColumn(Column)} to avoid sending extra data.
      * </p>
      * <p>
-     * <em>NOTE:</em> This method is a shorthand for {@link #addColumn(Renderer, BiFunction)}
+     * <em>NOTE:</em> This method is a shorthand for
+     * {@link #addColumn(Renderer, BiFunction)}
      * </p>
      *
      * @param renderer
@@ -1493,7 +1555,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param renderer
      *            the renderer used to create the grid cell structure
      * @param columnFactory
-     *            the method that creates a new column instance for this {@link Grid} instance.
+     *            the method that creates a new column instance for this
+     *            {@link Grid} instance.
      * @return the created column
      *
      * @see #addColumn(Renderer)
@@ -1501,7 +1564,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #addComponentColumn(ValueProvider)
      * @see #removeColumn(Column)
      */
-    protected <C extends Column<T>> C addColumn(Renderer<T> renderer, BiFunction<Renderer<T>, String, C> columnFactory) {
+    protected <C extends Column<T>> C addColumn(Renderer<T> renderer,
+            BiFunction<Renderer<T>, String, C> columnFactory) {
         String columnId = createColumnId(true);
 
         getDataCommunicator().reset();
@@ -1534,8 +1598,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param columnId
      *            internal column id
      * @return column instance
-     * @deprecated This method should not be used outside. {@link #getDefaultColumnFactory} should
-     * be used instead.
+     * @deprecated This method should not be used outside.
+     *             {@link #getDefaultColumnFactory} should be used instead.
      * @see #createColumnId(boolean)
      * @see Renderer
      */
@@ -1556,9 +1620,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Adds a new text column to this {@link Grid} with a template renderer, sorting properties
-     * and default column factory. The values inside the renderer are converted to JSON
-     * values by using {@link JsonSerializer#toJson(Object)}.
+     * Adds a new text column to this {@link Grid} with a template renderer,
+     * sorting properties and default column factory. The values inside the
+     * renderer are converted to JSON values by using
+     * {@link JsonSerializer#toJson(Object)}.
      * <p>
      * <em>NOTE:</em> You can add component columns easily using the
      * {@link #addComponentColumn(ValueProvider)}, but using
@@ -1580,7 +1645,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * </p>
      *
      * <p>
-     * <strong>Note:</strong> This method is a shorthand for {@link ##addColumn(Renderer, BiFunction, String...)}
+     * <strong>Note:</strong> This method is a shorthand for
+     * {@link ##addColumn(Renderer, BiFunction, String...)}
      * </p>
      *
      * @see #getDefaultColumnFactory()
@@ -1599,11 +1665,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return addColumn(renderer, defaultFactory, sortingProperties);
     }
 
-
     /**
-     * Adds a new text column to this {@link Grid} with a template renderer, sorting properties
-     * and column factory provided. The values inside the renderer are converted to JSON
-     * values by using {@link JsonSerializer#toJson(Object)}.
+     * Adds a new text column to this {@link Grid} with a template renderer,
+     * sorting properties and column factory provided. The values inside the
+     * renderer are converted to JSON values by using
+     * {@link JsonSerializer#toJson(Object)}.
      * <p>
      * <em>NOTE:</em> You can add component columns easily using the
      * {@link #addComponentColumn(ValueProvider)}, but using
@@ -1630,12 +1696,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param renderer
      *            the renderer used to create the grid cell structure
      * @param columnFactory
-     *            the method that creates a new column instance for this {@link Grid} instance.
+     *            the method that creates a new column instance for this
+     *            {@link Grid} instance.
      * @param sortingProperties
      *            the sorting properties to use for this column
      * @return the created column
      */
-    protected <C extends Column<T>> C addColumn(Renderer<T> renderer, BiFunction<Renderer<T>, String, C> columnFactory,
+    protected <C extends Column<T>> C addColumn(Renderer<T> renderer,
+            BiFunction<Renderer<T>, String, C> columnFactory,
             String... sortingProperties) {
         C column = addColumn(renderer, columnFactory);
 
@@ -1668,11 +1736,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Adds a new column for the given property name with the default column factory.
-     * The property values are converted to Strings in the grid cells. The property's
-     * full name will be used as the {@link Column#setKey(String) column key} and the property
-     * caption will be used as the {@link Column#setHeader(String) column
-     * header}.
+     * Adds a new column for the given property name with the default column
+     * factory. The property values are converted to Strings in the grid cells.
+     * The property's full name will be used as the {@link Column#setKey(String)
+     * column key} and the property caption will be used as the
+     * {@link Column#setHeader(String) column header}.
      * <p>
      * You can add columns for nested properties with dot notation, eg.
      * <code>"property.nestedProperty"</code>
@@ -1691,7 +1759,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * </p>
      *
      * <p>
-     * <strong>Note:</strong> This method is a shorthand for {@link #addColumn(String, BiFunction)}
+     * <strong>Note:</strong> This method is a shorthand for
+     * {@link #addColumn(String, BiFunction)}
      * </p>
      *
      * @see #getDefaultColumnFactory()
@@ -1708,11 +1777,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Adds a new column for the given property name with the column factory provided.
-     * The property values are converted to Strings in the grid cells. The property's
-     * full name will be used as the {@link Column#setKey(String) column key} and the property
-     * caption will be used as the {@link Column#setHeader(String) column
-     * header}.
+     * Adds a new column for the given property name with the column factory
+     * provided. The property values are converted to Strings in the grid cells.
+     * The property's full name will be used as the {@link Column#setKey(String)
+     * column key} and the property caption will be used as the
+     * {@link Column#setHeader(String) column header}.
      * <p>
      * You can add columns for nested properties with dot notation, eg.
      * <code>"property.nestedProperty"</code>
@@ -1736,10 +1805,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param propertyName
      *            the property name of the new column, not <code>null</code>
      * @param columnFactory
-     *            the method that creates a new column instance for this {@link Grid} instance.
+     *            the method that creates a new column instance for this
+     *            {@link Grid} instance.
      * @return the created column
      */
-    protected <C extends Column<T>> C addColumn(String propertyName, BiFunction<Renderer<T>, String, C> columnFactory) {
+    protected <C extends Column<T>> C addColumn(String propertyName,
+            BiFunction<Renderer<T>, String, C> columnFactory) {
         checkForBeanGrid();
         Objects.requireNonNull(propertyName, "Property name can't be null");
 
@@ -1758,10 +1829,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return addColumn(property, defaultFactory);
     }
 
-    private <C extends Column<T>> C addColumn(PropertyDefinition<T, ?> property, BiFunction<Renderer<T>, String, C> columnFactory) {
-        C column = (C) addColumn(
-                item -> runPropertyValueGetter(property, item), columnFactory)
-                .setHeader(property.getCaption());
+    private <C extends Column<T>> C addColumn(PropertyDefinition<T, ?> property,
+            BiFunction<Renderer<T>, String, C> columnFactory) {
+        C column = (C) addColumn(item -> runPropertyValueGetter(property, item),
+                columnFactory).setHeader(property.getCaption());
         try {
             column.setKey(property.getName());
         } catch (IllegalArgumentException exception) {
@@ -2597,7 +2668,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getElement().callFunction("$connector.columnRemoved",
                 column.getInternalId());
     }
-    
+
     /**
      * Removes all columns from this Grid.
      */
@@ -2716,7 +2787,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     @ClientCallable
     private void updateContextMenuTargetItem(String key, String colId) {
         getElement().setProperty("_contextMenuTargetItemKey", key);
-        getElement().setProperty("_contextMenuTargetColumnId",colId);
+        getElement().setProperty("_contextMenuTargetColumnId", colId);
     }
 
     /**
@@ -3145,6 +3216,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
+     * Updates the {@code width} of all columns which have {@code autoWidth} set
+     * to {@code true}.
+     *
+     * @see Column#setAutoWidth(boolean)
+     */
+    public void recalculateColumnWidths() {
+        getElement().callFunction("recalculateColumnWidths");
+    }
+
+    /**
      * Gets the function that is used for generating CSS class names for rows in
      * this grid.
      *
@@ -3171,6 +3252,27 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         if (style.keys().length > 0) {
             jsonObject.put("style", style);
+        }
+    }
+
+    private void generateRowsDragAndDropAccess(T item, JsonObject jsonObject) {
+        if (getDropMode() != null && !dropFilter.test(item)) {
+            jsonObject.put("dropDisabled", true);
+        }
+
+        if (this.isRowsDraggable() && !dragFilter.test(item)) {
+            jsonObject.put("dragDisabled", true);
+        }
+    }
+
+    private void generateDragData(T item, JsonObject jsonObject) {
+        JsonObject dragData = Json.createObject();
+
+        this.dragDataGenerators.entrySet().forEach(entry -> dragData
+                .put(entry.getKey(), entry.getValue().apply(item)));
+
+        if (dragData.keys().length > 0) {
+            jsonObject.put("dragData", dragData);
         }
     }
 
@@ -3294,5 +3396,208 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         dataProviderChangeRegistration = dataProvider
                 .addDataProviderListener(event -> onDataProviderChange());
+    }
+
+    /**
+     * Adds a drop listener to this component.
+     *
+     * @param listener
+     *            the listener to add, not <code>null</code>
+     * @return a handle that can be used for removing the listener
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Registration addDropListener(
+            ComponentEventListener<GridDropEvent<T>> listener) {
+        return addListener(GridDropEvent.class,
+                (ComponentEventListener) listener);
+    }
+
+    /**
+     * Adds a drag start listener to this component.
+     *
+     * @param listener
+     *            the listener to add, not <code>null</code>
+     * @return a handle that can be used for removing the listener
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Registration addDragStartListener(
+            ComponentEventListener<GridDragStartEvent<T>> listener) {
+        return addListener(GridDragStartEvent.class,
+                (ComponentEventListener) listener);
+    }
+
+    /**
+     * Adds a drag end listener to this component.
+     *
+     * @param listener
+     *            the listener to add, not <code>null</code>
+     * @return a handle that can be used for removing the listener
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Registration addDragEndListener(
+            ComponentEventListener<GridDragEndEvent<T>> listener) {
+        return addListener(GridDragEndEvent.class,
+                (ComponentEventListener) listener);
+    }
+
+    /**
+     * Sets the drop mode of this drop target. When set to not {@code null},
+     * grid fires drop events upon data drop over the grid or the grid rows.
+     * <p>
+     * When using {@link GridDropMode#ON_TOP}, and the grid is either empty or has
+     * empty space after the last row, the drop can still happen on the empty
+     * space, and the {@link GridDropEvent#getDropTargetItem()} will return an
+     * empty optional.
+     * <p>
+     * When using {@link GridDropMode#BETWEEN} or
+     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in the
+     * grid, any drop after the last row in the grid will get the last row as
+     * the {@link GridDropEvent#getDropTargetItem()}. If there are no rows in
+     * the grid, then it will return an empty optional.
+     * <p>
+     * If using {@link GridDropMode#ON_GRID}, then the drop will not happen on any
+     * row, but instead just "on the grid". The target row will not be present
+     * in this case.
+     * <p>
+     * <em>NOTE: Prefer not using a row specific {@link GridDropMode} with a grid
+     * that enables sorting. If for example a new row gets added to a specific
+     * location on drop event, it might not end up in the location of the drop
+     * but rather where the active sorting configuration prefers to place it.
+     * This behavior might feel unexpected for the users.
+     * 
+     * @param dropMode
+     *            Drop mode that describes the allowed drop locations within the
+     *            Grid's row. Can be {@code null} to disable dropping on the
+     *            grid.
+     * @see GridDropEvent#getDropLocation()
+     */
+    public void setDropMode(GridDropMode dropMode) {
+        getElement().setProperty("dropMode",
+                dropMode == null ? null : dropMode.getClientName());
+    }
+
+    /**
+     * Gets the drop mode of this drop target.
+     *
+     * @return Drop mode that describes the allowed drop locations within the
+     *         Grid's row. {@code null} if dropping is not enabled.
+     */
+    public GridDropMode getDropMode() {
+        String dropMode = getElement().getProperty("dropMode");
+        Optional<GridDropMode> mode = Arrays.stream(GridDropMode.values())
+                .filter(dm -> dm.getClientName().equals(dropMode)).findFirst();
+        return mode.orElse(null);
+    }
+
+    /**
+     * Sets whether the user can drag the grid rows or not.
+     *
+     * @param rowsRraggable
+     *            {@code true} if the rows can be dragged by the user;
+     *            {@code false} if not
+     */
+    public void setRowsDraggable(boolean rowsRraggable) {
+        getElement().setProperty("rowsDraggable", rowsRraggable);
+    }
+
+    /**
+     * Gets whether rows of the grid can be dragged.
+     *
+     * @return {@code true} if the rows are draggable, {@code false} otherwise
+     */
+    public boolean isRowsDraggable() {
+        return getElement().getProperty("rowsDraggable", false);
+    }
+
+    /**
+     * Gets the active drop filter.
+     * 
+     * @return The drop filter function
+     */
+    public SerializablePredicate<T> getDropFilter() {
+        return dropFilter;
+    }
+
+    /**
+     * Gets the active drag filter.
+     * 
+     * @return The drag filter function
+     */
+    public SerializablePredicate<T> getDragFilter() {
+        return dragFilter;
+    }
+
+    /**
+     * Sets the drop filter for this drag target.
+     * <p>
+     * When the drop mode of the grid has been set to one of
+     * {@link GridDropMode#BETWEEN}, {@link GridDropMode#ON_TOP} or
+     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, by default all the visible rows can
+     * be dropped over.
+     * <p>
+     * A drop filter function can be used to specify the rows that are available
+     * for dropping over. The function receives an item and should return
+     * {@code true} if the row can be dropped over, {@code false} otherwise.
+     * <p>
+     * <em>NOTE: If the filter conditions depend on a specific row that's
+     * currently being dragged, you might want to have the grid's drop mode
+     * disabled by default and set its value only on drag start to avoid the
+     * small period of time during which the user might be able to drop over
+     * unwanted rows. Once the drop end event occurs, the drop mode can be set
+     * back to {@code null} to keep this consistent.
+     * <p>
+     * <em>NOTE: If the filtering conditions change dynamically, remember to
+     * explicitly invoke {@code getDataProvider().refreshItem(item)} for the
+     * relevant items to get the filters re-run for them.
+     */
+    public void setDropFilter(SerializablePredicate<T> dropFilter) {
+        Objects.requireNonNull(dropFilter, "Drop filter can not be null");
+        this.dropFilter = dropFilter;
+        getDataCommunicator().reset();
+    }
+
+    /**
+     * Sets the drag filter for this drag source.
+     * <p>
+     * When the {@link #setRowsDraggable(boolean)} has been used to enable
+     * dragging, by default all the visible rows can be dragged.
+     * <p>
+     * A drag filter function can be used to specify the rows that are available
+     * for dragging. The function receives an item and returns {@code true} if
+     * the row can be dragged, {@code false} otherwise.
+     * <p>
+     * <em>NOTE: If the filtering conditions change dynamically, remember to
+     * explicitly invoke {@code getDataProvider().refreshItem(item)} for the
+     * relevant items to get the filters re-run for them.
+     */
+    public void setDragFilter(SerializablePredicate<T> dragFilter) {
+        Objects.requireNonNull(dragFilter, "Drag filter can not be null");
+        this.dragFilter = dragFilter;
+        getDataCommunicator().reset();
+    }
+
+    /**
+     * Sets a generator function for customizing drag data. The generated value
+     * will be accessible using the same {@code type} as the generator is set
+     * here. The function is executed for each item in the Grid during data
+     * generation. Return a {@link String} to be appended to the row as {@code
+     * type} data.
+     *
+     * @param type
+     *            Type of the generated data. The generated value will be
+     *            accessible during drop using this type.
+     * @param dragDataGenerator
+     *            Function to be executed on row data generation.
+     */
+    public void setDragDataGenerator(String type,
+            SerializableFunction<T, String> dragDataGenerator) {
+        this.dragDataGenerators.put(type, dragDataGenerator);
+
+        JsonArray types = Json.createArray();
+
+        this.dragDataGenerators.keySet()
+                .forEach(t -> types.set(types.length(), t));
+        this.getElement().setPropertyJson("__dragDataTypes", types);
+        getDataCommunicator().reset();
     }
 }
