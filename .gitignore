@@ -13,3 +13,6 @@ target/
 #selenium
 error-screenshots
 reference-screenshots
+
+# npm
+node_modules/

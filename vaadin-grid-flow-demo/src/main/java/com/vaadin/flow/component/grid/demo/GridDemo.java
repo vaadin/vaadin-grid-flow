@@ -27,7 +27,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
@@ -75,7 +75,7 @@ import com.vaadin.flow.demo.DemoView;
 import com.vaadin.flow.router.Route;
 
 @Route("vaadin-grid")
-@HtmlImport("grid-demo-styles.html")
+@JsModule("frontend://grid-demo-styles.js")
 public class GridDemo extends DemoView {
 
     public static final List<Person> items = createItems();
@@ -787,9 +787,8 @@ public class GridDemo extends DemoView {
                 .addColumn(Person::getfirstName).setHeader("First name");
         Grid.Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
                 .setHeader("Last name");
-        Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
-                .setHeader("Age");
 
+        @SuppressWarnings("unchecked")
         ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                 .getDataProvider();
 
@@ -1533,6 +1532,7 @@ public class GridDemo extends DemoView {
     }
 
     private Button createRemoveButton(Grid<Person> grid, Person item) {
+        @SuppressWarnings("unchecked")
         Button button = new Button("Remove", clickEvent -> {
             ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                     .getDataProvider();
@@ -1649,6 +1649,7 @@ public class GridDemo extends DemoView {
                 }));
         contextMenu.addItem("Remove",
                 event -> event.getItem().ifPresent(person -> {
+                    @SuppressWarnings("unchecked")
                     ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                             .getDataProvider();
                     dataProvider.getItems().remove(person);
@@ -2173,6 +2174,7 @@ public class GridDemo extends DemoView {
             }
 
             // Remove the items from the source grid
+            @SuppressWarnings("unchecked")
             ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) dragSource
                     .getDataProvider();
             List<Person> sourceItems = new ArrayList<>(
@@ -2182,6 +2184,7 @@ public class GridDemo extends DemoView {
 
             // Add dragged items to the target Grid
             Grid<Person> targetGrid = event.getSource();
+            @SuppressWarnings("unchecked")
             ListDataProvider<Person> targetDataProvider = (ListDataProvider<Person>) targetGrid
                     .getDataProvider();
             List<Person> targetItems = new ArrayList<>(
@@ -2258,6 +2261,7 @@ public class GridDemo extends DemoView {
         treeGrid.setSelectionMode(SelectionMode.NONE);
         treeGrid.addDropListener(event -> {
             // Remove the items from the source grid
+            @SuppressWarnings("unchecked")
             ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid
                     .getDataProvider();
             Collection<Person> sourceItems = sourceDataProvider.getItems();

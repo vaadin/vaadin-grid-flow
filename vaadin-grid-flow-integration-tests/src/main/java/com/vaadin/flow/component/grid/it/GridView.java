@@ -41,7 +41,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -93,7 +93,7 @@ import com.vaadin.flow.router.Route;
  * View for {@link Grid} demo.
  */
 @Route("vaadin-grid-it-demo")
-@HtmlImport("grid-demo-styles.html")
+@JsModule("grid-demo-styles.js")
 public class GridView extends DemoView {
 
     public static List<Person> items = new ArrayList<>();
