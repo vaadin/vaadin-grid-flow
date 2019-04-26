@@ -1,5 +1,6 @@
 package com.vaadin.flow.component.grid.demo;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.grid.demo.data.StatesData;
 import com.vaadin.flow.component.grid.demo.data.TaskData;
 import com.vaadin.flow.component.grid.demo.entity.Customer;
 import com.vaadin.flow.component.grid.demo.entity.Task;
+import com.vaadin.flow.component.grid.dnd.*;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -26,11 +28,14 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.hierarchy.TreeData;
+import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 import com.vaadin.flow.data.renderer.*;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -61,7 +66,7 @@ public class GridDemo extends DemoView {
     /**
      * Example object.
      */
-    public static class Person {
+    public static class Person implements Cloneable {
         private int id;
         private String firstName;
         private String lastName;
@@ -206,6 +211,16 @@ public class GridDemo extends DemoView {
         @Override
         public String toString() {
             return firstName;
+        }
+
+        @Override
+        public Person clone() {
+            try {
+                return (Person) super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(
+                        "The Person object could not be cloned.", e);
+            }
         }
     }
 
@@ -1154,7 +1169,7 @@ public class GridDemo extends DemoView {
         Grid<Person> grid = new Grid<>(Person.class);
         grid.setItems(personList);
 
-        grid.setColumns("firstName", "lastName", "age", "birthdate", "address",
+        grid.setColumns("firstName", "lastName", "age", "birthDate", "address",
                 "phoneNumber");
         grid.getColumns()
                 .forEach(personColumn -> personColumn.setAutoWidth(true));
@@ -2262,7 +2277,7 @@ public class GridDemo extends DemoView {
         td.addItems(null, personService.fetch(51, 2));
 
         treeGrid.setDataProvider(new TreeDataProvider<Person>(td));
-        treeGrid.addHierarchyColumn(Person::getfirstName)
+        treeGrid.addHierarchyColumn(Person::getFirstName)
                 .setHeader("firstName");
         treeGrid.addColumn(Person::getLastName).setHeader("lastName");
         treeGrid.addColumn(Person::getPhoneNumber).setHeader("phoneNumber");
@@ -2394,7 +2409,7 @@ public class GridDemo extends DemoView {
                 // Disallow dropping on own supervisor
                 && !td.getChildren(person).contains(draggedItem));
 
-        grid.addHierarchyColumn(Person::getfirstName).setHeader("First name");
+        grid.addHierarchyColumn(Person::getFirstName).setHeader("First name");
         grid.addColumn(Person::getLastName).setHeader("Last name");
         grid.addColumn(Person::getPhoneNumber).setHeader("Phone");
         grid.setRowsDraggable(true);
