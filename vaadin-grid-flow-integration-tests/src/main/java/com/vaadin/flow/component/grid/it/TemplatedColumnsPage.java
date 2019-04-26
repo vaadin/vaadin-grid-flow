@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -32,8 +32,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 @Route("templated-columns")
 @Tag("templated-columns")
-@HtmlImport("frontend://bower_components/vaadin-grid/src/vaadin-grid-column-group.html")
-@HtmlImport("src/templated-columns.html")
+@JsModule("@vaadin/vaadin-grid/src/vaadin-grid-column-group.js")
+@JsModule("./src/templated-columns.js")
 public class TemplatedColumnsPage extends PolymerTemplate<TemplateModel> {
 
     @Id

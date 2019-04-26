@@ -1,3 +1,6 @@
+import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
+import { timeOut, animationFrame } from '@polymer/polymer/lib/utils/async.js';
+
 window.Vaadin.Flow.gridConnector = {
   initLazy: function(grid) {
     // Check whether the connector was already initialized for the grid
@@ -23,7 +26,7 @@ window.Vaadin.Flow.gridConnector = {
 
     cacheProto.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
-        const subCache = new Vaadin.Grid.ItemCache(this.grid, this, this.items[scaledIndex]);
+        const subCache = new cacheProto.constructor(this.grid, this, this.items[scaledIndex]);
         subCache.itemkeyCaches = {};
         if(!this.itemkeyCaches) {
           this.itemkeyCaches = {};
@@ -126,7 +129,7 @@ window.Vaadin.Flow.gridConnector = {
             (debouncer) => ensureSubCacheDebouncer = debouncer,
             () => grid.$connector.hasEnsureSubCacheQueue(),
             () => grid.$connector.flushEnsureSubCache(),
-            (action) => Polymer.Debouncer.debounce(ensureSubCacheDebouncer, Polymer.Async.animationFrame, action));
+            (action) => Debouncer.debounce(ensureSubCacheDebouncer, animationFrame, action));
       }
     }
 
@@ -297,7 +300,7 @@ window.Vaadin.Flow.gridConnector = {
               (debouncer) => parentRequestDebouncer = debouncer,
               () => grid.$connector.hasParentRequestQueue(),
               () => grid.$connector.flushParentRequests(),
-              (action) => Polymer.Debouncer.debounce(parentRequestDebouncer, Polymer.Async.timeOut.after(parentRequestDelay), action)
+              (action) => Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay), action)
               );
         }
 

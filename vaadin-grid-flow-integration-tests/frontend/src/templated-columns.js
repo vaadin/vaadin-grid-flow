@@ -1,9 +1,16 @@
-<!-- Dependency resources -->
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
+/* Dependency resources */
+/* Defines the example-template element */
+/*
+  FIXME(polymer-modulizer): the above comments were extracted
+  from HTML and may be out of place here. Review them and
+  then delete this comment!
+*/
+import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 
-<!-- Defines the example-template element -->
-<dom-module id="templated-columns">
-    <template>
+import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+class TemplatedColumns extends PolymerElement {
+  static get template() {
+    return html`
         <vaadin-grid id="grid">
                 
             <vaadin-grid-column width="30px" flex-grow="0">
@@ -44,14 +51,11 @@
                 </vaadin-grid-column>
             </vaadin-grid-column-group>
         </vaadin-grid>
-    </template>
+`;
+  }
 
-    <script>
-        class TemplatedColumns extends Polymer.Element {
-            static get is() {
-                return 'templated-columns'
-            }
-        }
-        customElements.define(TemplatedColumns.is, TemplatedColumns);
-    </script>
-</dom-module>
+  static get is() {
+      return 'templated-columns'
+  }
+}
+customElements.define(TemplatedColumns.is, TemplatedColumns);
