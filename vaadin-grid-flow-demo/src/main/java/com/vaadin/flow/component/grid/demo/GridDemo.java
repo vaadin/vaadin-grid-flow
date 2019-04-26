@@ -2047,6 +2047,7 @@ public class GridDemo extends DemoView {
                 return stateTextField;
             }
         });
+
         // Close the editor in case of forward navigation between components
         stateTextField.getElement()
                 .addEventListener("keydown",
