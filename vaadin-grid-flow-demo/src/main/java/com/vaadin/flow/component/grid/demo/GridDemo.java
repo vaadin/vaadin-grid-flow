@@ -72,6 +72,7 @@ import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.demo.DemoView;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 
 @Route("vaadin-grid")
@@ -715,7 +716,7 @@ public class GridDemo extends DemoView {
 
         addVariantsDemo(() -> {
             return grid;
-        }, Grid::addThemeVariants, Grid::removeThemeVariants,
+        } , Grid::addThemeVariants, Grid::removeThemeVariants,
                 GridVariant::getVariantName, GridVariant.LUMO_NO_BORDER,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
     }
@@ -954,7 +955,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(TemplateRenderer.<Person> of(
                 "<div>[[item.city]]<br><small>[[item.postalCode]]</small></div>")
 
-                .withProperty("city", person -> person.getAddress().getCity())
+        .withProperty("city", person -> person.getAddress().getCity())
                 .withProperty("postalCode",
                         person -> person.getAddress().getPostalCode()),
                 "city", "postalCode").setHeader("Address");
@@ -1489,8 +1490,9 @@ public class GridDemo extends DemoView {
 
         // You can also set complex objects directly. Internal properties of the
         // bean are accessible in the template.
-        grid.addColumn(TemplateRenderer.<Order> of(
-                "<div>[[item.name]],[[item.price]] <br> purchased on: <small>[[item.purchasedate]]</small></div>")
+        grid.addColumn(TemplateRenderer
+                .<Order> of(
+                        "<div>[[item.name]],[[item.price]] <br> purchased on: <small>[[item.purchasedate]]</small></div>")
                 .withProperty("name", Order::getName)
                 // NumberRenderer to render numbers in general
                 .withProperty("price",
@@ -1499,11 +1501,14 @@ public class GridDemo extends DemoView {
                         order -> formatter.format(order.getPurchaseDate())))
                 .setHeader("Purchase").setFlexGrow(6);
 
-        grid.addColumn(TemplateRenderer.<Order> of(
-                "<div>Estimated delivery date: <small>[[item.estimatedDeliveryDate]]<small> <br>to: <small>[[item.address.city]],[[item.address.postalCode]]</small> </div>")
-                .withProperty("estimatedDeliveryDate",
-                        order -> formatter.format(order.getPurchaseDate()))
-                .withProperty("address", order -> order.getAddress()))
+        grid.addColumn(
+                TemplateRenderer
+                        .<Order> of(
+                                "<div>Estimated delivery date: <small>[[item.estimatedDeliveryDate]]<small> <br>to: <small>[[item.address.city]],[[item.address.postalCode]]</small> </div>")
+                        .withProperty("estimatedDeliveryDate",
+                                order -> formatter
+                                        .format(order.getPurchaseDate()))
+                        .withProperty("address", order -> order.getAddress()))
                 .setHeader("Delivery").setFlexGrow(6);
 
         // end-source-example
@@ -1567,11 +1572,12 @@ public class GridDemo extends DemoView {
 
         // You can use any renderer for the item details. By default, the
         // details are opened and closed by clicking the rows.
-        grid.setItemDetailsRenderer(TemplateRenderer.<Person> of(
-                "<div style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                        + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
-                        + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
-                        + "</div>")
+        grid.setItemDetailsRenderer(TemplateRenderer
+                .<Person> of(
+                        "<div style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
+                                + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
+                                + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
+                                + "</div>")
                 .withProperty("firstName", Person::getfirstName)
                 .withProperty("lastname", Person::getLastName)
                 .withProperty("address", Person::getAddress)
@@ -1604,10 +1610,11 @@ public class GridDemo extends DemoView {
 
         // You can use any renderer for the item details. By default, the
         // details are opened and closed by clicking the rows.
-        grid.setItemDetailsRenderer(TemplateRenderer.<Person> of(
-                "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                        + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
-                        + "</div>")
+        grid.setItemDetailsRenderer(TemplateRenderer
+                .<Person> of(
+                        "<div class='custom-details' style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
+                                + "<div>Hi! My name is <b>[[item.firstName]]!</b></div>"
+                                + "</div>")
                 .withProperty("firstName", Person::getfirstName)
                 // This is now how we open the details
                 .withEventHandler("handleClick", person -> {
@@ -2102,7 +2109,7 @@ public class GridDemo extends DemoView {
 
     // Drag and drop
 
-    private List<Person> draggedItems;
+    private Collection<Person> draggedItems;
     private Person draggedItem;
     private Grid<Person> dragSource;
 
@@ -2308,13 +2315,18 @@ public class GridDemo extends DemoView {
 
         Grid<Person> grid = new Grid<>(Person.class);
         List<Person> persons = new ArrayList<>(personService.fetch(0, 50));
-        List<Person> availablePersons = new ArrayList<>(
-                personService.fetch(0, 50));
 
         grid.setItems(persons);
 
         grid.addDragStartListener(event -> {
-            draggedItems = event.getDraggedItems();
+            // event.getDraggedItems() can only contain items from the visible
+            // viewport, so when the user is dragging the selected items, let's
+            // instead treat the whole selection (not just the visible items) as
+            // dragged items
+            boolean draggingSelected = grid.getSelectedItems()
+                    .contains(event.getDraggedItems().get(0));
+            draggedItems = draggingSelected ? grid.getSelectedItems()
+                    : event.getDraggedItems();
             grid.setDropMode(null);
         });
         grid.setColumns("firstName", "lastName", "phoneNumber");
@@ -2322,29 +2334,48 @@ public class GridDemo extends DemoView {
         grid.setDropMode(GridDropMode.BETWEEN);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        // Generate the drag data to consist of person IDs. This makes it
-        // easier for the receiving grid to interpret the data drop.
-        grid.setDragDataGenerator("text",
-                person -> String.valueOf(person.getId()));
+        // Generate drag data to consist of person properties in a specific
+        // format to make it easier for the receiving grid to interpret the data
+        // drop.
+        SerializableFunction<Person, String> generator = person -> String.join(
+                ",", person.getfirstName(), person.getLastName(),
+                person.getPhoneNumber());
+        grid.setDragDataGenerator("text", generator);
+
+        grid.addSelectionListener(event -> {
+            Set<Person> selectedItems = event.getAllSelectedItems();
+            String personsData = selectedItems.stream().map(generator)
+                    .collect(Collectors.joining(";"));
+
+            Map<String, String> dragData = new HashMap<>();
+            dragData.put("text", personsData);
+
+            // Since we want the drag data to include all the selected items
+            // (not just the visible ones) we'll set the drag data (and the
+            // dragged items count number) for selection drag explicitly.
+            //
+            // Note that dragging non-selected items will still use the
+            // item-specific data generated by the drag data generator defined
+            // above.
+            grid.setSelectionDragDetails(selectedItems.size(), dragData);
+        });
 
         grid.addDropListener(event -> {
-            String text = event.getDataTransferText();
-            // The drag data tokens are separated by line breaks
-            Arrays.asList(text.split("\n")).forEach(idString -> {
-                Optional<Person> matchOptional = availablePersons
-                        .stream().filter(person -> String
-                                .valueOf(person.getId()).equals(idString))
-                        .findFirst();
-
-                matchOptional.ifPresent(match -> {
-                    int index = event.getDropTargetItem().map(person -> persons
-                            .indexOf(person)
+            int index = event.getDropTargetItem()
+                    .map(person -> persons.indexOf(person)
                             + (event.getDropLocation() == GridDropLocation.BELOW
-                                    ? 1
-                                    : 0))
-                            .orElse(0);
-                    persons.add(index, match.clone());
-                });
+                                    ? 1 : 0))
+                    .orElse(0);
+
+            String personsData = event.getDataTransferText();
+            Arrays.asList(personsData.split(";")).forEach(personData -> {
+                String[] dataArray = personData.split(",");
+                Integer maxId = !persons.isEmpty()
+                        ? Collections.max(persons.stream().collect(Collectors
+                                .mapping(Person::getId, Collectors.toList())))
+                        : 0;
+                persons.add(index, new Person(maxId + 1, dataArray[0],
+                        dataArray[1], -1, null, dataArray[2]));
             });
             grid.getDataProvider().refreshAll();
         });
@@ -2354,6 +2385,7 @@ public class GridDemo extends DemoView {
             // the drop was successful (on another browser window).
             // The demo just removes the items regardless of whether the drop
             // was legal.
+            grid.deselectAll();
             persons.removeAll(draggedItems);
             grid.getDataProvider().refreshAll();
             grid.setDropMode(GridDropMode.BETWEEN);
