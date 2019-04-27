@@ -1725,7 +1725,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         column.setSortProperty(matchingSortingProperties
                 .toArray(new String[matchingSortingProperties.size()]));
         Comparator<T> combinedComparator = (a, b) -> 0;
-        Comparator nullsLastComparator = (Comparator<Object>)Comparator
+        Comparator nullsLastComparator = Comparator
                 .nullsLast(Comparator.naturalOrder());
         for (String sortProperty : matchingSortingProperties) {
             ValueProvider<T, ?> provider = valueProviders.get(sortProperty);
@@ -3097,7 +3097,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Returns the Class of bean this Grid is constructed with via
      * {@link #Grid(Class)}. Or null if not constructed from a bean type.
-     * 
+     *
      * @return the Class of bean this Grid is constructed with
      */
     public Class<T> getBeanType() {
@@ -3521,7 +3521,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets the active drop filter.
-     * 
+     *
      * @return The drop filter function
      */
     public SerializablePredicate<T> getDropFilter() {
@@ -3530,7 +3530,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets the active drag filter.
-     * 
+     *
      * @return The drag filter function
      */
     public SerializablePredicate<T> getDragFilter() {
