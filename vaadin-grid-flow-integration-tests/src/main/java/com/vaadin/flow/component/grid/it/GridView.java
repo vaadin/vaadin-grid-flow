@@ -96,8 +96,8 @@ import com.vaadin.flow.router.Route;
 @JsModule("grid-demo-styles.js")
 public class GridView extends DemoView {
 
-    public static List<Person> items = new ArrayList<>();
-    public static List<PersonWithLevel> rootItems = new ArrayList<>();
+    public static final List<Person> items;
+    public static final List<PersonWithLevel> rootItems;
     static {
         items = createItems();
         rootItems = createRootItems();

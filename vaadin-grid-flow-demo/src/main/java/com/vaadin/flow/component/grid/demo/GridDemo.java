@@ -78,8 +78,6 @@ import com.vaadin.flow.router.Route;
 @JsModule("frontend://grid-demo-styles.js")
 public class GridDemo extends DemoView {
 
-    public static final List<Person> items = createItems();
-
     // begin-source-example
     // source-example-heading: Grid example model
 
@@ -2262,8 +2260,7 @@ public class GridDemo extends DemoView {
         treeGrid.addDropListener(event -> {
             // Remove the items from the source grid
             @SuppressWarnings("unchecked")
-            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid
-                    .getDataProvider();
+            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid.getDataProvider();
             Collection<Person> sourceItems = sourceDataProvider.getItems();
             sourceItems.remove(draggedItem);
             grid.setItems(sourceItems);
@@ -2275,17 +2272,12 @@ public class GridDemo extends DemoView {
             } else {
                 Person parent = td.getParent(dropOverItem);
                 td.addItem(parent, draggedItem);
-
                 List<Person> siblings = td.getChildren(parent);
                 int dropIndex = siblings.indexOf(dropOverItem)
-                        + (event.getDropLocation() == GridDropLocation.BELOW ? 1
-                                : 0);
-                td.moveAfterSibling(draggedItem,
-                        dropIndex > 0 ? siblings.get(dropIndex - 1) : null);
+                        + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
+                td.moveAfterSibling(draggedItem, dropIndex > 0 ? siblings.get(dropIndex - 1) : null);
             }
-
             treeGrid.getDataProvider().refreshAll();
-
         });
 
         // end-source-example

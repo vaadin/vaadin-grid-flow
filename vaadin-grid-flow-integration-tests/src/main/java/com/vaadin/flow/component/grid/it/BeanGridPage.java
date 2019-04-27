@@ -19,10 +19,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.bean.Person;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.NoTheme;
 
 @Route
-@NoTheme
 public class BeanGridPage extends Div {
 
     public BeanGridPage() {
