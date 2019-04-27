@@ -22,7 +22,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route
-@NoTheme
 public class BeanGridPage extends Div {
 
     public BeanGridPage() {
