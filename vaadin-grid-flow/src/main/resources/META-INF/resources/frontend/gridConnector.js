@@ -979,7 +979,7 @@ window.Vaadin.Flow.gridConnector = {
     
     grid.addEventListener('grid-dragstart', e => {
 		
-    	if (grid._isSelected(e.detail.items[0])) {
+    	if (grid._isSelected(e.detail.draggedItems[0])) {
     		// Dragging selected (possibly multiple) items
         	if (grid.__selectionDragData) {
         		Object.keys(grid.__selectionDragData).forEach(type => {
@@ -987,7 +987,7 @@ window.Vaadin.Flow.gridConnector = {
         		});
         	} else {
         		(grid.__dragDataTypes || []).forEach(type => {
-        			e.detail.setDragData(type, e.detail.items.map(item => item.dragData[type]).join('\n'));
+        			e.detail.setDragData(type, e.detail.draggedItems.map(item => item.dragData[type]).join('\n'));
         		});
         	}
         	
@@ -997,7 +997,7 @@ window.Vaadin.Flow.gridConnector = {
     	} else {
         	// Dragging just one (non-selected) item
     		(grid.__dragDataTypes || []).forEach(type => {
-    			e.detail.setDragData(type, e.detail.items[0].dragData[type]);
+    			e.detail.setDragData(type, e.detail.draggedItems[0].dragData[type]);
     		});
     	}
     });

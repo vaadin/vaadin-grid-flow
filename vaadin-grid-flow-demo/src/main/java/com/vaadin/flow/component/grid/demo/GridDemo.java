@@ -2327,7 +2327,6 @@ public class GridDemo extends DemoView {
                     .contains(event.getDraggedItems().get(0));
             draggedItems = draggingSelected ? grid.getSelectedItems()
                     : event.getDraggedItems();
-            grid.setDropMode(null);
         });
         grid.setColumns("firstName", "lastName", "phoneNumber");
         grid.setRowsDraggable(true);
@@ -2388,7 +2387,6 @@ public class GridDemo extends DemoView {
             grid.deselectAll();
             persons.removeAll(draggedItems);
             grid.getDataProvider().refreshAll();
-            grid.setDropMode(GridDropMode.BETWEEN);
         });
 
         // end-source-example
@@ -2457,7 +2455,7 @@ public class GridDemo extends DemoView {
                 // list
                 td.removeItem(draggedItem);
 
-                // Close empty parents to avoid a TreeGrid issue
+                // Close empty parents
                 td.getRootItems().forEach(root -> {
                     if (td.getChildren(root).isEmpty()) {
                         grid.collapse(root);
