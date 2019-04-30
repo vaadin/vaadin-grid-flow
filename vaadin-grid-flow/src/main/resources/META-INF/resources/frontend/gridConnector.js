@@ -1,5 +1,15 @@
-import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
-import { timeOut, animationFrame } from '@polymer/polymer/lib/utils/async.js';
+// Not using ES6 imports in this file yet because the connector in V14 must
+// still work in Legacy bower projects. See: `contextMenuConnector-es6.js` for
+// the Polymer3 approach.
+window.Vaadin.Flow.Legacy = window.Vaadin.Flow.Legacy || {};
+if (window.Polymer) {
+    // Polymer2 approach.
+    window.Vaadin.Flow.Legacy.Debouncer = Polymer.Debouncer;
+    window.Vaadin.Flow.Legacy.timeOut = Polymer.Async.timeOut;
+    window.Vaadin.Flow.Legacy.animationFrame = Polymer.Async.animationFrame;
+    window.Vaadin.Flow.Legacy.GridElement = Vaadin.GridElement;
+    window.Vaadin.Flow.Legacy.ItemCache = Vaadin.Grid.ItemCache;
+}
 
 window.Vaadin.Flow.gridConnector = {
   initLazy: function(grid) {
@@ -8,12 +18,13 @@ window.Vaadin.Flow.gridConnector = {
       return;
     }
 
-    // TODO(manolo) this should be changed when we can use ES6 imports
-    // as indicated in https://github.com/vaadin/vaadin-grid-flow/issues/509
-    const gridProto = Object.getPrototypeOf(grid);
-    const cacheProto = Object.getPrototypeOf(grid._cache);
+    const Debouncer = window.Vaadin.Flow.Legacy.Debouncer;
+    const timeOut = window.Vaadin.Flow.Legacy.timeOut;
+    const animationFrame = window.Vaadin.Flow.Legacy.animationFrame;
+    const GridElement = window.Vaadin.Flow.Legacy.GridElement;
+    const ItemCache = window.Vaadin.Flow.Legacy.ItemCache;
 
-    cacheProto.ensureSubCacheForScaledIndex = function(scaledIndex) {
+    ItemCache.prototype.ensureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
 
         if(ensureSubCacheDelay) {
@@ -24,9 +35,9 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    cacheProto.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
+    ItemCache.prototype.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
-        const subCache = new cacheProto.constructor(this.grid, this, this.items[scaledIndex]);
+        const subCache = new ItemCache.prototype.constructor(this.grid, this, this.items[scaledIndex]);
         subCache.itemkeyCaches = {};
         if(!this.itemkeyCaches) {
           this.itemkeyCaches = {};
@@ -37,7 +48,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    cacheProto.getCacheAndIndexByKey = function(key) {
+    ItemCache.prototype.getCacheAndIndexByKey = function(key) {
       for (let index in this.items) {
         if(grid.getItemId(this.items[index]) === key) {
           return {cache: this, scaledIndex: index};
@@ -55,7 +66,7 @@ window.Vaadin.Flow.gridConnector = {
       return undefined;
     }
 
-    cacheProto.getLevel = function() {
+    ItemCache.prototype.getLevel = function() {
       let cache = this;
       let level = 0;
       while (cache.parentCache) {
@@ -417,7 +428,7 @@ window.Vaadin.Flow.gridConnector = {
     grid._createPropertyObserver("_previousSorters", sorterChangeListener);
 
     grid._updateItem = function(row, item) {
-      gridProto._updateItem.call(grid, row, item);
+      GridElement.prototype._updateItem.call(grid, row, item);
 
       // make sure that component renderers are updated
       Array.from(row.children).forEach(cell => {
