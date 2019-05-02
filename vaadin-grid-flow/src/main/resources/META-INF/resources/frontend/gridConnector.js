@@ -165,7 +165,7 @@ window.Vaadin.Flow.gridConnector = {
       }
 
       if (selectionMode === 'MULTI' && arguments.length > 2) {
-          for (i = 2; i < arguments.length; i++) {
+          for (let i = 2; i < arguments.length; i++) {
               grid.$connector.doSelection(arguments[i], userOriginated);
           }
       }
@@ -188,7 +188,7 @@ window.Vaadin.Flow.gridConnector = {
       }
 
       if (selectionMode === 'MULTI' && arguments.length > 2) {
-          for (i = 2; i < arguments.length; i++) {
+          for (let i = 2; i < arguments.length; i++) {
               grid.$connector.doDeselection(arguments[i], userOriginated);
           }
       }
@@ -646,7 +646,7 @@ window.Vaadin.Flow.gridConnector = {
       }
       // IE11 doesn't work with the transpiled version of the forEach.
       let keys = Object.keys(pagesToUpdate);
-      for (var i = 0; i < keys.length; i++) {
+      for (let i = 0; i < keys.length; i++) {
         let pageToUpdate = pagesToUpdate[keys[i]];
         const affectedUpdatedItems = updateGridCache(pageToUpdate.page, pageToUpdate.parentKey);
         if (affectedUpdatedItems) {
