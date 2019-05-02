@@ -27,7 +27,7 @@ import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.Route;
 
 @Route("vaadin-tree-grid")
-@JsModule("grid-demo-styles.js")
+@JsModule("@vaadin/flow-frontend/grid-demo-styles.js")
 @HtmlImport("grid-demo-styles.html")
 public class TreeGridDemo extends DemoView {
 
