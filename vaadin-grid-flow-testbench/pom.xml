@@ -10,7 +10,7 @@
         <version>3.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>vaadin-grid-flow-testbench</artifactId>
+    <artifactId>vaadin-grid-testbench</artifactId>
     <packaging>jar</packaging>
 
     <name>Vaadin Grid Testbench API</name>
