@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -50,6 +51,7 @@ public class GridLoadsItemsIT extends AbstractComponentIT {
                 Arrays.asList("Fetch 0 - 50"), messages);
     }
 
+    @Ignore("see #635")
     @Test
     public void scrollToPosition_oneQuery() {
         open();

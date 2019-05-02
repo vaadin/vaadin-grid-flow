@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -994,6 +995,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         Assert.assertEquals("", msg.getText());
     }
 
+    @Ignore("see #635")
     @Test
     public void bufferedEditor_cancelWithEscape() {
         openTabAndCheckForErrors("grid-editor");
@@ -1031,6 +1033,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     }
 
+    @Ignore("see #635")
     @Test
     public void bufferedEditor_validName() {
         openTabAndCheckForErrors("grid-editor");
@@ -1096,6 +1099,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 msg.getText());
     }
 
+    @Ignore("see #635")
     @Test
     public void notBufferedEditor() {
         openTabAndCheckForErrors("grid-editor");
@@ -1292,6 +1296,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         assertBufferedEditing(grid);
     }
 
+    @Ignore("see #635")
     @Test
     public void dynamicNotBufferedEditor() throws InterruptedException {
         openTabAndCheckForErrors("grid-editor");
