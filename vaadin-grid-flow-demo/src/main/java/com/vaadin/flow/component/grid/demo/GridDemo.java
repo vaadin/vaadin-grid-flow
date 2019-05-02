@@ -1821,8 +1821,14 @@ public class GridDemo extends DemoView {
                 firstNameField.focus();
             });
             edit.setEnabled(!editor.isOpen());
+            editButtons.add(edit);
             return edit;
         });
+
+        editor.addOpenListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
+        editor.addCloseListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
