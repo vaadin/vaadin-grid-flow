@@ -647,6 +647,8 @@ public class GridView extends DemoView {
         Column<Person> idColumn = grid.addColumn(Person::getId).setHeader("ID")
                 .setFlexGrow(0).setWidth("75px");
 
+        grid.addColumn(Person::getFirstName).setHeader("Name").setResizable(true);
+
         // Setting a column-key allows fetching the column later
         grid.addColumn(Person::getAge).setHeader("Age").setKey("age");
         grid.getColumnByKey("age").setResizable(true);
