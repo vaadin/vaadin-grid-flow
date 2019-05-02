@@ -24,8 +24,8 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 @Tag("grid-in-a-template")
-@JsModule("src/grid-in-a-template.js")
 @HtmlImport("src/grid-in-a-template.html")
+@JsModule("src/grid-in-a-template.js")
 public class GridInATemplate extends PolymerTemplate<TemplateModel> {
 
     @Id

@@ -33,10 +33,12 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 @Route("templated-columns")
 @Tag("templated-columns")
-@JsModule("@vaadin/vaadin-grid/src/vaadin-grid-column-group.js")
-@JsModule("./src/templated-columns.js")
 @HtmlImport("frontend://bower_components/vaadin-grid/src/vaadin-grid-column-group.html")
 @HtmlImport("src/templated-columns.html")
+
+// Order matters see https://github.com/vaadin/flow/issues/5591
+@JsModule("src/templated-columns.js")
+@JsModule("@vaadin/vaadin-grid/src/vaadin-grid-column-group.js")
 public class TemplatedColumnsPage extends PolymerTemplate<TemplateModel> {
 
     @Id
