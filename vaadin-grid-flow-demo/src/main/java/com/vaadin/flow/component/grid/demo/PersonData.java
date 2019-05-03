@@ -13,23 +13,23 @@ public class PersonData {
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         PERSON_LIST.add(new GridDemo.Person(91, "Jack", "Giles", 50, new GridDemo.Address("12080", "Washington"), "127-949-238",
-                GridDemo.MaritalStatus.Married, LocalDate.parse("02/09/1968", formatter)));
+                GridDemo.MaritalStatus.MARRIED, LocalDate.parse("02/09/1968", formatter)));
         PERSON_LIST.add(new GridDemo.Person(92, "Nathan", "Patterson", 20, new GridDemo.Address("12080", "Washington"), "107-922-137",
-                GridDemo.MaritalStatus.Single, LocalDate.parse("05/10/1998", formatter)));
+                GridDemo.MaritalStatus.SINGLE, LocalDate.parse("05/10/1998", formatter)));
         PERSON_LIST.add(new GridDemo.Person(93, "Andrew", "Bauer", 30, new GridDemo.Address("12080", "New York"), "120-952-285",
-                GridDemo.MaritalStatus.Single, LocalDate.parse("09/07/1988", formatter)));
+                GridDemo.MaritalStatus.SINGLE, LocalDate.parse("09/07/1988", formatter)));
         PERSON_LIST.add(new GridDemo.Person(94, "Mickael", "Blackwell", 68, new GridDemo.Address("12080", "Washington"), "127-942-237",
-                GridDemo.MaritalStatus.Married, LocalDate.parse("05/10/1950", formatter)));
+                GridDemo.MaritalStatus.MARRIED, LocalDate.parse("05/10/1950", formatter)));
         PERSON_LIST.add(new GridDemo.Person(95, "Peter", "Buchanan", 38, new GridDemo.Address("93849", "New York"), "201-793-488",
-                GridDemo.MaritalStatus.Single, LocalDate.parse("09/10/1980", formatter)));
+                GridDemo.MaritalStatus.SINGLE, LocalDate.parse("09/10/1980", formatter)));
         PERSON_LIST.add(new GridDemo.Person(96, "Samuel", "Lee", 53, new GridDemo.Address("86829", "New York"), "043-713-538",
-                GridDemo.MaritalStatus.Married, LocalDate.parse("03/28/1965", formatter)));
+                GridDemo.MaritalStatus.MARRIED, LocalDate.parse("03/28/1965", formatter)));
         PERSON_LIST.add(new GridDemo.Person(97, "Anton", "Ross", 37, new GridDemo.Address("63521", "New York"), "150-813-6462",
-                GridDemo.MaritalStatus.Single, LocalDate.parse("07/22/1981", formatter)));
+                GridDemo.MaritalStatus.SINGLE, LocalDate.parse("07/22/1981", formatter)));
         PERSON_LIST.add(new GridDemo.Person(98, "Aaron", "Atkinson", 18, new GridDemo.Address("25415", "Washington"), "321-679-8544",
-                GridDemo.MaritalStatus.Single, LocalDate.parse("05/10/2000", formatter)));
+                GridDemo.MaritalStatus.SINGLE, LocalDate.parse("05/10/2000", formatter)));
         PERSON_LIST.add(new GridDemo.Person(99, "Jack", "Woodward", 28, new GridDemo.Address("95632", "New York"), "187-338-588",
-                GridDemo.MaritalStatus.Married, LocalDate.parse("02/10/1990", formatter)));
+                GridDemo.MaritalStatus.MARRIED, LocalDate.parse("02/10/1990", formatter)));
         PERSON_LIST
                 .add(new GridDemo.Person(100, "Elizabeth", "Blackwell", 11, new GridDemo.Address("12080", "Washington"), "127-942-237"));
         PERSON_LIST.add(new GridDemo.Person(101, "Mia", "Buchanan", 3, new GridDemo.Address("93849", "New York"), "201-793-488"));

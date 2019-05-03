@@ -58,7 +58,7 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-lumo-theme</artifactId>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-context-menu-flow</artifactId>
             <version>3.0-SNAPSHOT</version>
@@ -98,18 +98,18 @@
                     <groupId>org.hamcrest</groupId>
                     <artifactId>hamcrest-core</artifactId>
                 </exclusion>
-            </exclusions>            
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <version>1.3</version>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow-component-demo-helpers</artifactId>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-grid-testbench</artifactId>
@@ -120,6 +120,26 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>set-system-properties</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <property>
+                                    <name>vaadin.productionMode</name>
+                                    <value>true</value>
+                                </property>
+                            </properties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- run vaadin frontend verify and build goals -->
             <plugin>
                 <groupId>com.vaadin</groupId>

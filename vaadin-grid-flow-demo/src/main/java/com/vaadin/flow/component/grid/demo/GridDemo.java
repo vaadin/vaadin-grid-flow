@@ -300,7 +300,7 @@ public class GridDemo extends DemoView {
     }
 
     public enum MaritalStatus {
-        Married, Single;
+        MARRIED, SINGLE;
     }
 
     // end-source-example

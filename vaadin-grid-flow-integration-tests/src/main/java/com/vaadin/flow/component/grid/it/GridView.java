@@ -418,13 +418,13 @@ public class GridView extends DemoView {
 
     @SuppressWarnings("unchecked")
     private void createColumnTemplate() {
-        List<Person> items = new ArrayList<>();
-        items.addAll(createItems());
+        List<Person> people = new ArrayList<>();
+        people.addAll(createItems());
 
         // begin-source-example
         // source-example-heading: Grid with columns using template renderer
         Grid<Person> grid = new Grid<>();
-        grid.setItems(items);
+        grid.setItems(people);
 
         // You can use the [[index]] variable to print the row index (0 based)
         grid.addColumn(TemplateRenderer.of("[[index]]")).setHeader("#");
@@ -1674,7 +1674,7 @@ public class GridView extends DemoView {
     }
 
     private <T> Component[] withTreeGridToggleButtons(List<T> roots,
-            TreeGrid<T> grid, Component... other) {
+            TreeGrid<T> grid, Component... other) { //NOSONAR
         @SuppressWarnings("unchecked")
         NativeButton toggleFirstItem = new NativeButton("Toggle first item",
                 evt -> {
