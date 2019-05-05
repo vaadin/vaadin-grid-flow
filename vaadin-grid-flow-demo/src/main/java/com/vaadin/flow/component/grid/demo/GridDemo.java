@@ -77,8 +77,8 @@ import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 
 @Route("vaadin-grid")
-@JsModule("@vaadin/flow-frontend/grid-demo-styles.js")
-@HtmlImport("grid-demo-styles.html")
+@JsModule("grid-demo-styles.js")
+@HtmlImport("./grid-demo-styles.html")
 public class GridDemo extends DemoView {
 
     // begin-source-example

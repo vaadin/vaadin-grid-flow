@@ -1673,8 +1673,7 @@ public class GridView extends DemoView {
         addCard("Styling", "Generating CSS Class Names for Cells", grid);
     }
 
-    private <T> Component[] withTreeGridToggleButtons(List<T> roots,
-            TreeGrid<T> grid, Component... other) { //NOSONAR
+    private <T> Component[] withTreeGridToggleButtons(List<T> roots, TreeGrid<T> grid, Component... other) { //NOSONAR
         @SuppressWarnings("unchecked")
         NativeButton toggleFirstItem = new NativeButton("Toggle first item",
                 evt -> {
