@@ -6,11 +6,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonData {
+public class PersonData { //NOSONAR
 
     private final List<GridDemo.Person> PERSON_LIST = new ArrayList<>();
-
-    {
+    { //NOSONAR
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         PERSON_LIST.add(new GridDemo.Person(91, "Jack", "Giles", 50, new GridDemo.Address("12080", "Washington"), "127-949-238",
                 GridDemo.MaritalStatus.MARRIED, LocalDate.parse("02/09/1968", formatter)));
