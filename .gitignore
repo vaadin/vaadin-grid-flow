@@ -17,4 +17,4 @@ reference-screenshots
 # npm
 node_modules/
 webpack.config.js
-packate*.json
+package*.json

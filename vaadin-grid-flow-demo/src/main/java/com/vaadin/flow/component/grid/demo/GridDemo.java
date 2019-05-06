@@ -788,6 +788,7 @@ public class GridDemo extends DemoView {
                 .addColumn(Person::getfirstName).setHeader("First name");
         Grid.Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
                 .setHeader("Last name");
+        grid.addColumn(Person::getAge).setHeader("Age");
 
         @SuppressWarnings("unchecked")
         ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
