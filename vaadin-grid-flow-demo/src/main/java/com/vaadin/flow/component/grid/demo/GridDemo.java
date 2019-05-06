@@ -79,6 +79,7 @@ import com.vaadin.flow.router.Route;
 @Route("vaadin-grid")
 @JsModule("@vaadin/flow-frontend/grid-demo-styles.js")
 @HtmlImport("./grid-demo-styles.html")
+@SuppressWarnings("squid:S1192")
 public class GridDemo extends DemoView {
 
     // begin-source-example
