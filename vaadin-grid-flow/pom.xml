@@ -16,10 +16,16 @@
     <name>Vaadin Grid</name>
 
     <dependencies>
+    	<dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>vaadin__vaadin-mobile-drag-drop</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        
         <dependency>
             <groupId>org.webjars.bowergithub.vaadin</groupId>
             <artifactId>vaadin-grid</artifactId>
-            <version>5.4.0-alpha4</version>
+            <version>5.4.0</version>
         </dependency>
 
         <dependency>
