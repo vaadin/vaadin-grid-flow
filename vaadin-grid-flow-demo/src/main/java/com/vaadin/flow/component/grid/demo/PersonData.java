@@ -58,8 +58,8 @@ public class PersonData {
     public List<GridDemo.Person> getPersons() {
         if (people.isEmpty()) {
             for (int i = 91; i < 199; i++) {
-                Person person = new GridDemo.Person(i, names[names.length % i], surnames[surnames.length % i], new Random().nextInt(90),
-                        new GridDemo.Address(numbers[numbers.length % i], cities[cities.length % i]), phones[phones.length % i]);
+                Person person = new GridDemo.Person(i, names[i % names.length], surnames[i % surnames.length], new Random().nextInt(90),
+                        new GridDemo.Address(numbers[i % numbers.length], cities[i % cities.length]), phones[i % phones.length]);
                 people.add(person);
             }
         }

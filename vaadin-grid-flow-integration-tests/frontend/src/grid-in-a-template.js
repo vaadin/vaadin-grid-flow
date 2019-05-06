@@ -1,6 +1,6 @@
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
-
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+
 class GridInATemplate extends PolymerElement {
   static get template() {
     return html`

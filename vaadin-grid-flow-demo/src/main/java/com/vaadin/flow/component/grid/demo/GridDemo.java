@@ -77,7 +77,7 @@ import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 
 @Route("vaadin-grid")
-@JsModule("grid-demo-styles.js")
+@JsModule("@vaadin/flow-frontend/grid-demo-styles.js")
 @HtmlImport("./grid-demo-styles.html")
 public class GridDemo extends DemoView {
 
@@ -788,6 +788,7 @@ public class GridDemo extends DemoView {
                 .addColumn(Person::getfirstName).setHeader("First name");
         Grid.Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
                 .setHeader("Last name");
+        grid.addColumn(Person::getAge).setHeader("Age");
 
         @SuppressWarnings("unchecked")
         ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
