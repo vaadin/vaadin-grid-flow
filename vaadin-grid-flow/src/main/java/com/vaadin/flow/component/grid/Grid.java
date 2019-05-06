@@ -3481,9 +3481,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getElement().getNode().runWhenAttached(ui -> {
             if (ui.getSession().getBrowser().isIOS()) {
                 ui.getPage().addJavaScript(
-                        "base://webjars/mobile-drag-drop/2.3.0-rc.1/index.min.js");
+                        "context://webjars/mobile-drag-drop/2.3.0-rc.1/index.min.js");
                 ui.getPage().addJavaScript(
-                        "base://webjars/vaadin__vaadin-mobile-drag-drop/1.0.0/index.min.js");
+                        "context://webjars/vaadin__vaadin-mobile-drag-drop/1.0.0/index.min.js");
             }
         });
     }
