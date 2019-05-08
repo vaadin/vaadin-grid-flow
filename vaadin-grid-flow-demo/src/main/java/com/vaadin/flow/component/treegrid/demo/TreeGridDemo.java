@@ -63,10 +63,11 @@ public class TreeGridDemo extends DemoView {
         // source-example-heading: TreeGrid Basics
         TreeGrid<Department> grid = new TreeGrid<>();
 
-        grid.setItems(departmentData.getRootDepartments(), department ->
-                departmentData.getChildDepartments(department));
-        grid.addHierarchyColumn(Department::getName).setHeader("Department Name");
-        grid.addColumn(Department::getDescription).setHeader("Description");
+        grid.setItems(departmentData.getRootDepartments(),
+                departmentData::getChildDepartments);
+        grid.addHierarchyColumn(Department::getName)
+                .setHeader("Department Name");
+        grid.addColumn(Department::getManager).setHeader("Manager");
 
         grid.addExpandListener(event -> message.setValue(
                 String.format("Expanded %s item(s)", event.getItems().size())
@@ -78,16 +79,17 @@ public class TreeGridDemo extends DemoView {
         // end-source-example
         grid.setId("treegridbasic");
 
-
-        addCard("TreeGrid Basics", withTreeGridToggleButtons(departmentData.getRootDepartments().get(0), grid, message));
+        addCard("TreeGrid Basics", withTreeGridToggleButtons(
+                departmentData.getRootDepartments().get(0), grid, message));
     }
 
-    private <T> Component[] withTreeGridToggleButtons(T root,
-                                                      TreeGrid<T> grid, Component... other) {
+    private <T> Component[] withTreeGridToggleButtons(T root, TreeGrid<T> grid,
+            Component... other) {
         NativeButton toggleFirstItem = new NativeButton("Toggle first item",
                 evt -> {
                     if (grid.isExpanded(root)) {
-                        grid.collapseRecursively(Collections.singleton(root), 0);
+                        grid.collapseRecursively(Collections.singleton(root),
+                                0);
                     } else {
                         grid.expandRecursively(Collections.singleton(root), 0);
                     }
@@ -97,17 +99,18 @@ public class TreeGridDemo extends DemoView {
 
         NativeButton toggleRecursivelyFirstItem = new NativeButton(
                 "Toggle first item recursively", evt -> {
-            if (grid.isExpanded(root)) {
-                grid.collapseRecursively(Collections.singleton(root), 2);
-            } else {
-                grid.expandRecursively(Collections.singleton(root), 2);
-            }
-        });
+                    if (grid.isExpanded(root)) {
+                        grid.collapseRecursively(Collections.singleton(root),
+                                2);
+                    } else {
+                        grid.expandRecursively(Collections.singleton(root), 2);
+                    }
+                });
         toggleFirstItem.setId("treegrid-toggle-first-item-recur");
         Div div3 = new Div(toggleRecursivelyFirstItem);
 
-        return Stream.concat(Stream.of(grid, div1, div3),
-                Stream.of(other)).toArray(Component[]::new);
+        return Stream.concat(Stream.of(grid, div1, div3), Stream.of(other))
+                .toArray(Component[]::new);
     }
 
     // TreeGrid with lazy loading
@@ -126,29 +129,29 @@ public class TreeGridDemo extends DemoView {
         HierarchicalDataProvider dataProvider =
                 new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
 
-                    @Override
-                    public int getChildCount(HierarchicalQuery<Account, Void> query) {
-                        return (int) accountService.getChildCount(query.getParent());
-                    }
+            @Override
+            public int getChildCount(HierarchicalQuery<Account, Void> query) {
+                return (int) accountService.getChildCount(query.getParent());
+            }
 
-                    @Override
-                    public boolean hasChildren(Account item) {
-                        return accountService.hasChildren(item);
-                    }
+            @Override
+            public boolean hasChildren(Account item) {
+                return accountService.hasChildren(item);
+            }
 
-                    @Override
-                    protected Stream<Account> fetchChildrenFromBackEnd(
-                            HierarchicalQuery<Account, Void> query) {
-                        return accountService.fetchChildren(query.getParent()).stream();
-                    }
-                };
+            @Override
+            protected Stream<Account> fetchChildrenFromBackEnd(
+                    HierarchicalQuery<Account, Void> query) {
+                return accountService.fetchChildren(query.getParent()).stream();
+            }
+        };
 
         grid.setDataProvider(dataProvider);
 
         // end-source-example
         grid.setId("treegridlazy");
 
-        addCard("TreeGrid", "TreeGrid with lazy loading", grid);
+        addCard("TreeGrid with lazy loading", grid);
     }
 
     private static List<PersonWithLevel> getRootItems() {
@@ -162,4 +165,5 @@ public class TreeGridDemo extends DemoView {
     private static List<PersonWithLevel> createSubItems(int number, int level) {
         return new PeopleGenerator().generatePeopleWithLevels(number, level);
     }
+
 }

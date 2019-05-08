@@ -5,6 +5,12 @@ public class Account {
     private String title;
     private Account parent;
 
+    public Account(String code, String title, Account parent) {
+        this.code = code;
+        this.title = title;
+        this.parent = parent;
+    }
+
     public String getCode() {
         return code;
     }
@@ -29,14 +35,9 @@ public class Account {
         this.parent = parent;
     }
 
-    public Account(String code, String title, Account parent) {
-        this.code = code;
-        this.title = title;
-        this.parent = parent;
-    }
-
     @Override
     public String toString() {
         return title;
     }
+
 }

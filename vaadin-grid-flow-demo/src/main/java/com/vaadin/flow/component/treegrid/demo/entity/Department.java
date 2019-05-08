@@ -3,8 +3,15 @@ package com.vaadin.flow.component.treegrid.demo.entity;
 public class Department {
     private int id;
     private String name;
-    private String description;
+    private String manager;
     private Department parent;
+
+    public Department(int id, String name, Department parent, String manager) {
+        this.id = id;
+        this.name = name;
+        this.manager = manager;
+        this.parent = parent;
+    }
 
     public int getId() {
         return id;
@@ -22,12 +29,12 @@ public class Department {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getManager() {
+        return manager;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setManager(String manager) {
+        this.manager = manager;
     }
 
     public Department getParent() {
@@ -44,10 +51,4 @@ public class Department {
         return name;
     }
 
-    public Department(int id, String name, Department department, String description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.parent = department;
-    }
 }
