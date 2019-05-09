@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CountryData {
     public static final String UNITED_STATES = "United States";
-    private static final List<String> countryList = createCountryList();
+    private static final List<String> COUNTRY_LIST = createCountryList();
 
     private static List<String> createCountryList() {
         List<String> countryList = new ArrayList<>();
@@ -35,6 +35,6 @@ public class CountryData {
     }
 
     public List<String> getAllCountries() {
-        return countryList;
+        return COUNTRY_LIST;
     }
 }

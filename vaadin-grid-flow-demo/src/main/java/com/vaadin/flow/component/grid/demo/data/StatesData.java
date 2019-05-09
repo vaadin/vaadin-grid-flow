@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatesData {
-    private static final List<String> stateList = createStateList();
+    private static final List<String> STATE_LIST = createStateList();
 
     private static List<String> createStateList() {
         List<String> stateList= new ArrayList<>();
@@ -24,6 +24,6 @@ public class StatesData {
     }
 
     public List<String> getAllStates(){
-        return stateList;
+        return STATE_LIST;
     }
 }

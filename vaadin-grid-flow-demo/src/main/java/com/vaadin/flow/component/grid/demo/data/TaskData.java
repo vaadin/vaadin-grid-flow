@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskData {
-    private List<Task> taskList = createTaskList();
+    private List<Task> TASK_LIST = createTaskList();
 
     private List<Task> createTaskList() {
         List<Task> taskList = new ArrayList<>();
@@ -33,6 +33,6 @@ public class TaskData {
     }
 
     public List<Task> getTasks() {
-        return taskList;
+        return TASK_LIST;
     }
 }

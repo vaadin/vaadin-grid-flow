@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerData {
-    private static final List<Customer> customerList = createCustomerList();
+    private static final List<Customer> CUSTOMER_LIST = createCustomerList();
 
     private static List<Customer> createCustomerList() {
         List<Customer> customerList = new ArrayList<>();
@@ -42,6 +42,6 @@ public class CustomerData {
     }
 
     public List<Customer> getAllCustomers() {
-        return customerList;
+        return CUSTOMER_LIST;
     }
 }
