@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CountryData {
-    public static final String UNITED_STATES="United States";
-    private final List<String> countryList = new ArrayList<>();
-    {
+    public static final String UNITED_STATES = "United States";
+    private static final List<String> countryList = createCountryList();
+
+    private static List<String> createCountryList() {
+        List<String> countryList = new ArrayList<>();
+
         countryList.add("Afghanistan");
         countryList.add("Albania");
         countryList.add("Algeria");
@@ -27,9 +30,11 @@ public class CountryData {
         countryList.add("Poland");
         countryList.add("United Kingdom");
         countryList.add(UNITED_STATES);
+
+        return countryList;
     }
 
-    public List<String> getAllCountries(){
+    public List<String> getAllCountries() {
         return countryList;
     }
 }

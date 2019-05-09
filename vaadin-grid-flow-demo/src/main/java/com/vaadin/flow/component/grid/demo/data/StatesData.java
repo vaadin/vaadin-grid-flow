@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatesData {
-    private List<String> stateList= new ArrayList<>();
-    {
+    private static final List<String> stateList = createStateList();
+
+    private static List<String> createStateList() {
+        List<String> stateList= new ArrayList<>();
+
         stateList.add("Alabama");
         stateList.add("California");
         stateList.add("Florida");
@@ -16,6 +19,8 @@ public class StatesData {
         stateList.add("New York");
         stateList.add("Ohio");
         stateList.add("Washington");
+
+        return stateList;
     }
 
     public List<String> getAllStates(){
