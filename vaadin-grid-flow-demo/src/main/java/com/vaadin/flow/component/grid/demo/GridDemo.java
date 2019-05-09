@@ -28,6 +28,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
@@ -72,13 +73,14 @@ import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.demo.DemoView;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 
 @Route("vaadin-grid")
-@HtmlImport("grid-demo-styles.html")
+@JsModule("@vaadin/flow-frontend/grid-demo-styles.js")
+@HtmlImport("./grid-demo-styles.html")
+@SuppressWarnings("squid:S1192")
 public class GridDemo extends DemoView {
-
-    public static final List<Person> items = createItems();
 
     // begin-source-example
     // source-example-heading: Grid example model
@@ -234,7 +236,7 @@ public class GridDemo extends DemoView {
         }
 
         @Override
-        public Person clone() {
+        public Person clone() { //NOSONAR
             try {
                 return (Person) super.clone();
             } catch (CloneNotSupportedException e) {
@@ -299,7 +301,7 @@ public class GridDemo extends DemoView {
     }
 
     public enum MaritalStatus {
-        Married, Single;
+        MARRIED, SINGLE;
     }
 
     // end-source-example
@@ -787,9 +789,9 @@ public class GridDemo extends DemoView {
                 .addColumn(Person::getfirstName).setHeader("First name");
         Grid.Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
                 .setHeader("Last name");
-        Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
-                .setHeader("Age");
+        grid.addColumn(Person::getAge).setHeader("Age");
 
+        @SuppressWarnings("unchecked")
         ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                 .getDataProvider();
 
@@ -1533,6 +1535,7 @@ public class GridDemo extends DemoView {
     }
 
     private Button createRemoveButton(Grid<Person> grid, Person item) {
+        @SuppressWarnings("unchecked")
         Button button = new Button("Remove", clickEvent -> {
             ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                     .getDataProvider();
@@ -1649,6 +1652,7 @@ public class GridDemo extends DemoView {
                 }));
         contextMenu.addItem("Remove",
                 event -> event.getItem().ifPresent(person -> {
+                    @SuppressWarnings("unchecked")
                     ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                             .getDataProvider();
                     dataProvider.getItems().remove(person);
@@ -2102,7 +2106,7 @@ public class GridDemo extends DemoView {
 
     // Drag and drop
 
-    private List<Person> draggedItems;
+    private Collection<Person> draggedItems;
     private Person draggedItem;
     private Grid<Person> dragSource;
 
@@ -2173,6 +2177,7 @@ public class GridDemo extends DemoView {
             }
 
             // Remove the items from the source grid
+            @SuppressWarnings("unchecked")
             ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) dragSource
                     .getDataProvider();
             List<Person> sourceItems = new ArrayList<>(
@@ -2182,6 +2187,7 @@ public class GridDemo extends DemoView {
 
             // Add dragged items to the target Grid
             Grid<Person> targetGrid = event.getSource();
+            @SuppressWarnings("unchecked")
             ListDataProvider<Person> targetDataProvider = (ListDataProvider<Person>) targetGrid
                     .getDataProvider();
             List<Person> targetItems = new ArrayList<>(
@@ -2258,8 +2264,8 @@ public class GridDemo extends DemoView {
         treeGrid.setSelectionMode(SelectionMode.NONE);
         treeGrid.addDropListener(event -> {
             // Remove the items from the source grid
-            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid
-                    .getDataProvider();
+            @SuppressWarnings("unchecked")
+            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) grid.getDataProvider();
             Collection<Person> sourceItems = sourceDataProvider.getItems();
             sourceItems.remove(draggedItem);
             grid.setItems(sourceItems);
@@ -2271,17 +2277,12 @@ public class GridDemo extends DemoView {
             } else {
                 Person parent = td.getParent(dropOverItem);
                 td.addItem(parent, draggedItem);
-
                 List<Person> siblings = td.getChildren(parent);
                 int dropIndex = siblings.indexOf(dropOverItem)
-                        + (event.getDropLocation() == GridDropLocation.BELOW ? 1
-                                : 0);
-                td.moveAfterSibling(draggedItem,
-                        dropIndex > 0 ? siblings.get(dropIndex - 1) : null);
+                        + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
+                td.moveAfterSibling(draggedItem, dropIndex > 0 ? siblings.get(dropIndex - 1) : null);
             }
-
             treeGrid.getDataProvider().refreshAll();
-
         });
 
         // end-source-example
@@ -2308,43 +2309,66 @@ public class GridDemo extends DemoView {
 
         Grid<Person> grid = new Grid<>(Person.class);
         List<Person> persons = new ArrayList<>(personService.fetch(0, 50));
-        List<Person> availablePersons = new ArrayList<>(
-                personService.fetch(0, 50));
 
         grid.setItems(persons);
 
         grid.addDragStartListener(event -> {
-            draggedItems = event.getDraggedItems();
-            grid.setDropMode(null);
+            // event.getDraggedItems() can only contain items from the visible
+            // viewport, so when the user is dragging the selected items, let's
+            // instead treat the whole selection (not just the visible items) as
+            // dragged items
+            boolean draggingSelected = grid.getSelectedItems()
+                    .contains(event.getDraggedItems().get(0));
+            draggedItems = draggingSelected ? grid.getSelectedItems()
+                    : event.getDraggedItems();
         });
         grid.setColumns("firstName", "lastName", "phoneNumber");
         grid.setRowsDraggable(true);
         grid.setDropMode(GridDropMode.BETWEEN);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        // Generate the drag data to consist of person IDs. This makes it
-        // easier for the receiving grid to interpret the data drop.
-        grid.setDragDataGenerator("text",
-                person -> String.valueOf(person.getId()));
+        // Generate drag data to consist of person properties in a specific
+        // format to make it easier for the receiving grid to interpret the data
+        // drop.
+        SerializableFunction<Person, String> generator = person -> String.join(
+                ",", person.getfirstName(), person.getLastName(),
+                person.getPhoneNumber());
+        grid.setDragDataGenerator("text", generator);
+
+        grid.addSelectionListener(event -> {
+            Set<Person> selectedItems = event.getAllSelectedItems();
+            String personsData = selectedItems.stream().map(generator)
+                    .collect(Collectors.joining(";"));
+
+            Map<String, String> dragData = new HashMap<>();
+            dragData.put("text", personsData);
+
+            // Since we want the drag data to include all the selected items
+            // (not just the visible ones) we'll set the drag data (and the
+            // dragged items count number) for selection drag explicitly.
+            //
+            // Note that dragging non-selected items will still use the
+            // item-specific data generated by the drag data generator defined
+            // above.
+            grid.setSelectionDragDetails(selectedItems.size(), dragData);
+        });
 
         grid.addDropListener(event -> {
-            String text = event.getDataTransferText();
-            // The drag data tokens are separated by line breaks
-            Arrays.asList(text.split("\n")).forEach(idString -> {
-                Optional<Person> matchOptional = availablePersons
-                        .stream().filter(person -> String
-                                .valueOf(person.getId()).equals(idString))
-                        .findFirst();
+            int index = event.getDropTargetItem().map(person -> persons
+                    .indexOf(person)
+                    + (event.getDropLocation() == GridDropLocation.BELOW ? 1
+                            : 0))
+                    .orElse(0);
 
-                matchOptional.ifPresent(match -> {
-                    int index = event.getDropTargetItem().map(person -> persons
-                            .indexOf(person)
-                            + (event.getDropLocation() == GridDropLocation.BELOW
-                                    ? 1
-                                    : 0))
-                            .orElse(0);
-                    persons.add(index, match.clone());
-                });
+            String personsData = event.getDataTransferText();
+            Arrays.asList(personsData.split(";")).forEach(personData -> {
+                String[] dataArray = personData.split(",");
+                Integer maxId = !persons.isEmpty()
+                        ? Collections.max(persons.stream().collect(Collectors
+                                .mapping(Person::getId, Collectors.toList())))
+                        : 0;
+                persons.add(index, new Person(maxId + 1, dataArray[0],
+                        dataArray[1], -1, null, dataArray[2]));
             });
             grid.getDataProvider().refreshAll();
         });
@@ -2354,9 +2378,9 @@ public class GridDemo extends DemoView {
             // the drop was successful (on another browser window).
             // The demo just removes the items regardless of whether the drop
             // was legal.
+            grid.deselectAll();
             persons.removeAll(draggedItems);
             grid.getDataProvider().refreshAll();
-            grid.setDropMode(GridDropMode.BETWEEN);
         });
 
         // end-source-example
@@ -2425,7 +2449,7 @@ public class GridDemo extends DemoView {
                 // list
                 td.removeItem(draggedItem);
 
-                // Close empty parents to avoid a TreeGrid issue
+                // Close empty parents
                 td.getRootItems().forEach(root -> {
                     if (td.getChildren(root).isEmpty()) {
                         grid.collapse(root);

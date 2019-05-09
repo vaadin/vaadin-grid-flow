@@ -48,12 +48,14 @@ import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
-import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
 import com.vaadin.flow.component.grid.dnd.GridDropEvent;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.grid.editor.EditorImpl;
 import com.vaadin.flow.component.grid.editor.EditorRenderer;
@@ -119,6 +121,14 @@ import elemental.json.JsonValue;
  *
  */
 @Tag("vaadin-grid")
+@NpmPackage(value = "@vaadin/vaadin-grid", version = "5.4.0")
+@JsModule("@vaadin/vaadin-grid/src/vaadin-grid.js")
+@JsModule("@vaadin/vaadin-grid/src/vaadin-grid-column.js")
+@JsModule("@vaadin/vaadin-grid/src/vaadin-grid-sorter.js")
+@JsModule("@vaadin/vaadin-checkbox/src/vaadin-checkbox.js")
+@JsModule("frontend://flow-component-renderer.js")
+@JsModule("frontend://gridConnector-es6.js")
+
 @HtmlImport("frontend://bower_components/vaadin-grid/src/vaadin-grid.html")
 @HtmlImport("frontend://bower_components/vaadin-grid/src/vaadin-grid-column.html")
 @HtmlImport("frontend://bower_components/vaadin-grid/src/vaadin-grid-sorter.html")
@@ -170,7 +180,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         public void enqueue(String name, Serializable... arguments) {
-            queue.add(() -> getElement().callFunction(name, arguments));
+            queue.add(() -> getElement().callJsFunction(name, arguments));
         }
 
         protected Element getElement() {
@@ -208,10 +218,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             protected <T> GridSelectionModel<T> createModel(Grid<T> grid) {
                 return new AbstractGridSingleSelectionModel<T>(grid) {
 
+                    @SuppressWarnings("unchecked")
                     @Override
                     protected void fireSelectionEvent(
                             SelectionEvent<Grid<T>, T> event) {
-                        grid.fireEvent((ComponentEvent<Grid>) event);
+                        grid.fireEvent((ComponentEvent<Grid<T>>) event);
                     }
                 };
             }
@@ -228,6 +239,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             protected <T> GridSelectionModel<T> createModel(Grid<T> grid) {
                 return new AbstractGridMultiSelectionModel<T>(grid) {
 
+                    @SuppressWarnings("unchecked")
                     @Override
                     protected void fireSelectionEvent(
                             SelectionEvent<Grid<T>, T> event) {
@@ -858,6 +870,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return this;
         }
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         private void setupColumnEditor() {
             editorRenderer = new EditorRenderer<>((Editor) grid.getEditor(),
                     columnInternalId);
@@ -1262,6 +1275,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the GridArrayUpdater type
      *
      */
+    @SuppressWarnings("unchecked")
     protected <U extends GridArrayUpdater, B extends DataCommunicatorBuilder<T, U>> Grid(
             int pageSize,
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuidler,
@@ -1304,7 +1318,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     protected void initConnector() {
         getUI().orElseThrow(() -> new IllegalStateException(
                 "Connector can only be initialized for an attached Grid"))
-                .getPage().executeJavaScript(
+                .getPage().executeJs(
                         "window.Vaadin.Flow.gridConnector.initLazy($0)",
                         getElement());
     }
@@ -1342,7 +1356,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
             return new DataCommunicator<>(
                     dataGenerator, arrayUpdater, data -> element
-                            .callFunction("$connector.updateFlatData", data),
+                            .callJsFunction("$connector.updateFlatData", data),
                     element.getNode());
         }
     }
@@ -1572,7 +1586,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         C column = columnFactory.apply(renderer, columnId);
         idToColumnMap.put(columnId, column);
-        getElement().callFunction("$connector.setColumnId", column.getElement(),
+        getElement().callJsFunction("$connector.setColumnId", column.getElement(),
                 columnId);
 
         AbstractColumn<?> current = column;
@@ -1702,6 +1716,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            the sorting properties to use for this column
      * @return the created column
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected <C extends Column<T>> C addColumn(Renderer<T> renderer,
             BiFunction<Renderer<T>, String, C> columnFactory,
             String... sortingProperties) {
@@ -1831,6 +1846,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     private <C extends Column<T>> C addColumn(PropertyDefinition<T, ?> property,
             BiFunction<Renderer<T>, String, C> columnFactory) {
+        @SuppressWarnings("unchecked")
         C column = (C) addColumn(item -> runPropertyValueGetter(property, item),
                 columnFactory).setHeader(property.getCaption());
         try {
@@ -1962,6 +1978,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @param key
      *            the user-defined identifier
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void setColumnKey(String key, Column column) {
         if (keyToColumnMap.containsKey(key)) {
             throw new IllegalArgumentException(
@@ -2298,7 +2315,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                             + pageSize);
         }
         getElement().setProperty("pageSize", pageSize);
-        getElement().callFunction("$connector.reset");
+        getElement().callJsFunction("$connector.reset");
         setRequestedRange(0, pageSize);
         getDataCommunicator().reset();
     }
@@ -2348,7 +2365,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     protected void updateSelectionModeOnClient() {
-        getElement().callFunction("$connector.setSelectionMode",
+        getElement().callJsFunction("$connector.setSelectionMode",
                 selectionMode.name());
     }
 
@@ -2487,7 +2504,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 .map(item -> (Serializable) item).collect(Collectors.toList());
         collect.add(1, false);
         collect.toArray(values);
-        getElement().callFunction("$connector." + function, values);
+        getElement().callJsFunction("$connector." + function, values);
     }
 
     private JsonObject generateJsonForSelection(T item) {
@@ -2665,7 +2682,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         column.destroyDataGenerators();
         keyToColumnMap.remove(column.getKey());
         idToColumnMap.remove(column.getInternalId());
-        getElement().callFunction("$connector.columnRemoved",
+        getElement().callJsFunction("$connector.columnRemoved",
                 column.getInternalId());
     }
 
@@ -2723,7 +2740,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public void setDetailsVisibleOnClick(boolean detailsVisibleOnClick) {
         if (this.detailsVisibleOnClick != detailsVisibleOnClick) {
             this.detailsVisibleOnClick = detailsVisibleOnClick;
-            getElement().callFunction("$connector.setDetailsVisibleOnClick",
+            getElement().callJsFunction("$connector.setDetailsVisibleOnClick",
                     detailsVisibleOnClick);
         }
     }
@@ -2806,6 +2823,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
     private void appendChildColumns(List<Column<T>> list,
             ColumnBase<?> column) {
         if (column instanceof Column) {
@@ -2962,7 +2980,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
             directions.set(i, direction);
         }
-        getElement().callFunction("$connector.setSorterDirections", directions);
+        getElement().callJsFunction("$connector.setSorterDirections", directions);
     }
 
     private void sort(boolean userOriginated) {
@@ -3087,7 +3105,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Returns the Class of bean this Grid is constructed with via
      * {@link #Grid(Class)}. Or null if not constructed from a bean type.
-     * 
+     *
      * @return the Class of bean this Grid is constructed with
      */
     public Class<T> getBeanType() {
@@ -3159,7 +3177,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             return;
         }
         verticalScrollingEnabled = enabled;
-        getElement().callFunction("$connector.setVerticalScrollingEnabled",
+        getElement().callJsFunction("$connector.setVerticalScrollingEnabled",
                 enabled);
     }
 
@@ -3222,7 +3240,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see Column#setAutoWidth(boolean)
      */
     public void recalculateColumnWidths() {
-        getElement().callFunction("recalculateColumnWidths");
+        getElement().callJsFunction("recalculateColumnWidths");
     }
 
     /**
@@ -3444,26 +3462,26 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Sets the drop mode of this drop target. When set to not {@code null},
      * grid fires drop events upon data drop over the grid or the grid rows.
      * <p>
-     * When using {@link GridDropMode#ON_TOP}, and the grid is either empty or has
-     * empty space after the last row, the drop can still happen on the empty
-     * space, and the {@link GridDropEvent#getDropTargetItem()} will return an
-     * empty optional.
+     * When using {@link GridDropMode#ON_TOP}, and the grid is either empty or
+     * has empty space after the last row, the drop can still happen on the
+     * empty space, and the {@link GridDropEvent#getDropTargetItem()} will
+     * return an empty optional.
      * <p>
      * When using {@link GridDropMode#BETWEEN} or
-     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in the
-     * grid, any drop after the last row in the grid will get the last row as
-     * the {@link GridDropEvent#getDropTargetItem()}. If there are no rows in
+     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, and there is at least one row in
+     * the grid, any drop after the last row in the grid will get the last row
+     * as the {@link GridDropEvent#getDropTargetItem()}. If there are no rows in
      * the grid, then it will return an empty optional.
      * <p>
-     * If using {@link GridDropMode#ON_GRID}, then the drop will not happen on any
-     * row, but instead just "on the grid". The target row will not be present
-     * in this case.
+     * If using {@link GridDropMode#ON_GRID}, then the drop will not happen on
+     * any row, but instead just "on the grid". The target row will not be
+     * present in this case.
      * <p>
-     * <em>NOTE: Prefer not using a row specific {@link GridDropMode} with a grid
-     * that enables sorting. If for example a new row gets added to a specific
-     * location on drop event, it might not end up in the location of the drop
-     * but rather where the active sorting configuration prefers to place it.
-     * This behavior might feel unexpected for the users.
+     * <em>NOTE: Prefer not using a row specific {@link GridDropMode} with a
+     * grid that enables sorting. If for example a new row gets added to a
+     * specific location on drop event, it might not end up in the location of
+     * the drop but rather where the active sorting configuration prefers to
+     * place it. This behavior might feel unexpected for the users.
      * 
      * @param dropMode
      *            Drop mode that describes the allowed drop locations within the
@@ -3472,8 +3490,20 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see GridDropEvent#getDropLocation()
      */
     public void setDropMode(GridDropMode dropMode) {
+        polyfillMobileDragDrop();
         getElement().setProperty("dropMode",
                 dropMode == null ? null : dropMode.getClientName());
+    }
+
+    private void polyfillMobileDragDrop() {
+        getElement().getNode().runWhenAttached(ui -> {
+            if (ui.getSession().getBrowser().isIOS()) {
+                ui.getPage().addJavaScript(
+                        "context://webjars/mobile-drag-drop/2.3.0-rc.1/index.min.js");
+                ui.getPage().addJavaScript(
+                        "context://webjars/vaadin__vaadin-mobile-drag-drop/1.0.0/index.min.js");
+            }
+        });
     }
 
     /**
@@ -3497,6 +3527,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            {@code false} if not
      */
     public void setRowsDraggable(boolean rowsRraggable) {
+        polyfillMobileDragDrop();
         getElement().setProperty("rowsDraggable", rowsRraggable);
     }
 
@@ -3511,7 +3542,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets the active drop filter.
-     * 
+     *
      * @return The drop filter function
      */
     public SerializablePredicate<T> getDropFilter() {
@@ -3520,7 +3551,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Gets the active drag filter.
-     * 
+     *
      * @return The drag filter function
      */
     public SerializablePredicate<T> getDragFilter() {
@@ -3532,8 +3563,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <p>
      * When the drop mode of the grid has been set to one of
      * {@link GridDropMode#BETWEEN}, {@link GridDropMode#ON_TOP} or
-     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, by default all the visible rows can
-     * be dropped over.
+     * {@link GridDropMode#ON_TOP_OR_BETWEEN}, by default all the visible rows
+     * can be dropped over.
      * <p>
      * A drop filter function can be used to specify the rows that are available
      * for dropping over. The function receives an item and should return
@@ -3582,6 +3613,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * here. The function is executed for each item in the Grid during data
      * generation. Return a {@link String} to be appended to the row as {@code
      * type} data.
+     * 
+     * Note that IE11 only supports data type "text"
      *
      * @param type
      *            Type of the generated data. The generated value will be
@@ -3600,4 +3633,37 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         this.getElement().setPropertyJson("__dragDataTypes", types);
         getDataCommunicator().reset();
     }
+
+    /**
+     * Sets explicit drag operation details for when the user is dragging the
+     * selected items. By default, the drag data only covers the items in the
+     * visible viewport and all the items outside of it, even if selected, are
+     * excluded. Use this method to override the default drag data and the
+     * number shown in drag image on selection drag.
+     * 
+     * Note that IE11 only supports data type "text"
+     * 
+     * @param draggedItemsCount
+     *            The number shown in the drag image on selection drag. Only
+     *            values above 1 have any visible effect.
+     * @param dragData
+     *            The drag data for selection drag. The map should consist of
+     *            data type:data -entries
+     */
+    public void setSelectionDragDetails(int draggedItemsCount,
+            Map<String, String> dragData) {
+        this.getElement().setProperty("__selectionDraggedItemsCount",
+                draggedItemsCount);
+
+        if (dragData != null) {
+            JsonObject json = Json.createObject();
+            dragData.entrySet()
+                    .forEach(e -> json.put(e.getKey(), e.getValue()));
+            this.getElement().setPropertyJson("__selectionDragData", json);
+        } else {
+            this.getElement().setProperty("__selectionDragData", null);
+        }
+
+    }
+
 }
