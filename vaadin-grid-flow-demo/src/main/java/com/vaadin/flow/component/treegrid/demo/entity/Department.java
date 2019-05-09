@@ -50,5 +50,4 @@ public class Department {
     public String toString() {
         return name;
     }
-
 }

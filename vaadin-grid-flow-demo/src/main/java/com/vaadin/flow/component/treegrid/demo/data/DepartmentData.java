@@ -12,7 +12,7 @@ public class DepartmentData {
 
     public DepartmentData() {
 
-        list.add(new Department(1, "Product Development", null, "Paivi"));
+        list.add(new Department(1, "Product Development", null, "Päivi"));
         list.add(new Department(11, "Flow", list.get(0), "Pekka"));
         list.add(new Department(111, "Flow Core", list.get(1), "Pekka"));
         list.add(new Department(111, "Flow Components", list.get(1),
