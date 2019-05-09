@@ -13,6 +13,10 @@ import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
+import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
@@ -2365,7 +2369,7 @@ public class GridDemo extends DemoView {
         // format to make it easier for the receiving grid to interpret the data
         // drop.
         SerializableFunction<Person, String> generator = person -> String.join(
-                ",", person.getfirstName(), person.getLastName(),
+                ",", person.getFirstName(), person.getLastName(),
                 person.getPhoneNumber());
         grid.setDragDataGenerator("text", generator);
 
