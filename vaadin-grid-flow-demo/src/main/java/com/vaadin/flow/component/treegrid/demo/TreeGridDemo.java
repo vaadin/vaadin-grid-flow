@@ -4,7 +4,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.demo.GridDemo.Person;
-import com.vaadin.flow.component.grid.demo.PeopleGenerator;
 import com.vaadin.flow.component.treegrid.demo.data.DepartmentData;
 import com.vaadin.flow.component.treegrid.demo.entity.Account;
 import com.vaadin.flow.component.treegrid.demo.entity.Department;
@@ -20,9 +19,6 @@ import com.vaadin.flow.demo.DemoView;
 import com.vaadin.flow.router.Route;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @Route("vaadin-tree-grid")
@@ -46,8 +42,6 @@ public class TreeGridDemo extends DemoView {
         }
     }
 
-    public static final List<PersonWithLevel> rootItems = createRootItems();
-
     @Override
     protected void initView() {
         createBasicTreeGridUsage();
@@ -56,7 +50,6 @@ public class TreeGridDemo extends DemoView {
 
     private void createBasicTreeGridUsage() {
         DepartmentData departmentData = new DepartmentData();
-        Map<PersonWithLevel, List<PersonWithLevel>> childMap = new HashMap<>();
         TextArea message = new TextArea("");
         message.setHeight("100px");
         message.setReadOnly(true);
@@ -155,17 +148,4 @@ public class TreeGridDemo extends DemoView {
 
         addCard("TreeGrid with lazy loading", grid);
     }
-
-    private static List<PersonWithLevel> getRootItems() {
-        return rootItems;
-    }
-
-    private static List<PersonWithLevel> createRootItems() {
-        return createSubItems(500, 0);
-    }
-
-    private static List<PersonWithLevel> createSubItems(int number, int level) {
-        return new PeopleGenerator().generatePeopleWithLevels(number, level);
-    }
-
 }
