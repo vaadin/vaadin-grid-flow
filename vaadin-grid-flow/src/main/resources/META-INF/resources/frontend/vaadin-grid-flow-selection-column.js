@@ -6,12 +6,10 @@ import { GridColumnElement } from '@vaadin/vaadin-grid/src/vaadin-grid-column.js
     static get template() {
       return html`
     <template class="header" id="defaultHeaderTemplate">
-      <vaadin-checkbox id="selectAllCheckbox" aria-label="Select All" hidden\$="[[selectAllHidden]]" on-click="_onSelectAllClick" checked="[[selectAll]]">
-      </vaadin-checkbox>
+      <vaadin-checkbox id="selectAllCheckbox" aria-label="Select All" hidden\$="[[selectAllHidden]]" on-click="_onSelectAllClick" checked="[[selectAll]]"></vaadin-checkbox>
     </template>
     <template id="defaultBodyTemplate">
-      <vaadin-checkbox aria-label="Select Row" checked="[[selected]]" on-click="_onSelectClick">
-      </vaadin-checkbox>
+      <vaadin-checkbox aria-label="Select Row" checked="[[selected]]" on-click="_onSelectClick"></vaadin-checkbox>
     </template>
 `;
     }
