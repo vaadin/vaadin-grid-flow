@@ -1963,12 +1963,12 @@ public class GridDemo extends DemoView {
         Grid<Customer> grid = new Grid<>();
         grid.setItems(customerList);
 
-        Grid.Column<Customer> firstNameColumn = grid.addColumn(Customer::getFirstName)
-                .setHeader("First Name");
-        Grid.Column<Customer> countryColumn = grid.addColumn(Customer::getCountry)
-                .setHeader("Country");
-        Grid.Column<Customer> stateColumn = grid
-                .addColumn(Customer::getState).setHeader("State/Province");
+        Grid.Column<Customer> firstNameColumn = grid
+                .addColumn(Customer::getFirstName).setHeader("First Name");
+        Grid.Column<Customer> countryColumn = grid
+                .addColumn(Customer::getCountry).setHeader("Country");
+        Grid.Column<Customer> stateColumn = grid.addColumn(Customer::getState)
+                .setHeader("State/Province");
 
         Binder<Customer> binder = new Binder<>(Customer.class);
         Editor<Customer> editor = grid.getEditor();
@@ -1990,11 +1990,11 @@ public class GridDemo extends DemoView {
         stateSelect.setItems(stateList);
 
         Runnable bindStateTextField = () -> {
-            binder.forField(stateTextField)
-                    .bind("state");
+            binder.forField(stateTextField).bind("state");
         };
 
-        Runnable bindStateSelect = () -> binder.forField(stateSelect).bind("state");
+        Runnable bindStateSelect = () -> binder.forField(stateSelect)
+                .bind("state");
 
         Runnable setState = () -> stateColumn.setEditorComponent(item -> {
             if (UNITED_STATES.equals(item.getCountry())) {
@@ -2037,16 +2037,27 @@ public class GridDemo extends DemoView {
             setState.run();
         });
 
-        Grid.Column<Customer> editorColumn = grid.addComponentColumn(customer -> {
-            Button edit = new Button("Edit");
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                editor.editItem(customer);
-                firstNameField.focus();
-            });
-            edit.setEnabled(!editor.isOpen());
-            return edit;
-        });
+        Collection<Button> editButtons = Collections
+                .newSetFromMap(new WeakHashMap<>());
+
+        Grid.Column<Customer> editorColumn = grid
+                .addComponentColumn(customer -> {
+                    Button edit = new Button("Edit");
+                    edit.addClassName("edit");
+                    edit.addClickListener(e -> {
+                        editor.editItem(customer);
+                        firstNameField.focus();
+
+                    });
+                    edit.setEnabled(!editor.isOpen());
+                    editButtons.add(edit);
+                    return edit;
+                });
+
+        editor.addOpenListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
+        editor.addCloseListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> editor.save());
         save.addClassName("save");
@@ -2068,7 +2079,8 @@ public class GridDemo extends DemoView {
                         + event.getItem().getState()));
         // end-source-example
         grid.setId("buffered-dynamic-editor");
-        addCard("Grid Editor", "Dynamic Editor in Buffered Mode", message, grid);
+        addCard("Grid Editor", "Dynamic Editor in Buffered Mode", message,
+                grid);
     }
 
     private void createNotBufferedDynamicEditor() {
