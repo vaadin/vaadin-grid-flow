@@ -8,6 +8,12 @@ public class Task {
     private String name;
     private LocalDate dueDate;
 
+    public Task(int id, String name, LocalDate dueDate) {
+        this.id = id;
+        this.name = name;
+        this.dueDate = dueDate;
+    }
+
     public int getId() {
         return id;
     }
@@ -29,12 +35,6 @@ public class Task {
     }
 
     public void setDueDate(LocalDate dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public Task(int id, String name, LocalDate dueDate) {
-        this.id = id;
-        this.name = name;
         this.dueDate = dueDate;
     }
 
