@@ -21,7 +21,6 @@ import com.vaadin.flow.data.bean.HierarchicalTestBean;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.theme.NoTheme;
 
 @Route("treegrid-scrolling")
 public class TreeGridScrollingPage extends Div {

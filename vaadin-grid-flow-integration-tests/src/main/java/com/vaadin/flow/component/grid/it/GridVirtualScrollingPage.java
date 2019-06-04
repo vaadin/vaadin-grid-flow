@@ -23,7 +23,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.NoTheme;
 
 /**
  * @author Vaadin Ltd.
