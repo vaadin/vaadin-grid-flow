@@ -25,7 +25,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("delegate-focus-inside-component-renderer")
-@NoTheme
 public class GridDelegateFocusToComponentPage extends Div {
 
     public GridDelegateFocusToComponentPage() {

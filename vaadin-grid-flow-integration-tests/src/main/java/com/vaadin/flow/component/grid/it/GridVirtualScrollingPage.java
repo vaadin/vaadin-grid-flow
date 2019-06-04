@@ -29,7 +29,6 @@ import com.vaadin.flow.theme.NoTheme;
  * @author Vaadin Ltd.
  */
 @Route("grid-virtual-scrolling")
-@NoTheme
 public class GridVirtualScrollingPage extends Div {
 
     private DataProvider<String, ?> dataProvider = DataProvider.fromCallbacks(

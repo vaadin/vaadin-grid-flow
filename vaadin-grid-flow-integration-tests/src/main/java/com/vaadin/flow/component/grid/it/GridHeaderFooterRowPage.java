@@ -36,7 +36,6 @@ import com.vaadin.flow.theme.NoTheme;
  * Test view that adds header and footer rows to Grid after rendering.
  */
 @Route("grid-header-footer-rows")
-@NoTheme
 public class GridHeaderFooterRowPage extends Div {
 
     int counter = 0;

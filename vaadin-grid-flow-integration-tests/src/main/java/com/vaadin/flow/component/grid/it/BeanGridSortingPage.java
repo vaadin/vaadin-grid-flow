@@ -22,7 +22,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("bean-grid-sorting")
-@NoTheme
 public class BeanGridSortingPage extends Div {
 
     public BeanGridSortingPage() {

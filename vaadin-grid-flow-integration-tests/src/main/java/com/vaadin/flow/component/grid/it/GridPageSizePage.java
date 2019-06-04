@@ -31,7 +31,6 @@ import com.vaadin.flow.theme.NoTheme;
  * Test view that uses Grid with different pageSize settings.
  */
 @Route("grid-page-size")
-@NoTheme
 public class GridPageSizePage extends Div {
 
     private DataProvider<String, ?> dataProvider = DataProvider.fromCallbacks(

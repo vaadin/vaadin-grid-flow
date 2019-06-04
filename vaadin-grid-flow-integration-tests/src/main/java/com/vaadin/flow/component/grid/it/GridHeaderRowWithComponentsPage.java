@@ -31,7 +31,6 @@ import com.vaadin.flow.theme.NoTheme;
  * Test view that adds header rows with components to a Grid.
  */
 @Route("grid-header-row-with-components")
-@NoTheme
 public class GridHeaderRowWithComponentsPage extends Div {
 
     public GridHeaderRowWithComponentsPage() {

@@ -24,7 +24,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("grid-on-flex-layout")
-@NoTheme
 public class GridOnFlexLayoutPage extends FlexLayout {
 
     public GridOnFlexLayoutPage() {

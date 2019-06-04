@@ -22,7 +22,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("vaadin-button-inside-grid")
-@NoTheme
 public class ButtonInGridPage extends Div {
 
     public ButtonInGridPage() {

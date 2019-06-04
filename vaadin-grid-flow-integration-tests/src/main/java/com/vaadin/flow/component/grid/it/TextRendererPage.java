@@ -25,7 +25,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("text-renderer")
-@NoTheme
 public class TextRendererPage extends Div {
 
     public TextRendererPage() {

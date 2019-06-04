@@ -35,7 +35,6 @@ import static com.vaadin.flow.component.treegrid.it.TreeGridHugeTreePage.addItem
 import static com.vaadin.flow.component.treegrid.it.TreeGridHugeTreePage.addRootItems;
 
 @Route("treegrid-page-size")
-@NoTheme
 public class TreeGridPageSizePage extends Div {
 
     private TextArea log;

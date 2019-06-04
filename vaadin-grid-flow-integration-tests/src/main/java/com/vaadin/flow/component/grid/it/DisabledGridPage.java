@@ -26,7 +26,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("disabled-grid")
-@NoTheme
 public class DisabledGridPage extends Div {
 
     private Div message;

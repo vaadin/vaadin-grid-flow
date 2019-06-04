@@ -31,7 +31,6 @@ import com.vaadin.flow.theme.NoTheme;
  * @author Vaadin Ltd.
  */
 @Route("toggle-visibility")
-@NoTheme
 public class ToggleVisibilityPage extends Div {
 
     public ToggleVisibilityPage() {

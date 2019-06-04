@@ -31,7 +31,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("treegrid-huge-tree")
-@NoTheme
 public class TreeGridHugeTreePage extends Div {
 
     private TreeGrid<String> treeGrid;

@@ -18,7 +18,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("grid-filtering")
-@NoTheme
 public class GridFilteringPage extends Div {
 
     private static final Set<String> DATA = getData();

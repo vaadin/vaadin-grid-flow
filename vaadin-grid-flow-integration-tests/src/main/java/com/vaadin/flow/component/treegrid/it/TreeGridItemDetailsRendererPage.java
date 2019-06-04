@@ -31,7 +31,6 @@ import static com.vaadin.flow.component.treegrid.it.TreeGridHugeTreePage.addItem
 import static com.vaadin.flow.component.treegrid.it.TreeGridHugeTreePage.addRootItems;
 
 @Route("treegrid-item-details-renderer")
-@NoTheme
 public class TreeGridItemDetailsRendererPage extends Div {
 
     public TreeGridItemDetailsRendererPage() {

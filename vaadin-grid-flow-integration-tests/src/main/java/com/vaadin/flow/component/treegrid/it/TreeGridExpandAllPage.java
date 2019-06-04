@@ -12,7 +12,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("treegrid-expand-all")
-@NoTheme
 public class TreeGridExpandAllPage extends Div {
 
     public TreeGridExpandAllPage() {

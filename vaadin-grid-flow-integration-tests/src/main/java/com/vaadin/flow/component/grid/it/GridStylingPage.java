@@ -26,7 +26,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("grid-styling")
-@NoTheme
 public class GridStylingPage extends Div {
 
     public GridStylingPage() {

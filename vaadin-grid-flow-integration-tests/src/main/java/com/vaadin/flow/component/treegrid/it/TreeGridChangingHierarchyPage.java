@@ -29,7 +29,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.NoTheme;
 
 @Route("treegrid-changing-hierarchy")
-@NoTheme
 public class TreeGridChangingHierarchyPage extends Div {
 
     private static class TestDataProvider extends TreeDataProvider<String> {

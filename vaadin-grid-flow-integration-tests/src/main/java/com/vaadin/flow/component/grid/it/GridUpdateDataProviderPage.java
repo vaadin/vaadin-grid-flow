@@ -31,7 +31,6 @@ import com.vaadin.flow.theme.NoTheme;
  * @author Vaadin Ltd.
  */
 @Route("grid-page")
-@NoTheme
 public class GridUpdateDataProviderPage extends Div {
 
     public static class Pojo {
