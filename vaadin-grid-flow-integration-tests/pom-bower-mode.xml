@@ -129,6 +129,7 @@
                 <artifactId>flow-maven-plugin</artifactId>
                 <configuration>
                     <bowerMode>true</bowerMode>
+                    <productionMode>false</productionMode>
                 </configuration>
             </plugin>
             <!-- start jetty before ITs -->
