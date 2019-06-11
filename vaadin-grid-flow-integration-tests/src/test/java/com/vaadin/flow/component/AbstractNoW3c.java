@@ -33,7 +33,7 @@ public class AbstractNoW3c extends AbstractComponentIT {
 
     @Override
     public void setup() throws Exception {
-        if (Browser.CHROME == this.getRunLocallyBrowser() && (
+        if (getDesiredCapabilities().getBrowserName().equals(Browser.CHROME.name()) &&(
                 getRunOnHub(getClass()) != null
                         || Parameters.getHubHostname() != null)) {
 
