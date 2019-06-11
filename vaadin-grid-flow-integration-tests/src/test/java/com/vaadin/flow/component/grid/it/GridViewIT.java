@@ -47,7 +47,6 @@ import com.vaadin.flow.demo.TabbedComponentDemoTest;
 import com.vaadin.testbench.Parameters;
 import com.vaadin.testbench.TestBench;
 import com.vaadin.testbench.TestBenchElement;
-import com.vaadin.testbench.parallel.Browser;
 
 /**
  * Integration tests for the {@link GridView}.
@@ -58,9 +57,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     @Override
     public void setup() throws Exception {
-        if (Browser.CHROME == this.getRunLocallyBrowser() && (
-                getRunOnHub(getClass()) != null
-                        || Parameters.getHubHostname() != null)) {
+        if (getRunOnHub(getClass()) != null
+                || Parameters.getHubHostname() != null) {
 
             ChromeOptions options = new ChromeOptions();
             options.addArguments(
