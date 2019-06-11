@@ -15,12 +15,17 @@
  */
 package com.vaadin.flow.component.grid.it;
 
+import java.net.URL;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.vaadin.flow.component.grid.testbench.GridColumnElement;
 import com.vaadin.flow.component.grid.testbench.GridElement;
@@ -28,10 +33,32 @@ import com.vaadin.flow.component.grid.testbench.GridTHTDElement;
 import com.vaadin.flow.component.grid.testbench.GridTRElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
+import com.vaadin.testbench.Parameters;
+import com.vaadin.testbench.TestBench;
 import com.vaadin.testbench.TestBenchElement;
 
 @TestPath("dynamic-editor-keyboard")
 public class DynamicEditorKBNavigationIT extends AbstractComponentIT {
+
+    @Override
+    public void setup() throws Exception {
+        if (getRunOnHub(getClass()) != null
+                || Parameters.getHubHostname() != null) {
+
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments(new String[]{"--headless", "--disable-gpu"});
+            options.setExperimentalOption("w3c", false);
+
+            options.merge(getDesiredCapabilities());
+            setDesiredCapabilities(getDesiredCapabilities());
+
+            WebDriver driver =  TestBench.createDriver(
+                    new RemoteWebDriver(new URL(getHubURL()), options));
+            setDriver(driver);
+        } else {
+            super.setup();
+        }
+    }
 
     @Test
     public void navigateBetweenEditorsUsingKeybaord() {
