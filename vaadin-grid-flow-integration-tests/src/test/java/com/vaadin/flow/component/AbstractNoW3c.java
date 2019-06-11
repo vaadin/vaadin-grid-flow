@@ -24,7 +24,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.testbench.Parameters;
 import com.vaadin.testbench.TestBench;
-import com.vaadin.testbench.parallel.Browser;
 
 /**
  * Temp class for disabling the w3c communication mode on remote chrome.
@@ -33,9 +32,8 @@ public class AbstractNoW3c extends AbstractComponentIT {
 
     @Override
     public void setup() throws Exception {
-        if (getDesiredCapabilities().getBrowserName().equals(Browser.CHROME.name()) &&(
-                getRunOnHub(getClass()) != null
-                        || Parameters.getHubHostname() != null)) {
+        if (getRunOnHub(getClass()) != null
+                        || Parameters.getHubHostname() != null) {
 
             ChromeOptions options = new ChromeOptions();
             options.addArguments(
