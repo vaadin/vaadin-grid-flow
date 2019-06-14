@@ -18,7 +18,6 @@ package com.vaadin.flow.component.grid.it;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.function.Consumer;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -33,6 +32,7 @@ import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.Command;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -51,7 +51,7 @@ public class AddingColumnsPage extends Div {
         add(grid);
 
         addButton("add-value-provider-column",
-                grid -> grid.addColumn(Person::getFirstName));
+                () -> grid.addColumn(Person::getFirstName));
 
         addButton("add-template-column",
                 TemplateRenderer.<Person> of("<div>[[item.age]]</div>")
@@ -71,15 +71,16 @@ public class AddingColumnsPage extends Div {
 
         addButton("add-button-column",
                 new NativeButtonRenderer<>("click", person -> {
+                    // NO-OP
                 }));
     }
 
     private void addButton(String id, Renderer<Person> renderer) {
-        addButton(id, grid -> grid.addColumn(renderer));
+        addButton(id, () -> grid.addColumn(renderer));
     }
 
-    private void addButton(String id, Consumer<Grid<Person>> action) {
-        NativeButton button = new NativeButton(id, e -> action.accept(grid));
+    private void addButton(String id, Command action) {
+        NativeButton button = new NativeButton(id, e -> action.execute());
         button.setId(id);
         add(button);
     }
