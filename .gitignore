@@ -13,3 +13,8 @@ target/
 #selenium
 error-screenshots
 reference-screenshots
+
+# npm
+node_modules/
+webpack.config.js
+package*.json

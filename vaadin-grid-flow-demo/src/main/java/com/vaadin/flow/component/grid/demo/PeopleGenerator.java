@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.grid.demo.GridDemo.Address;
 import com.vaadin.flow.component.grid.demo.GridDemo.Person;
-import com.vaadin.flow.component.grid.demo.GridDemo.PersonWithLevel;
+import com.vaadin.flow.component.treegrid.demo.TreeGridDemo.PersonWithLevel;
 
 /**
  * Helper class used for generating stable random data for demo purposes.
@@ -32,7 +32,7 @@ import com.vaadin.flow.component.grid.demo.GridDemo.PersonWithLevel;
  * @author Vaadin Ltd.
  *
  */
-class PeopleGenerator extends BeanGenerator {
+public class PeopleGenerator extends BeanGenerator {
 
     private static final AtomicInteger treeIds = new AtomicInteger(0);
 
@@ -77,7 +77,7 @@ class PeopleGenerator extends BeanGenerator {
             String street, int addressNumber, String postalCode) {
         T person = constructor.get();
         person.setId(id);
-        person.setfirstName(name);
+        person.setFirstName(name);
         person.setAge(age);
         person.setSubscriber(subscriber);
         person.setEmail(email);
