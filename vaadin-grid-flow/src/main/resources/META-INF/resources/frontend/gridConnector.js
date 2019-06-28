@@ -377,9 +377,9 @@ window.Vaadin.Flow.gridConnector = {
         let itemCache = (parentCache && parentCache.itemkeyCaches) ? parentCache.itemkeyCaches[parentUniqueKey] : undefined;
         if(cache[parentUniqueKey] && cache[parentUniqueKey][page] && itemCache) {
           // workaround: sometimes grid-element gives page index that overflows
-          page = Math.min(page, Math.floor(itemCache.size / grid.pageSize));
+          page = Math.min(page, Math.floor(cache[parentUniqueKey].size / grid.pageSize));
 
-          callback(cache[parentUniqueKey][page], itemCache.size);
+          callback(cache[parentUniqueKey][page], cache[parentUniqueKey].size);
         } else {
           treePageCallbacks[parentUniqueKey][page] = callback;
         }
@@ -808,6 +808,9 @@ window.Vaadin.Flow.gridConnector = {
       if(!treePageCallbacks[parentKey]) {
         return;
       }
+      if(cache[parentKey]) {
+        cache[parentKey].size = levelSize;
+      }
       let outstandingRequests = Object.getOwnPropertyNames(treePageCallbacks[parentKey]);
       for(let i = 0; i < outstandingRequests.length; i++) {
         let page = outstandingRequests[i];
@@ -926,29 +929,12 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    grid.$connector.columnToIdMap = new Map();
-    grid.$connector.setColumnId = function(column, id) {
-        grid.$connector.columnToIdMap.set(column, id);
-    }
-
-    grid.$connector.columnRemoved = function(columnId) {
-        const entries = Array.from(grid.$connector.columnToIdMap);
-        const entryToRemove = entries.filter(function(entry) {
-            return entry[1] === columnId;
-        })[0];
-        if (entryToRemove) {
-            grid.$connector.columnToIdMap.delete(entryToRemove[0]);
-        }
-    }
-
     grid.cellClassNameGenerator = function(column, rowData) {
         const style = rowData.item.style;
         if (!style) {
             return;
         }
-        const columnId = grid.$connector.columnToIdMap.get(column);
-
-        return (style.row || '') + ' ' + (style[columnId] || '');
+        return (style.row || '') + ' ' + (style[column._flowId] || '');
     }
 
     grid.dropFilter = rowData => !rowData.item.dropDisabled;
