@@ -121,7 +121,7 @@ import elemental.json.JsonValue;
  *
  */
 @Tag("vaadin-grid")
-@NpmPackage(value = "@vaadin/vaadin-grid", version = "5.4.3")
+@NpmPackage(value = "@vaadin/vaadin-grid", version = "5.4.5")
 @JsModule("@vaadin/vaadin-grid/src/vaadin-grid.js")
 @JsModule("@vaadin/vaadin-grid/src/vaadin-grid-column.js")
 @JsModule("@vaadin/vaadin-grid/src/vaadin-grid-sorter.js")
@@ -1585,8 +1585,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         C column = columnFactory.apply(renderer, columnId);
         idToColumnMap.put(columnId, column);
-        getElement().callJsFunction("$connector.setColumnId",
-                column.getElement(), columnId);
+        column.getElement().setProperty("_flowId", columnId);
 
         AbstractColumn<?> current = column;
         columnLayers.get(0).addColumn(column);
@@ -2682,8 +2681,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         column.destroyDataGenerators();
         keyToColumnMap.remove(column.getKey());
         idToColumnMap.remove(column.getInternalId());
-        getElement().callJsFunction("$connector.columnRemoved",
-                column.getInternalId());
     }
 
     /**
