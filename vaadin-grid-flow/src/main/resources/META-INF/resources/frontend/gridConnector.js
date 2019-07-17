@@ -159,8 +159,8 @@ window.Vaadin.Flow.gridConnector = {
         selectedKeys = {};
       }
 
+      grid.selectedItems = grid.selectedItems.concat(items);
       items.forEach(item => {
-        grid.selectItem(item);
         selectedKeys[item.key] = item;
         if (userOriginated) {
           item.selected = true;
@@ -175,14 +175,23 @@ window.Vaadin.Flow.gridConnector = {
         return;
       }
 
-      items.forEach(item => {
-        grid.deselectItem(item);
-        delete selectedKeys[item.key];
-        if (userOriginated) {
-          delete item.selected;
-          grid.$server.deselect(item.key);
+      const updatedSelectedItems = grid.selectedItems.slice();
+      while (items.length) {
+        const itemToDeselect = items.shift();
+        for (let i = 0; i < updatedSelectedItems.length; i++) {
+          const selectedItem = updatedSelectedItems[i];
+          if (itemToDeselect.key === selectedItem.key) {
+            updatedSelectedItems.splice(i, 1);
+            break;
+          }
         }
-      });
+        delete selectedKeys[itemToDeselect.key];
+        if (userOriginated) {
+          delete itemToDeselect.selected;
+          grid.$server.deselect(itemToDeselect.key);
+        }
+      }
+      grid.selectedItems = updatedSelectedItems;
     };
 
     grid.__activeItemChanged = function(newVal, oldVal) {
