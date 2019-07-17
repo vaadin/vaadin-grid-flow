@@ -165,8 +165,6 @@ window.Vaadin.Flow.gridConnector = {
       if (userOriginated) {
           item.selected = true;
           grid.$server.select(item.key);
-      } else {
-          grid.fire('select', {item: item, userOriginated: userOriginated});
       }
 
       if (selectionMode === 'MULTI' && arguments.length > 2) {
@@ -187,8 +185,6 @@ window.Vaadin.Flow.gridConnector = {
         if (userOriginated) {
           delete item.selected;
           grid.$server.deselect(item.key);
-        } else {
-          grid.fire('deselect', {item: item, userOriginated: userOriginated});
         }
       }
 
