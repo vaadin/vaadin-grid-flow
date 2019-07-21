@@ -922,7 +922,7 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.cellClassNameGenerator = function(column, rowData) {
         const style = rowData.item.style;
-        if (!style) {
+        if (!style ||!column) {
             return;
         }
         return (style.row || '') + ' ' + (style[column._flowId] || '');
