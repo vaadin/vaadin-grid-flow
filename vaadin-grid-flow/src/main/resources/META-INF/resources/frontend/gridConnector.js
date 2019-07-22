@@ -922,10 +922,10 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.cellClassNameGenerator = function(column, rowData) {
         const style = rowData.item.style;
-        if (!style ||!column) {
+        if (!style) {
             return;
         }
-        return (style.row || '') + ' ' + (style[column._flowId] || '');
+        return (style.row || '') + ' ' + ((column && style[column._flowId]) || '');
     }
 
     grid.dropFilter = rowData => !rowData.item.dropDisabled;
