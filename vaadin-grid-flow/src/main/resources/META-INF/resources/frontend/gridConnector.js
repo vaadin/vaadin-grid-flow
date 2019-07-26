@@ -1,10 +1,26 @@
+// Error handling functions
+const tryCatchWrapper = function(originalFunction) {
+  return function() {
+      try {
+          originalFunction.apply(this, arguments);
+      } catch (error) {
+          logError(error.message);
+      }
+  }
+}
+
+function logError(message) {
+  console.error("There seems to be an error in the Grid:\n" + message + "\n" +
+     "Please submit an issue to https://github.com/vaadin/vaadin-grid-flow/issues/new!");
+}
+
 // Not using ES6 imports in this file yet because the connector in V14 must
 // still work in Legacy bower projects. See: `contextMenuConnector-es6.js` for
 // the Polymer3 approach.
 window.Vaadin.Flow.Legacy = window.Vaadin.Flow.Legacy || {};
 
 window.Vaadin.Flow.gridConnector = {
-  initLazy: function(grid) {
+  initLazy: tryCatchWrapper(function(grid) {
     // Check whether the connector was already initialized for the grid
     if (grid.$connector){
       return;
@@ -29,7 +45,7 @@ window.Vaadin.Flow.gridConnector = {
     const GridElement = window.Vaadin.Flow.Legacy.GridElement;
     const ItemCache = window.Vaadin.Flow.Legacy.ItemCache;
 
-    ItemCache.prototype.ensureSubCacheForScaledIndex = function(scaledIndex) {
+    ItemCache.prototype.ensureSubCacheForScaledIndex = tryCatchWrapper(function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
 
         if(ensureSubCacheDelay) {
@@ -38,9 +54,9 @@ window.Vaadin.Flow.gridConnector = {
           this.doEnsureSubCacheForScaledIndex(scaledIndex);
         }
       }
-    }
+    })
 
-    ItemCache.prototype.doEnsureSubCacheForScaledIndex = function(scaledIndex) {
+    ItemCache.prototype.doEnsureSubCacheForScaledIndex = tryCatchWrapper(function(scaledIndex) {
       if (!this.itemCaches[scaledIndex]) {
         const subCache = new ItemCache.prototype.constructor(this.grid, this, this.items[scaledIndex]);
         subCache.itemkeyCaches = {};
@@ -51,9 +67,9 @@ window.Vaadin.Flow.gridConnector = {
         this.itemkeyCaches[this.grid.getItemId(subCache.parentItem)] = subCache;
         this.grid._loadPage(0, subCache);
       }
-    }
+    })
 
-    ItemCache.prototype.getCacheAndIndexByKey = function(key) {
+    ItemCache.prototype.getCacheAndIndexByKey = tryCatchWrapper(function(key) {
       for (let index in this.items) {
         if(grid.getItemId(this.items[index]) === key) {
           return {cache: this, scaledIndex: index};
@@ -69,9 +85,9 @@ window.Vaadin.Flow.gridConnector = {
         }
       }
       return undefined;
-    }
+    })
 
-    ItemCache.prototype.getLevel = function() {
+    ItemCache.prototype.getLevel = tryCatchWrapper(function() {
       let cache = this;
       let level = 0;
       while (cache.parentCache) {
@@ -79,7 +95,7 @@ window.Vaadin.Flow.gridConnector = {
         level++;
       }
       return level;
-    }
+    })
 
     const rootPageCallbacks = {};
     const treePageCallbacks = {};
@@ -120,15 +136,15 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.$connector = {};
 
-    grid.$connector.hasEnsureSubCacheQueue = function() {
+    grid.$connector.hasEnsureSubCacheQueue = tryCatchWrapper(function() {
         return ensureSubCacheQueue.length > 0;
-    }
+    })
 
-    grid.$connector.hasParentRequestQueue = function() {
+    grid.$connector.hasParentRequestQueue = tryCatchWrapper(function() {
         return parentRequestQueue.length > 0;
-    }
+    })
 
-    grid.$connector.beforeEnsureSubCacheForScaledIndex = function(targetCache, scaledIndex) {
+    grid.$connector.beforeEnsureSubCacheForScaledIndex = tryCatchWrapper(function(targetCache, scaledIndex) {
       // add call to queue
       ensureSubCacheQueue.push({
         cache: targetCache,
@@ -147,9 +163,9 @@ window.Vaadin.Flow.gridConnector = {
             () => grid.$connector.flushEnsureSubCache(),
             (action) => Debouncer.debounce(ensureSubCacheDebouncer, animationFrame, action));
       }
-    }
+    })
 
-    grid.$connector.doSelection = function(items, userOriginated) {
+    grid.$connector.doSelection = tryCatchWrapper(function(items, userOriginated) {
       if (selectionMode === 'NONE' || !items.length ||
           (userOriginated && grid.hasAttribute('disabled'))) {
         return;
@@ -174,9 +190,9 @@ window.Vaadin.Flow.gridConnector = {
           grid.$connector.activeItem = item;
         }
       });
-    };
+    });
 
-    grid.$connector.doDeselection = function(items, userOriginated) {
+    grid.$connector.doDeselection = tryCatchWrapper(function(items, userOriginated) {
       if (selectionMode === 'NONE' || !items.length ||
           (userOriginated && grid.hasAttribute('disabled'))) {
         return;
@@ -201,9 +217,9 @@ window.Vaadin.Flow.gridConnector = {
         }
       }
       grid.selectedItems = updatedSelectedItems;
-    };
+    });
 
-    grid.__activeItemChanged = function(newVal, oldVal) {
+    grid.__activeItemChanged = tryCatchWrapper(function(newVal, oldVal) {
       if (selectionMode != 'SINGLE') {
         return;
       }
@@ -216,10 +232,10 @@ window.Vaadin.Flow.gridConnector = {
       } else if (!selectedKeys[newVal.key]) {
         grid.$connector.doSelection([newVal], true);
       }
-    };
+    });
     grid._createPropertyObserver('activeItem', '__activeItemChanged', true);
 
-    grid.__activeItemChangedDetails = function(newVal, oldVal) {
+    grid.__activeItemChangedDetails = tryCatchWrapper(function(newVal, oldVal) {
       if(!detailsVisibleOnClick) {
         return;
       }
@@ -233,14 +249,14 @@ window.Vaadin.Flow.gridConnector = {
       } else {
         grid.$server.setDetailsVisible(null);
       }
-    }
+    })
     grid._createPropertyObserver('activeItem', '__activeItemChangedDetails', true);
 
-    grid.$connector.setDetailsVisibleOnClick = function(visibleOnClick) {
+    grid.$connector.setDetailsVisibleOnClick = tryCatchWrapper(function(visibleOnClick) {
       detailsVisibleOnClick = visibleOnClick;
-    };
+    });
 
-    grid.$connector._getPageIfSameLevel = function(parentKey, index, defaultPage) {
+    grid.$connector._getPageIfSameLevel = tryCatchWrapper(function(parentKey, index, defaultPage) {
       let cacheAndIndex = grid._cache.getCacheAndIndex(index);
       let parentItem = cacheAndIndex.cache.parentItem;
       let parentKeyOfIndex = (parentItem) ? grid.getItemId(parentItem) : root;
@@ -249,17 +265,17 @@ window.Vaadin.Flow.gridConnector = {
       } else {
         return grid._getPageForIndex(cacheAndIndex.scaledIndex);
       }
-    }
+    })
 
-    grid.$connector.getCacheByKey = function(key) {
+    grid.$connector.getCacheByKey = tryCatchWrapper(function(key) {
       let cacheAndIndex = grid._cache.getCacheAndIndexByKey(key);
       if(cacheAndIndex) {
         return cacheAndIndex.cache;
       }
       return undefined;
-    }
+    })
 
-    grid.$connector.flushQueue = function(timeoutIdSetter, hasQueue, flush, startTimeout) {
+    grid.$connector.flushQueue = tryCatchWrapper(function(timeoutIdSetter, hasQueue, flush, startTimeout) {
       if(!hasQueue()) {
         timeoutIdSetter(undefined);
         return;
@@ -270,9 +286,9 @@ window.Vaadin.Flow.gridConnector = {
       } else {
         grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout);
       }
-    }
+    })
 
-    grid.$connector.flushEnsureSubCache = function() {
+    grid.$connector.flushEnsureSubCache = tryCatchWrapper(function() {
       let fetched = false;
       let pendingFetch = ensureSubCacheQueue.splice(0, 1)[0];
       let itemkey =  pendingFetch.itemkey;
@@ -297,9 +313,9 @@ window.Vaadin.Flow.gridConnector = {
         }
       }
       return false;
-    }
+    })
 
-    grid.$connector.flushParentRequests = function() {
+    grid.$connector.flushParentRequests = tryCatchWrapper(function() {
       let pendingFetches = parentRequestQueue.splice(0, parentRequestBatchMaxSize);
 
       if(pendingFetches.length) {
@@ -307,9 +323,9 @@ window.Vaadin.Flow.gridConnector = {
           return true;
       }
       return false;
-    }
+    })
 
-    grid.$connector.beforeParentRequest = function(firstIndex, size, parentKey) {
+    grid.$connector.beforeParentRequest = tryCatchWrapper(function(firstIndex, size, parentKey) {
       if(parentRequestDelay > 0) {
         // add request in queue
         parentRequestQueue.push({
@@ -330,9 +346,9 @@ window.Vaadin.Flow.gridConnector = {
       } else {
         grid.$server.setParentRequestedRange(firstIndex, size, parentKey);
       }
-    }
+    })
 
-    grid.$connector.fetchPage = function(fetch, page, parentKey) {
+    grid.$connector.fetchPage = tryCatchWrapper(function(fetch, page, parentKey) {
       // Determine what to fetch based on scroll position and not only
       // what grid asked for
 
@@ -365,9 +381,9 @@ window.Vaadin.Flow.gridConnector = {
         let count = lastPage - firstPage + 1;
         fetch(firstPage * grid.pageSize, count * grid.pageSize);
       }
-    }
+    })
 
-    grid.dataProvider = function(params, callback) {
+    grid.dataProvider = tryCatchWrapper(function(params, callback) {
       if (params.pageSize != grid.pageSize) {
         throw 'Invalid pageSize';
       }
@@ -406,9 +422,9 @@ window.Vaadin.Flow.gridConnector = {
 
         grid.$connector.fetchPage((firstIndex, size) => grid.$server.setRequestedRange(firstIndex, size), page, root);
       }
-    }
+    })
 
-    const sorterChangeListener = function(_, oldValue) {
+    const sorterChangeListener = tryCatchWrapper(function(_, oldValue) {
       if (oldValue !== undefined && !sorterDirectionsSetFromServer) {
         grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
           return {
@@ -417,9 +433,9 @@ window.Vaadin.Flow.gridConnector = {
           };
         }));
       }
-    }
+    })
 
-    grid.$connector.setSorterDirections = function(directions) {
+    grid.$connector.setSorterDirections = tryCatchWrapper(function(directions) {
       sorterDirectionsSetFromServer = true;
       setTimeout(() => {
         try {
@@ -437,10 +453,10 @@ window.Vaadin.Flow.gridConnector = {
           sorterDirectionsSetFromServer = false;
         }
       });
-    }
+    })
     grid._createPropertyObserver("_previousSorters", sorterChangeListener);
 
-    grid._updateItem = function(row, item) {
+    grid._updateItem = tryCatchWrapper(function(row, item) {
       GridElement.prototype._updateItem.call(grid, row, item);
 
       // There might be inactive component renderers on hidden rows that still refer to the
@@ -460,7 +476,7 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    grid._expandedInstanceChangedCallback = function(inst, value) {
+    grid._expandedInstanceChangedCallback = tryCatchWrapper(function(inst, value) {
       // method available only for the TreeGrid server-side component
       if (inst.item == undefined || grid.$server.updateExpandedState == undefined) {
         return;
@@ -483,9 +499,9 @@ window.Vaadin.Flow.gridConnector = {
         delete lastRequestedRanges[parentKey];
         this.collapseItem(inst.item);
       }
-    }
+    })
 
-    const itemsUpdated = function(items) {
+    const itemsUpdated = tryCatchWrapper(function(items) {
       if (!items || !Array.isArray(items)) {
         throw 'Attempted to call itemsUpdated with an invalid value: ' + JSON.stringify(items);
       }
@@ -516,7 +532,7 @@ window.Vaadin.Flow.gridConnector = {
           return selectedKeys[e]
         });
       }
-    }
+    })
 
     /**
      * Updates the cache for the given page for grid or tree-grid.
@@ -525,7 +541,7 @@ window.Vaadin.Flow.gridConnector = {
      * @param parentKey the key of the parent item for the page
      * @returns an array of the updated items for the page, or undefined if no items were cached for the page
      */
-    const updateGridCache = function(page, parentKey) {
+    const updateGridCache = tryCatchWrapper(function(page, parentKey) {
       let items;
       if((parentKey || root) !== root) {
         items = cache[parentKey][page];
@@ -542,9 +558,9 @@ window.Vaadin.Flow.gridConnector = {
         _updateGridCache(page, items, rootPageCallbacks[page], grid._cache);
       }
       return items;
-    };
+    });
 
-    const _updateGridCache = function(page, items, callback, levelcache) {
+    const _updateGridCache = tryCatchWrapper(function(page, items, callback, levelcache) {
       // Force update unless there's a callback waiting
       if (!callback) {
         let rangeStart = page * grid.pageSize;
@@ -565,23 +581,23 @@ window.Vaadin.Flow.gridConnector = {
           }
         }
       }
-    };
+    });
 
     /**
      * Updates all visible grid rows in DOM.
      */
-    const updateAllGridRowsInDomBasedOnCache = function () {
+    const updateAllGridRowsInDomBasedOnCache = tryCatchWrapper(function () {
       grid._cache.updateSize();
       grid._effectiveSize = grid._cache.effectiveSize;
       grid._assignModels();
-    }
+    })
 
     /**
      * Update the given items in DOM if currently visible.
      *
      * @param array items the items to update in DOM
      */
-    const updateGridItemsInDomBasedOnCache = function(items) {
+    const updateGridItemsInDomBasedOnCache = tryCatchWrapper(function(items) {
       if (!items || !grid._physicalItems) {
         return;
       }
@@ -598,9 +614,9 @@ window.Vaadin.Flow.gridConnector = {
       if (indexes.length > 0) {
         grid._assignModels(indexes);
       }
-    };
+    });
 
-    grid.$connector.set = function(index, items, parentKey) {
+    grid.$connector.set = tryCatchWrapper(function(index, items, parentKey) {
       if (index % grid.pageSize != 0) {
         throw 'Got new data to index ' + index + ' which is not aligned with the page size of ' + grid.pageSize;
       }
@@ -628,9 +644,9 @@ window.Vaadin.Flow.gridConnector = {
           updateGridItemsInDomBasedOnCache(updatedItems);
         }
       }
-    };
+    });
 
-    const itemToCacheLocation = function(item) {
+    const itemToCacheLocation = tryCatchWrapper(function(item) {
       let parent = item.parentUniqueKey || root;
       if(cache[parent]) {
         for (let page in cache[parent]) {
@@ -642,14 +658,14 @@ window.Vaadin.Flow.gridConnector = {
         }
       }
       return null;
-    }
+    })
 
     /**
      * Updates the given items for a hierarchical grid.
      *
      * @param updatedItems the updated items array
      */
-    grid.$connector.updateHierarchicalData = function(updatedItems) {
+    grid.$connector.updateHierarchicalData = tryCatchWrapper(function(updatedItems) {
       let pagesToUpdate = [];
       // locate and update the items in cache
       // find pages that need updating
@@ -673,14 +689,14 @@ window.Vaadin.Flow.gridConnector = {
           updateGridItemsInDomBasedOnCache(affectedUpdatedItems);
         }
       }
-    };
+    });
 
     /**
      * Updates the given items for a non-hierarchical grid.
      *
      * @param updatedItems the updated items array
      */
-    grid.$connector.updateFlatData = function(updatedItems) {
+    grid.$connector.updateFlatData = tryCatchWrapper(function(updatedItems) {
       // update (flat) caches
       for (let i = 0; i < updatedItems.length; i++) {
         let cacheLocation = itemToCacheLocation(updatedItems[i]);
@@ -698,15 +714,15 @@ window.Vaadin.Flow.gridConnector = {
       itemsUpdated(updatedItems);
 
       updateGridItemsInDomBasedOnCache(updatedItems);
-    };
+    });
 
-    grid.$connector.clearExpanded = function() {
+    grid.$connector.clearExpanded = tryCatchWrapper(function() {
       grid.expandedItems = [];
       ensureSubCacheQueue = [];
       parentRequestQueue = [];
-    }
+    })
 
-    grid.$connector.clear = function(index, length, parentKey) {
+    grid.$connector.clear = tryCatchWrapper(function(index, length, parentKey) {
       let pkey = parentKey || root;
       if (!cache[pkey] || Object.keys(cache[pkey]).length === 0){
         return;
@@ -729,9 +745,9 @@ window.Vaadin.Flow.gridConnector = {
         }
         updateGridItemsInDomBasedOnCache(items);
       }
-    };
+    });
 
-    const isSelectedOnGrid = function(item) {
+    const isSelectedOnGrid = tryCatchWrapper(function(item) {
       const selectedItems = grid.selectedItems;
       for(let i = 0; i < selectedItems; i++) {
         let selectedItem = selectedItems[i];
@@ -740,9 +756,9 @@ window.Vaadin.Flow.gridConnector = {
         }
       }
       return false;
-    }
+    })
 
-    grid.$connector.reset = function() {
+    grid.$connector.reset = tryCatchWrapper(function() {
       grid.size = 0;
       deleteObjectContents(cache);
       deleteObjectContents(grid._cache.items);
@@ -758,14 +774,14 @@ window.Vaadin.Flow.gridConnector = {
       ensureSubCacheQueue = [];
       parentRequestQueue = [];
       updateAllGridRowsInDomBasedOnCache();
-    };
+    });
 
-    const deleteObjectContents = function(obj) {
+    const deleteObjectContents = tryCatchWrapper(function(obj) {
       let props = Object.keys(obj);
       for (let i = 0; i < props.length; i++) {
         delete obj[props[i]];
       }
-    }
+    })
 
     grid.$connector.updateSize = function(newSize) {
       grid.size = newSize;
@@ -775,15 +791,15 @@ window.Vaadin.Flow.gridConnector = {
       grid.itemIdPath = path;
     }
 
-    grid.$connector.expandItems = function(items) {
+    grid.$connector.expandItems = tryCatchWrapper(function(items) {
       let newExpandedItems = Array.from(grid.expandedItems);
       items.filter(item => !grid._isExpanded(item))
         .forEach(item =>
           newExpandedItems.push(item));
       grid.expandedItems = newExpandedItems;
-    }
+    })
 
-    grid.$connector.collapseItems = function(items) {
+    grid.$connector.collapseItems = tryCatchWrapper(function(items) {
       let newExpandedItems = Array.from(grid.expandedItems);
       items.forEach(item => {
         let index = grid._getItemIndexInArray(item, newExpandedItems);
@@ -793,16 +809,16 @@ window.Vaadin.Flow.gridConnector = {
       });
       grid.expandedItems = newExpandedItems;
       items.forEach(item => grid.$connector.removeFromQueue(item));
-    }
+    })
 
-    grid.$connector.removeFromQueue = function(item) {
+    grid.$connector.removeFromQueue = tryCatchWrapper(function(item) {
       let itemId = grid.getItemId(item);
       delete treePageCallbacks[itemId];
       grid.$connector.removeFromArray(ensureSubCacheQueue, item => item.itemkey === itemId);
       grid.$connector.removeFromArray(parentRequestQueue, item => item.parentKey === itemId);
-    }
+    })
 
-    grid.$connector.removeFromArray = function(array, removeTest) {
+    grid.$connector.removeFromArray = tryCatchWrapper(function(array, removeTest) {
       if(array.length) {
         for(let index = array.length - 1; index--; ) {
            if (removeTest(array[index])) {
@@ -810,9 +826,9 @@ window.Vaadin.Flow.gridConnector = {
            }
         }
       }
-    }
+    })
 
-    grid.$connector.confirmParent = function(id, parentKey, levelSize) {
+    grid.$connector.confirmParent = tryCatchWrapper(function(id, parentKey, levelSize) {
       if(!treePageCallbacks[parentKey]) {
         return;
       }
@@ -833,9 +849,9 @@ window.Vaadin.Flow.gridConnector = {
       }
       // Let server know we're done
       grid.$server.confirmParentUpdate(id, parentKey);
-    };
+    });
 
-    grid.$connector.confirm = function(id) {
+    grid.$connector.confirm = tryCatchWrapper(function(id) {
       // We're done applying changes from this batch, resolve outstanding
       // callbacks
       let outstandingRequests = Object.getOwnPropertyNames(rootPageCallbacks);
@@ -858,9 +874,9 @@ window.Vaadin.Flow.gridConnector = {
 
       // Let server know we're done
       grid.$server.confirmUpdate(id);
-    }
+    })
 
-    grid.$connector.ensureHierarchy = function() {
+    grid.$connector.ensureHierarchy = tryCatchWrapper(function() {
       for (let parentKey in cache) {
         if(parentKey !== root) {
           delete cache[parentKey];
@@ -872,9 +888,9 @@ window.Vaadin.Flow.gridConnector = {
       grid._cache.itemkeyCaches = {};
 
       updateAllGridRowsInDomBasedOnCache();
-    }
+    })
 
-    grid.$connector.setSelectionMode = function(mode) {
+    grid.$connector.setSelectionMode = tryCatchWrapper(function(mode) {
       if ((typeof mode === 'string' || mode instanceof String)
       && validSelectionModes.indexOf(mode) >= 0) {
         selectionMode = mode;
@@ -882,12 +898,12 @@ window.Vaadin.Flow.gridConnector = {
       } else {
         throw 'Attempted to set an invalid selection mode';
       }
-    }
+    })
 
     grid.$connector.deselectAllowed = true;
 
     // TODO: should be removed once https://github.com/vaadin/vaadin-grid/issues/1471 gets implemented
-    grid.$connector.setVerticalScrollingEnabled = function(enabled) {
+    grid.$connector.setVerticalScrollingEnabled = tryCatchWrapper(function(enabled) {
       // There are two scollable containers in grid so apply the changes for both
       setVerticalScrollingEnabled(grid.$.table, enabled);
       setVerticalScrollingEnabled(grid.$.outerscroller, enabled);
@@ -895,9 +911,9 @@ window.Vaadin.Flow.gridConnector = {
       // Since the scrollbars were toggled, there might have been some changes to layout
       // size. Notify grid of the resize to ensure everything is in place.
       grid.notifyResize();
-    }
+    })
 
-    const setVerticalScrollingEnabled = function(scrollable, enabled) {
+    const setVerticalScrollingEnabled = tryCatchWrapper(function(scrollable, enabled) {
       // Prevent Y axis scrolling with CSS. This will hide the vertical scrollbar.
       scrollable.style.overflowY = enabled ? '' : 'hidden';
       // Clean up an existing listener
@@ -914,32 +930,32 @@ window.Vaadin.Flow.gridConnector = {
           e.stopImmediatePropagation();
         }
       });
-    }
+    })
 
-    const contextMenuListener = function(e) {
+    const contextMenuListener = tryCatchWrapper(function(e) {
       const eventContext = grid.getEventContext(e);
       const key = eventContext.item && eventContext.item.key;
       const colId = eventContext.column && eventContext.column.id;
       grid.$server.updateContextMenuTargetItem(key, colId);
-    }
+    })
 
-    grid.addEventListener('vaadin-context-menu-before-open', function(e) {
+    grid.addEventListener('vaadin-context-menu-before-open', tryCatchWrapper(function(e) {
       contextMenuListener(grid.$contextMenuConnector.openEvent);
-    });
+    }));
 
-    grid.getContextMenuBeforeOpenDetail = function(event) {
+    grid.getContextMenuBeforeOpenDetail = tryCatchWrapper(function(event) {
       const eventContext = grid.getEventContext(event);
       return {
         key: (eventContext.item && eventContext.item.key) || ""
       };
-    };
+    });
 
-    grid.addEventListener('cell-activate', e => {
+    grid.addEventListener('cell-activate', tryCatchWrapper(e => {
       grid.$connector.activeItem = e.detail.model.item;
       setTimeout(() => grid.$connector.activeItem = undefined);
-    });
-    grid.addEventListener('click', e => _fireClickEvent(e, 'item-click'));
-    grid.addEventListener('dblclick', e => _fireClickEvent(e, 'item-double-click'));
+    }));
+    grid.addEventListener('click', tryCatchWrapper(e => _fireClickEvent(e, 'item-click')));
+    grid.addEventListener('dblclick', tryCatchWrapper(e => _fireClickEvent(e, 'item-double-click')));
 
     grid.addEventListener('column-resize', e => {
       const cols = grid._getColumnsInOrder().filter(col => !col.hidden);
@@ -977,19 +993,19 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
-    grid.cellClassNameGenerator = function(column, rowData) {
+    grid.cellClassNameGenerator = tryCatchWrapper(function(column, rowData) {
         const style = rowData.item.style;
         if (!style) {
             return;
         }
         return (style.row || '') + ' ' + ((column && style[column._flowId]) || '');
-    }
+    })
 
-    grid.dropFilter = rowData => !rowData.item.dropDisabled;
+    grid.dropFilter = tryCatchWrapper(rowData => !rowData.item.dropDisabled);
 
-    grid.dragFilter = rowData => !rowData.item.dragDisabled;
+    grid.dragFilter = tryCatchWrapper(rowData => !rowData.item.dragDisabled);
 
-    grid.addEventListener('grid-dragstart', e => {
+    grid.addEventListener('grid-dragstart', tryCatchWrapper(e => {
 
         if (grid._isSelected(e.detail.draggedItems[0])) {
             // Dragging selected (possibly multiple) items
@@ -1012,6 +1028,6 @@ window.Vaadin.Flow.gridConnector = {
                 e.detail.setDragData(type, e.detail.draggedItems[0].dragData[type]);
             });
         }
-    });
-  }
+    }));
+  })
 }
