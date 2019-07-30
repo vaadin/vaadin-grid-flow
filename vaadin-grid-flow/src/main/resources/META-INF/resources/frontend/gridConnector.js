@@ -2,7 +2,8 @@
 const tryCatchWrapper = function(originalFunction) {
   return function() {
       try {
-          originalFunction.apply(this, arguments);
+          const result = originalFunction.apply(this, arguments);
+          return result;
       } catch (error) {
           logError(error.message);
       }
