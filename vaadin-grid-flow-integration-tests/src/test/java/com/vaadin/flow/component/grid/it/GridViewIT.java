@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.vaadin.testbench.annotations.RunOnHub;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -57,7 +58,8 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
     @Override
     public void setup() throws Exception {
-        if (getRunOnHub(getClass()) != null
+        RunOnHub runOnHub = getRunOnHub(getClass());
+        if ((runOnHub != null && !"localhost".equals(runOnHub.value()))
                 || Parameters.getHubHostname() != null) {
 
             ChromeOptions options = new ChromeOptions();
