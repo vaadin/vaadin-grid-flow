@@ -18,8 +18,6 @@ package com.vaadin.flow.component.treegrid.it;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -42,9 +40,6 @@ public class TreeGridComponentRendererPage extends Div {
         TreeGrid<String> grid = new TreeGrid<>();
         grid.setWidth("100%");
         grid.getStyle().set("flex", "1");
-
-        add(grid);
-
         grid.addHierarchyColumn(String::toString).setHeader("Header A")
                 .setId("string");
 
@@ -54,11 +49,6 @@ public class TreeGridComponentRendererPage extends Div {
                     component.setValue(item);
                 });
         grid.addColumn(componentRenderer).setHeader("Header B");
-
-        ComponentRenderer<Button,String> componentRendererBtn = new ComponentRenderer<>(
-                () -> new Button("btn"), ((button, s) -> {button.setText(s);button.setThemeName(ButtonVariant.LUMO_ERROR.getVariantName());}));
-        grid.addColumn(componentRendererBtn).setHeader("Header C");
-
 
         TreeData<String> data = new TreeData<>();
         final Map<String, String> parentPathMap = new HashMap<>();
@@ -70,6 +60,7 @@ public class TreeGridComponentRendererPage extends Div {
 
         grid.setDataProvider(new TreeDataProvider<String>(data));
 
+        add(grid);
     }
 
 }
