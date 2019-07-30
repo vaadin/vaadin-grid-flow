@@ -17,6 +17,7 @@ package com.vaadin.flow.component;
 
 import java.net.URL;
 
+import com.vaadin.testbench.annotations.RunOnHub;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -32,7 +33,8 @@ public class AbstractNoW3c extends AbstractComponentIT {
 
     @Override
     public void setup() throws Exception {
-        if (getRunOnHub(getClass()) != null
+        RunOnHub runOnHub = getRunOnHub(getClass());
+        if ((runOnHub != null && !"localhost".equals(runOnHub.value()))
                         || Parameters.getHubHostname() != null) {
 
             ChromeOptions options = new ChromeOptions();
