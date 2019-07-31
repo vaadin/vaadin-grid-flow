@@ -1477,6 +1477,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return addColumn(new ComponentRenderer<>(componentProvider));
     }
 
+
+    public <V extends Component> Column<T> addComponentColumnWithGridEnabledStateSynchronized(ValueProvider<T, V> componentProvider) {
+        return addColumn(new GridComponentRenderer<>(componentProvider, this));
+    }
+
     /**
      * Adds a new text column to this {@link Grid} with a value provider and
      * sorting properties.The value is converted to a JSON value by using

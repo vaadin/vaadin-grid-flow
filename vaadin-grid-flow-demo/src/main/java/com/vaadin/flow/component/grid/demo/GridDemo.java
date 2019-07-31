@@ -623,6 +623,7 @@ public class GridDemo extends DemoView {
         createGridUsingComponent();// Using components
         createGridUsingComponentFilters();
         createGridWithItemDetails();
+        createGridUsingComponentColumn();
         createItemDetailsOpenedProgrammatically();
         createContextMenu();// Context Menu
         createContextSubMenu();// Context Sub Menu
@@ -1595,6 +1596,30 @@ public class GridDemo extends DemoView {
         grid.setId("item-details");
         header.setId("item-details-header");
         addCard("Item details", "Grid with item details", header, grid);
+    }
+
+    private void createGridUsingComponentColumn() {
+        // begin-source-example
+        // source-example-heading: Using Components
+        List<Person> personList = getItems();
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(personList);
+
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
+
+        grid.addComponentColumnWithGridEnabledStateSynchronized(
+                item -> new Checkbox("Is a subscriber!")).setHeader("Actions");
+
+        grid.setSelectionMode(Grid.SelectionMode.NONE);
+        grid.setEnabled(false);
+
+        Button toggleGridEnabledButton = new Button(
+                "Toggle grid enabled/disabled");
+        toggleGridEnabledButton
+                .addClickListener(event -> grid.setEnabled(!grid.isEnabled()));
+
+        addCard("Using Component column", "Using Component column", grid,
+                toggleGridEnabledButton);
     }
 
     private void createItemDetailsOpenedProgrammatically() {
