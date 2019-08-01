@@ -1015,7 +1015,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         @Override
         public void destroyData(T item) {
-            detailsVisible.remove(item);
+          //  detailsVisible.remove(item);
             if (itemDetailsDataGenerator != null) {
                 itemDetailsDataGenerator.destroyData(item);
             }
@@ -1023,7 +1023,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         @Override
         public void destroyAllData() {
-            detailsVisible.clear();
+         //   detailsVisible.clear();
             if (itemDetailsDataGenerator != null) {
                 itemDetailsDataGenerator.destroyAllData();
             }

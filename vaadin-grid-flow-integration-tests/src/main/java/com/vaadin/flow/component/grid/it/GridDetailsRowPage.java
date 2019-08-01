@@ -43,15 +43,15 @@ public class GridDetailsRowPage extends Div {
 
         Grid.Column<Person> nameColumn = grid.addColumn(bean -> bean.getFirstName()).setHeader("name");
         grid.setItemDetailsRenderer(new ComponentRenderer<>(item -> new Button(item.getFirstName())));
-        grid.setDetailsVisibleOnClick(false);
+        // grid.setDetailsVisibleOnClick(false);
+
         add(grid,
                 new Button("click to open details", e -> {
                     setFirstAndSecondItemsVisible(); // same method call as above
                 })
         );
-        grid.getElement().getNode()
-                .runWhenAttached(ui -> ui.getInternals().getStateTree()
-                        .beforeClientResponse(grid.getElement().getNode(), e -> setFirstAndSecondItemsVisible()));
+
+        setFirstAndSecondItemsVisible();
     }
 
 }
