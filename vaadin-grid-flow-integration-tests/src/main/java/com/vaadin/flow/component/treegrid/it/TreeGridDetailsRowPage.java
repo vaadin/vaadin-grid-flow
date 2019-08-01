@@ -164,10 +164,10 @@ public class TreeGridDetailsRowPage extends Div {
             }
 
             treeGrid.setItems(Collections.singleton(root), Node::getChildren);
-            treeGrid.expandRecursively(Collections.singleton(root), Integer.MAX_VALUE);
+          //  treeGrid.expandRecursively(Collections.singleton(root), Integer.MAX_VALUE);
             //treeGrid.recalculateColumnWidths();
 
-            treeGrid.setItemDetailsRenderer(new ComponentRenderer<>(node -> new Button(node.getChildren().isEmpty()? "VaadinIcon.CIRCLE" : "VaadinIcon.ABACUS")));
+            treeGrid.setItemDetailsRenderer(new ComponentRenderer<>(node -> new Button(node.getName() + (node.getChildren().isEmpty()? " LEAF" : " WITH CHILDREN"))));
             //treeGrid.setItemDetailsRenderer(new ComponentRenderer<>(() -> new Button("ABACUS")));
             treeGrid.setDetailsVisible(root, true);
 
