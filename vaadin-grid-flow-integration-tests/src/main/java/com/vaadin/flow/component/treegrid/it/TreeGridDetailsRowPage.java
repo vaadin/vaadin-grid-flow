@@ -52,7 +52,7 @@ public class TreeGridDetailsRowPage extends Div {
 
         SummaryTree.Leaf node3 = new SummaryTree.Leaf<>("Drei", Arrays.asList(new BigDecimal(100), new BigDecimal(200)));
 
-        SummaryTree.SummaryNode<BigDecimal> summaryNode = new SummaryTree.SummaryNode<BigDecimal>("Long long long long loooooooooong name", neutral, sum, node1, node2, node3);
+        SummaryTree.SummaryNode<BigDecimal> summaryNode = new SummaryTree.SummaryNode<>("root", neutral, sum, node1, node2, node3);
 
         SummaryTree summaryTree = new SummaryTree(summaryNode);
         summaryTree.setSizeFull();
@@ -164,11 +164,9 @@ public class TreeGridDetailsRowPage extends Div {
             }
 
             treeGrid.setItems(Collections.singleton(root), Node::getChildren);
-          //  treeGrid.expandRecursively(Collections.singleton(root), Integer.MAX_VALUE);
-            //treeGrid.recalculateColumnWidths();
+            treeGrid.expandRecursively(Collections.singleton(root), Integer.MAX_VALUE);
 
             treeGrid.setItemDetailsRenderer(new ComponentRenderer<>(node -> new Button(node.getName() + (node.getChildren().isEmpty()? " LEAF" : " WITH CHILDREN"))));
-            //treeGrid.setItemDetailsRenderer(new ComponentRenderer<>(() -> new Button("ABACUS")));
             treeGrid.setDetailsVisible(root, true);
 
             Button button = new Button("setDetailsVisible(root, true) and setDetailsVisibleOnClick(true)");
