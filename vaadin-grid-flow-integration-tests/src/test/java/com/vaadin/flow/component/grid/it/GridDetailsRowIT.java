@@ -18,6 +18,7 @@ package com.vaadin.flow.component.grid.it;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
+import com.vaadin.testbench.TestBenchElement;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -30,10 +31,10 @@ import java.util.Locale;
 public class GridDetailsRowIT extends AbstractComponentIT {
 
     @Test
-    public void gridNullValuesRenderedAsEmptyStrings() {
+    public void gridTwoItemsSelectedWhenOpen() {
         open();
         GridElement grid = $(GridElement.class).first();
-        // 1 details configured
+        //  detail configured
         assertAmountOfOpenDetails(grid,1);
 
         // each detail contain a button
@@ -42,11 +43,103 @@ public class GridDetailsRowIT extends AbstractComponentIT {
 
         Assert.assertEquals(2, detailsElement.size());
 
-        assertElementHasButton(detailsElement.get(0));
-        assertElementHasButton(detailsElement.get(1));
+        assertElementHasButton(detailsElement.get(0), "Person 1");
+        assertElementHasButton(detailsElement.get(1), "Person 2");
+    }
+
+    /**
+     * Click on an item, hide the other details
+     */
+    @Test
+    public void gridSelectItem4DisplayDetails() {
+        open();
+        GridElement grid = $(GridElement.class).first();
+        // select row 3
+        clickElementWithJs(getRow(grid, 3).findElement(By.tagName("td")));
+
+        List<WebElement> detailsElement = grid
+                .findElements(By.tagName("flow-component-renderer"));
+
+        Assert.assertEquals(3, detailsElement.size());
+
+        // detail on row 0 is empty
+        assertElementHasNoButton(detailsElement.get(0));
+        // detail on row 1 is empty
+        assertElementHasNoButton(detailsElement.get(1));
+        // detail on row 3 contains a button
+        assertElementHasButton(detailsElement.get(2),"Person 4");
+    }
+
+
+    /**
+     * If the details of an item is opened and the items removed
+     * then the details should be empty
+     */
+    @Test
+    public void gridRemoveItemRemoveDetails() {
+        open();
+        GridElement grid = $(GridElement.class).first();
+        // select row 3
+        clickElementWithJs(getRow(grid, 3).findElement(By.tagName("td")));
+
+        WebElement removeButton = findElement(By.id("remove-button"));
+        // remove the last row
+        removeButton.click();
+
+        List<WebElement> detailsElementsAfterRemoval = grid
+                .findElements(By.tagName("flow-component-renderer"));
+
+        detailsElementsAfterRemoval.forEach(this::assertElementHasNoButton);
 
     }
 
+    /**
+     * If the details of an item is opened
+     * and the item updated then the detail should be updated
+     */
+    @Test
+    public void gridUpdateItemUpdateDetails() {
+        open();
+        GridElement grid = $(GridElement.class).first();
+        // select row 3
+        clickElementWithJs(getRow(grid, 2).findElement(By.tagName("td")));
+
+        List<WebElement> detailsElement = grid
+                .findElements(By.tagName("flow-component-renderer"));
+
+        Assert.assertEquals(3, detailsElement.size());
+
+        // detail on row 0 is empty
+        assertElementHasNoButton(detailsElement.get(0));
+        // detail on row 1 is empty
+        assertElementHasNoButton(detailsElement.get(1));
+        // detail on row 3 contains a button
+        assertElementHasButton(detailsElement.get(2),"Person 3");
+
+
+        WebElement updateButton = findElement(By.id("update-button"));
+        updateButton.click();
+
+        detailsElement = grid
+                .findElements(By.tagName("flow-component-renderer"));
+
+        Assert.assertEquals(3, detailsElement.size());
+
+        // detail on row 0 is empty
+        assertElementHasNoButton(detailsElement.get(0));
+        // detail on row 1 is empty
+        assertElementHasNoButton(detailsElement.get(1));
+        // detail on row 3 contains a button
+        assertElementHasButton(detailsElement.get(2),"Person 3 - updates 1");
+
+
+
+    }
+
+    private WebElement getRow(WebElement grid, int row) {
+        return getInShadowRoot(grid, By.id("items"))
+                .findElements(By.cssSelector("tr")).get(row);
+    }
 
     private void assertAmountOfOpenDetails(WebElement grid,
                                            int expectedAmount) {
@@ -57,12 +150,19 @@ public class GridDetailsRowIT extends AbstractComponentIT {
                 grid.findElements(By.className("row-details")).size());
     }
 
-    private void assertElementHasButton(WebElement componentRenderer) {
+    private void assertElementHasButton(WebElement componentRenderer, String content) {
 
         List<WebElement> children = componentRenderer
                 .findElements(By.tagName("vaadin-button"));
         Assert.assertEquals(1, children.size());
-
+        Assert.assertEquals(content, children.get(0).getText());
     }
 
+    private void assertElementHasNoButton(WebElement componentRenderer) {
+
+        List<WebElement> children = componentRenderer
+                .findElements(By.tagName("vaadin-button"));
+        Assert.assertEquals(0, children.size());
+
+    }
 }
