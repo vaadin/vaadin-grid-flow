@@ -42,7 +42,7 @@ public class TreeGridDetailsRowIT extends AbstractComponentIT {
 
         Assert.assertEquals(1, detailsElement.size());
 
-        assertElementHasButton(detailsElement.get(0), "root WITH CHILDREN");
+        assertElementHasButton(detailsElement.get(0), "parent1");
     }
 
     @Test
@@ -51,8 +51,8 @@ public class TreeGridDetailsRowIT extends AbstractComponentIT {
         TreeGridElement treegrid = $(TreeGridElement.class).first();
         //  detail configured
         assertAmountOfOpenDetails(treegrid,1);
-
-        clickElementWithJs(getRow(treegrid, 8).findElement(By.tagName("td")));
+        treegrid.expandWithClick(0);
+        clickElementWithJs(getRow(treegrid, 2).findElement(By.tagName("td")));
 
         List<WebElement> detailsElement = treegrid
                 .findElements(By.tagName("flow-component-renderer"));
@@ -62,7 +62,7 @@ public class TreeGridDetailsRowIT extends AbstractComponentIT {
         // detail on row 0 is empty
         assertElementHasNoButton(detailsElement.get(0));
         // detail on row 1 contains a button
-        assertElementHasButton(detailsElement.get(1),"Drei LEAF");
+        assertElementHasButton(detailsElement.get(1),"parent1-child2");
     }
 
     @Test
@@ -71,22 +71,20 @@ public class TreeGridDetailsRowIT extends AbstractComponentIT {
         TreeGridElement treegrid = $(TreeGridElement.class).first();
         //  detail configured
         assertAmountOfOpenDetails(treegrid,1);
-
+        treegrid.expandWithClick(0);
         treegrid.collapseWithClick(0);
         treegrid.expandWithClick(0);
-
-        clickElementWithJs(getRow(treegrid, 8).findElement(By.tagName("td")));
+        clickElementWithJs(getRow(treegrid, 2).findElement(By.tagName("td")));
 
         List<WebElement> detailsElement = treegrid
                 .findElements(By.tagName("flow-component-renderer"));
 
-        Assert.assertEquals(2, detailsElement.size());
+        Assert.assertEquals(" Details for parent1-child2 is not displayed",2, detailsElement.size());
 
         // detail on row 0 is empty
         assertElementHasNoButton(detailsElement.get(0));
-        // assertElementHasNoButton(detailsElement.get(0));
         // detail on row 1 contains a button
-        assertElementHasButton(detailsElement.get(1),"Drei LEAF");
+        assertElementHasButton(detailsElement.get(1),"parent1-child2");
     }
 
     private WebElement getRow(WebElement grid, int row) {
@@ -115,7 +113,7 @@ public class TreeGridDetailsRowIT extends AbstractComponentIT {
 
         List<WebElement> children = componentRenderer
                 .findElements(By.tagName("vaadin-button"));
-        Assert.assertEquals(0, children.size());
+        Assert.assertTrue("Details should be empty or not visible",(children.size() == 0)||(!children.get(0).isDisplayed()));
 
     }
 }
