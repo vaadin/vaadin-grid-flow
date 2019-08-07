@@ -35,7 +35,11 @@ public class TreeGridDetailsRowPage extends Div {
         String root = "parent1";
         data.addItem(null, root);
         data.addItem("parent1", "parent1-child1");
+        data.addItem("parent1-child1", "p1-c1-c1");
+        data.addItem("parent1-child1", "p1-c1-c2");
         data.addItem("parent1", "parent1-child2");
+        data.addItem("parent1-child2", "p1-c2-c1");
+        data.addItem("parent1-child2", "p1-c2-c2");
         data.addItem(null, "parent2");
         data.addItem("parent2", "parent2-child2");
         treeGrid.setDataProvider(new TreeDataProvider<>(data));
