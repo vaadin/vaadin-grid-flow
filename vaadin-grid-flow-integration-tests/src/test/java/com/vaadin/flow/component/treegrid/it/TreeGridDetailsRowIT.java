@@ -87,6 +87,29 @@ public class TreeGridDetailsRowIT extends AbstractComponentIT {
         assertElementHasButton(detailsElement.get(1),"parent1-child2");
     }
 
+
+    @Test
+    public void gridChildItemDetailsDisplayedAfterCollapse2WhenClicked() {
+        open();
+        TreeGridElement treegrid = $(TreeGridElement.class).first();
+        //  detail configured
+        assertAmountOfOpenDetails(treegrid,1);
+        treegrid.expandWithClick(1);
+        treegrid.collapseWithClick(1);
+        treegrid.expandWithClick(1);
+        clickElementWithJs(getRow(treegrid, 2).findElement(By.tagName("td")));
+
+        List<WebElement> detailsElement = treegrid
+                .findElements(By.tagName("flow-component-renderer"));
+
+        Assert.assertEquals(" Details for parent2-child1 is not displayed",2, detailsElement.size());
+
+        // detail on row 0 is empty
+        assertElementHasNoButton(detailsElement.get(0));
+        // detail on row 1 contains a button
+        assertElementHasButton(detailsElement.get(1),"parent2-child2");
+    }
+
     private WebElement getRow(WebElement grid, int row) {
         return getInShadowRoot(grid, By.id("items"))
                 .findElements(By.cssSelector("tr")).get(row);
