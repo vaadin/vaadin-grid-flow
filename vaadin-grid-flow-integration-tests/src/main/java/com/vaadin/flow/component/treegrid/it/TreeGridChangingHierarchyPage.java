@@ -26,6 +26,7 @@ import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
+import org.apache.commons.lang3.RandomStringUtils;
 
 @Route("treegrid-changing-hierarchy")
 public class TreeGridChangingHierarchyPage extends Div {
@@ -75,6 +76,11 @@ public class TreeGridChangingHierarchyPage extends Div {
             data.addItems("a/a", "a/a/a", "a/a/c").addItem("a/a/a", "a/a/a/a");
             grid.getDataProvider().refreshItem("a/a");
         });
+        NativeButton btn2a = new NativeButton("add random item to b and refresh deeply");
+        btn2a.addClickListener(event -> {
+            data.addItems("b", "b/" + RandomStringUtils.randomAscii(3));
+            grid.getDataProvider().refreshItem("b", true);
+        });
         NativeButton btn3 = new NativeButton("remove a/a");
         btn3.addClickListener(event -> {
             data.removeItem("a/a");
@@ -107,7 +113,11 @@ public class TreeGridChangingHierarchyPage extends Div {
             // Inform item removal to DataProvider
             grid.getDataProvider().refreshAll();
         });
+        NativeButton btn8 = new NativeButton("refresh dataprovider");
+        btn8.addClickListener(event -> {
+            grid.getDataProvider().refreshAll();
+        });
 
-        add(grid, btn, btn2, btn3, btn4, btn5, btn6, btn7);
+        add(grid, btn, btn2, btn2a, btn3, btn4, btn5, btn6, btn7, btn8);
     }
 }

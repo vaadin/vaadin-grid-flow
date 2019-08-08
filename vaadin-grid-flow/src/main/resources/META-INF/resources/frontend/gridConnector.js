@@ -121,11 +121,11 @@ window.Vaadin.Flow.gridConnector = {
     grid.$connector = {};
 
     grid.$connector.hasEnsureSubCacheQueue = function() {
-        return ensureSubCacheQueue.length > 0;
+      return ensureSubCacheQueue.length > 0;
     }
 
     grid.$connector.hasParentRequestQueue = function() {
-        return parentRequestQueue.length > 0;
+      return parentRequestQueue.length > 0;
     }
 
     grid.$connector.beforeEnsureSubCacheForScaledIndex = function(targetCache, scaledIndex) {
@@ -141,7 +141,7 @@ window.Vaadin.Flow.gridConnector = {
         return a.scaledIndex - b.scaledIndex || a.level - b.level;
       });
       if(!ensureSubCacheDebouncer) {
-          grid.$connector.flushQueue(
+        grid.$connector.flushQueue(
             (debouncer) => ensureSubCacheDebouncer = debouncer,
             () => grid.$connector.hasEnsureSubCacheQueue(),
             () => grid.$connector.flushEnsureSubCache(),
@@ -162,11 +162,11 @@ window.Vaadin.Flow.gridConnector = {
       grid.selectedItems = grid.selectedItems.concat(items);
       items.forEach(item => {
         selectedKeys[item.key] = item;
-        if (userOriginated) {
-          item.selected = true;
-          grid.$server.select(item.key);
-        }
-      });
+      if (userOriginated) {
+        item.selected = true;
+        grid.$server.select(item.key);
+      }
+    });
     };
 
     grid.$connector.doDeselection = function(items, userOriginated) {
@@ -216,6 +216,11 @@ window.Vaadin.Flow.gridConnector = {
       if(!detailsVisibleOnClick) {
         return;
       }
+      // when grid is attached, newVal is not set and oldVal is undefined
+      // do nothing
+      if ((newVal == null) && (typeof oldVal === 'undefined')) {
+        return;
+      }
       if (newVal && !newVal.detailsOpened) {
         grid.$server.setDetailsVisible(newVal.key);
       } else {
@@ -253,7 +258,7 @@ window.Vaadin.Flow.gridConnector = {
         return;
       }
       if(flush()) {
-          timeoutIdSetter(startTimeout(() =>
+        timeoutIdSetter(startTimeout(() =>
             grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout)));
       } else {
         grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout);
@@ -291,8 +296,8 @@ window.Vaadin.Flow.gridConnector = {
       let pendingFetches = parentRequestQueue.splice(0, parentRequestBatchMaxSize);
 
       if(pendingFetches.length) {
-          grid.$server.setParentRequestedRanges(pendingFetches);
-          return true;
+        grid.$server.setParentRequestedRanges(pendingFetches);
+        return true;
       }
       return false;
     }
@@ -307,12 +312,12 @@ window.Vaadin.Flow.gridConnector = {
         });
 
         if(!parentRequestDebouncer) {
-            grid.$connector.flushQueue(
+          grid.$connector.flushQueue(
               (debouncer) => parentRequestDebouncer = debouncer,
               () => grid.$connector.hasParentRequestQueue(),
               () => grid.$connector.flushParentRequests(),
               (action) => Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay), action)
-              );
+        );
         }
 
       } else {
@@ -379,7 +384,7 @@ window.Vaadin.Flow.gridConnector = {
           treePageCallbacks[parentUniqueKey][page] = callback;
         }
         grid.$connector.fetchPage((firstIndex, size) =>
-            grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key),
+        grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key),
             page, parentUniqueKey);
 
       } else {
@@ -412,19 +417,19 @@ window.Vaadin.Flow.gridConnector = {
       setTimeout(() => {
         try {
           let allSorters = grid.querySelectorAll("vaadin-grid-sorter");
-          allSorters.forEach(sorter => sorter.direction = null);
+      allSorters.forEach(sorter => sorter.direction = null);
 
-          for (let i = directions.length - 1; i >= 0; i--) {
-            const columnId = directions[i].column;
-            let sorter = grid.querySelector("vaadin-grid-sorter[path='" + columnId + "']");
-            if (sorter) {
-              sorter.direction = directions[i].direction;
-            }
-          }
-        } finally {
-          sorterDirectionsSetFromServer = false;
+      for (let i = directions.length - 1; i >= 0; i--) {
+        const columnId = directions[i].column;
+        let sorter = grid.querySelector("vaadin-grid-sorter[path='" + columnId + "']");
+        if (sorter) {
+          sorter.direction = directions[i].direction;
         }
-      });
+      }
+    } finally {
+        sorterDirectionsSetFromServer = false;
+      }
+    });
     }
     grid._createPropertyObserver("_previousSorters", sorterChangeListener);
 
@@ -434,13 +439,13 @@ window.Vaadin.Flow.gridConnector = {
       // make sure that component renderers are updated
       Array.from(row.children).forEach(cell => {
         if(cell._instance && cell._instance.children) {
-          Array.from(cell._instance.children).forEach(content => {
-            if(content._attachRenderedComponentIfAble) {
-              content._attachRenderedComponentIfAble();
-            }
-          });
+        Array.from(cell._instance.children).forEach(content => {
+          if(content._attachRenderedComponentIfAble) {
+          content._attachRenderedComponentIfAble();
         }
       });
+      }
+    });
     }
 
     grid._expandedInstanceChangedCallback = function(inst, value) {
@@ -458,11 +463,15 @@ window.Vaadin.Flow.gridConnector = {
         if (parentCache && parentCache.itemkeyCaches && parentCache.itemkeyCaches[parentKey]) {
           delete parentCache.itemkeyCaches[parentKey];
         }
-        if (parentCache && parentCache.itemCaches && parentCache.itemCaches[parentKey]) {
-          delete parentCache.itemCaches[parentKey];
+        if (parentCache && parentCache.itemCaches) {
+          const keys = Object.keys(parentCache.itemCaches);
+          for (var i = 0; i < keys.length; i++) {
+            if ( parentCache.items[keys[i]].key === parentKey) {
+              delete parentCache.itemCaches[keys[i]];
+            }
+          }
         }
         delete lastRequestedRanges[parentKey];
-
         this.collapseItem(inst.item);
       }
     }
@@ -515,8 +524,8 @@ window.Vaadin.Flow.gridConnector = {
         if(parentCache && parentCache.itemkeyCaches) {
           let _cache = parentCache.itemkeyCaches[parentKey];
           _updateGridCache(page, items,
-            treePageCallbacks[parentKey][page],
-            _cache);
+              treePageCallbacks[parentKey][page],
+              _cache);
         }
 
       } else {
@@ -574,7 +583,7 @@ window.Vaadin.Flow.gridConnector = {
       const itemKeys = items.map(item => item.key);
       const indexes = grid._physicalItems
           .map((tr, index) => tr._item && tr._item.key && itemKeys.indexOf(tr._item.key) > -1 ? index : null)
-          .filter(idx => idx !== null);
+    .filter(idx => idx !== null);
       if (indexes.length > 0) {
         grid._assignModels(indexes);
       }
@@ -598,9 +607,9 @@ window.Vaadin.Flow.gridConnector = {
         cache[pkey][page] = slice;
 
         grid.$connector.doSelection(slice.filter(
-          item => item.selected && !isSelectedOnGrid(item)));
+            item => item.selected && !isSelectedOnGrid(item)));
         grid.$connector.doDeselection(slice.filter(
-          item => !item.selected  && (selectedKeys[item.key] || isSelectedOnGrid(item))));
+            item => !item.selected  && (selectedKeys[item.key] || isSelectedOnGrid(item))));
 
         const updatedItems = updateGridCache(page, pkey);
         if (updatedItems) {
@@ -758,8 +767,8 @@ window.Vaadin.Flow.gridConnector = {
     grid.$connector.expandItems = function(items) {
       let newExpandedItems = Array.from(grid.expandedItems);
       items.filter(item => !grid._isExpanded(item))
-        .forEach(item =>
-          newExpandedItems.push(item));
+    .forEach(item =>
+      newExpandedItems.push(item));
       grid.expandedItems = newExpandedItems;
     }
 
@@ -767,10 +776,10 @@ window.Vaadin.Flow.gridConnector = {
       let newExpandedItems = Array.from(grid.expandedItems);
       items.forEach(item => {
         let index = grid._getItemIndexInArray(item, newExpandedItems);
-        if(index >= 0) {
-            newExpandedItems.splice(index, 1);
-        }
-      });
+      if(index >= 0) {
+        newExpandedItems.splice(index, 1);
+      }
+    });
       grid.expandedItems = newExpandedItems;
       items.forEach(item => grid.$connector.removeFromQueue(item));
     }
@@ -785,9 +794,9 @@ window.Vaadin.Flow.gridConnector = {
     grid.$connector.removeFromArray = function(array, removeTest) {
       if(array.length) {
         for(let index = array.length - 1; index--; ) {
-           if (removeTest(array[index])) {
-             array.splice(index, 1);
-           }
+          if (removeTest(array[index])) {
+            array.splice(index, 1);
+          }
         }
       }
     }
@@ -830,7 +839,7 @@ window.Vaadin.Flow.gridConnector = {
           // Makes sure to push all new rows before this stack execution is done so any timeout expiration called after will be applied on a fully updated grid
           //Resolves https://github.com/vaadin/vaadin-grid-flow/issues/511
           if(grid._debounceIncreasePool){
-              grid._debounceIncreasePool.flush();
+            grid._debounceIncreasePool.flush();
           }
 
         }
@@ -856,7 +865,7 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.$connector.setSelectionMode = function(mode) {
       if ((typeof mode === 'string' || mode instanceof String)
-      && validSelectionModes.indexOf(mode) >= 0) {
+          && validSelectionModes.indexOf(mode) >= 0) {
         selectionMode = mode;
         selectedKeys = {};
       } else {
@@ -883,15 +892,15 @@ window.Vaadin.Flow.gridConnector = {
       // Add a wheel event listener with the horizontal scrolling prevention logic
       !enabled && scrollable.addEventListener('wheel', scrollable.__wheelListener = e => {
         if (e.deltaX) {
-          // If there was some horizontal delta related to the wheel event, force the vertical
-          // delta to 0 and let grid process the wheel event normally
-          Object.defineProperty(e, 'deltaY', { value: 0 });
-        } else {
-          // If there was verical delta only, skip the grid's wheel event processing to
-          // enable scrolling the page even if grid isn't scrolled to end
-          e.stopImmediatePropagation();
-        }
-      });
+        // If there was some horizontal delta related to the wheel event, force the vertical
+        // delta to 0 and let grid process the wheel event normally
+        Object.defineProperty(e, 'deltaY', { value: 0 });
+      } else {
+        // If there was verical delta only, skip the grid's wheel event processing to
+        // enable scrolling the page even if grid isn't scrolled to end
+        e.stopImmediatePropagation();
+      }
+    });
     }
 
     const contextMenuListener = function(e) {
@@ -907,8 +916,8 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.addEventListener('cell-activate', e => {
       grid.$connector.activeItem = e.detail.model.item;
-      setTimeout(() => grid.$connector.activeItem = undefined);
-    });
+    setTimeout(() => grid.$connector.activeItem = undefined);
+  });
     grid.addEventListener('click', e => _fireClickEvent(e, 'item-click'));
     grid.addEventListener('dblclick', e => _fireClickEvent(e, 'item-double-click'));
 
@@ -916,16 +925,16 @@ window.Vaadin.Flow.gridConnector = {
       if (grid.$connector.activeItem) {
         event.itemKey = grid.$connector.activeItem.key;
         grid.dispatchEvent(new CustomEvent(eventName,
-          { detail: event }));
+            { detail: event }));
       }
     }
 
     grid.cellClassNameGenerator = function(column, rowData) {
-        const style = rowData.item.style;
-        if (!style) {
-            return;
-        }
-        return (style.row || '') + ' ' + ((column && style[column._flowId]) || '');
+      const style = rowData.item.style;
+      if (!style) {
+        return;
+      }
+      return (style.row || '') + ' ' + ((column && style[column._flowId]) || '');
     }
 
     grid.dropFilter = rowData => !rowData.item.dropDisabled;
@@ -934,27 +943,27 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.addEventListener('grid-dragstart', e => {
 
-        if (grid._isSelected(e.detail.draggedItems[0])) {
-            // Dragging selected (possibly multiple) items
-            if (grid.__selectionDragData) {
-                Object.keys(grid.__selectionDragData).forEach(type => {
-                    e.detail.setDragData(type, grid.__selectionDragData[type]);
-                });
-            } else {
-                (grid.__dragDataTypes || []).forEach(type => {
-                    e.detail.setDragData(type, e.detail.draggedItems.map(item => item.dragData[type]).join('\n'));
-                });
-            }
+      if (grid._isSelected(e.detail.draggedItems[0])) {
+      // Dragging selected (possibly multiple) items
+      if (grid.__selectionDragData) {
+        Object.keys(grid.__selectionDragData).forEach(type => {
+          e.detail.setDragData(type, grid.__selectionDragData[type]);
+      });
+      } else {
+        (grid.__dragDataTypes || []).forEach(type => {
+          e.detail.setDragData(type, e.detail.draggedItems.map(item => item.dragData[type]).join('\n'));
+      });
+      }
 
-            if (grid.__selectionDraggedItemsCount > 1) {
-                e.detail.setDraggedItemsCount(grid.__selectionDraggedItemsCount);
-            }
-        } else {
-            // Dragging just one (non-selected) item
-            (grid.__dragDataTypes || []).forEach(type => {
-                e.detail.setDragData(type, e.detail.draggedItems[0].dragData[type]);
-            });
-        }
+      if (grid.__selectionDraggedItemsCount > 1) {
+        e.detail.setDraggedItemsCount(grid.__selectionDraggedItemsCount);
+      }
+    } else {
+      // Dragging just one (non-selected) item
+      (grid.__dragDataTypes || []).forEach(type => {
+        e.detail.setDragData(type, e.detail.draggedItems[0].dragData[type]);
     });
+    }
+  });
   }
 }
