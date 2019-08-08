@@ -467,7 +467,7 @@ window.Vaadin.Flow.gridConnector = {
           const keys = Object.keys(parentCache.itemCaches);
           for (var i = 0; i < keys.length; i++) {
             if ( parentCache.items[keys[i]].key === parentKey) {
-              delete parentCache.itemCaches[i];
+              delete parentCache.itemCaches[keys[i]];
             }
           }
         }
