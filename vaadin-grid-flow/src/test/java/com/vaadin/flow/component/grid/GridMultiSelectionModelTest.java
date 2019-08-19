@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.selection.MultiSelectionEvent;
 import com.vaadin.flow.data.selection.MultiSelectionListener;
 
@@ -509,4 +510,43 @@ public class GridMultiSelectionModelTest {
 
         Mockito.verify(model, Mockito.times(1)).getSelectedItems();
     }
+
+
+    @Test
+    public void useGetIdFromListProviderToAlterSelection() {
+        Grid<VO> g = new Grid<VO>();
+        g.addColumn(VO::getLabel).setHeader("Label");
+        g.setDataProvider(
+            new ListDataProvider<VO>(Arrays.asList(new VO("A"), new VO("B"))) {
+                @Override
+                public Object getId(VO item) {
+                    return item.getLabel();
+                }
+            });
+        g.setSelectionMode(Grid.SelectionMode.MULTI);
+        g.select(new VO("B"));
+        g.select(new VO("B"));
+        g.select(new VO("B"));
+
+        assertEquals(1, g.getSelectedItems().size());
+    }
+
+    public static class VO {
+        private String label;
+
+        public VO(String label) {
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+
+    }
+
 }
