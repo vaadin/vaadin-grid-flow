@@ -66,7 +66,7 @@ public class TreeComponentColumnsPage extends Div {
                 .setId("string");
 
         ComponentRenderer<TextField, String> componentRenderer = new ComponentRenderer<>(
-                () -> new TextField(), (component, item) -> {
+                TextField::new, (component, item) -> {
             component.setReadOnly(true);
             component.setValue(item);
         });
