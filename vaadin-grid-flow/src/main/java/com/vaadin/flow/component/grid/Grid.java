@@ -93,6 +93,7 @@ import com.vaadin.flow.data.selection.SelectionModel.Single;
 import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.DisabledUpdateMode;
+import com.vaadin.flow.dom.DomListenerRegistration;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
@@ -121,7 +122,7 @@ import elemental.json.JsonValue;
  *
  */
 @Tag("vaadin-grid")
-@NpmPackage(value = "@vaadin/vaadin-grid", version = "5.4.8")
+@NpmPackage(value = "@vaadin/vaadin-grid", version = "5.5.0-alpha1")
 @JsModule("@vaadin/vaadin-grid/src/vaadin-grid.js")
 @JsModule("@vaadin/vaadin-grid/src/vaadin-grid-column.js")
 @JsModule("@vaadin/vaadin-grid/src/vaadin-grid-sorter.js")
@@ -396,7 +397,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          *
          * @return the width of this column as a CSS-string
          */
-        @Synchronize("width-changed")
         public String getWidth() {
             return getElement().getProperty("width");
         }
@@ -421,7 +421,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          *
          * @return the currently set flex grow value, by default 1
          */
-        @Synchronize("flex-grow-changed")
         public int getFlexGrow() {
             return getElement().getProperty("flexGrow", 1);
         }
@@ -3137,6 +3136,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public Registration addItemClickListener(
             ComponentEventListener<ItemClickEvent<T>> listener) {
         return addListener(ItemClickEvent.class,
+                (ComponentEventListener) Objects.requireNonNull(listener));
+    }
+    
+    /**
+     * Adds a column resize listener to this component. Note that the listener
+     * will be notified only for user-initiated column resize actions.
+     *
+     * @param listener
+     *            the listener to add, not <code>null</code>
+     * @return a handle that can be used for removing the listener
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Registration addColumnResizeListener(
+            ComponentEventListener<ColumnResizeEvent<T>> listener) {
+        return addListener(ColumnResizeEvent.class,
                 (ComponentEventListener) Objects.requireNonNull(listener));
     }
 
