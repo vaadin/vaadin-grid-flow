@@ -1750,8 +1750,6 @@ public class GridDemo extends DemoView {
     // Dynamic Context Menu begin
     private void createDynamicContextMenu() {
         TaskData taskData = new TaskData();
-        List<Task> taskList = taskData.getTasks();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
         // begin-source-example
         // source-example-heading: Dynamic Context Menu
@@ -1763,7 +1761,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(Task::getName).setHeader("Task Name");
         grid.addColumn(Task::getDueDate).setHeader("Due Date");
         GridContextMenu<Task> contextMenu = new GridContextMenu<>(grid);
-        contextMenu.setContextMenuDynamicContentRenderer((task) -> {
+        contextMenu.setContextMenuDynamicContentRenderer(task -> {
             if (task == null) {
                 // do not show the context menu when a row is not clicked
                 return false;

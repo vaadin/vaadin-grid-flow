@@ -39,7 +39,7 @@ public class DynamicContextMenuGridPage extends Div {
 
         GridContextMenu<Person> contextMenu = grid.addContextMenu();
 
-        contextMenu.setContextMenuDynamicContentRenderer((person) -> {
+        contextMenu.setContextMenuDynamicContentRenderer(person -> {
             if (person.getAge() < 30) {
                 // do not open the context menu
                 return false;
