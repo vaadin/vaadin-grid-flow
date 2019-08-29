@@ -218,7 +218,7 @@ window.Vaadin.Flow.gridConnector = {
       }
       // when grid is attached, newVal is not set and oldVal is undefined
       // do nothing
-      if ((newVal == null) && (typeof oldVal === 'undefined')) {
+      if ((newVal == null) && (oldVal === 'undefined')) {
         return;
       }
       if (newVal && !newVal.detailsOpened) {
