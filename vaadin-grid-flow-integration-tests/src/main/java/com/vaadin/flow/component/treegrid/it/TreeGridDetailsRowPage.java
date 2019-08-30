@@ -27,25 +27,28 @@ import com.vaadin.flow.router.Route;
 @Route("treegrid-details-row")
 public class TreeGridDetailsRowPage extends Div {
 
+    public static final String PARENT_1_CHILD_1 = "parent1-child1";
+    public static final String PARENT_1_CHILD_2 = "parent1-child2";
+    public static final String PARENT_1 = "parent1";
+
     public TreeGridDetailsRowPage() {
 
         TreeGrid<String> treeGrid = new TreeGrid<>();
         treeGrid.addHierarchyColumn(String::toString).setHeader("String");
         TreeData<String> data = new TreeData<>();
-        String root = "parent1";
-        data.addItem(null, root);
-        data.addItem("parent1", "parent1-child1");
-        data.addItem("parent1-child1", "p1-c1-c1");
-        data.addItem("parent1-child1", "p1-c1-c2");
-        data.addItem("parent1", "parent1-child2");
-        data.addItem("parent1-child2", "p1-c2-c1");
-        data.addItem("parent1-child2", "p1-c2-c2");
+        data.addItem(null, PARENT_1);
+        data.addItem(PARENT_1, PARENT_1_CHILD_1);
+        data.addItem(PARENT_1_CHILD_1, "p1-c1-c1");
+        data.addItem(PARENT_1_CHILD_1, "p1-c1-c2");
+        data.addItem(PARENT_1, PARENT_1_CHILD_2);
+        data.addItem(PARENT_1_CHILD_2, "p1-c2-c1");
+        data.addItem(PARENT_1_CHILD_2, "p1-c2-c2");
         data.addItem(null, "parent2");
         data.addItem("parent2", "parent2-child2");
         treeGrid.setDataProvider(new TreeDataProvider<>(data));
 
         treeGrid.setItemDetailsRenderer(new ComponentRenderer<>((SerializableFunction<String, Button>) Button::new));
-        treeGrid.setDetailsVisible(root, true);
+        treeGrid.setDetailsVisible(PARENT_1, true);
 
         add(treeGrid);
     }
