@@ -37,6 +37,9 @@ public class GridDetailsRowIT extends AbstractComponentIT {
         //  detail configured
         assertAmountOfOpenDetails(grid,1);
 
+        waitUntil(driver -> grid
+                .findElements(By.tagName("flow-component-renderer")).size() == 2,1);
+
         // each detail contain a button
         List<WebElement> detailsElement = grid
                 .findElements(By.tagName("flow-component-renderer"));
@@ -57,9 +60,11 @@ public class GridDetailsRowIT extends AbstractComponentIT {
         // select row 3
         clickElementWithJs(getRow(grid, 3).findElement(By.tagName("td")));
 
+        waitUntil(driver -> grid
+                .findElements(By.tagName("flow-component-renderer")).size() == 3,1);
+
         List<WebElement> detailsElement = grid
                 .findElements(By.tagName("flow-component-renderer"));
-
         Assert.assertEquals(3, detailsElement.size());
 
         // detail on row 0 is empty
@@ -104,11 +109,12 @@ public class GridDetailsRowIT extends AbstractComponentIT {
         // select row 3
         clickElementWithJs(getRow(grid, 2).findElement(By.tagName("td")));
 
+        waitUntil(driver -> grid
+                .findElements(By.tagName("flow-component-renderer")).size() == 3,1);
+
         List<WebElement> detailsElement = grid
                 .findElements(By.tagName("flow-component-renderer"));
-
         Assert.assertEquals(3, detailsElement.size());
-
         // detail on row 0 is empty
         assertElementHasNoButton(detailsElement.get(0));
         // detail on row 1 is empty
@@ -119,6 +125,10 @@ public class GridDetailsRowIT extends AbstractComponentIT {
 
         WebElement updateButton = findElement(By.id("update-button"));
         updateButton.click();
+
+
+        waitUntil(driver -> grid
+                .findElements(By.tagName("flow-component-renderer")).size() == 3,1);
 
         detailsElement = grid
                 .findElements(By.tagName("flow-component-renderer"));
