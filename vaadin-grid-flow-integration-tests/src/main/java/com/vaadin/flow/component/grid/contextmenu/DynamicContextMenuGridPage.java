@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2018 Vaadin Ltd.
+ * Copyright 2000-2019 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -40,7 +40,7 @@ public class DynamicContextMenuGridPage extends Div {
         GridContextMenu<Person> contextMenu = grid.addContextMenu();
 
         contextMenu.setContextMenuDynamicContentRenderer(person -> {
-            if (person.getAge() < 30) {
+            if (person == null || person.getAge() < 30) {
                 // do not open the context menu
                 return false;
             }
