@@ -463,14 +463,9 @@ window.Vaadin.Flow.gridConnector = {
         if (parentCache && parentCache.itemkeyCaches && parentCache.itemkeyCaches[parentKey]) {
           delete parentCache.itemkeyCaches[parentKey];
         }
-        if (parentCache && parentCache.itemCaches) {
-          const keys = Object.keys(parentCache.itemCaches);
-          for (var i = 0; i < keys.length; i++) {
-            if ( parentCache.items[keys[i]].key === parentKey) {
-              delete parentCache.itemCaches[keys[i]];
-            }
-          }
-        }
+        Object.keys(parentCache.itemCaches)
+            .filter(idx => parentCache.items[idx].key === parentKey)
+            .forEach(idx => delete parentCache.itemCaches[idx]);
         delete lastRequestedRanges[parentKey];
         this.collapseItem(inst.item);
       }
