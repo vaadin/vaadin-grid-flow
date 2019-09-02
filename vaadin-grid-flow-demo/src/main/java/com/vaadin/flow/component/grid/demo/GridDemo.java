@@ -1325,7 +1325,7 @@ public class GridDemo extends DemoView {
         grid.setColumnReorderingAllowed(true);
         grid.addColumnReorderListener(event ->
                 columnOrder.setText(event.getColumns().stream()
-                        .map(it -> it.getKey()).collect(Collectors.joining(", "))));
+                        .map(Column::getKey).collect(Collectors.joining(", "))));
 
         // end-source-example
         grid.setId("column-reorder-example");
