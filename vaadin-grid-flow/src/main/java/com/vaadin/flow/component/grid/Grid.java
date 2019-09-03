@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -2671,23 +2672,28 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         removeColumn(columnByKey);
     }
 
-    /**
-     * Removes a column from the Grid.
-     *
-     * @param column
-     *            the column to be removed, not <code>null</code>
-     * @throws IllegalArgumentException
-     *             if column is <code>null</code> or if it is not part of this
-     *             Grid
-     */
-    public void removeColumn(Column<T> column) {
-        Objects.requireNonNull(column, "column should not be null");
-
+    private void checkPartOfThisGrid(Column<T> column) {
         if (!column.getGrid().equals(this)
                 || column.getElement().getParent() == null) {
             throw new IllegalArgumentException("The column with key '"
                     + column.getKey() + "' is not part of this Grid");
         }
+    }
+
+    /**
+     * Removes a column from the Grid.
+     *
+     * @param column
+     *            the column to be removed, not <code>null</code>
+     * @throws NullPointerException
+     *             if the column is {@code null}
+     * @throws IllegalArgumentException
+     *             if the column is not part of this Grid
+     */
+    public void removeColumn(Column<T> column) {
+        Objects.requireNonNull(column, "column should not be null");
+
+        checkPartOfThisGrid(column);
         removeColumnAndColumnGroupsIfNeeded(column);
         column.destroyDataGenerators();
         keyToColumnMap.remove(column.getKey());
@@ -3687,5 +3693,97 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             ComponentEventListener<ColumnReorderEvent<T>> listener) {
         return addListener(ColumnReorderEvent.class,
                 (ComponentEventListener) Objects.requireNonNull(listener));
+    }
+
+    /**
+     * Sets a new column order for the grid. Any columns not mentioned in the
+     * list are irreversibly removed via {@link #removeColumn(Column)}.
+     *
+     * Currently the function doesn't support grids with joined header/footer
+     * cells and will fail with {@link IllegalStateException}. This limitation
+     * may be lifted in the future.
+     *
+     * The {@link #getColumns()} function will reflect the new column ordering.
+     *
+     * @param columns
+     *            the new ordering of the columns, not null.
+     * @throws NullPointerException
+     *            if the {@code columns} parameter is null.
+     * @throws IllegalArgumentException if a column is present two times in the
+     *            list, or if the column is not part of this Grid.
+     * @throws IllegalStateException if the header or footer contains joined
+     *            cells.
+     */
+    public void setColumnOrder(Column<T>... columns) {
+        setColumnOrder(Arrays.asList(columns));
+    }
+
+    /**
+     * Sets a new column order for the grid. Any columns not mentioned in the
+     * list are irreversibly removed via {@link #removeColumn(Column)}.
+     *
+     * Currently the function doesn't support grids with joined header/footer
+     * cells and will fail with {@link IllegalStateException}. This limitation
+     * may be lifted in the future.
+     *
+     * The {@link #getColumns()} function will reflect the new column ordering.
+     *
+     * @param columns
+     *            the new ordering of the columns, not null.
+     * @throws NullPointerException
+     *            if the {@code columns} parameter is null.
+     * @throws IllegalArgumentException if a column is present two times in the
+     *            list, or if the column is not part of this Grid.
+     * @throws IllegalStateException if the header or footer contains joined
+     *            cells.
+     */
+    public void setColumnOrder(List<Column<T>> columns) {
+        Objects.requireNonNull(columns);
+        final Set<Column<T>> newColumns = new HashSet<>(columns);
+        if (newColumns.size() < columns.size()) {
+            throw new IllegalArgumentException("A column is present multiple times in the list of columns: " +
+                    columns.stream().map(Column::getKey).collect(Collectors.joining(", ")));
+        }
+        for (Column<T> column : newColumns) {
+            checkPartOfThisGrid(column);
+        }
+
+        // remove columns not present in the "columns" list.
+        for (Column<T> column : getColumns()) {
+            if (!newColumns.contains(column)) {
+                removeColumn(column);
+            }
+        }
+
+        // The column may be potentially wrapped in ColumnGroup if multiple headers
+        // or footers are used. If that's the case, we need to reorder the
+        // top-level columns.
+        // If two columns share same top-level column then they're joined in header
+        // or footer. LinkedHashSet will allow us to effectively detect this case
+        // and fail. LinkedHashSet also preserves the order so we'll still be able
+        // to sort the columns properly.
+        final LinkedHashSet<ColumnBase<?>> topLevelColumns = new LinkedHashSet<>();
+        for (Column<T> column : columns) {
+            final ColumnBase<?> topLevelColumn = findTopLevelColumn(column);
+            if (!topLevelColumns.add(topLevelColumn)) {
+                throw new IllegalArgumentException("Grid contains joined header/footer cells; see column '" + column.getKey() + "'");
+            }
+        }
+
+        for (ColumnBase<?> topLevelColumn : topLevelColumns) {
+            topLevelColumn.getElement().removeFromParent();
+        }
+        for (ColumnBase<?> topLevelColumn : topLevelColumns) {
+            getElement().appendChild(topLevelColumn.getElement());
+        }
+    }
+
+    private ColumnBase<?> findTopLevelColumn(AbstractColumn<?> column) {
+        final Component parent = column.getParent().get();
+        if (parent.equals(this)) {
+            return column;
+        } else {
+            return findTopLevelColumn((AbstractColumn<?>) parent);
+        }
     }
 }
