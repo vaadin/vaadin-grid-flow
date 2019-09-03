@@ -24,35 +24,27 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "grid-order-columns")
-public class GridOrderColumnsPage extends VerticalLayout
-{
-    public GridOrderColumnsPage()
-    {
+public class GridOrderColumnsPage extends VerticalLayout {
+    public GridOrderColumnsPage() {
         Grid<Integer> grid = new Grid<>();
         grid.appendHeaderRow();
         grid.appendFooterRow();
 
-        Grid.Column<Integer> column1 = grid.addColumn(value -> "col1 "+value).setHeader("Col1").setKey("1");
-        Grid.Column<Integer> column2 = grid.addColumn(value -> "col2 "+value).setHeader("Col2").setKey("2");
-        Grid.Column<Integer> column3 = grid.addColumn(value -> "col3 "+value).setHeader("Col3").setKey("3");
+        Grid.Column<Integer> column1 = grid.addColumn(value -> "col1 " + value).setHeader("Col1").setKey("1");
+        Grid.Column<Integer> column2 = grid.addColumn(value -> "col2 " + value).setHeader("Col2").setKey("2");
+        Grid.Column<Integer> column3 = grid.addColumn(value -> "col3 " + value).setHeader("Col3").setKey("3");
 
-        ListDataProvider<Integer> dataProvider = DataProvider.ofItems(1,2,3,4,5);
+        ListDataProvider<Integer> dataProvider = DataProvider.ofItems(1, 2, 3, 4, 5);
         grid.setDataProvider(dataProvider);
         add(grid);
 
 
-        Button orderCol123Button = new Button("Col 1 2 3 ",e -> {
-            grid.setColumnOrder(column1,column2,column3);
-        });
+        Button orderCol123Button = new Button("Col 1 2 3 ", e -> grid.setColumnOrder(column1, column2, column3));
         orderCol123Button.setId("button-123");
-        Button orderCol321Button = new Button("Col 3 2 1 ",e -> {
-            grid.setColumnOrder(column3,column2,column1);
-        });
+        Button orderCol321Button = new Button("Col 3 2 1 ", e -> grid.setColumnOrder(column3, column2, column1));
         orderCol321Button.setId("button-321");
 
-        Button orderCol31Button = new Button("order only the columns 3 and 1 ",e -> {
-            grid.setColumnOrder(column3,column1);
-        });
+        Button orderCol31Button = new Button("order only the columns 3 and 1 ", e -> grid.setColumnOrder(column3, column1));
         orderCol31Button.setId("button-31");
         add(new HorizontalLayout(orderCol123Button, orderCol321Button, orderCol31Button));
     }
