@@ -336,6 +336,9 @@ public class GridColumnTest {
     @Test
     public void setColumnOrder_simpleCaseWithHeader() {
         grid.appendHeaderRow();
+        grid.appendHeaderRow();
+        // verify that the Grid wrapped <grid-column> elements in <grid-column-group> elements
+        Assert.assertEquals(4, grid.getChildren().filter(it -> it instanceof ColumnGroup).count());
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
         Assert.assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
     }
@@ -343,6 +346,9 @@ public class GridColumnTest {
     @Test
     public void setColumnOrder_simpleCaseWithFooter() {
         grid.appendFooterRow();
+        grid.appendFooterRow();
+        // verify that the Grid wrapped <grid-column> elements in <grid-column-group> elements
+        Assert.assertEquals(4, grid.getChildren().filter(it -> it instanceof ColumnGroup).count());
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
         Assert.assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
     }
