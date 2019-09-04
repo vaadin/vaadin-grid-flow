@@ -89,7 +89,7 @@ public class ColumnReorderEvent<T> extends ComponentEvent<Grid<T>> {
     }
 
     private static <T> List<Grid.Column<T>> getSortedByInternalIDs(List<Grid.Column<T>> currentColumns,
-                                                             JsonArray columnIDs) {
+                                                                   JsonArray columnIDs) {
         final List<Grid.Column<T>> columns = new ArrayList<>(currentColumns.size());
         for (int i = 0; i < columnIDs.length(); i++) {
             final String columnID = columnIDs.getString(i);
