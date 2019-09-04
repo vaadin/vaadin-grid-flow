@@ -31,7 +31,6 @@ import com.vaadin.flow.function.SerializableComparator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
 import static org.junit.Assert.*;
@@ -286,93 +285,6 @@ public class GridColumnTest {
         assertEqualColumnClasses(regularColumn.getClass(), Column.class);
         assertEqualColumnClasses(extendedColumn.getClass(), ExtendedColumn.class);
     }
-
-    @Test
-    public void setColumnOrder_removesAllColumnsOnEmptyInput() {
-        grid.removeAllColumns();
-        grid.setColumnOrder();
-        assertArrayEquals(new Object[0], grid.getColumns().toArray());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setColumnOrder_failsWhenColumnIsPresentTwoTimes() {
-        grid.setColumnOrder(firstColumn, secondColumn, firstColumn, thirdColumn, fourthColumn);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setColumnOrder_failsOnColumnFromAnotherGrid() {
-        grid.setColumnOrder(firstColumn, secondColumn, thirdColumn, fourthColumn, new Grid<String>().addColumn(s -> null));
-    }
-
-    @Test
-    public void setColumnOrder_simpleCase() {
-        grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
-        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
-    }
-
-    @Test
-    public void setColumnOrder_reorderPlusRemoval() {
-        grid.removeColumns(secondColumn, thirdColumn);
-        grid.setColumnOrder(fourthColumn, firstColumn);
-        assertArrayEquals(new Object[]{fourthColumn, firstColumn}, grid.getColumns().toArray());
-    }
-
-    @Test
-    public void setColumnOrder_doesNothingOnCurrentColumnOrdering() {
-        grid.setColumnOrder(grid.getColumns());
-        assertArrayEquals(new Object[]{firstColumn, secondColumn, thirdColumn, fourthColumn}, grid.getColumns().toArray());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setColumnOrder_failsOnJoinedHeader() {
-        grid.appendHeaderRow();
-        grid.prependHeaderRow().join(firstColumn, secondColumn);
-        grid.setColumnOrder(firstColumn, secondColumn, thirdColumn, fourthColumn);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setColumnOrder_failsOnJoinedFooter() {
-        grid.appendFooterRow();
-        grid.appendFooterRow().join(firstColumn, secondColumn);
-        grid.setColumnOrder(firstColumn, secondColumn, thirdColumn, fourthColumn);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setColumnOrder_failsOnMissingColumns() {
-        grid.setColumnOrder(firstColumn, secondColumn);
-    }
-
-    @Test
-    public void setColumnOrder_simpleCaseWithHeader() {
-        grid.appendHeaderRow();
-        grid.appendHeaderRow();
-        // verify that the Grid wrapped <grid-column> elements in <grid-column-group> elements
-        Assert.assertEquals(4, grid.getChildren().filter(it -> it instanceof ColumnGroup).count());
-        grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
-        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
-    }
-
-    @Test
-    public void setColumnOrder_simpleCaseWithFooter() {
-        grid.appendFooterRow();
-        grid.appendFooterRow();
-        // verify that the Grid wrapped <grid-column> elements in <grid-column-group> elements
-        Assert.assertEquals(4, grid.getChildren().filter(it -> it instanceof ColumnGroup).count());
-        grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
-        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
-    }
-
-    @Test
-    public void setColumnOrder_firesColumnReorderEvent() {
-        final AtomicReference<ColumnReorderEvent> event = new AtomicReference<>();
-        grid.addColumnReorderListener(event::set);
-        grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
-        assertNotNull(event.get());
-        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, event.get().getColumns().toArray());
-        assertFalse(event.get().isFromClient());
-        assertSame(grid, event.get().getSource());
-    }
-
     private void assertEqualColumnClasses(Class columnClass, Class compareTo) {
         assertNotNull(columnClass);
         Assert.assertEquals(compareTo, columnClass);
