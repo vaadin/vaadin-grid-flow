@@ -3628,7 +3628,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * here. The function is executed for each item in the Grid during data
      * generation. Return a {@link String} to be appended to the row as {@code
      * type} data.
-     *
+     * <p>
      * Note that IE11 only supports data type "text"
      *
      * @param type
@@ -3655,7 +3655,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * visible viewport and all the items outside of it, even if selected, are
      * excluded. Use this method to override the default drag data and the
      * number shown in drag image on selection drag.
-     *
+     * <p>
      * Note that IE11 only supports data type "text"
      *
      * @param draggedItemsCount
@@ -3698,12 +3698,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Sets a new column order for the grid. Any columns not mentioned in the
      * list are irreversibly removed via {@link #removeColumn(Column)}.
-     *
+     * <p>
      * Currently the function doesn't support grids with joined header/footer
      * cells and will fail with {@link IllegalStateException}. This limitation
      * may be lifted in the future.
-     *
+     * <p>
      * The {@link #getColumns()} function will reflect the new column ordering.
+     * <p>
+     * Fires the {@link ColumnReorderEvent} with {@link ColumnReorderEvent#isFromClient()}
+     * returning {@code false}.
      *
      * @param columns
      *            the new ordering of the columns, not null.
@@ -3721,12 +3724,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * Sets a new column order for the grid. Any columns not mentioned in the
      * list are irreversibly removed via {@link #removeColumn(Column)}.
-     *
+     * <p>
      * Currently the function doesn't support grids with joined header/footer
      * cells and will fail with {@link IllegalStateException}. This limitation
      * may be lifted in the future.
-     *
+     * <p>
      * The {@link #getColumns()} function will reflect the new column ordering.
+     * <p>
+     * Fires the {@link ColumnReorderEvent} with {@link ColumnReorderEvent#isFromClient()}
+     * returning {@code false}.
      *
      * @param columns
      *            the new ordering of the columns, not null.
@@ -3776,6 +3782,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         for (ColumnBase<?> topLevelColumn : topLevelColumns) {
             getElement().appendChild(topLevelColumn.getElement());
         }
+
+        fireColumnReorderEvent(getColumns());
     }
 
     private ColumnBase<?> findTopLevelColumn(AbstractColumn<?> column) {
@@ -3785,5 +3793,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         } else {
             return findTopLevelColumn((AbstractColumn<?>) parent);
         }
+    }
+
+    private void fireColumnReorderEvent(List<Column<T>> columns) {
+        fireEvent(new ColumnReorderEvent<>(this, false, columns));
     }
 }

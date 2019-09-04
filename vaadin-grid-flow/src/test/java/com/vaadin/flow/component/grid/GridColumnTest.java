@@ -17,7 +17,6 @@ package com.vaadin.flow.component.grid;
 
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
-import com.vaadin.flow.function.ValueProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +31,10 @@ import com.vaadin.flow.function.SerializableComparator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
+
+import static org.junit.Assert.*;
 
 public class GridColumnTest {
 
@@ -220,7 +222,7 @@ public class GridColumnTest {
     @Test
     public void createColumn_returnsNonNullAndBasicType() {
         Column column = new Grid<Person>().createColumn(TemplateRenderer.of(""), "");
-        Assert.assertNotNull(column);
+        assertNotNull(column);
         Assert.assertEquals(Column.class, column.getClass());
     }
 
@@ -235,7 +237,7 @@ public class GridColumnTest {
 
         Column<Person> column = extendedGrid.addColumn(Person::toString);
 
-        Assert.assertNotNull(column);
+        assertNotNull(column);
         Assert.assertEquals(ExtendedColumn.class, column.getClass());
     }
 
@@ -254,7 +256,7 @@ public class GridColumnTest {
 
         Column<Person> column = extendedGrid.addColumn(Person::toString);
 
-        Assert.assertNotNull(column);
+        assertNotNull(column);
         Assert.assertEquals(ExtendedColumn.class, column.getClass());
     }
 
@@ -269,7 +271,7 @@ public class GridColumnTest {
         columnsList.add(extendedGrid.addColumn(TemplateRenderer.of(""), extendedGrid::createCustomColumn, ""));
 
         columnsList.forEach(column -> {
-            Assert.assertNotNull(column);
+            assertNotNull(column);
             Assert.assertEquals(ExtendedColumn.class, column.getClass());
         });
     }
@@ -288,7 +290,7 @@ public class GridColumnTest {
     @Test
     public void setColumnOrder_removesAllColumnsOnEmptyInput() {
         grid.setColumnOrder();
-        Assert.assertArrayEquals(new Object[0], grid.getColumns().toArray());
+        assertArrayEquals(new Object[0], grid.getColumns().toArray());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -304,19 +306,19 @@ public class GridColumnTest {
     @Test
     public void setColumnOrder_simpleCase() {
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
-        Assert.assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
+        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
     }
 
     @Test
     public void setColumnOrder_reorderPlusRemoval() {
         grid.setColumnOrder(fourthColumn, firstColumn);
-        Assert.assertArrayEquals(new Object[]{fourthColumn, firstColumn}, grid.getColumns().toArray());
+        assertArrayEquals(new Object[]{fourthColumn, firstColumn}, grid.getColumns().toArray());
     }
 
     @Test
     public void setColumnOrder_doesNothingOnCurrentColumnOrdering() {
         grid.setColumnOrder(grid.getColumns());
-        Assert.assertArrayEquals(new Object[]{firstColumn, secondColumn, thirdColumn, fourthColumn}, grid.getColumns().toArray());
+        assertArrayEquals(new Object[]{firstColumn, secondColumn, thirdColumn, fourthColumn}, grid.getColumns().toArray());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -340,7 +342,7 @@ public class GridColumnTest {
         // verify that the Grid wrapped <grid-column> elements in <grid-column-group> elements
         Assert.assertEquals(4, grid.getChildren().filter(it -> it instanceof ColumnGroup).count());
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
-        Assert.assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
+        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
     }
 
     @Test
@@ -350,11 +352,22 @@ public class GridColumnTest {
         // verify that the Grid wrapped <grid-column> elements in <grid-column-group> elements
         Assert.assertEquals(4, grid.getChildren().filter(it -> it instanceof ColumnGroup).count());
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
-        Assert.assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
+        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, grid.getColumns().toArray());
+    }
+
+    @Test
+    public void setColumnOrder_firesColumnReorderEvent() {
+        final AtomicReference<ColumnReorderEvent> event = new AtomicReference<>();
+        grid.addColumnReorderListener(event::set);
+        grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
+        assertNotNull(event.get());
+        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, event.get().getColumns().toArray());
+        assertFalse(event.get().isFromClient());
+        assertSame(grid, event.get().getSource());
     }
 
     private void assertEqualColumnClasses(Class columnClass, Class compareTo) {
-        Assert.assertNotNull(columnClass);
+        assertNotNull(columnClass);
         Assert.assertEquals(compareTo, columnClass);
     }
 
