@@ -1761,7 +1761,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(Task::getName).setHeader("Task Name");
         grid.addColumn(Task::getDueDate).setHeader("Due Date");
         GridContextMenu<Task> contextMenu = new GridContextMenu<>(grid);
-        contextMenu.setContextMenuDynamicContentRenderer(task -> {
+        contextMenu.setDynamicContentHandler(task -> {
             if (task == null) {
                 // do not show the context menu when a row is not clicked
                 return false;

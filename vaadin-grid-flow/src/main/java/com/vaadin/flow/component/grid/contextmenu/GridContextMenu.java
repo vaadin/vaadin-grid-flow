@@ -41,7 +41,7 @@ public class GridContextMenu<T> extends
         ContextMenuBase<GridContextMenu<T>, GridMenuItem<T>, GridSubMenu<T>>
         implements HasGridMenuItems<T> {
 
-    private SerializableFunction<T, Boolean> contextMenuDynamicContentRenderer;
+    private SerializableFunction<T, Boolean> dynamicContentHandler;
 
     /**
      * Event that is fired when a {@link GridMenuItem} is clicked inside a
@@ -212,15 +212,15 @@ public class GridContextMenu<T> extends
      * opened.
      *
      * <p>
-     * The dynamic context renderer allows for customizing the contents of the
+     * The dynamic context handler allows for customizing the contents of the
      * context menu before it is open.
      * </p>
      *
      * @return the callback function that is executed before opening the context
      *         menu, or {@code null} if not specified.
      */
-    public SerializableFunction<T, Boolean> getContextMenuDynamicContentRenderer() {
-        return contextMenuDynamicContentRenderer;
+    public SerializableFunction<T, Boolean> getDynamicContentHandler() {
+        return dynamicContentHandler;
     }
 
     /**
@@ -237,13 +237,13 @@ public class GridContextMenu<T> extends
      * will be opened.
      * </p>
      *
-     * @param contextMenuDynamicContentRenderer
+     * @param dynamicContentHandler
      *            the callback function that will be executed before opening the
      *            context menu.
      */
-    public void setContextMenuDynamicContentRenderer(
-            SerializableFunction<T, Boolean> contextMenuDynamicContentRenderer) {
-        this.contextMenuDynamicContentRenderer = contextMenuDynamicContentRenderer;
+    public void setDynamicContentHandler(
+            SerializableFunction<T, Boolean> dynamicContentHandler) {
+        this.dynamicContentHandler = dynamicContentHandler;
     }
 
     /**
@@ -254,9 +254,9 @@ public class GridContextMenu<T> extends
         Grid<T> grid = (Grid<T>) getTarget();
         String key = eventDetail.getString("key");
 
-        if (getContextMenuDynamicContentRenderer() != null) {
+        if (getDynamicContentHandler() != null) {
             final T item = grid.getDataCommunicator().getKeyMapper().get(key);
-            return getContextMenuDynamicContentRenderer().apply(item);
+            return getDynamicContentHandler().apply(item);
         }
 
         return super.onBeforeOpenMenu(eventDetail);
