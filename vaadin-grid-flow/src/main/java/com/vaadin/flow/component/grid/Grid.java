@@ -2701,6 +2701,22 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
+     * Removes columns from the Grid. Does nothing if the array is empty.
+     *
+     * @param columns
+     *            the columns to be removed, not <code>null</code>
+     * @throws NullPointerException
+     *             if the column is {@code null}
+     * @throws IllegalArgumentException
+     *             if any of the column is not part of this Grid
+     */
+    public void removeColumns(Column<T>... columns) {
+        for (Column<T> column : columns) {
+            removeColumn(column);
+        }
+    }
+
+    /**
      * Removes all columns from this Grid.
      */
     public void removeAllColumns() {
@@ -3696,8 +3712,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Sets a new column order for the grid. Any columns not mentioned in the
-     * list are irreversibly removed via {@link #removeColumn(Column)}.
+     * Sets a new column order for the grid.
+     * <p>
+     * The function doesn't support column
+     * removal: all columns must be present in the list, otherwise
+     * {@link IllegalArgumentException} is thrown.
      * <p>
      * Currently the function doesn't support grids with joined header/footer
      * cells and will fail with {@link IllegalStateException}. This limitation
@@ -3713,7 +3732,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @throws NullPointerException
      *            if the {@code columns} parameter is null.
      * @throws IllegalArgumentException if a column is present two times in the
-     *            list, or if the column is not part of this Grid.
+     *            list, or if the column is not part of this Grid, or if the
+     *            list doesn't contain all columns currently present in the Grid.
      * @throws IllegalStateException if the header or footer contains joined
      *            cells.
      */
@@ -3722,8 +3742,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * Sets a new column order for the grid. Any columns not mentioned in the
-     * list are irreversibly removed via {@link #removeColumn(Column)}.
+     * Sets a new column order for the grid.
+     * <p>
+     * The function doesn't support column
+     * removal: all columns must be present in the list, otherwise
+     * {@link IllegalArgumentException} is thrown.
      * <p>
      * Currently the function doesn't support grids with joined header/footer
      * cells and will fail with {@link IllegalStateException}. This limitation
@@ -3739,7 +3762,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @throws NullPointerException
      *            if the {@code columns} parameter is null.
      * @throws IllegalArgumentException if a column is present two times in the
-     *            list, or if the column is not part of this Grid.
+     *            list, or if the column is not part of this Grid, or if the
+     *            list doesn't contain all columns currently present in the Grid.
      * @throws IllegalStateException if the header or footer contains joined
      *            cells.
      */
@@ -3750,12 +3774,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             throw new IllegalArgumentException("A column is present multiple times in the list of columns: " +
                     columns.stream().map(Column::getKey).collect(Collectors.joining(", ")));
         }
+        final List<Column<T>> currentColumns = getColumns();
+        if (newColumns.size() < currentColumns.size()) {
+            final String missingColumnKeys = currentColumns.stream()
+                    .filter(col -> !newColumns.contains(col))
+                    .map(Column::getKey)
+                    .collect(Collectors.joining(", "));
+            throw new IllegalArgumentException("The 'columns' list is missing the following columns: "
+                    + missingColumnKeys);
+        }
         for (Column<T> column : newColumns) {
             checkPartOfThisGrid(column);
         }
 
         // remove columns not present in the "columns" list.
-        for (Column<T> column : getColumns()) {
+        for (Column<T> column : currentColumns) {
             if (!newColumns.contains(column)) {
                 removeColumn(column);
             }

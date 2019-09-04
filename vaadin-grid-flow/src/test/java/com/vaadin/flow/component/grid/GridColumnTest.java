@@ -289,18 +289,19 @@ public class GridColumnTest {
 
     @Test
     public void setColumnOrder_removesAllColumnsOnEmptyInput() {
+        grid.removeAllColumns();
         grid.setColumnOrder();
         assertArrayEquals(new Object[0], grid.getColumns().toArray());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void setColumnOrder_failsWhenColumnIsPresentTwoTimes() {
-        grid.setColumnOrder(firstColumn, secondColumn, firstColumn);
+        grid.setColumnOrder(firstColumn, secondColumn, firstColumn, thirdColumn, fourthColumn);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void setColumnOrder_failsOnColumnFromAnotherGrid() {
-        grid.setColumnOrder(new Grid<String>().addColumn(s -> null));
+        grid.setColumnOrder(firstColumn, secondColumn, thirdColumn, fourthColumn, new Grid<String>().addColumn(s -> null));
     }
 
     @Test
@@ -311,6 +312,7 @@ public class GridColumnTest {
 
     @Test
     public void setColumnOrder_reorderPlusRemoval() {
+        grid.removeColumns(secondColumn, thirdColumn);
         grid.setColumnOrder(fourthColumn, firstColumn);
         assertArrayEquals(new Object[]{fourthColumn, firstColumn}, grid.getColumns().toArray());
     }
@@ -325,13 +327,18 @@ public class GridColumnTest {
     public void setColumnOrder_failsOnJoinedHeader() {
         grid.appendHeaderRow();
         grid.prependHeaderRow().join(firstColumn, secondColumn);
-        grid.setColumnOrder(firstColumn, secondColumn);
+        grid.setColumnOrder(firstColumn, secondColumn, thirdColumn, fourthColumn);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void setColumnOrder_failsOnJoinedFooter() {
         grid.appendFooterRow();
         grid.appendFooterRow().join(firstColumn, secondColumn);
+        grid.setColumnOrder(firstColumn, secondColumn, thirdColumn, fourthColumn);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setColumnOrder_failsOnMissingColumns() {
         grid.setColumnOrder(firstColumn, secondColumn);
     }
 
