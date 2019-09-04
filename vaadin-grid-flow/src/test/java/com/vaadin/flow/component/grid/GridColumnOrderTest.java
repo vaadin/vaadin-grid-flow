@@ -3,7 +3,6 @@ package com.vaadin.flow.component.grid;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.data.renderer.IconRenderer;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
