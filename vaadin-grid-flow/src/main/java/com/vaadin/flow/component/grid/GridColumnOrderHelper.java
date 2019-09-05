@@ -56,7 +56,7 @@ class GridColumnOrderHelper<T> implements Serializable {
         // sanity test passed. Reorder the columns.
         final List<String> newOrderIDs = columns.stream()
                 .map(Grid.Column::getInternalId).collect(Collectors.toList());
-        reorderColumnsAndConsumeIDs(grid, newOrderIDs, new GraphNodeLeafs());
+        reorderColumnsAndConsumeIDs(grid, newOrderIDs, new GraphNodeLeafCache());
 
         // update the new column ordering in the column layers as well, otherwise
         // any future header/footer cell joining would use old ordering.
@@ -104,13 +104,14 @@ class GridColumnOrderHelper<T> implements Serializable {
      * @param unconsumedIDs expected column ordering. The IDs are consumed as we
      *                      visit the column element tree and successfully reorder
      *                      DOM nodes.
-     * @param nodeLeafs used to quickly find a child column/column-group that
+     * @param nodeLeafCache used to quickly find a child column/column-group that
      *                  contains given leaf column ID as we consume column IDs.
      * @throws IllegalArgumentException if the tree can not be rearranged according
      * to the expected column ordering (e.g. we would have to split a group of columns
      * apart).
      */
-    private void reorderColumnsAndConsumeIDs(Component column, List<String> unconsumedIDs, GraphNodeLeafs nodeLeafs) {
+    private void reorderColumnsAndConsumeIDs(Component column, List<String> unconsumedIDs,
+                                             GraphNodeLeafCache nodeLeafCache) {
         Objects.requireNonNull(column);
         if (column instanceof Grid.Column) {
             // special case: we're at the leaf of the column hierarchy.
@@ -136,12 +137,12 @@ class GridColumnOrderHelper<T> implements Serializable {
                         + childColumns.size() + " unvisited column(s): " + dumpColumnHierarchyFromDOM(childColumns.get(0)));
             }
             final String id = unconsumedIDs.get(0);
-            final AbstractColumn<?> child = nodeLeafs.findFirstContaining(id, childColumns);
+            final AbstractColumn<?> child = nodeLeafCache.findFirstContaining(id, childColumns);
             if (child == null) {
                 throw new IllegalArgumentException(dumpColumnHierarchyFromDOM() + ": Cannot reorder columns, remaining IDs: " + unconsumedIDs);
             }
             childColumns.remove(child);
-            reorderColumnsAndConsumeIDs(child, unconsumedIDs, nodeLeafs);
+            reorderColumnsAndConsumeIDs(child, unconsumedIDs, nodeLeafCache);
             newOrder.add(child);
 
             if (childColumns.isEmpty()) {
@@ -159,10 +160,10 @@ class GridColumnOrderHelper<T> implements Serializable {
      * The root node is the {@link Grid}, child nodes are instances of {@link AbstractColumn}s,
      * leaves are {@link Grid.Column}s.
      */
-    private static class GraphNodeLeafs {
+    private static class GraphNodeLeafCache {
         /**
          * Maps {@link Grid} or {@link AbstractColumn} to a set of {@link Grid.Column#getInternalId()}s
-         * of columns nested under this node. The sets are unmodifiable.
+         * of leaf {@link Grid.Column}s nested under this node. The sets are unmodifiable.
          */
         private final Map<Component, Set<String>> nodeLeafsCache = new HashMap<>();
 
