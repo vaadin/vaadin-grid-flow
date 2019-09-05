@@ -2,7 +2,13 @@ package com.vaadin.flow.component.grid;
 
 import com.vaadin.flow.component.Component;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -10,7 +16,7 @@ import java.util.stream.Collectors;
  * {@link Grid#setColumnOrder(List)}.
  * @author mavi
  */
-class GridColumnOrderHelper<T> {
+class GridColumnOrderHelper<T> implements Serializable {
     private final Grid<T> grid;
 
     GridColumnOrderHelper(Grid<T> grid) {
