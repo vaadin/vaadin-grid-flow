@@ -180,7 +180,16 @@ class GridColumnOrderHelper<T> implements Serializable {
             return nodeLeafsCache.computeIfAbsent(component, this::computeNodeLeafs);
         }
 
+        /**
+         * Finds first column from given list of columns which contains a leaf with
+         * given ID.
+         * @param columnID the desired {@link Grid.Column#getInternalId()}, not null.
+         * @param columns the list of columns to search in, not null.
+         * @return the first column from the {@code columns} parameter containing
+         * leaf with given ID, or null if no such column exists in the list.
+         */
         public AbstractColumn<?> findFirstContaining(String columnID, List<AbstractColumn<?>> columns) {
+            Objects.requireNonNull(columnID);
             for (AbstractColumn<?> column : columns) {
                 if (getColumnIDs(column).contains(columnID)) {
                     return column;
