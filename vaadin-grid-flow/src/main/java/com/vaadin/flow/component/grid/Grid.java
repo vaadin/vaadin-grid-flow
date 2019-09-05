@@ -3718,14 +3718,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * removal: all columns must be present in the list, otherwise
      * {@link IllegalArgumentException} is thrown.
      * <p>
-     * Currently the function doesn't support grids with joined header/footer
-     * cells and will fail with {@link IllegalStateException}. This limitation
-     * may be lifted in the future.
-     * <p>
      * The {@link #getColumns()} function will reflect the new column ordering.
      * <p>
      * Fires the {@link ColumnReorderEvent} with {@link ColumnReorderEvent#isFromClient()}
      * returning {@code false}.
+     * <p>
+     * Warning: the method is not atomic: in complex scenario with joined header
+     * cells, when the requested reordering is not possible to be achieved,
+     * the function may perform some column rearrangements before throwing
+     * {@link IllegalArgumentException}.
      *
      * @param columns
      *            the new ordering of the columns, not null.
@@ -3733,9 +3734,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            if the {@code columns} parameter is null.
      * @throws IllegalArgumentException if a column is present two times in the
      *            list, or if the column is not part of this Grid, or if the
-     *            list doesn't contain all columns currently present in the Grid.
-     * @throws IllegalStateException if the header or footer contains joined
-     *            cells.
+     *            list doesn't contain all columns currently present in the Grid,
+     *            or if the column rearranging would require to split a joined
+     *            header/footer cell group.
      */
     public void setColumnOrder(Column<T>... columns) {
         setColumnOrder(Arrays.asList(columns));
@@ -3748,14 +3749,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * removal: all columns must be present in the list, otherwise
      * {@link IllegalArgumentException} is thrown.
      * <p>
-     * Currently the function doesn't support grids with joined header/footer
-     * cells and will fail with {@link IllegalStateException}. This limitation
-     * may be lifted in the future.
-     * <p>
      * The {@link #getColumns()} function will reflect the new column ordering.
      * <p>
      * Fires the {@link ColumnReorderEvent} with {@link ColumnReorderEvent#isFromClient()}
      * returning {@code false}.
+     * <p>
+     * Warning: the method is not atomic: in complex scenario with joined header
+     * cells, when the requested reordering is not possible to be achieved,
+     * the function may perform some column rearrangements before throwing
+     * {@link IllegalArgumentException}.
      *
      * @param columns
      *            the new ordering of the columns, not null.
@@ -3763,9 +3765,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            if the {@code columns} parameter is null.
      * @throws IllegalArgumentException if a column is present two times in the
      *            list, or if the column is not part of this Grid, or if the
-     *            list doesn't contain all columns currently present in the Grid.
-     * @throws IllegalStateException if the header or footer contains joined
-     *            cells.
+     *            list doesn't contain all columns currently present in the Grid,
+     *            or if the column rearranging would require to split a joined
+     *            header/footer cell group.
      */
     public void setColumnOrder(List<Column<T>> columns) {
         new GridColumnOrderHelper<>(this).setColumnOrder(columns);
