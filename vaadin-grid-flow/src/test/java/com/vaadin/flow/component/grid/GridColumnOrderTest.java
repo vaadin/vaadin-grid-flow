@@ -149,6 +149,16 @@ public class GridColumnOrderTest {
         assertEquals("(fourthColumn), (thirdColumn), (secondColumn, firstColumn)", dumpColumnHierarchyFromDOM());
     }
 
+    @Test
+    public void joiningHeadersWorkAfterReordering4() {
+        grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
+        assertEquals("fourthColumn, thirdColumn, secondColumn, firstColumn", dumpColumnHierarchyFromDOM());
+        grid.appendHeaderRow();
+        final HeaderRow header = grid.prependHeaderRow();
+        header.join(secondColumn, thirdColumn);
+        assertEquals("(fourthColumn), (thirdColumn, secondColumn), (firstColumn)", dumpColumnHierarchyFromDOM());
+    }
+
     private String dumpColumnHierarchyFromDOM() {
         return dumpColumnHierarchyFromDOM(grid);
     }

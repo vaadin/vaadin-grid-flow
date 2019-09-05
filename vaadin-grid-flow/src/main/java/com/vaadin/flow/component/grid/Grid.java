@@ -2672,7 +2672,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         removeColumn(columnByKey);
     }
 
-    private void checkPartOfThisGrid(Column<T> column) {
+    void checkPartOfThisGrid(Column<T> column) {
         if (!column.getGrid().equals(this)
                 || column.getElement().getParent() == null) {
             throw new IllegalArgumentException("The column with key '"
@@ -3768,64 +3768,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            cells.
      */
     public void setColumnOrder(List<Column<T>> columns) {
-        Objects.requireNonNull(columns);
-        final Set<Column<T>> newColumns = new HashSet<>(columns);
-        if (newColumns.size() < columns.size()) {
-            throw new IllegalArgumentException("A column is present multiple times in the list of columns: " +
-                    columns.stream().map(Column::getKey).collect(Collectors.joining(", ")));
-        }
-        final List<Column<T>> currentColumns = getColumns();
-        if (newColumns.size() < currentColumns.size()) {
-            final String missingColumnKeys = currentColumns.stream()
-                    .filter(col -> !newColumns.contains(col))
-                    .map(Column::getKey)
-                    .collect(Collectors.joining(", "));
-            throw new IllegalArgumentException("The 'columns' list is missing the following columns: "
-                    + missingColumnKeys);
-        }
-        for (Column<T> column : newColumns) {
-            checkPartOfThisGrid(column);
-        }
-
-        // remove columns not present in the "columns" list.
-        for (Column<T> column : currentColumns) {
-            if (!newColumns.contains(column)) {
-                removeColumn(column);
-            }
-        }
-
-        // The column may be potentially wrapped in ColumnGroup if multiple headers
-        // or footers are used. If that's the case, we need to reorder the
-        // top-level columns.
-        // If two columns share same top-level column then they're joined in header
-        // or footer. LinkedHashSet will allow us to effectively detect this case
-        // and fail. LinkedHashSet also preserves the order so we'll still be able
-        // to sort the columns properly.
-        final LinkedHashSet<ColumnBase<?>> topLevelColumns = new LinkedHashSet<>();
-        for (Column<T> column : columns) {
-            final ColumnBase<?> topLevelColumn = findTopLevelColumn(column);
-            if (!topLevelColumns.add(topLevelColumn)) {
-                throw new IllegalArgumentException("Grid contains joined header/footer cells; see column '" + column.getKey() + "'");
-            }
-        }
-
-        for (ColumnBase<?> topLevelColumn : topLevelColumns) {
-            topLevelColumn.getElement().removeFromParent();
-        }
-        for (ColumnBase<?> topLevelColumn : topLevelColumns) {
-            getElement().appendChild(topLevelColumn.getElement());
-        }
-
+        new GridColumnOrderHelper<>(this).setColumnOrder(columns);
         fireColumnReorderEvent(getColumns());
-    }
-
-    private ColumnBase<?> findTopLevelColumn(AbstractColumn<?> column) {
-        final Component parent = column.getParent().get();
-        if (parent.equals(this)) {
-            return column;
-        } else {
-            return findTopLevelColumn((AbstractColumn<?>) parent);
-        }
     }
 
     private void fireColumnReorderEvent(List<Column<T>> columns) {
