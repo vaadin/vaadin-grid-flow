@@ -17,7 +17,6 @@ package com.vaadin.flow.component.grid;
 
 import com.vaadin.flow.component.Component;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author mavi
  */
-class GridColumnOrderHelper<T> implements Serializable {
+class GridColumnOrderHelper<T> {
     private final Grid<T> grid;
 
     GridColumnOrderHelper(Grid<T> grid) {
