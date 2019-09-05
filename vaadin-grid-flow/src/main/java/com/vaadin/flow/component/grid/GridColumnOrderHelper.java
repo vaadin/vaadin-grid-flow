@@ -32,6 +32,8 @@ class GridColumnOrderHelper<T> implements Serializable {
      * @param columns the new column order, not null.
      */
     void setColumnOrder(List<Grid.Column<T>> columns) {
+        // first, a couple of sanity checks whether the input list is complete
+        // (contains all Grid columns), doesn't repeat any columns, is not null etc.
         Objects.requireNonNull(columns, "columns");
         final Set<Grid.Column<T>> newColumns = new HashSet<>(columns);
         if (newColumns.size() < columns.size()) {
@@ -51,10 +53,13 @@ class GridColumnOrderHelper<T> implements Serializable {
             grid.checkPartOfThisGrid(column);
         }
 
+        // sanity test passed. Reorder the columns.
         final List<String> newOrderIDs = columns.stream()
                 .map(Grid.Column::getInternalId).collect(Collectors.toList());
         reorderColumnsAndConsumeIDs(grid, newOrderIDs, new GraphNodeLeafs());
 
+        // update the new column ordering in the column layers as well, otherwise
+        // any future header/footer cell joining would use old ordering.
         final List<ColumnBase<?>> columnsPreOrder = getColumnsPreOrder();
         for (ColumnLayer columnLayer : grid.getColumnLayers()) {
             columnLayer.updateColumnOrder(columnsPreOrder);
