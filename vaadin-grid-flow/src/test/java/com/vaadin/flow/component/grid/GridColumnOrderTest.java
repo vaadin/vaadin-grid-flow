@@ -15,9 +15,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
-/**
- * @author mavi
- */
 public class GridColumnOrderTest {
     private Grid<String> grid;
     private Grid.Column<String> firstColumn;
