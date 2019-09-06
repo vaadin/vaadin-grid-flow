@@ -1802,8 +1802,7 @@ public class GridDemo extends DemoView {
         });
         // end-source-example
         grid.setId("dynamic-context-menu-grid");
-        addCard("Context Menu", "Using Dynamic Context Menu With Grid", grid,
-                contextMenu);
+        addCard("Context Menu", "Dynamic Context Menu", grid, contextMenu);
     }
 
     // Click Listener Begin
