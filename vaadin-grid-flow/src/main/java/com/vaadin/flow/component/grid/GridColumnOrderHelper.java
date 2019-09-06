@@ -159,10 +159,6 @@ class GridColumnOrderHelper<T> {
             childColumns.remove(child);
             reorderColumnsAndConsumeIDs(child, unconsumedIDs, nodeLeafCache);
             newOrder.add(child);
-
-            if (childColumns.isEmpty()) {
-                break; // no more columns to reorder, bail out.
-            }
         }
 
         // The new node order has been computed successfully. Reorder the elements in DOM.
