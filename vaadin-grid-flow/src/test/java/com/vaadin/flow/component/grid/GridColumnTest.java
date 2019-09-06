@@ -125,7 +125,7 @@ public class GridColumnTest {
     @Test
     public void removeInvalidColumn_throws() {
         expectIllegalArgumentException(
-                "The column with key 'wrong' is not part of this Grid");
+                "The column with key 'wrong' is not owned by this Grid");
 
         Grid<String> grid2 = new Grid<>();
         Column<String> wrongColumn = grid2.addColumn(str -> str);
@@ -136,7 +136,7 @@ public class GridColumnTest {
     @Test
     public void removeColumnTwice_throws() {
         expectIllegalArgumentException(
-                "The column with key 'first' is not part of this Grid");
+                "The column with key 'first' is not owned by this Grid");
 
         firstColumn.setKey("first");
         grid.removeColumn(firstColumn);
