@@ -74,7 +74,15 @@ class GridColumnOrderHelper<T> {
         final List<String> newOrderIDs = columns.stream()
                 .map(Grid.Column::getInternalId)
                 .collect(Collectors.toList());
-        reorderColumnsAndConsumeIDs(grid, new IdQueue(newOrderIDs), new GraphNodeLeafCache());
+        final GraphNodeLeafCache nodeLeafCache = new GraphNodeLeafCache();
+        // first run a dry run, to check whether the column ordering is possible
+        // without actually performing the DOM reorder.
+        // This allows us to either fail and leave DOM intact, or succeed
+        // and modify the DOM, which guarantees atomicity.
+        reorderColumnsAndConsumeIDs(grid, new IdQueue(newOrderIDs), nodeLeafCache, true);
+        // no exception thrown, the reordering is possible. Run the algorithm again,
+        // but this time also reorder the DOM.
+        reorderColumnsAndConsumeIDs(grid, new IdQueue(newOrderIDs), nodeLeafCache, false);
 
         // update the new column ordering in the column layers as well, otherwise
         // any future header/footer cell joining would use old ordering.
@@ -125,12 +133,14 @@ class GridColumnOrderHelper<T> {
      *                      DOM nodes. Not {@code null}.
      * @param nodeLeafCache used to quickly find a child column/column-group that
      *                  contains given leaf column ID as we consume column IDs.
+     * @param dryRun if true then the DOM is not modified.
      * @throws IllegalArgumentException if the tree can not be rearranged according
      * to the expected column ordering (e.g. we would have to split a group of columns
      * apart).
      */
     private void reorderColumnsAndConsumeIDs(Component column, IdQueue unconsumedIDs,
-                                             GraphNodeLeafCache nodeLeafCache) {
+                                             GraphNodeLeafCache nodeLeafCache,
+                                             boolean dryRun) {
         Objects.requireNonNull(column);
         if (column instanceof Grid.Column) {
             // special case: we're at the leaf of the column hierarchy.
@@ -162,15 +172,17 @@ class GridColumnOrderHelper<T> {
             }
 
             // found the column. Make sure that its contents are ordered as well.
-            reorderColumnsAndConsumeIDs(child, unconsumedIDs, nodeLeafCache);
+            reorderColumnsAndConsumeIDs(child, unconsumedIDs, nodeLeafCache, dryRun);
             // success - add it to the result list.
             childColumns.remove(child);
             newOrder.add(child);
         }
 
         // The new node order has been computed successfully. Reorder the elements in DOM.
-        newOrder.forEach(it -> it.getElement().removeFromParent());
-        newOrder.forEach(it -> column.getElement().appendChild(it.getElement()));
+        if (!dryRun) {
+            newOrder.forEach(it -> it.getElement().removeFromParent());
+            newOrder.forEach(it -> column.getElement().appendChild(it.getElement()));
+        }
     }
 
     /**

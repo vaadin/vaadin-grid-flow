@@ -3722,10 +3722,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Fires the {@link ColumnReorderEvent} with {@link ColumnReorderEvent#isFromClient()}
      * returning {@code false}.
      * <p>
-     * Warning: the method is not atomic: in complex scenario with joined header
-     * cells, when the requested reordering is not possible to be achieved,
-     * the function may perform some column rearrangements before throwing
-     * {@link IllegalArgumentException}.
+     * The method is atomic: if the requested reordering is not achievable,
+     * the function fails cleanly with {@link IllegalArgumentException} without
+     * doing any work.
      *
      * @see #setColumnOrder(List)
      * @param columns
@@ -3754,10 +3753,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * Fires the {@link ColumnReorderEvent} with {@link ColumnReorderEvent#isFromClient()}
      * returning {@code false}.
      * <p>
-     * Warning: the method is not atomic: in complex scenario with joined header
-     * cells, when the requested reordering is not possible to be achieved,
-     * the function may perform some column rearrangements before throwing
-     * {@link IllegalArgumentException}.
+     * The method is atomic: if the requested reordering is not achievable,
+     * the function fails cleanly with {@link IllegalArgumentException} without
+     * doing any work.
      *
      * @see #setColumnOrder(Column[])
      * @param columns
