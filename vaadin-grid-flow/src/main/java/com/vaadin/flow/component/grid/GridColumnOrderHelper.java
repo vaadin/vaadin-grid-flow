@@ -154,7 +154,7 @@ class GridColumnOrderHelper<T> {
         while (!childColumns.isEmpty()) {
             // There are still columns left. Peek on the next ID in the desired
             // order of columns, and try to find a column/column-group for it.
-            final String id = unconsumedIDs.peek();
+            final String id = unconsumedIDs.element();
             final AbstractColumn<?> child = nodeLeafCache.findFirstContaining(id, childColumns);
             if (child == null) {
                 throw new IllegalArgumentException(dumpColumnHierarchyFromDOM()
@@ -199,24 +199,24 @@ class GridColumnOrderHelper<T> {
          * @return the head ID, never {@code null}.
          * @throws IllegalArgumentException if the queue is empty.
          */
-        public String peek() {
+        public String element() {
             if (unconsumedIDs.isEmpty()) {
                 throw new IllegalArgumentException(dumpColumnHierarchyFromDOM()
                         + ": all IDs have been consumed but there are still columns left. Original set of IDs: "
                         + originalIDs);
             }
-            return unconsumedIDs.peek();
+            return unconsumedIDs.element();
         }
 
         /**
-         * Makes sure the {@link Grid.Column#getInternalId()} matches the {@link #peek() head}
+         * Makes sure the {@link Grid.Column#getInternalId()} matches the {@link #element() head}
          * of the ID queue. If it does, removes the head of the queue.
          * @param column the column to match, not {@code null}
          * @throws IllegalArgumentException if the column ID doesn't match the
          * head of the queue.
          */
         public void consumeIdFor(Grid.Column<T> column) {
-            if (!peek().equals(column.getInternalId())) {
+            if (!element().equals(column.getInternalId())) {
                 throw new IllegalArgumentException(dumpColumnHierarchyFromDOM()
                         + ": Cannot reorder columns at ID: " + unconsumedIDs);
             }
