@@ -17,14 +17,7 @@ package com.vaadin.flow.component.grid;
 
 import com.vaadin.flow.component.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -69,8 +62,9 @@ class GridColumnOrderHelper<T> {
 
         // sanity test passed. Reorder the columns.
         final List<String> newOrderIDs = columns.stream()
-                .map(Grid.Column::getInternalId).collect(Collectors.toList());
-        reorderColumnsAndConsumeIDs(grid, newOrderIDs, new GraphNodeLeafCache());
+                .map(Grid.Column::getInternalId)
+                .collect(Collectors.toList());
+        reorderColumnsAndConsumeIDs(grid, new IdQueue(newOrderIDs), new GraphNodeLeafCache());
 
         // update the new column ordering in the column layers as well, otherwise
         // any future header/footer cell joining would use old ordering.
@@ -125,45 +119,99 @@ class GridColumnOrderHelper<T> {
      * to the expected column ordering (e.g. we would have to split a group of columns
      * apart).
      */
-    private void reorderColumnsAndConsumeIDs(Component column, List<String> unconsumedIDs,
+    private void reorderColumnsAndConsumeIDs(Component column, IdQueue unconsumedIDs,
                                              GraphNodeLeafCache nodeLeafCache) {
         Objects.requireNonNull(column);
         if (column instanceof Grid.Column) {
             // special case: we're at the leaf of the column hierarchy.
-            if (!unconsumedIDs.get(0).equals(((Grid.Column) column).getInternalId())) {
-                throw new IllegalArgumentException(dumpColumnHierarchyFromDOM() + ": Cannot reorder columns, remaining IDs: " + unconsumedIDs);
-            }
             // no children to reorder here.
             // We've successfully reordered children in the column tree.
             // Mark this fact by consuming the column ID and bail out.
-            unconsumedIDs.remove(0);
+            unconsumedIDs.consumeIdFor((Grid.Column<T>) column);
             return;
         }
 
         // attempt to reorder direct children of this column group based on
         // the next ID from the unconsumed ID set. If that succeeds,
         // recursively reorder children of children etc.
-        final List<AbstractColumn<?>> childColumns = new ArrayList<>();
+
+        // holds the current immediate child columns.
+        final Set<AbstractColumn<?>> childColumns = new HashSet<>();
         column.getChildren().forEach(it -> childColumns.add((AbstractColumn) it));
+        // the new order of the children is computed here.
         final List<AbstractColumn<?>> newOrder = new ArrayList<>();
+
         while (!childColumns.isEmpty()) {
-            if (unconsumedIDs.isEmpty()) {
-                throw new IllegalArgumentException("No IDs to consume but there are still "
-                        + childColumns.size() + " unvisited column(s): " + dumpColumnHierarchyFromDOM(childColumns.get(0)));
-            }
-            final String id = unconsumedIDs.get(0);
+            // There are still columns left. Peek on the next ID in the desired
+            // order of columns, and try to find a column/column-group for it.
+            final String id = unconsumedIDs.peek();
             final AbstractColumn<?> child = nodeLeafCache.findFirstContaining(id, childColumns);
             if (child == null) {
-                throw new IllegalArgumentException(dumpColumnHierarchyFromDOM() + ": Cannot reorder columns, remaining IDs: " + unconsumedIDs);
+                throw new IllegalArgumentException(dumpColumnHierarchyFromDOM()
+                        + ": Cannot reorder columns, at ID: " + unconsumedIDs);
             }
-            childColumns.remove(child);
+
+            // found the column. Make sure that its contents are ordered as well.
             reorderColumnsAndConsumeIDs(child, unconsumedIDs, nodeLeafCache);
+            // success - add it to the result list.
+            childColumns.remove(child);
             newOrder.add(child);
         }
 
         // The new node order has been computed successfully. Reorder the elements in DOM.
         newOrder.forEach(it -> it.getElement().removeFromParent());
         newOrder.forEach(it -> column.getElement().appendChild(it.getElement()));
+    }
+
+    /**
+     * Offers methods to remove IDs from the head of given ID list and provide
+     * informative error messages if it fails.
+     */
+    private class IdQueue {
+        /**
+         * Only for error-reporting purposes.
+         */
+        private final String originalIDs;
+        private final Queue<String> unconsumedIDs;
+
+        public IdQueue(Collection<String> internalIDs) {
+            this.unconsumedIDs = new LinkedList<>(internalIDs);
+            originalIDs = String.join(", ", internalIDs);
+        }
+
+        @Override
+        public String toString() {
+            return unconsumedIDs.toString();
+        }
+
+        /**
+         * Peeks at the first ID in the internal queue but doesn't remove it.
+         * @return the head ID, never {@code null}.
+         * @throws IllegalArgumentException if the queue is empty.
+         */
+        public String peek() {
+            if (unconsumedIDs.isEmpty()) {
+                throw new IllegalArgumentException(dumpColumnHierarchyFromDOM()
+                        + ": all IDs have been consumed but there are still columns left. Original set of IDs: "
+                        + originalIDs);
+            }
+            return unconsumedIDs.peek();
+        }
+
+        /**
+         * Makes sure the {@link Grid.Column#getInternalId()} matches the {@link #peek() head}
+         * of the ID queue. If it does, removes the head of the queue.
+         * @param column the column to match, not {@code null}
+         * @throws IllegalArgumentException if the column ID doesn't match the
+         * head of the queue.
+         */
+        public void consumeIdFor(Grid.Column<T> column) {
+            if (!peek().equals(column.getInternalId())) {
+                throw new IllegalArgumentException(dumpColumnHierarchyFromDOM()
+                        + ": Cannot reorder columns at ID: " + unconsumedIDs);
+            }
+            unconsumedIDs.remove();
+        }
     }
 
     /**
@@ -200,7 +248,7 @@ class GridColumnOrderHelper<T> {
          * @return the first column from the {@code columns} parameter containing
          * leaf with given ID, or null if no such column exists in the list.
          */
-        public AbstractColumn<?> findFirstContaining(String columnID, List<AbstractColumn<?>> columns) {
+        public AbstractColumn<?> findFirstContaining(String columnID, Collection<AbstractColumn<?>> columns) {
             Objects.requireNonNull(columnID);
             for (AbstractColumn<?> column : columns) {
                 if (getColumnIDs(column).contains(columnID)) {
