@@ -2687,7 +2687,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @throws NullPointerException
      *             if the column is {@code null}
      * @throws IllegalArgumentException
-     *             if the column is not part of this Grid
+     *             if the column is not owned by this Grid
      */
     public void removeColumn(Column<T> column) {
         Objects.requireNonNull(column, "column should not be null");
@@ -2707,7 +2707,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @throws NullPointerException
      *             if the column is {@code null}
      * @throws IllegalArgumentException
-     *             if any of the column is not part of this Grid
+     *             if the column is not owned by this Grid
      */
     public void removeColumns(Column<T>... columns) {
         for (Column<T> column : columns) {
@@ -3733,7 +3733,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @throws NullPointerException
      *            if the {@code columns} parameter is {@code null}.
      * @throws IllegalArgumentException if a column is present two times in the
-     *            list, or if the column is not part of this Grid, or if the
+     *            list, or if the column is not owned by this Grid, or if the
      *            list doesn't contain all columns currently present in the Grid,
      *            or if the column rearranging would require to split a joined
      *            header/footer cell group.
@@ -3765,7 +3765,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @throws NullPointerException
      *            if the {@code columns} parameter is {@code null}.
      * @throws IllegalArgumentException if a column is present two times in the
-     *            list, or if the column is not part of this Grid, or if the
+     *            list, or if the column is not owned by this Grid, or if the
      *            list doesn't contain all columns currently present in the Grid,
      *            or if the column rearranging would require to split a joined
      *            header/footer cell group.
