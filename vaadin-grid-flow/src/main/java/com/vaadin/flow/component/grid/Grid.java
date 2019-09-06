@@ -2671,7 +2671,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         removeColumn(columnByKey);
     }
 
-    void ensureOwnerOf(Column<T> column) {
+    void ensureOwner(Column<T> column) {
         if (!column.getGrid().equals(this)
                 || column.getElement().getParent() == null) {
             throw new IllegalArgumentException("The column with key '"
@@ -2692,7 +2692,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public void removeColumn(Column<T> column) {
         Objects.requireNonNull(column, "column should not be null");
 
-        ensureOwnerOf(column);
+        ensureOwner(column);
         removeColumnAndColumnGroupsIfNeeded(column);
         column.destroyDataGenerators();
         keyToColumnMap.remove(column.getKey());

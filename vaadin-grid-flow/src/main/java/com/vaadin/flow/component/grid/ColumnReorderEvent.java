@@ -58,7 +58,7 @@ public class ColumnReorderEvent<T> extends ComponentEvent<Grid<T>> {
      */
     public ColumnReorderEvent(Grid<T> source, boolean fromClient,
                               @EventData("event.detail.columns.map(col => col._flowId)") JsonArray columnIDs) {
-        this(source, fromClient, getSortedByInternalIDs(source.getColumns(), columnIDs));
+        this(source, fromClient, getSortedByIds(source.getColumns(), columnIDs));
     }
 
     /**
@@ -88,8 +88,8 @@ public class ColumnReorderEvent<T> extends ComponentEvent<Grid<T>> {
         return columns;
     }
 
-    private static <T> List<Grid.Column<T>> getSortedByInternalIDs(List<Grid.Column<T>> currentColumns,
-                                                                   JsonArray columnIDs) {
+    private static <T> List<Grid.Column<T>> getSortedByIds(List<Grid.Column<T>> currentColumns,
+                                                           JsonArray columnIDs) {
         final List<Grid.Column<T>> columns = new ArrayList<>(currentColumns.size());
         for (int i = 0; i < columnIDs.length(); i++) {
             final String columnID = columnIDs.getString(i);

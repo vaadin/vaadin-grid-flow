@@ -67,7 +67,7 @@ class GridColumnOrderHelper<T> {
                     + missingColumnKeys);
         }
         for (Grid.Column<T> column : newColumns) {
-            grid.ensureOwnerOf(column);
+            grid.ensureOwner(column);
         }
 
         // sanity test passed. Reorder the columns.
