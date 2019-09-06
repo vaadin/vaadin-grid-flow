@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 public class GridColumnTest {
 

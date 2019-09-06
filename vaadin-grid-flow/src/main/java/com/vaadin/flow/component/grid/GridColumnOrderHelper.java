@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * Implements the logic necessary for proper column reordering:
  * {@link Grid#setColumnOrder(List)}.
  *
- * @author mavi
+ * @author Vaadin Ltd
  */
 class GridColumnOrderHelper<T> {
     private final Grid<T> grid;
@@ -43,7 +43,7 @@ class GridColumnOrderHelper<T> {
     /**
      * See {@link Grid#setColumnOrder(List)}.
      *
-     * @param columns the new column order, not null.
+     * @param columns the new column order, not {@code null}.
      */
     void setColumnOrder(List<Grid.Column<T>> columns) {
         // first, a couple of sanity checks whether the input list is complete
@@ -64,7 +64,7 @@ class GridColumnOrderHelper<T> {
                     + missingColumnKeys);
         }
         for (Grid.Column<T> column : newColumns) {
-            grid.checkPartOfThisGrid(column);
+            grid.ensureOwnerOf(column);
         }
 
         // sanity test passed. Reorder the columns.
@@ -84,7 +84,8 @@ class GridColumnOrderHelper<T> {
      * Computes a total order of all columns and column groups, in pre-order
      * order.
      *
-     * @return a list of all columns and column groups, ordered with preorder
+     * @return a list of all columns and column groups, ordered with preorder,
+     * never {@code null}.
      */
     private List<ColumnBase<?>> getColumnsPreOrder() {
         return getColumnsPreOrder(grid);
@@ -114,10 +115,10 @@ class GridColumnOrderHelper<T> {
      * The function will never move DOM elements into another parent.
      *
      * @param column rearrange children of this column. This can only be a {@link Grid}
-     *               or {@link AbstractColumn} instance. Not null.
+     *               or {@link AbstractColumn} instance. Not {@code null}.
      * @param unconsumedIDs expected column ordering. The IDs are consumed as we
      *                      visit the column element tree and successfully reorder
-     *                      DOM nodes.
+     *                      DOM nodes. Not {@code null}.
      * @param nodeLeafCache used to quickly find a child column/column-group that
      *                  contains given leaf column ID as we consume column IDs.
      * @throws IllegalArgumentException if the tree can not be rearranged according

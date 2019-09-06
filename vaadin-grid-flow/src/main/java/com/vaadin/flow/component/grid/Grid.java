@@ -2671,11 +2671,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         removeColumn(columnByKey);
     }
 
-    void checkPartOfThisGrid(Column<T> column) {
+    void ensureOwnerOf(Column<T> column) {
         if (!column.getGrid().equals(this)
                 || column.getElement().getParent() == null) {
             throw new IllegalArgumentException("The column with key '"
-                    + column.getKey() + "' is not part of this Grid");
+                    + column.getKey() + "' is not owned by this Grid");
         }
     }
 
@@ -2692,7 +2692,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public void removeColumn(Column<T> column) {
         Objects.requireNonNull(column, "column should not be null");
 
-        checkPartOfThisGrid(column);
+        ensureOwnerOf(column);
         removeColumnAndColumnGroupsIfNeeded(column);
         column.destroyDataGenerators();
         keyToColumnMap.remove(column.getKey());
@@ -3727,10 +3727,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * the function may perform some column rearrangements before throwing
      * {@link IllegalArgumentException}.
      *
+     * @see #setColumnOrder(List)
      * @param columns
-     *            the new ordering of the columns, not null.
+     *            the new ordering of the columns, not {@code null}.
      * @throws NullPointerException
-     *            if the {@code columns} parameter is null.
+     *            if the {@code columns} parameter is {@code null}.
      * @throws IllegalArgumentException if a column is present two times in the
      *            list, or if the column is not part of this Grid, or if the
      *            list doesn't contain all columns currently present in the Grid,
@@ -3758,10 +3759,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * the function may perform some column rearrangements before throwing
      * {@link IllegalArgumentException}.
      *
+     * @see #setColumnOrder(Column[])
      * @param columns
-     *            the new ordering of the columns, not null.
+     *            the new ordering of the columns, not {@code null}.
      * @throws NullPointerException
-     *            if the {@code columns} parameter is null.
+     *            if the {@code columns} parameter is {@code null}.
      * @throws IllegalArgumentException if a column is present two times in the
      *            list, or if the column is not part of this Grid, or if the
      *            list doesn't contain all columns currently present in the Grid,
