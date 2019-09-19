@@ -26,11 +26,13 @@ import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 import com.vaadin.testbench.TestBenchElement;
+import com.vaadin.testbench.annotations.RunLocally;
 
 @TestPath("column-resize-event")
 public class ColumnResizeIT extends AbstractComponentIT {
 
     private GridElement grid;
+    private final double RESIZE_AMOUNT_PX = -100;
 
     @Before
     public void init() {
@@ -41,20 +43,43 @@ public class ColumnResizeIT extends AbstractComponentIT {
 
     @Test
     public void columnWidthsAreSetCorrectly() {
+        resizeSecondColumnBy(RESIZE_AMOUNT_PX);
+
+        WebElement resizedColIdLabel = findElement(
+                By.id(ColumnResizeEventPage.RESIZED_COLUMN_ID_LABEL));
+        Assert.assertEquals("ID of resized column did not match expected one.",
+                ColumnResizeEventPage.RESIZED_COLUMN_ID,
+                resizedColIdLabel.getText());
+
+        WebElement colFlexGrowsLabel = findElement(
+                By.id(ColumnResizeEventPage.FLEX_GROWS_COLUMN_VALUES_LABEL));
+        Assert.assertEquals(
+                "Column flex-grow values did not match expected ones.",
+                "0.0|0.0|1.0", colFlexGrowsLabel.getText());
+
+        WebElement colWidthsLabel = findElement(
+                By.id(ColumnResizeEventPage.WIDTHS_COLUMN_VALUES_LABEL));
+        String[] colWidths = colWidthsLabel.getText().split("\\|");
+
+        Assert.assertEquals("Expected 3 column widths from the event.",
+                colWidths.length, 3);
+
+        for (String colWidth : colWidths) {
+            Assert.assertTrue(
+                    "Expected column width value to end with 'px'. Actual value was: "
+                            + colWidth,
+                    colWidth.endsWith("px"));
+        }
+    }
+
+    private void resizeSecondColumnBy(double pixels) {
         TestBenchElement resizeHandle = grid.getHeaderCell(1)
-                .findElement(By.tagName("div"));
+                .findElement(By.cssSelector("div[part='resize-handle']"));
 
         Actions actions = new Actions(driver);
         actions.clickAndHold(resizeHandle);
-        actions.moveByOffset(-100, 0);
+        actions.moveByOffset((int) pixels, 0);
         actions.release(resizeHandle);
         actions.perform();
-
-        waitForElementPresent(
-                By.id(ColumnResizeEventPage.RESIZE_EVENT_LABEL_ID));
-        WebElement eventLabel = findElement(
-                By.id(ColumnResizeEventPage.RESIZE_EVENT_LABEL_ID));
-        Assert.assertEquals("ID of resized column did not match expected one.",
-                ColumnResizeEventPage.RESIZED_COLUMN_ID, eventLabel.getText());
     }
 }

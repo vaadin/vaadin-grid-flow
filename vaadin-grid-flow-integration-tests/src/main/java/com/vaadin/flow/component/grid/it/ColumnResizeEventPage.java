@@ -15,7 +15,10 @@
  */
 package com.vaadin.flow.component.grid.it;
 
+import java.util.Map;
+
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.data.bean.Gender;
@@ -26,30 +29,56 @@ import com.vaadin.flow.router.Route;
 public class ColumnResizeEventPage extends Div {
 
     public static final String GRID_ID = "column-resize-event-grid";
-    public static final String RESIZE_EVENT_LABEL_ID = "column-resize-event-label";
     public static final String RESIZED_COLUMN_ID = "Resized Column ID";
-    
+
+    public static final String RESIZED_COLUMN_ID_LABEL = "resized-col-id";
+    public static final String WIDTHS_COLUMN_VALUES_LABEL = "widths-col-values";
+    public static final String FLEX_GROWS_COLUMN_VALUES_LABEL = "flex-grows-col-values";
+
+    private Label resizedColumnIdLabel = new Label();
+    private Label widthsColValuesLabel = new Label();
+    private Label flexGrowsColValuesLabel = new Label();
+
     public ColumnResizeEventPage() {
         Grid<Person> grid = new Grid<>();
+        grid.setHeightByRows(true);
         grid.setId(GRID_ID);
-        grid.getStyle().set("--lumo-font-family",
-                "Arial, Helvetica, sans-serif");
+        // grid.getStyle().set("--lumo-font-family",
+        // "Arial, Helvetica, sans-serif");
+
         grid.setItems(new Person("Jorma", "Testaaja", "jorma@testaaja.com",
                 2018, Gender.MALE, null));
 
-        grid.addColumn(Person::getFirstName).setHeader("A").setResizable(true)
-                .setId("A");
-        grid.addColumn(Person::getLastName).setHeader("B").setResizable(true)
-                .setId(RESIZED_COLUMN_ID);
-        grid.addColumn(Person::getId).setHeader("C").setResizable(true)
-                .setId("C");
+        Column<Person> firstNameColumn = grid.addColumn(Person::getFirstName)
+                .setHeader("A").setResizable(true);
+        firstNameColumn.setId("A");
+
+        Column<Person> lastNameColumn = grid.addColumn(Person::getLastName)
+                .setHeader("B").setResizable(true);
+        lastNameColumn.setId(RESIZED_COLUMN_ID);
+
+        Column<Person> idColumn = grid.addColumn(Person::getId).setHeader("C")
+                .setResizable(true);
+        idColumn.setId("C");
 
         grid.addColumnResizeListener(e -> {
-            Label label = new Label(e.getResizedColumn().getId().get());
-            label.setId(RESIZE_EVENT_LABEL_ID);
-            add(label);
+            resizedColumnIdLabel.setText(e.getResizedColumn().getId().get());
+
+            Map<Column<Person>, Double> cfg = e.getColumnFlexGrows();
+            flexGrowsColValuesLabel.setText(cfg.get(firstNameColumn) + "|"
+                    + cfg.get(lastNameColumn) + "|" + cfg.get(idColumn));
+
+            Map<Column<Person>, String> cw = e.getColumnWidths();
+            widthsColValuesLabel.setText(cw.get(firstNameColumn) + "|"
+                    + cw.get(lastNameColumn) + "|" + cw.get(idColumn));
         });
-        add(grid);
+
+        resizedColumnIdLabel.setId(RESIZED_COLUMN_ID_LABEL);
+        flexGrowsColValuesLabel.setId(FLEX_GROWS_COLUMN_VALUES_LABEL);
+        widthsColValuesLabel.setId(WIDTHS_COLUMN_VALUES_LABEL);
+
+        add(grid, resizedColumnIdLabel, widthsColValuesLabel,
+                flexGrowsColValuesLabel);
     }
 
 }

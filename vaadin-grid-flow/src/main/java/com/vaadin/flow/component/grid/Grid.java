@@ -93,7 +93,6 @@ import com.vaadin.flow.data.selection.SelectionModel.Single;
 import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.data.selection.SingleSelectionListener;
 import com.vaadin.flow.dom.DisabledUpdateMode;
-import com.vaadin.flow.dom.DomListenerRegistration;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableComparator;
@@ -394,7 +393,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         /**
          * Gets the width of this column as a CSS-string.
-         *
+         * <p>
+         * <strong>Note:</strong> If the width is changed from the client side,
+         * e.g. by the user resizing the column, the changed value will
+         * not be returned by this method.
+         * 
+         * @see Grid#addColumnResizeListener(ComponentEventListener)
+         * 
          * @return the width of this column as a CSS-string
          */
         public String getWidth() {
@@ -417,9 +422,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         /**
-         * Gets the currently set flex grow value, by default 1.
-         *
-         * @return the currently set flex grow value, by default 1
+         * Gets the flex grow value, by default 1.
+         * <p>
+         * <strong>Note:</strong> If the flex grow is changed from the client
+         * side, e.g. by the user resizing the column, the changed value will
+         * not be returned by this method.
+         * 
+         * @see Grid#addColumnResizeListener(ComponentEventListener)
+         * 
+         * @return the flex grow value, by default 1
          */
         public int getFlexGrow() {
             return getElement().getProperty("flexGrow", 1);
