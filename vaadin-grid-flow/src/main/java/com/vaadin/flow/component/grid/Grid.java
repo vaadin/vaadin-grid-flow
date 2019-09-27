@@ -3801,4 +3801,33 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     private void fireColumnReorderEvent(List<Column<T>> columns) {
         fireEvent(new ColumnReorderEvent<>(this, false, columns));
     }
+
+    /**
+     * Scrolls to the given row index. Scrolls so that the row is shown at the
+     * start of the visible area whenever possible.
+     * 
+     * If the index parameter exceeds current item set size the grid will
+     * scroll to the end.
+     *
+     * @param index
+     *            zero based index of the item to scroll to in the current view.
+     */
+    public void scrollToIndex(int rowIndex) {
+        getElement().callJsFunction("scrollToIndex", rowIndex);
+    }
+
+    /**
+     * Scrolls to the beginning of the first data row.
+     */
+    public void scrollToStart() {
+        scrollToIndex(0);
+    }
+
+    /**
+     * Scrolls to the end of the last data row.
+     */
+    public void scrollToEnd() {
+        scrollToIndex(getElement().getProperty("size", 0));
+    }
+
 }
