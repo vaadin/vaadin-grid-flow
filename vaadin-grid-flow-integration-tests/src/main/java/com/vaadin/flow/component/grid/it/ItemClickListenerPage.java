@@ -50,7 +50,7 @@ public class ItemClickListenerPage extends Div {
             columnKeyMsg.setText(getColumnKeyFromEvent(event));
         });
 
-        add(grid, clickMsg, dblClickMsg);
+        add(grid, clickMsg, dblClickMsg, columnKeyMsg);
     }
 
     private static String getColumnKeyFromEvent(ItemClickEvent<?> event) {
