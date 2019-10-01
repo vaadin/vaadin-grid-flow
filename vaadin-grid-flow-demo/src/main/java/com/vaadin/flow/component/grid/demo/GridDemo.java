@@ -1810,13 +1810,14 @@ public class GridDemo extends DemoView {
         FormLayout formLayout = new FormLayout();
         Label name = new Label();
         Label age = new Label();
+        Label column = new Label();
 
         // begin-source-example
         // source-example-heading: Item Click Listener
         Grid<Person> grid = new Grid<>();
         grid.setItems(getItems());
-        grid.addColumn(Person::getFirstName).setHeader("First Name");
-        grid.addColumn(Person::getAge).setHeader("Age");
+        grid.addColumn(Person::getFirstName).setHeader("First Name").setKey("First Name").setId("first name");
+        grid.addColumn(Person::getAge).setHeader("Age").setKey("Age");
 
         // Disable selection: will receive only click events instead
         grid.setSelectionMode(Grid.SelectionMode.NONE);
@@ -1824,11 +1825,18 @@ public class GridDemo extends DemoView {
         formLayout.add(name, age);
         formLayout.addFormItem(name, "Name");
         formLayout.addFormItem(age, "Age");
+        formLayout.addFormItem(column, "Column");
 
         grid.addItemClickListener(
                 event -> {
                     name.setText(event.getItem().getFirstName());
                     age.setText(String.valueOf(event.getItem().getAge()));
+                    if(event.getColumn().isPresent()) {
+                        column.setText(event.getColumn().get().getKey());
+                    }
+                    else {
+                        column.setText("(undefined column");
+                    }
                 });
 
         // end-source-example

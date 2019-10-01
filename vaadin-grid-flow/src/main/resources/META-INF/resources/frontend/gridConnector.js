@@ -922,6 +922,7 @@ window.Vaadin.Flow.gridConnector = {
 
     grid.addEventListener('cell-activate', e => {
       grid.$connector.activeItem = e.detail.model.item;
+      e
       setTimeout(() => grid.$connector.activeItem = undefined);
     });
     grid.addEventListener('click', e => _fireClickEvent(e, 'item-click'));
@@ -944,6 +945,13 @@ window.Vaadin.Flow.gridConnector = {
     function _fireClickEvent(event, eventName) {
       if (grid.$connector.activeItem) {
         event.itemKey = grid.$connector.activeItem.key;
+        const eventContext = grid.getEventContext(event);
+        if (eventContext.column.id) {
+          event.columnKey = eventContext.column.id;
+        }
+        // flowId should be always set and will be used as
+        // backup when the user forgets about setting column's id
+        event.flowKey = eventContext.column._flowId;
         grid.dispatchEvent(new CustomEvent(eventName,
           { detail: event }));
       }

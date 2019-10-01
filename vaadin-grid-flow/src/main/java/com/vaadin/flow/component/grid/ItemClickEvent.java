@@ -19,6 +19,8 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
+import java.util.Optional;
+
 /**
  * Event fired when a Grid item is clicked.
  *
@@ -34,6 +36,8 @@ import com.vaadin.flow.component.EventData;
 public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
 
     private final T item;
+
+    private final Grid.Column<T> column;
 
     /**
      * Creates a new item click event.
@@ -77,6 +81,8 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      */
     public ItemClickEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.itemKey") String itemKey,
+            @EventData("event.detail.columnKey") String columnKey,
+            @EventData("event.detail.flowKey") String flowColumnKey,
             @EventData("event.detail.screenX") int screenX,
             @EventData("event.detail.screenY") int screenY,
             @EventData("event.detail.clientX") int clientX,
@@ -90,6 +96,18 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
         super(source, fromClient, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
         item = source.getDataCommunicator().getKeyMapper().get(itemKey);
+        // id of column should be set for this to work
+        if(columnKey != null && !columnKey.isEmpty()) {
+            column = source.getColumns().stream().filter(col -> col.getId().isPresent() && columnKey.equals(col.getId().get())).findFirst().orElse(null);
+        }
+        // if id is not set, use internal flow ids
+        else if(flowColumnKey != null && !flowColumnKey.isEmpty() && flowColumnKey.matches("col\\d+")) {
+            column = source.getColumns().get(Integer.parseInt(flowColumnKey.substring(3)));
+        }
+        // otherwise, nothing to report here
+        else {
+            column = null;
+        }
     }
 
     /**
@@ -99,6 +117,17 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      */
     public T getItem() {
         return item;
+    }
+
+    /**
+     * Gets the column that was clicked.
+     * For this to really work the column's id must be set. Otherwise internal magic will be used
+     * to figure out which column it is (using column's internal flow identifiers that are then
+     * converted to integer index of the column).
+     * @return An optional with column. Optional may be empty if the column could not be figured out.
+     */
+    public Optional<Grid.Column<T>> getColumn() {
+        return Optional.ofNullable(column);
     }
 
 }
