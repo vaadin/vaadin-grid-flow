@@ -17,6 +17,7 @@ package com.vaadin.flow.component.grid.it;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.ItemClickEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.Route;
 
@@ -30,17 +31,35 @@ public class ItemClickListenerPage extends Div {
         Div dblClickMsg = new Div();
         dblClickMsg.setId("dblClickMsg");
 
+        Div columnKeyMsg = new Div();
+        columnKeyMsg.setId("columnClickMsg");
+
         Grid<String> grid = new Grid<>();
         grid.setItems("foo", "bar");
-        grid.addColumn(item -> item).setHeader("Name");
+        grid.addColumn(item -> item).setHeader("Name").setKey("Name");
         grid.addComponentColumn(item -> new Checkbox(item));
 
-        grid.addItemClickListener(event -> clickMsg.add(event.getItem()));
+        grid.addItemClickListener(event -> {
+            clickMsg.add(event.getItem());
+            columnKeyMsg.add(getColumnKeyFromEvent(event));
+        });
 
-        grid.addItemDoubleClickListener(event -> dblClickMsg
-                .setText(String.valueOf(event.getClientY())));
+        grid.addItemDoubleClickListener(event -> {
+            dblClickMsg
+                    .setText(String.valueOf(event.getClientY()));
+            columnKeyMsg.setText(getColumnKeyFromEvent(event));
+        });
 
         add(grid, clickMsg, dblClickMsg);
+    }
+
+    private static String getColumnKeyFromEvent(ItemClickEvent<?> event) {
+        if(event.getColumn().isPresent()) {
+            return event.getColumn().get().getKey();
+        }
+        else {
+            return "(cannot get clicked column key!)";
+        }
     }
 
 }

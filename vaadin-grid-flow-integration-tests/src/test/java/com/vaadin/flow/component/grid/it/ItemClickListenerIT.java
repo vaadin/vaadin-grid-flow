@@ -79,6 +79,32 @@ public class ItemClickListenerIT extends AbstractNoW3c {
         checkbox.doubleClick();
         Assert.assertEquals("", getClickMessage());
         Assert.assertEquals("", getDoubleClickMessage());
+        Assert.assertEquals("", getColumnClickMessage());
+    }
+
+    @Test
+    public void clickCell_columnNameAvailable() {
+        grid.getCell(0, 0).click();
+        Assert.assertEquals("Name", getColumnClickMessage());
+    }
+
+    @Test
+    public void clickComponentInCell_columnNameAvailable() {
+        grid.getCell(0, 0).click();
+        TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
+                .first();
+        checkbox.click();
+        Assert.assertEquals("Name", getColumnClickMessage());
+    }
+
+    @Test
+    public void doubleClickCell_columnNameAvailable() {
+        grid.getCell(0, 0).doubleClick();
+        Assert.assertEquals("Name", getColumnClickMessage());
+    }
+
+    private String getColumnClickMessage() {
+        return findElement(By.id("columnClickMsg")).getText();
     }
 
     private String getClickMessage() {
