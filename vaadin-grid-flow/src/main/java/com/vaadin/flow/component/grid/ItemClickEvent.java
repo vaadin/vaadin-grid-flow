@@ -81,7 +81,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      */
     public ItemClickEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.itemKey") String itemKey,
-            @EventData("event.detail.flowKey") String flowColumnKey,
+            @EventData("event.detail.flowId") String flowId,
             @EventData("event.detail.screenX") int screenX,
             @EventData("event.detail.screenY") int screenY,
             @EventData("event.detail.clientX") int clientX,
@@ -95,7 +95,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
         super(source, fromClient, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
         item = source.getDataCommunicator().getKeyMapper().get(itemKey);
-        column = source.getColumnByInternalId(flowColumnKey);
+        column = source.getColumnByInternalId(flowId);
     }
 
     /**
@@ -108,11 +108,10 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
     }
 
     /**
-     * Gets the column that was clicked.
-     * For this to really work the column's id must be set. Otherwise internal magic will be used
-     * to figure out which column it is (using column's internal flow identifiers that are then
-     * converted to integer index of the column).
-     * @return An optional with column. Optional may be empty if the column could not be figured out.
+     * Gets the column that was clicked, if available.
+     * @return An optional with column. Optional may be empty if the column could not be figured out or
+     * when the details cell has been clicked (that cell spans through the entire grid and thus there
+     * is no column information).
      */
     public Optional<Grid.Column<T>> getColumn() {
         return Optional.ofNullable(column);
