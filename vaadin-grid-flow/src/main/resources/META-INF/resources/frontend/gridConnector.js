@@ -947,7 +947,7 @@ window.Vaadin.Flow.gridConnector = {
         const eventContext = grid.getEventContext(event);
         // if you have a details-renderer, getEventContext().column is undefined
         if (eventContext.column) {
-          event.flowId = eventContext.column._flowId;
+          event.internalColumnId = eventContext.column._flowId;
         }
         grid.dispatchEvent(new CustomEvent(eventName,
           { detail: event }));

@@ -49,6 +49,9 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      *            client, <code>false</code> if the event originates from
      *            server-side logic
      * @param itemKey the item mapper key
+     * @param internalColumnId
+     *            the internal id of the column associated with
+     *            the click event (if present)
      * @param screenX
      *            the x coordinate of the click event, relative to the upper
      *            left corner of the screen, -1 if unknown
@@ -81,7 +84,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      */
     public ItemClickEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.itemKey") String itemKey,
-            @EventData("event.detail.flowId") String flowId,
+            @EventData("event.detail.internalColumnId") String internalColumnId,
             @EventData("event.detail.screenX") int screenX,
             @EventData("event.detail.screenY") int screenY,
             @EventData("event.detail.clientX") int clientX,
@@ -95,7 +98,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
         super(source, fromClient, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
         item = source.getDataCommunicator().getKeyMapper().get(itemKey);
-        column = source.getColumnByFlowId(flowId);
+        column = source.getColumnByInternalId(internalColumnId);
     }
 
     /**

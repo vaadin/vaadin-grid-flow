@@ -2667,7 +2667,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the column corresponding to the given column identifier, or {@code null}
      *         if no column has such an identifier
      */
-    Column<T> getColumnByFlowId(String internalId) {
+    Column<T> getColumnByInternalId(String internalId) {
         return idToColumnMap.get(internalId);
     }
 
