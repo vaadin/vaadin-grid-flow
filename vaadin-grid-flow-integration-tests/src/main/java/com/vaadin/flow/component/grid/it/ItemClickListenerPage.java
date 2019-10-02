@@ -31,8 +31,11 @@ public class ItemClickListenerPage extends Div {
         Div dblClickMsg = new Div();
         dblClickMsg.setId("dblClickMsg");
 
-        Div columnKeyMsg = new Div();
-        columnKeyMsg.setId("columnClickMsg");
+        Div columnClickMsg = new Div();
+        columnClickMsg.setId("columnClickMsg");
+
+        Div columnDblClickMsg = new Div();
+        columnDblClickMsg.setId("columnDblClickMsg");
 
         Grid<String> grid = new Grid<>();
         grid.setItems("foo", "bar");
@@ -41,20 +44,20 @@ public class ItemClickListenerPage extends Div {
 
         grid.addItemClickListener(event -> {
             clickMsg.add(event.getItem());
-            columnKeyMsg.add(getColumnKeyFromEvent(event));
+            columnClickMsg.add(getColumnKeyFromEvent(event));
         });
 
         grid.addItemDoubleClickListener(event -> {
             dblClickMsg
                     .setText(String.valueOf(event.getClientY()));
-            columnKeyMsg.setText(getColumnKeyFromEvent(event));
+            columnDblClickMsg.setText(getColumnKeyFromEvent(event));
         });
 
-        add(grid, clickMsg, dblClickMsg, columnKeyMsg);
+        add(grid, clickMsg, dblClickMsg, columnClickMsg, columnDblClickMsg);
     }
 
     private static String getColumnKeyFromEvent(ItemClickEvent<?> event) {
-        if(event.getColumn().isPresent()) {
+        if (event.getColumn().isPresent()) {
             return event.getColumn().get().getKey();
         }
         else {
