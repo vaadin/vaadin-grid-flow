@@ -75,7 +75,6 @@ public class ItemDoubleClickEvent<T> extends ItemClickEvent<T> {
      */
     public ItemDoubleClickEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.itemKey") String itemKey,
-            @EventData("event.detail.columnKey") String columnKey,
             @EventData("event.detail.flowKey") String flowColumnKey,
             @EventData("event.detail.screenX") int screenX,
             @EventData("event.detail.screenY") int screenY,
@@ -87,7 +86,7 @@ public class ItemDoubleClickEvent<T> extends ItemClickEvent<T> {
             @EventData("event.detail.shiftKey") boolean shiftKey,
             @EventData("event.detail.altKey") boolean altKey,
             @EventData("event.detail.metaKey") boolean metaKey) {
-        super(source, fromClient, itemKey, columnKey, flowColumnKey, screenX, screenY, clientX, clientY,
+        super(source, fromClient, itemKey, flowColumnKey, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
     }
 

@@ -81,7 +81,6 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      */
     public ItemClickEvent(Grid<T> source, boolean fromClient,
             @EventData("event.detail.itemKey") String itemKey,
-            @EventData("event.detail.columnKey") String columnKey,
             @EventData("event.detail.flowKey") String flowColumnKey,
             @EventData("event.detail.screenX") int screenX,
             @EventData("event.detail.screenY") int screenY,
@@ -96,18 +95,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
         super(source, fromClient, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
         item = source.getDataCommunicator().getKeyMapper().get(itemKey);
-        // id of column should be set for this to work
-        if(columnKey != null && !columnKey.isEmpty()) {
-            column = source.getColumns().stream().filter(col -> col.getId().isPresent() && columnKey.equals(col.getId().get())).findFirst().orElse(null);
-        }
-        // if id is not set, use internal flow ids
-        else if(flowColumnKey != null && !flowColumnKey.isEmpty() && flowColumnKey.matches("col\\d+")) {
-            column = source.getColumns().get(Integer.parseInt(flowColumnKey.substring(3)));
-        }
-        // otherwise, nothing to report here
-        else {
-            column = null;
-        }
+        column = source.getColumnByInternalId(flowColumnKey);
     }
 
     /**
