@@ -95,7 +95,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
         super(source, fromClient, screenX, screenY, clientX, clientY,
                 clickCount, button, ctrlKey, shiftKey, altKey, metaKey);
         item = source.getDataCommunicator().getKeyMapper().get(itemKey);
-        column = source.getColumnByInternalId(flowId);
+        column = source.getColumnByFlowId(flowId);
     }
 
     /**
