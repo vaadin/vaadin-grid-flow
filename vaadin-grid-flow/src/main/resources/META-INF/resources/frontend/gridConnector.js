@@ -199,15 +199,13 @@ window.Vaadin.Flow.gridConnector = {
         return;
       }
       if (!newVal) {
-        if (oldVal && selectedKeys[oldVal.key]) {
+    	if (!grid.$connector.deselectAllowed && oldVal) {
+    	  grid.activeItem = oldVal;
+    	} else if (oldVal && selectedKeys[oldVal.key]) {
           grid.$connector.doDeselection([oldVal], true);
         }
-        return;
-      }
-      if (!selectedKeys[newVal.key]) {
+      } else if (!selectedKeys[newVal.key]) {
         grid.$connector.doSelection([newVal], true);
-      } else {
-        grid.$connector.doDeselection([newVal], true);
       }
     };
     grid._createPropertyObserver('activeItem', '__activeItemChanged', true);
@@ -872,6 +870,8 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
+    grid.$connector.deselectAllowed = true;
+    
     // TODO: should be removed once https://github.com/vaadin/vaadin-grid/issues/1471 gets implemented
     grid.$connector.setVerticalScrollingEnabled = function(enabled) {
       // There are two scollable containers in grid so apply the changes for both
