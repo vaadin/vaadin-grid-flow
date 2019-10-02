@@ -64,6 +64,15 @@ public class ItemClickListenerIT extends AbstractNoW3c {
     }
 
     @Test
+    public void clickCell_clickCheckboxInCell_onlyOneClickEventFired() {
+        grid.getCell(0, 0).click();
+        TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
+                .first();
+        checkbox.click();
+        Assert.assertEquals("foo", getClickMessage());
+    }
+
+    @Test
     public void doubleClickCheckboxInCell_noEventsFired() {
         TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
                 .first();
@@ -76,6 +85,15 @@ public class ItemClickListenerIT extends AbstractNoW3c {
     @Test
     public void clickCell_columnNameAvailable() {
         grid.getCell(0, 0).click();
+        Assert.assertEquals("Name", getColumnClickMessage());
+    }
+
+    @Test
+    public void clickComponentInCell_columnNameAvailable() {
+        grid.getCell(0, 0).click();
+        TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
+                .first();
+        checkbox.click();
         Assert.assertEquals("Name", getColumnClickMessage());
     }
 
