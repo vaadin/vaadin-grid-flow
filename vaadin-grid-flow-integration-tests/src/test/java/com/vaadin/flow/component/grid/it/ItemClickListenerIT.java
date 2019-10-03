@@ -107,6 +107,18 @@ public class ItemClickListenerIT extends AbstractNoW3c {
         Assert.assertEquals("", getClickMessage());
     }
 
+    @Test
+    public void doubleClickDetailsCell_noItemClickEventFired() {
+        waitUntil(driver ->
+                      grid.findElements(By.className("row-details")) != null);
+        WebElement details = findElement(By.id("details-bar"));
+        ((TestBenchElement)details).doubleClick();
+        Assert.assertEquals("", getColumnClickMessage());
+        Assert.assertEquals("", getColumnDoubleClickMessage());
+        Assert.assertEquals("", getDoubleClickMessage());
+        Assert.assertEquals("", getClickMessage());
+    }
+
     private String getColumnDoubleClickMessage() {
         return findElement(By.id("columnDblClickMsg")).getText();
     }

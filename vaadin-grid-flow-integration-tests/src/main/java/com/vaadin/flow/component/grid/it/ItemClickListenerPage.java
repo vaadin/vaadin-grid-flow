@@ -50,9 +50,8 @@ public class ItemClickListenerPage extends Div {
         });
 
         grid.addItemDoubleClickListener(event -> {
-            dblClickMsg
-                    .setText(String.valueOf(event.getClientY()));
-            columnDblClickMsg.setText(event.getColumn().getKey());
+            dblClickMsg.add(String.valueOf(event.getClientY()));
+            columnDblClickMsg.add(event.getColumn().getKey());
         });
 
         grid.setItemDetailsRenderer(new ComponentRenderer<>((SerializableFunction<String, Span>) ItemClickListenerPage::getDetailsComponent));

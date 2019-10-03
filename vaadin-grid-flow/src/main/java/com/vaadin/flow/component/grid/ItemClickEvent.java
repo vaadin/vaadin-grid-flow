@@ -49,7 +49,7 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
      * @param itemKey the item mapper key
      * @param internalColumnId
      *            the internal id of the column associated with
-     *            the click event (if present)
+     *            the click event
      * @param screenX
      *            the x coordinate of the click event, relative to the upper
      *            left corner of the screen, -1 if unknown
@@ -160,8 +160,8 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
 
     /**
      * Gets the column that was clicked.
-     * @return The column that was clicked. It should not be {@code null}, unless somehow the information
-     * about the column has not been passed from the client-side component.
+     *
+     * @return the clicked column, not {@code null}
      */
     public Grid.Column<T> getColumn() {
         return column;

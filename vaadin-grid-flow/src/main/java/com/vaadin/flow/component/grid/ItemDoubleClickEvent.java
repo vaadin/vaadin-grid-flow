@@ -45,7 +45,7 @@ public class ItemDoubleClickEvent<T> extends ItemClickEvent<T> {
      * @param itemKey the item mapper key
      * @param internalColumnId
      *            the internal id of the column associated with
-     *            the click event (if present)
+     *            the click event
      * @param screenX
      *            the x coordinate of the click event, relative to the upper
      *            left corner of the screen, -1 if unknown
