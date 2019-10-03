@@ -19,8 +19,6 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
-import java.util.Optional;
-
 /**
  * Event fired when a Grid item is clicked.
  *
@@ -161,13 +159,12 @@ public class ItemClickEvent<T> extends ClickEvent<Grid<T>> {
     }
 
     /**
-     * Gets the column that was clicked, if available.
-     * @return An optional with column. Optional may be empty if the column could not be figured out or
-     * when the details cell has been clicked (that cell spans through the entire grid and thus there
-     * is no column information).
+     * Gets the column that was clicked.
+     * @return The column that was clicked. It should not be {@code null}, unless somehow the information
+     * about the column has not been passed from the client-side component.
      */
-    public Optional<Grid.Column<T>> getColumn() {
-        return Optional.ofNullable(column);
+    public Grid.Column<T> getColumn() {
+        return column;
     }
 
 }

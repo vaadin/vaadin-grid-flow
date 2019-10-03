@@ -17,7 +17,6 @@ package com.vaadin.flow.component.grid.it;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.ItemClickEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -43,17 +42,17 @@ public class ItemClickListenerPage extends Div {
         Grid<String> grid = new Grid<>();
         grid.setItems("foo", "bar");
         grid.addColumn(item -> item).setHeader("Name").setKey("Name");
-        grid.addComponentColumn(item -> new Checkbox(item));
+        grid.addComponentColumn(Checkbox::new);
 
         grid.addItemClickListener(event -> {
             clickMsg.add(event.getItem());
-            columnClickMsg.add(getColumnKeyFromEvent(event));
+            columnClickMsg.add(event.getColumn().getKey());
         });
 
         grid.addItemDoubleClickListener(event -> {
             dblClickMsg
                     .setText(String.valueOf(event.getClientY()));
-            columnDblClickMsg.setText(getColumnKeyFromEvent(event));
+            columnDblClickMsg.setText(event.getColumn().getKey());
         });
 
         grid.setItemDetailsRenderer(new ComponentRenderer<>((SerializableFunction<String, Span>) ItemClickListenerPage::getDetailsComponent));
@@ -67,15 +66,6 @@ public class ItemClickListenerPage extends Div {
         Span result = new Span(s);
         result.setId("details-"+s);
         return result;
-    }
-
-    private static String getColumnKeyFromEvent(ItemClickEvent<?> event) {
-        if (event.getColumn().isPresent()) {
-            return event.getColumn().get().getKey();
-        }
-        else {
-            return "(cannot get clicked column key!)";
-        }
     }
 
 }

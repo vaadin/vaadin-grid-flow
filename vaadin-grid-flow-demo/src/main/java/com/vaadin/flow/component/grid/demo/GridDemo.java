@@ -1831,7 +1831,7 @@ public class GridDemo extends DemoView {
                 event -> {
                     name.setText(event.getItem().getFirstName());
                     age.setText(String.valueOf(event.getItem().getAge()));
-                    event.getColumn().ifPresent(col -> column.setText(col.getKey()));
+                    column.setText(event.getColumn().getKey());
                 });
 
         // end-source-example
