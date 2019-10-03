@@ -27,6 +27,7 @@ import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.component.grid.testbench.GridTRElement;
 import com.vaadin.flow.testutil.TestPath;
 import com.vaadin.testbench.TestBenchElement;
+import org.openqa.selenium.WebElement;
 
 @TestPath("item-click-listener")
 public class ItemClickListenerIT extends AbstractNoW3c {
@@ -92,6 +93,16 @@ public class ItemClickListenerIT extends AbstractNoW3c {
     public void doubleClickCell_columnNameAvailable() {
         grid.getCell(0, 0).doubleClick();
         Assert.assertEquals("Name", getColumnDoubleClickMessage());
+    }
+
+    @Test
+    public void clickDetailsCell_noColumnNameAvailable() {
+        waitUntil(driver ->
+                      grid.findElements(By.className("row-details")) != null);
+        WebElement details = findElement(By.id("details-bar"));
+        details.click();
+        Assert.assertEquals("", getColumnClickMessage());
+        Assert.assertEquals("", getColumnDoubleClickMessage());
     }
 
     private String getColumnDoubleClickMessage() {

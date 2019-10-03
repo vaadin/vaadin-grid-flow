@@ -19,6 +19,9 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.ItemClickEvent;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 
 @Route("item-click-listener")
@@ -53,7 +56,17 @@ public class ItemClickListenerPage extends Div {
             columnDblClickMsg.setText(getColumnKeyFromEvent(event));
         });
 
+        grid.setItemDetailsRenderer(new ComponentRenderer<>((SerializableFunction<String, Span>) ItemClickListenerPage::getDetailsComponent));
+        grid.setDetailsVisible("foo", false);
+        grid.setDetailsVisible("bar", true);
+
         add(grid, clickMsg, dblClickMsg, columnClickMsg, columnDblClickMsg);
+    }
+
+    private static Span getDetailsComponent(String s) {
+        Span result = new Span(s);
+        result.setId("details-"+s);
+        return result;
     }
 
     private static String getColumnKeyFromEvent(ItemClickEvent<?> event) {
