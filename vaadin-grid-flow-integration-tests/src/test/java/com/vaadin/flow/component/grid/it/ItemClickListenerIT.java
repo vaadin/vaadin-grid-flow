@@ -96,13 +96,15 @@ public class ItemClickListenerIT extends AbstractNoW3c {
     }
 
     @Test
-    public void clickDetailsCell_noColumnNameAvailable() {
+    public void clickDetailsCell_noItemClickEventFired() {
         waitUntil(driver ->
                       grid.findElements(By.className("row-details")) != null);
         WebElement details = findElement(By.id("details-bar"));
         details.click();
         Assert.assertEquals("", getColumnClickMessage());
         Assert.assertEquals("", getColumnDoubleClickMessage());
+        Assert.assertEquals("", getDoubleClickMessage());
+        Assert.assertEquals("", getClickMessage());
     }
 
     private String getColumnDoubleClickMessage() {
