@@ -199,9 +199,9 @@ window.Vaadin.Flow.gridConnector = {
         return;
       }
       if (!newVal) {
-    	if (!grid.$connector.deselectAllowed && oldVal) {
-    	  grid.activeItem = oldVal;
-    	} else if (oldVal && selectedKeys[oldVal.key]) {
+        if (!grid.$connector.deselectAllowed && oldVal) {
+          grid.activeItem = oldVal;
+        } else if (oldVal && selectedKeys[oldVal.key]) {
           grid.$connector.doDeselection([oldVal], true);
         }
       } else if (!selectedKeys[newVal.key]) {
