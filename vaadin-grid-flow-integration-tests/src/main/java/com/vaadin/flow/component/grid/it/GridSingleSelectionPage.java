@@ -59,8 +59,10 @@ public class GridSingleSelectionPage extends VerticalLayout {
                 .setHeader("column 1");
         grid.setItems(IntStream.rangeClosed(1, 3).mapToObj(String::valueOf));
         grid.setHeightByRows(true);
-        ((GridSingleSelectionModel) grid.getSelectionModel())
-                .setDeselectAllowed(deselectAllowed);
+        if (!deselectAllowed) {
+            ((GridSingleSelectionModel) grid.getSelectionModel())
+                    .setDeselectAllowed(deselectAllowed);
+        }
         grid.setId(id);
         return grid;
     }
