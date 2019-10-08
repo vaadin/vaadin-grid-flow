@@ -94,14 +94,15 @@ public class GridContextMenu<T> extends
         private final transient Optional<String> columnId;
 
         @SuppressWarnings("unchecked")
-        public GridContextMenuOpenedEvent(GridContextMenu<T> source, boolean fromClient) {
+        public GridContextMenuOpenedEvent(GridContextMenu<T> source,
+                boolean fromClient) {
             super(source, fromClient);
             grid = (Grid<T>) getSource().getTarget();
             item = Optional.ofNullable(grid.getDataCommunicator().getKeyMapper()
                     .get(grid.getElement()
                             .getProperty("_contextMenuTargetItemKey")));
             columnId = Optional.ofNullable(grid.getElement()
-                            .getProperty("_contextMenuTargetColumnId"));
+                    .getProperty("_contextMenuTargetColumnId"));
         }
 
         /**
@@ -116,9 +117,10 @@ public class GridContextMenu<T> extends
         }
 
         /**
-         * Gets the column ID in the Grid that was the target of the context-click,
-         * or an empty {@code Optional} if the context-click didn't target any
-         * application column in the Grid (eg. selection column).
+         * Gets the column ID in the Grid that was the target of the
+         * context-click, or an empty {@code Optional} if the context-click
+         * didn't target any application column in the Grid (eg. selection
+         * column).
          *
          * @return the target item of the context-click
          */
@@ -204,7 +206,9 @@ public class GridContextMenu<T> extends
      */
     public Registration addGridContextMenuOpenedListener(
             ComponentEventListener<GridContextMenuOpenedEvent<T>> listener) {
-        return super.addOpenedChangeListener(ev -> listener.onComponentEvent(new GridContextMenuOpenedEvent<>(ev.getSource(), ev.isFromClient())));
+        return super.addOpenedChangeListener(ev -> listener.onComponentEvent(
+                new GridContextMenuOpenedEvent<>(ev.getSource(),
+                        ev.isFromClient())));
     }
 
     /**
