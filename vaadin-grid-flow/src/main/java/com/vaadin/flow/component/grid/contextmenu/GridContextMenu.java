@@ -24,7 +24,7 @@ import com.vaadin.flow.component.contextmenu.ContextMenuBase;
 import com.vaadin.flow.component.contextmenu.MenuManager;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.function.SerializableBiFunction;
-import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.shared.Registration;
 
@@ -41,7 +41,7 @@ public class GridContextMenu<T> extends
         ContextMenuBase<GridContextMenu<T>, GridMenuItem<T>, GridSubMenu<T>>
         implements HasGridMenuItems<T> {
 
-    private SerializableFunction<T, Boolean> dynamicContentHandler;
+    private SerializablePredicate<T> dynamicContentHandler;
 
     /**
      * Event that is fired when a {@link GridMenuItem} is clicked inside a
@@ -223,7 +223,7 @@ public class GridContextMenu<T> extends
      * @return the callback function that is executed before opening the context
      *         menu, or {@code null} if not specified.
      */
-    public SerializableFunction<T, Boolean> getDynamicContentHandler() {
+    public SerializablePredicate<T> getDynamicContentHandler() {
         return dynamicContentHandler;
     }
 
@@ -246,7 +246,7 @@ public class GridContextMenu<T> extends
      *            context menu.
      */
     public void setDynamicContentHandler(
-            SerializableFunction<T, Boolean> dynamicContentHandler) {
+            SerializablePredicate<T> dynamicContentHandler) {
         this.dynamicContentHandler = dynamicContentHandler;
     }
 
@@ -260,7 +260,7 @@ public class GridContextMenu<T> extends
 
         if (getDynamicContentHandler() != null) {
             final T item = grid.getDataCommunicator().getKeyMapper().get(key);
-            return getDynamicContentHandler().apply(item);
+            return getDynamicContentHandler().test(item);
         }
 
         return super.onBeforeOpenMenu(eventDetail);
