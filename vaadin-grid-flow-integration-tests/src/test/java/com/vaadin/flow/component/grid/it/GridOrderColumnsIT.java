@@ -15,13 +15,14 @@
  */
 package com.vaadin.flow.component.grid.it;
 
-import com.vaadin.flow.component.grid.testbench.GridElement;
-import com.vaadin.flow.testutil.AbstractComponentIT;
-import com.vaadin.flow.testutil.TestPath;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
+
+import com.vaadin.flow.component.grid.testbench.GridElement;
+import com.vaadin.flow.testutil.AbstractComponentIT;
+import com.vaadin.flow.testutil.TestPath;
 
 /**
  * Tests reorder of columns
@@ -65,7 +66,8 @@ public class GridOrderColumnsIT extends AbstractComponentIT {
 
     private void assertColumnHeaders(String... headers) {
         for (int i = 0; i < headers.length; i++) {
-            Assert.assertEquals("Unexpected header for column " + i, headers[i], grid.getHeaderCell(i).getText());
+            Assert.assertEquals("Unexpected header for column " + i, headers[i],
+                    grid.getHeaderCell(i).getText());
         }
     }
 }
