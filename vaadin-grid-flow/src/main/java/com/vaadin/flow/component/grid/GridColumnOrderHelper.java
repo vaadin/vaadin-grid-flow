@@ -97,6 +97,11 @@ class GridColumnOrderHelper<T> {
         for (ColumnLayer columnLayer : grid.getColumnLayers()) {
             columnLayer.updateColumnOrder(columnsPreOrder);
         }
+
+        // This will reset all column orders so that the visual column order
+        // will also reflect that in the DOM.
+        grid.getElement()
+                .executeJs("this._updateOrders(this._columnTree, null)");
     }
 
     /**

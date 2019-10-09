@@ -55,6 +55,14 @@ public class GridOrderColumnsPage extends VerticalLayout {
                     grid.setColumnOrder(column3, column1);
                 });
         orderCol31Button.setId("button-31");
-        add(new HorizontalLayout(orderCol123Button, orderCol321Button, orderCol31Button));
+
+        Button visualOrderButton = new Button("Visual 2 1 3",
+                e -> grid.getElement().executeJs(
+                        "this._swapColumnOrders($0, $1)", column1.getElement(),
+                        column2.getElement()));
+        visualOrderButton.setId("button-visual-order");
+
+        add(new HorizontalLayout(orderCol123Button, orderCol321Button,
+                orderCol31Button, visualOrderButton));
     }
 }

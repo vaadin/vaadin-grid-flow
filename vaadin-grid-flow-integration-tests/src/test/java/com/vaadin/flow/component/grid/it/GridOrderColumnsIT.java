@@ -64,6 +64,14 @@ public class GridOrderColumnsIT extends AbstractComponentIT {
         assertColumnHeaders("Col1", "Col2", "Col3");
     }
 
+    @Test
+    public void gridVisualOrderReset() {
+        findElement(By.id("button-visual-order")).click();
+        assertColumnHeaders("Col2", "Col1", "Col3");
+        findElement(By.id("button-123")).click();
+        assertColumnHeaders("Col1", "Col2", "Col3");
+    }
+
     private void assertColumnHeaders(String... headers) {
         for (int i = 0; i < headers.length; i++) {
             Assert.assertEquals("Unexpected header for column " + i, headers[i],
