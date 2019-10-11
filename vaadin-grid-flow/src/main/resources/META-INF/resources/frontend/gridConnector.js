@@ -165,7 +165,7 @@ window.Vaadin.Flow.gridConnector = {
         if (userOriginated) {
           item.selected = true;
           grid.$server.select(item.key);
-        } else if (selectionMode === 'SINGLE') {
+        } else if (selectionMode === 'SINGLE' && (!grid.activeItem || item.key != grid.activeItem.key)) {
           grid.activeItem = item;
           grid.$connector.activeItem = item;
         }
