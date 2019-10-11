@@ -165,6 +165,9 @@ window.Vaadin.Flow.gridConnector = {
         if (userOriginated) {
           item.selected = true;
           grid.$server.select(item.key);
+        } else if (selectionMode === 'SINGLE') {
+          grid.activeItem = item;
+          grid.$connector.activeItem = item;
         }
       });
     };
@@ -603,16 +606,10 @@ window.Vaadin.Flow.gridConnector = {
         }
         cache[pkey][page] = slice;
 
-        let toSelect = slice.filter(item => item.selected && !isSelectedOnGrid(item));
-        let toDeselect = slice.filter(item => !item.selected  && (selectedKeys[item.key] || isSelectedOnGrid(item)));
-
-        if (selectionMode === 'MULTI') {
-          grid.$connector.doSelection(toSelect);
-        } else if (selectionMode === 'SINGLE' && toSelect.length == 1) {
-          grid.$connector.activeItem = toSelect[0];
-          grid.activeItem = toSelect[0];
-        }
-        grid.$connector.doDeselection(toDeselect);
+        grid.$connector.doSelection(slice.filter(
+          item => item.selected && !isSelectedOnGrid(item)));
+        grid.$connector.doDeselection(slice.filter(
+          item => !item.selected  && (selectedKeys[item.key] || isSelectedOnGrid(item))));
 
         const updatedItems = updateGridCache(page, pkey);
         if (updatedItems) {
