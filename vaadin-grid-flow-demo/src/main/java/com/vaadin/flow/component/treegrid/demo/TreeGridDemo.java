@@ -5,9 +5,12 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.demo.GridDemo.Person;
 import com.vaadin.flow.component.treegrid.demo.data.DepartmentData;
+import com.vaadin.flow.component.treegrid.demo.data.WebpageData;
 import com.vaadin.flow.component.treegrid.demo.entity.Account;
 import com.vaadin.flow.component.treegrid.demo.entity.Department;
+import com.vaadin.flow.component.treegrid.demo.entity.Webpage;
 import com.vaadin.flow.component.treegrid.demo.service.AccountService;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -46,6 +49,7 @@ public class TreeGridDemo extends DemoView {
     protected void initView() {
         createBasicTreeGridUsage();
         createLazyLoadingTreeGridUsage();
+        createTreeGridWithComponentsInHierarchyColumnUsage();
     }
 
     private void createBasicTreeGridUsage() {
@@ -121,8 +125,7 @@ public class TreeGridDemo extends DemoView {
         grid.addHierarchyColumn(Account::toString).setHeader("Account Title");
         grid.addColumn(Account::getCode).setHeader("Code");
 
-        HierarchicalDataProvider dataProvider =
-                new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
+        HierarchicalDataProvider dataProvider = new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
 
             @Override
             public int getChildCount(HierarchicalQuery<Account, Void> query) {
@@ -147,5 +150,23 @@ public class TreeGridDemo extends DemoView {
         grid.setId("treegridlazy");
 
         addCard("TreeGrid with lazy loading", grid);
+    }
+
+    private void createTreeGridWithComponentsInHierarchyColumnUsage() {
+        WebpageData webpageData = new WebpageData();
+
+        // begin-source-example
+        // source-example-heading: TreeGrid with Component in Hierarchy Column
+        TreeGrid<Webpage> grid = new TreeGrid<>();
+
+        grid.setItems(webpageData.getRootPages(), webpageData::getChildPages);
+        grid.addComponentHierarchyColumn(
+                page -> new Anchor(page.getUrl(), page.getName()))
+                .setHeader("Webpages");
+
+        // end-source-example
+        grid.setId("treegridcomponent");
+
+        addCard("TreeGrid with Component in Hierarchy Column", grid);
     }
 }
