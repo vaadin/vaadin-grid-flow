@@ -12,33 +12,28 @@ import com.vaadin.flow.testutil.TestPath;
 @TestPath("treegrid-component-hierarchy-column")
 public class TreeGridComponentHierarchyColumnIT extends AbstractTreeGridIT {
 
-    @Before
-    public void before() {
-        open();
-        setupTreeGrid();
-    }
+  @Before
+  public void before() {
+    open();
+    setupTreeGrid();
+  }
 
-    @Test
-    public void treegridComponentRenderer_expandCollapseExpand_renderersShows() {
-        getTreeGrid().expandWithClick(0);
+  @Test
+  public void treegridComponentRenderer_expandCollapseExpand_renderersShows() {
 
-        assertAllRowsHasTextField(6);
+    assertAllRowsHasTextField(3);
 
-        getTreeGrid().collapseWithClick(0);
+    getTreeGrid().expandWithClick(0);
+    assertAllRowsHasTextField(6);
 
-        assertAllRowsHasTextField(3);
+    getTreeGrid().collapseWithClick(0);
+    assertAllRowsHasTextField(3);
+  }
 
-        getTreeGrid().expandWithClick(0);
-
-        assertAllRowsHasTextField(6);
-    }
-
-    private void assertAllRowsHasTextField(int expectedRowCount) {
-        Assert.assertEquals(expectedRowCount, getTreeGrid().getRowCount());
-        IntStream.range(0, getTreeGrid().getRowCount())
-                .forEach(i -> Assert.assertTrue(
-                        "Row with index " + i + " has no component renderer",
-                        getTreeGrid().hasComponentRenderer(i, 0,
-                                By.tagName("vaadin-text-field"))));
-    }
+  private void assertAllRowsHasTextField(int expectedRowCount) {
+    Assert.assertEquals(expectedRowCount, getTreeGrid().getRowCount());
+    IntStream.range(0, getTreeGrid().getRowCount())
+        .forEach(i -> Assert.assertTrue("Row with index " + i + " has no component renderer",
+            getTreeGrid().hasComponentRenderer(i, 0, By.tagName("vaadin-text-field"))));
+  }
 }
