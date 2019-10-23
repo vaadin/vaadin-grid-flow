@@ -61,6 +61,21 @@ public class TreeComponentColumnsIT extends AbstractComponentIT {
         assertCellContains(gridThenComp, 1, 2, "Granddad");
     }
 
+    @Test
+    public void treegridComponentRenderer_expandCollapse_renderersShows() {
+        compThenGrid.expandWithClick(1);
+        compThenGrid.expandWithClick(0);
+        compThenGrid.collapseWithClick(0);
+        compThenGrid.select(1);
+
+        assertCellContains(compThenGrid, 2, 1, "vaadin-text-field");
+        assertCellContains(compThenGrid, 3, 1, "vaadin-text-field");
+        assertCellContains(compThenGrid, 4, 1, "vaadin-text-field");
+        assertCellContains(compThenGrid, 2, 2, "Dad 1/0");
+        assertCellContains(compThenGrid, 3, 2, "Dad 1/1");
+        assertCellContains(compThenGrid, 4, 2, "Dad 1/2");
+    }
+
     private void assertCellContains(GridElement grid, int rowIndex,
             int colIndex, String expected) {
         Assert.assertThat(grid.getCell(rowIndex, colIndex).getInnerHTML(),
