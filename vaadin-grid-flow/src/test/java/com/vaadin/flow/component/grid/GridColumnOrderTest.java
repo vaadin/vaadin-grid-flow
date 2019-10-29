@@ -100,7 +100,7 @@ public class GridColumnOrderTest {
         grid.addColumnReorderListener(event::set);
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
         assertNotNull(event.get());
-        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, event.get().getColumns().toArray());
+        assertArrayEquals(new Object[]{fourthColumn, thirdColumn, secondColumn, firstColumn}, event.get().getVisibleColumnOrder().toArray());
         assertFalse(event.get().isFromClient());
         assertSame(grid, event.get().getSource());
     }

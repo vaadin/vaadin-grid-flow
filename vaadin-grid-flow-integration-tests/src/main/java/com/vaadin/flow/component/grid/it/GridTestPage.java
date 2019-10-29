@@ -109,6 +109,9 @@ public class GridTestPage extends Div {
             return remove;
         })).setKey("remove");
 
+        grid.addColumn(TemplateRenderer.<Item> of("hidden")).setHeader("hidden")
+                .setVisible(false);
+
         grid.setId("grid-with-component-renderers");
         grid.setWidth("500px");
         grid.setHeight("500px");
@@ -122,16 +125,18 @@ public class GridTestPage extends Div {
             usingFirstList.set(!usingFirstList.get());
         });
         changeList.setId("grid-with-component-renderers-change-list");
-        NativeButton toggleColumnOrdering = new NativeButton("Toggle column ordering", evt -> {
-            grid.setColumnReorderingAllowed(!grid.isColumnReorderingAllowed());
-        });
+        NativeButton toggleColumnOrdering = new NativeButton(
+                "Toggle column ordering", evt -> {
+                    grid.setColumnReorderingAllowed(
+                            !grid.isColumnReorderingAllowed());
+                });
         toggleColumnOrdering.setId("toggle-column-ordering");
 
         Span currentColumnOrdering = new Span();
         currentColumnOrdering.setId("current-column-ordering");
-        grid.addColumnReorderListener(e -> currentColumnOrdering.setText(e.getColumns().stream()
-                .map(Column::getKey)
-                .collect(Collectors.joining(", "))));
+        grid.addColumnReorderListener(e -> currentColumnOrdering
+                .setText(e.getVisibleColumnOrder().stream().map(Column::getKey)
+                        .collect(Collectors.joining(", "))));
 
         add(grid, changeList, toggleColumnOrdering, currentColumnOrdering);
     }
