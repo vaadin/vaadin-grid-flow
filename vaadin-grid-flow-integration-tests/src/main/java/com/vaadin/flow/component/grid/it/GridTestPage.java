@@ -108,6 +108,8 @@ public class GridTestPage extends Div {
                     "grid-with-component-renderers-remove-" + item.getNumber());
             return remove;
         })).setKey("remove");
+        grid.addColumn(TemplateRenderer.<Item> of("hidden"))
+            .setHeader("hidden").setKey("hidden").setVisible(false);
 
         grid.setId("grid-with-component-renderers");
         grid.setWidth("500px");

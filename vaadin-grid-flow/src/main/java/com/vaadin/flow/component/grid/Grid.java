@@ -46,6 +46,7 @@ import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -1324,6 +1325,23 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 SelectionMode.SINGLE);
 
         columnLayers.add(new ColumnLayer(this));
+
+        addAttachListener(e -> ensureColumnFlowIds());
+    }
+
+    /**
+     * Properties don't automatically synchronize to non-visible columns. This
+     * bypasses the limitation in order to set the _flowId property for all the
+     * columns (needed by column reorder event).
+     */
+    private void ensureColumnFlowIds() {
+        getColumns().forEach(column -> {
+            int nodeId = column.getElement().getNode().getId();
+            String columnId = column.getElement().getProperty("_flowId");
+            this.getElement().executeJs(
+                    "Vaadin.Flow.clients.ROOT.getByNodeId($0)._flowId = $1",
+                    nodeId, columnId);
+        });
     }
 
     private void generateUniqueKeyData(T item, JsonObject jsonObject) {
@@ -1618,6 +1636,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getElement().appendChild(current.getElement());
 
         getDataCommunicator().reset();
+
         return column;
     }
 
