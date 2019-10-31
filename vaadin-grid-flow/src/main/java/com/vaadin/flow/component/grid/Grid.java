@@ -354,6 +354,21 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 columnDataGeneratorRegistration = grid
                         .addDataGenerator(dataGenerator.get());
             }
+
+            addAttachListener(e -> ensureColumnFlowId());
+        }
+
+        /**
+         * Properties don't automatically synchronize to non-visible columns. This
+         * bypasses the limitation in order to set the _flowId property for the
+         * column (needed by column reorder event).
+         */
+        private void ensureColumnFlowId() {
+            int nodeId = getElement().getNode().getId();
+            String columnId = getElement().getProperty("_flowId");
+            getElement().executeJs(
+                        "Vaadin.Flow.clients.ROOT.getByNodeId($0)._flowId = $1",
+                        nodeId, columnId);
         }
 
         protected void destroyDataGenerators() {
@@ -1325,23 +1340,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 SelectionMode.SINGLE);
 
         columnLayers.add(new ColumnLayer(this));
-
-        addAttachListener(e -> ensureColumnFlowIds());
-    }
-
-    /**
-     * Properties don't automatically synchronize to non-visible columns. This
-     * bypasses the limitation in order to set the _flowId property for all the
-     * columns (needed by column reorder event).
-     */
-    private void ensureColumnFlowIds() {
-        getColumns().forEach(column -> {
-            int nodeId = column.getElement().getNode().getId();
-            String columnId = column.getElement().getProperty("_flowId");
-            this.getElement().executeJs(
-                    "Vaadin.Flow.clients.ROOT.getByNodeId($0)._flowId = $1",
-                    nodeId, columnId);
-        });
     }
 
     private void generateUniqueKeyData(T item, JsonObject jsonObject) {
