@@ -1615,7 +1615,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         column.addAttachListener(e -> {
             int nodeId = column.getElement().getNode().getId();
             this.getElement().executeJs(
-                    "Vaadin.Flow.clients.ROOT.getByNodeId($0)._flowId = $1",
+                    "Vaadin.Flow.clients." + e.getUI().getInternals().getAppId()
+                            + ".getByNodeId($0)._flowId = $1",
                     nodeId, columnId);
         });
 
