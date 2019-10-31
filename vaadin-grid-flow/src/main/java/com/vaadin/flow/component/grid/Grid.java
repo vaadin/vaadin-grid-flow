@@ -1616,7 +1616,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             int nodeId = column.getElement().getNode().getId();
             String appId = e.getUI().getInternals().getAppId();
             this.getElement().executeJs(
-                    "Vaadin.Flow.clients['$0'].getByNodeId($1)._flowId = $2",
+                    "Vaadin.Flow.clients[$0].getByNodeId($1)._flowId = $2",
                     appId, nodeId, columnId);
         });
 
