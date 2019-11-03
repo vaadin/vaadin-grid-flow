@@ -279,7 +279,8 @@ public class TreeGrid<T> extends Grid<T>
     public void setDataProvider(DataProvider<T, ?> dataProvider) {
         if (!(dataProvider instanceof HierarchicalDataProvider)) {
             throw new IllegalArgumentException(
-                    "TreeGrid only accepts hierarchical data providers");
+                    "TreeGrid only accepts hierarchical data providers. "
+                        + "An example of interface to be used: HierarchicalDataProvider");
         }
         super.setDataProvider(dataProvider);
     }
@@ -425,7 +426,9 @@ public class TreeGrid<T> extends Grid<T>
             Collection<String> propertyNames) {
         if (getPropertySet() == null) {
             throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid that isn't constructed from a bean type");
+                    "This method can't be used for a Grid that isn't constructed from a bean type. "
+                        + "To construct Grid from a bean type, please provide a beanType argument"
+                        + "to the constructor: Grid<Person> grid = new Grid<>(Person.class)");
         }
         resetColumns(hierarchyPropertyName, valueProvider, propertyNames);
         return getColumnByKey(hierarchyPropertyName);
@@ -460,7 +463,9 @@ public class TreeGrid<T> extends Grid<T>
     private Column<T> addHierarchyColumn(String propertyName) {
         if (getPropertySet() == null) {
             throw new UnsupportedOperationException(
-                    "This method can't be used for a Grid that isn't constructed from a bean type");
+                    "This method can't be used for a Grid that isn't constructed from a bean type. "
+                        + "To construct Grid from a bean type, please provide a beanType argument"
+                        + "to the constructor: Grid<Person> grid = new Grid<>(Person.class)");
         }
         Objects.requireNonNull(propertyName,
                 "Hierarchy Property name can't be null");
@@ -470,8 +475,9 @@ public class TreeGrid<T> extends Grid<T>
             property = getPropertySet().getProperty(propertyName).get();
         } catch (NoSuchElementException | IllegalArgumentException exception) {
             throw new IllegalArgumentException(
-                    "Can't resolve hierarchy property name '" + propertyName
-                            + "' from '" + getPropertySet() + "'");
+                    "There is no such hierarchy property name in the beanType used "
+                        + "for construction of the grid:"
+                        + "Trying to get '" + propertyName + "' from '" + getPropertySet() + "'");
         }
         return addHierarchyColumn(property);
     }

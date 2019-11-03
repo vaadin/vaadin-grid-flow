@@ -165,6 +165,9 @@ window.Vaadin.Flow.gridConnector = {
         if (userOriginated) {
           item.selected = true;
           grid.$server.select(item.key);
+        } else if (selectionMode === 'SINGLE' && (!grid.activeItem || item.key != grid.activeItem.key)) {
+          grid.activeItem = item;
+          grid.$connector.activeItem = item;
         }
       });
     };
@@ -199,15 +202,13 @@ window.Vaadin.Flow.gridConnector = {
         return;
       }
       if (!newVal) {
-        if (oldVal && selectedKeys[oldVal.key]) {
+        if (!grid.$connector.deselectAllowed && oldVal) {
+          grid.activeItem = oldVal;
+        } else if (oldVal && selectedKeys[oldVal.key]) {
           grid.$connector.doDeselection([oldVal], true);
         }
-        return;
-      }
-      if (!selectedKeys[newVal.key]) {
+      } else if (!selectedKeys[newVal.key]) {
         grid.$connector.doSelection([newVal], true);
-      } else {
-        grid.$connector.doDeselection([newVal], true);
       }
     };
     grid._createPropertyObserver('activeItem', '__activeItemChanged', true);
@@ -436,16 +437,21 @@ window.Vaadin.Flow.gridConnector = {
     grid._updateItem = function(row, item) {
       GridElement.prototype._updateItem.call(grid, row, item);
 
-      // make sure that component renderers are updated
-      Array.from(row.children).forEach(cell => {
-        if(cell._instance && cell._instance.children) {
-          Array.from(cell._instance.children).forEach(content => {
-            if(content._attachRenderedComponentIfAble) {
-              content._attachRenderedComponentIfAble();
-            }
-          });
-        }
-      });
+      // There might be inactive component renderers on hidden rows that still refer to the
+      // same component instance as one of the renderers on a visible row. Making the
+      // inactive/hidden renderer attach the component might steal it from a visible/active one.
+      if (!row.hidden) {
+        // make sure that component renderers are updated
+        Array.from(row.children).forEach(cell => {
+          if(cell._instance && cell._instance.children) {
+            Array.from(cell._instance.children).forEach(content => {
+              if(content._attachRenderedComponentIfAble) {
+                content._attachRenderedComponentIfAble();
+              }
+            });
+          }
+        });
+      }
     }
 
     grid._expandedInstanceChangedCallback = function(inst, value) {
@@ -872,6 +878,8 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
+    grid.$connector.deselectAllowed = true;
+    
     // TODO: should be removed once https://github.com/vaadin/vaadin-grid/issues/1471 gets implemented
     grid.$connector.setVerticalScrollingEnabled = function(enabled) {
       // There are two scollable containers in grid so apply the changes for both
@@ -937,6 +945,16 @@ window.Vaadin.Flow.gridConnector = {
       grid.dispatchEvent(new CustomEvent('column-drag-resize', { detail: {
         resizedColumnKey: e.detail.resizedColumn._flowId
       }}));
+    });
+
+    grid.addEventListener('column-reorder', e => {
+      const columns = grid._columnTree.slice(0).pop()
+        .sort((b, a) => (b._order - a._order))
+        .map(c => c._flowId);
+
+      grid.dispatchEvent(new CustomEvent('column-reorder-all-columns', {
+        detail: { columns }
+      }));
     });
 
     function _fireClickEvent(event, eventName) {
