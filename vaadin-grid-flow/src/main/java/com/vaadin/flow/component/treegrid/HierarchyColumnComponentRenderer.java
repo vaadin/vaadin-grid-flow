@@ -25,15 +25,15 @@ import elemental.json.JsonObject;
  * @param <SOURCE>
  *            the type of the input model object
  */
-public class HierarchyColumnComponentRenderer<COMP extends Component, SOURCE>
-        extends ComponentRenderer<COMP, SOURCE> {
+public class HierarchyColumnComponentRenderer<COMPONENT extends Component, SOURCE>
+        extends ComponentRenderer<COMPONENT, SOURCE> {
 
     public HierarchyColumnComponentRenderer(
-            ValueProvider<SOURCE, COMP> componentProvider) {
+            ValueProvider<SOURCE, COMPONENT> componentProvider) {
         super(componentProvider);
     }
 
-    public HierarchyColumnComponentRenderer<COMP, SOURCE> withProperty(
+    public HierarchyColumnComponentRenderer<COMPONENT, SOURCE> withProperty(
             String property, ValueProvider<SOURCE, ?> provider) {
         setProperty(property, provider);
         return this;
@@ -47,13 +47,8 @@ public class HierarchyColumnComponentRenderer<COMP extends Component, SOURCE>
                 keyMapper == null ? null : keyMapper::key);
         rendering.setTemplateElement(contentTemplate);
 
-        container.getNode()
-                .runWhenAttached(ui -> ui.getInternals().getStateTree()
-                        .beforeClientResponse(container.getNode(),
-                                context -> setupTemplateWhenAttached(
-                                        context.getUI(), container, rendering,
-                                        keyMapper)));
-
+        container.getNode().runWhenAttached(ui -> setupTemplateWhenAttached(ui,
+                container, rendering, keyMapper));
         return rendering;
     }
 
@@ -77,7 +72,7 @@ public class HierarchyColumnComponentRenderer<COMP extends Component, SOURCE>
                     appId, nodeIdPropertyName);
             rendering.setNodeIdPropertyName(nodeIdPropertyName);
         } else {
-            COMP component = createComponent(null);
+            COMPONENT component = createComponent(null);
             if (component != null) {
                 container.appendChild(component.getElement());
 
