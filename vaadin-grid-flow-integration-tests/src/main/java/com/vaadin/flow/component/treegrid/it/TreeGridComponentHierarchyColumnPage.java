@@ -26,7 +26,7 @@ public class TreeGridComponentHierarchyColumnPage extends Div {
         grid.setWidth("100%");
         grid.getStyle().set("flex", "1");
 
-        grid.addComponentHierarchyColumn(str -> createTextField(str))
+        grid.addComponentHierarchyColumn(this::createTextField)
                 .setHeader("Header");
 
         TreeData<String> data = new TreeData<>();
