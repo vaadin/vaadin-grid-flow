@@ -15,13 +15,14 @@
  */
 package com.vaadin.flow.component.treegrid.it;
 
-import com.vaadin.flow.component.grid.testbench.GridElement;
-import com.vaadin.flow.testutil.AbstractComponentIT;
-import com.vaadin.flow.testutil.TestPath;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.vaadin.flow.component.grid.testbench.GridElement;
+import com.vaadin.flow.testutil.AbstractComponentIT;
+import com.vaadin.flow.testutil.TestPath;
 
 /**
  * Tests for dynamically adding new columns with different renderers after the
@@ -45,7 +46,9 @@ public class TreeComponentColumnsIT extends AbstractComponentIT {
 
     @Test
     public void compThenGridRendered_compButton() {
+        assertCellContains(compThenGrid,0,0,"vaadin-text-field");
         assertCellContains(compThenGrid,0,1,"vaadin-text-field");
+        assertCellContains(compThenGrid,1,0,"vaadin-text-field");
         assertCellContains(compThenGrid,1,1,"vaadin-text-field");
         assertCellContains(compThenGrid,1,2,"vaadin-button");
         assertCellContains(compThenGrid,1,2,"Granddad");
@@ -54,7 +57,9 @@ public class TreeComponentColumnsIT extends AbstractComponentIT {
 
     @Test
     public void gridThenCompRendered_compButton() {
+        assertCellContains(gridThenComp,0,0,"vaadin-text-field");
         assertCellContains(gridThenComp,0,1,"vaadin-text-field");
+        assertCellContains(gridThenComp,1,0,"vaadin-text-field");
         assertCellContains(gridThenComp,1,1,"vaadin-text-field");
         assertCellContains(gridThenComp,1,2,"vaadin-button");
         assertCellContains(gridThenComp,1,2,"Granddad");
