@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.treegrid.demo.entity.Department;
 import com.vaadin.flow.component.treegrid.demo.entity.Webpage;
 
 public class WebpageData {
