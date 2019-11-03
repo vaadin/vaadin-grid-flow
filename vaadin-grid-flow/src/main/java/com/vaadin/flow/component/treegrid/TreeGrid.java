@@ -43,6 +43,7 @@ import com.vaadin.flow.data.provider.hierarchy.HierarchicalArrayUpdater.Hierarch
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataCommunicator;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.dom.Element;
@@ -315,7 +316,7 @@ public class TreeGrid<T> extends Grid<T>
      * Adds a new Hierarchy column that shows components.
      * <p>
      * <em>NOTE:</em> Using {@link ComponentRenderer} is not as efficient as the
-     * built in renderers or using {@link TemplateRenderer}.
+     * built in renderers.
      * </p>
      *
      * @param componentProvider
