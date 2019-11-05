@@ -161,11 +161,14 @@ window.Vaadin.Flow.gridConnector = {
 
       grid.selectedItems = grid.selectedItems.concat(items);
       items.forEach(item => {
-        selectedKeys[item.key] = item;
-        if (userOriginated) {
-          item.selected = true;
-          grid.$server.select(item.key);
-        } else if (selectionMode === 'SINGLE' && (!grid.activeItem || item.key != grid.activeItem.key)) {
+        if (item) {
+          selectedKeys[item.key] = item;
+          if (userOriginated) {
+            item.selected = true;
+            grid.$server.select(item.key);
+          }
+        }
+        if (!userOriginated && selectionMode === 'SINGLE' && (!grid.activeItem || !item || item.key != grid.activeItem.key)) {
           grid.activeItem = item;
           grid.$connector.activeItem = item;
         }
@@ -183,15 +186,17 @@ window.Vaadin.Flow.gridConnector = {
         const itemToDeselect = items.shift();
         for (let i = 0; i < updatedSelectedItems.length; i++) {
           const selectedItem = updatedSelectedItems[i];
-          if (itemToDeselect.key === selectedItem.key) {
+          if (itemToDeselect && itemToDeselect.key === selectedItem.key) {
             updatedSelectedItems.splice(i, 1);
             break;
           }
         }
-        delete selectedKeys[itemToDeselect.key];
-        if (userOriginated) {
-          delete itemToDeselect.selected;
-          grid.$server.deselect(itemToDeselect.key);
+        if (itemToDeselect) {
+          delete selectedKeys[itemToDeselect.key];
+          if (userOriginated) {
+            delete itemToDeselect.selected;
+            grid.$server.deselect(itemToDeselect.key);
+          }
         }
       }
       grid.selectedItems = updatedSelectedItems;
@@ -879,7 +884,7 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     grid.$connector.deselectAllowed = true;
-    
+
     // TODO: should be removed once https://github.com/vaadin/vaadin-grid/issues/1471 gets implemented
     grid.$connector.setVerticalScrollingEnabled = function(enabled) {
       // There are two scollable containers in grid so apply the changes for both
