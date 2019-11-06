@@ -984,7 +984,9 @@ window.Vaadin.Flow.gridConnector = {
         grid.dispatchEvent(new CustomEvent(eventName, {detail: event}));
       }
 
-      event.preventDefault();
+      if(grid.preventBrowserContextMenu) {
+        event.preventDefault();
+      }
     }
 
 

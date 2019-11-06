@@ -3871,4 +3871,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getUI().ifPresent(ui -> ui.getInternals().setActiveDragSourceComponent(null));
     }
 
+    /**
+     * When set to {@code true} this method will prevent the browser's context menu from showing, when
+     * the user right clicks on a grid row. This is for instance useful when listening to item clicks.
+     * @param prevent prevent browser context menu
+     */
+    public void preventBrowserContextMenu(boolean prevent) {
+        getElement().setProperty("preventBrowserContextMenu", prevent);
+    }
 }
