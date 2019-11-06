@@ -879,7 +879,7 @@ window.Vaadin.Flow.gridConnector = {
     }
 
     grid.$connector.deselectAllowed = true;
-    
+
     // TODO: should be removed once https://github.com/vaadin/vaadin-grid/issues/1471 gets implemented
     grid.$connector.setVerticalScrollingEnabled = function(enabled) {
       // There are two scollable containers in grid so apply the changes for both
@@ -933,6 +933,7 @@ window.Vaadin.Flow.gridConnector = {
       setTimeout(() => grid.$connector.activeItem = undefined);
     });
     grid.addEventListener('click', e => _fireClickEvent(e, 'item-click'));
+    grid.addEventListener('contextmenu', e => _fireRightClickEvent(e, 'item-click'));
     grid.addEventListener('dblclick', e => _fireClickEvent(e, 'item-double-click'));
 
     grid.addEventListener('column-resize', e => {
@@ -969,6 +970,23 @@ window.Vaadin.Flow.gridConnector = {
           { detail: event }));
       }
     }
+
+    function _fireRightClickEvent(event, eventName) {
+      // grid._onClick(event);
+      // _fireClickEvent(event, eventName);
+
+      const eventContext = grid.getEventContext(event);
+      if(typeof eventContext === 'object' && typeof eventContext.item === 'object' && !grid._isFocusable(event.target)){
+        event.itemKey = eventContext.item.key;
+        if (eventContext.column) {
+          event.internalColumnId = eventContext.column._flowId;
+        }
+        grid.dispatchEvent(new CustomEvent(eventName, {detail: event}));
+      }
+
+      event.preventDefault();
+    }
+
 
     grid.cellClassNameGenerator = function(column, rowData) {
         const style = rowData.item.style;
