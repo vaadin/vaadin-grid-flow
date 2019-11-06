@@ -10,9 +10,21 @@ for use from the server side with [Vaadin Flow](https://github.com/vaadin/flow).
 
 ## Running the component demo
 Run from the command line:
-- `mvn jetty:run -PrunTests`
+- `mvn  -pl vaadin-grid-flow-demo -Pwar install jetty:run`
 
 Then navigate to `http://localhost:9998/vaadin-grid`
+
+
+## Running Integration tests
+
+For running integration tests demos execute one of the following lines depending on the desired mode
+- `mvn -pl vaadin-grid-flow-integration-tests clean jetty:run`
+- `mvn -pl vaadin-grid-flow-integration-tests clean jetty:run -Dvaadin.bowerMode`
+
+Then navigate to `http://localhost:9998/` for see integration tests demos.
+
+For running all integration tests execute
+- `mvn clean install verify`
 
 ## Installing the component
 Run from the command line:
