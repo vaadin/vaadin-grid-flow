@@ -971,6 +971,14 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
+      /**
+       * Is called on a context menu click on a grid row. Checks, if the row itself has been clicked and dispatches
+       *  the event to the server. When the grid property preventBrowserContextMenu is set to true, the event
+       *  will be surpressed (makes of course only sense when called for event 'contextmenu').
+       * @param event event
+       * @param eventName event name
+       * @private
+       */
     function _fireRightClickEvent(event, eventName) {
       // grid._onClick(event);
       // _fireClickEvent(event, eventName);
