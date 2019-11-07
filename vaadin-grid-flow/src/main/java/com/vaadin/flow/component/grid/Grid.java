@@ -3872,11 +3872,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     /**
-     * When set to {@code true} this method will prevent the browser's context menu from showing, when
-     * the user right clicks on a grid row. This is for instance useful when listening to item clicks.
+     * When set to {@code true} this method will prevent the default mouse actions (like showing the browser's
+     * context menu when the user right clicks on a grid row). This is for instance useful when listening to item clicks.
+     * <p/>
+     * The normal <b>left</b> click event is <b>not</b> prevented.
      * @param prevent prevent browser context menu
      */
-    public void preventBrowserContextMenu(boolean prevent) {
-        getElement().setProperty("preventBrowserContextMenu", prevent);
+    public void preventDefaultMouseClickActions(boolean prevent) {
+        getElement().setProperty("preventDefaultMouseClickActions", prevent);
     }
 }

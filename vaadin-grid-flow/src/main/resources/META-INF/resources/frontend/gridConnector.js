@@ -932,8 +932,10 @@ window.Vaadin.Flow.gridConnector = {
       grid.$connector.activeItem = e.detail.model.item;
       setTimeout(() => grid.$connector.activeItem = undefined);
     });
+    grid.addEventListener('mouseup', e => _fireMouseUpEvent(e, 'item-click'));
+    grid.addEventListener('mousedown', e => _handleMouseDownEvent(e));
     grid.addEventListener('click', e => _fireClickEvent(e, 'item-click'));
-    grid.addEventListener('contextmenu', e => _fireRightClickEvent(e, 'item-click'));
+    grid.addEventListener('contextmenu', e => _fireClickEventOnOtherMouseButtons(e, 'item-click'));
     grid.addEventListener('dblclick', e => _fireClickEvent(e, 'item-double-click'));
 
     grid.addEventListener('column-resize', e => {
@@ -971,15 +973,42 @@ window.Vaadin.Flow.gridConnector = {
       }
     }
 
+    /**
+     * Is called on mouse down event inside the grid. When {@code grid.preventDefaultMouseClickActions}
+     * is set to {@code true}, then the middle mouse click default will be prevented (normally scrolling with mouse move)
+     * @param event mouse event
+     * @private
+     */
+    function _handleMouseDownEvent(event) {
+      if(event.button === 1 && grid.preventDefaultMouseClickActions) {
+        event.preventDefault(); // prevent scrolling with middle mouse button click
+      }
+    }
+
+    /**
+     * Is called on mouse up event inside the grid. Delegates to #_fireClickEventOnOtherMouseButtons when
+     * the button is not 0 and not 2 (since these are handled by their own special event handlers).
+     * @param event mouse event
+     * @param eventName custom event name to use
+     * @private
+     */
+    function _fireMouseUpEvent(event, eventName) {
+      if(event.button !== 0 && event.button !== 2) {
+        // 0 is handled by click event
+        // 2 is handled by contextmenu event
+        _fireClickEventOnOtherMouseButtons(event, eventName);
+      }
+    }
+
       /**
-       * Is called on a context menu click on a grid row. Checks, if the row itself has been clicked and dispatches
-       *  the event to the server. When the grid property preventBrowserContextMenu is set to true, the event
-       *  will be surpressed (makes of course only sense when called for event 'contextmenu').
-       * @param event event
-       * @param eventName event name
+       * Is called when a mouse button > 0 is clicked on a grid row. When {@code grid.preventDefaultMouseClickActions}
+       * is set to {@code true}, the event default action is prevented (for instance showing the browser's context
+       * menu on a right click).
+       * @param event mouse event
+       * @param eventName custom event name to use
        * @private
        */
-    function _fireRightClickEvent(event, eventName) {
+    function _fireClickEventOnOtherMouseButtons(event, eventName) {
       // grid._onClick(event);
       // _fireClickEvent(event, eventName);
 
@@ -992,7 +1021,7 @@ window.Vaadin.Flow.gridConnector = {
         grid.dispatchEvent(new CustomEvent(eventName, {detail: event}));
       }
 
-      if(grid.preventBrowserContextMenu) {
+      if(grid.preventDefaultMouseClickActions) {
         event.preventDefault();
       }
     }
