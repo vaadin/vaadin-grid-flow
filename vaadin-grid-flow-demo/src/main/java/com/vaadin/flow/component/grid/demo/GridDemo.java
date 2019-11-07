@@ -1811,6 +1811,7 @@ public class GridDemo extends DemoView {
         Label name = new Label();
         Label age = new Label();
         Label column = new Label();
+        Label button = new Label();
 
         // begin-source-example
         // source-example-heading: Item Click Listener
@@ -1826,13 +1827,16 @@ public class GridDemo extends DemoView {
         formLayout.addFormItem(name, "Name");
         formLayout.addFormItem(age, "Age");
         formLayout.addFormItem(column, "Column");
+        formLayout.addFormItem(button, "Mouse button");
 
         grid.addItemClickListener(
                 event -> {
                     name.setText(event.getItem().getFirstName());
                     age.setText(String.valueOf(event.getItem().getAge()));
                     column.setText(event.getColumn().getKey());
+                    button.setText("" + event.getButton());
                 });
+        grid.preventDefaultMouseClickActions(true);
 
         // end-source-example
         grid.setId("item-click-listener");
