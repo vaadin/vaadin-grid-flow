@@ -39,6 +39,12 @@ public class ItemClickListenerPage extends Div {
         Div columnDblClickMsg = new Div();
         columnDblClickMsg.setId("columnDblClickMsg");
 
+        Div clickButton = new Div();
+        clickButton.setId("clickButton");
+
+        Div dblClickButton = new Div();
+        dblClickButton.setId("dblClickButton");
+
         Grid<String> grid = new Grid<>();
         grid.setItems("foo", "bar");
         grid.addColumn(item -> item).setHeader("Name").setKey("Name");
@@ -47,23 +53,25 @@ public class ItemClickListenerPage extends Div {
         grid.addItemClickListener(event -> {
             clickMsg.add(event.getItem());
             columnClickMsg.add(event.getColumn().getKey());
+            clickButton.add(String.valueOf(event.getButton()));
         });
 
         grid.addItemDoubleClickListener(event -> {
             dblClickMsg.add(String.valueOf(event.getClientY()));
             columnDblClickMsg.add(event.getColumn().getKey());
+            dblClickButton.add(String.valueOf(event.getButton()));
         });
 
         grid.setItemDetailsRenderer(new ComponentRenderer<>((SerializableFunction<String, Span>) ItemClickListenerPage::getDetailsComponent));
         grid.setDetailsVisible("foo", false);
         grid.setDetailsVisible("bar", true);
 
-        add(grid, clickMsg, dblClickMsg, columnClickMsg, columnDblClickMsg);
+        add(grid, clickMsg, dblClickMsg, columnClickMsg, columnDblClickMsg, clickButton, dblClickButton);
     }
 
     private static Span getDetailsComponent(String s) {
         Span result = new Span(s);
-        result.setId("details-"+s);
+        result.setId("details-" + s);
         return result;
     }
 

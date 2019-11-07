@@ -62,6 +62,7 @@ public class ItemClickListenerIT extends AbstractNoW3c {
                 .first();
         checkbox.click();
         Assert.assertEquals("", getClickMessage());
+        Assert.assertEquals("", getClickButton());
     }
 
     @Test
@@ -71,6 +72,7 @@ public class ItemClickListenerIT extends AbstractNoW3c {
                 .first();
         checkbox.click();
         Assert.assertEquals("foo", getClickMessage());
+        Assert.assertEquals("0", getClickButton());
     }
 
     @Test
@@ -105,6 +107,9 @@ public class ItemClickListenerIT extends AbstractNoW3c {
         Assert.assertEquals("", getColumnDoubleClickMessage());
         Assert.assertEquals("", getDoubleClickMessage());
         Assert.assertEquals("", getClickMessage());
+        Assert.assertEquals("", getClickButton());
+        Assert.assertEquals("", getDoubleClickButton());
+
     }
 
     @Test
@@ -117,7 +122,28 @@ public class ItemClickListenerIT extends AbstractNoW3c {
         Assert.assertEquals("", getColumnDoubleClickMessage());
         Assert.assertEquals("", getDoubleClickMessage());
         Assert.assertEquals("", getClickMessage());
+        Assert.assertEquals("", getClickButton());
     }
+
+    @Test
+    public void contextClickCheckboxInCell_noItemClickEventFired() {
+        TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
+                .first();
+        checkbox.contextClick();
+        Assert.assertEquals("", getClickMessage());
+        Assert.assertEquals("", getClickButton());
+    }
+
+    @Test
+    public void contextClickCell_clickCheckboxInCell_onlyOneClickEventFired() {
+        grid.getCell(0, 0).click();
+        TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
+                .first();
+        checkbox.contextClick();
+        Assert.assertEquals("foo", getClickMessage());
+        Assert.assertEquals("2", getClickButton());
+    }
+
 
     private String getColumnDoubleClickMessage() {
         return findElement(By.id("columnDblClickMsg")).getText();
@@ -133,6 +159,14 @@ public class ItemClickListenerIT extends AbstractNoW3c {
 
     private String getDoubleClickMessage() {
         return findElement(By.id("dblClickMsg")).getText();
+    }
+
+    private String getClickButton() {
+        return findElement(By.id("clickButton")).getText();
+    }
+
+    private String getDoubleClickButton() {
+        return findElement(By.id("dblClickButton")).getText();
     }
 
 }
