@@ -1820,6 +1820,9 @@ public class GridDemo extends DemoView {
         grid.addColumn(Person::getFirstName).setHeader("First Name").setKey("First Name");
         grid.addColumn(Person::getAge).setHeader("Age").setKey("Age");
 
+        // just a dummy checkbox to show, that the item click listener is not notified, when clicking inside of components.
+        grid.addComponentColumn(p -> new Checkbox()).setHeader("Dummy").setKey("Dummy");
+
         // Disable selection: will receive only click events instead
         grid.setSelectionMode(Grid.SelectionMode.NONE);
 
