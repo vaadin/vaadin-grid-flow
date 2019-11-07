@@ -125,6 +125,8 @@ public class ItemClickListenerIT extends AbstractNoW3c {
         Assert.assertEquals("", getClickButton());
     }
 
+    // TODO integrate middle mouse button when available via test element API
+
     @Test
     public void contextClickCheckboxInCell_noItemClickEventFired() {
         TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
