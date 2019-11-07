@@ -136,7 +136,7 @@ public class ItemClickListenerIT extends AbstractNoW3c {
 
     @Test
     public void contextClickCell_clickCheckboxInCell_onlyOneClickEventFired() {
-        grid.getCell(0, 0).click();
+        grid.getCell(0, 0).contextClick();
         TestBenchElement checkbox = grid.getCell(0, 1).$("vaadin-checkbox")
                 .first();
         checkbox.contextClick();
