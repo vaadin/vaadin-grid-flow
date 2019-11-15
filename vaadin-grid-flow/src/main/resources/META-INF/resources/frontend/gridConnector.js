@@ -1008,26 +1008,59 @@ window.Vaadin.Flow.gridConnector = {
        * @param eventName custom event name to use
        * @private
        */
-    function _fireClickEventOnOtherMouseButtons(event, eventName) {
-      // grid._onClick(event);
-      // _fireClickEvent(event, eventName);
+      function _fireClickEventOnOtherMouseButtons(event, eventName) {
+        // grid._onClick(event);
+        // _fireClickEvent(event, eventName);
 
-      const eventContext = grid.getEventContext(event);
-      if(typeof eventContext === 'object' && typeof eventContext.item === 'object' && !grid._isFocusable(event.target)){
-        event.itemKey = eventContext.item.key;
-        if (eventContext.column) {
-          event.internalColumnId = eventContext.column._flowId;
+        const eventContext = grid.getEventContext(event);
+        if (typeof eventContext === 'object' && typeof eventContext.item === 'object' && !grid._isFocusable(event.target)) {
+          event.itemKey = eventContext.item.key;
+          if (eventContext.column) {
+            event.internalColumnId = eventContext.column._flowId;
+          }
+
+
+          let eventData;
+          if (event.type === 'contextmenu' && event.button !== 2) {
+            // this is needed since chrome on touch devices sends
+            // button 0 for contextmenu, which is contradictory
+            // behavior to other browsers and most normal understanding
+            // of "context menu" intiation ("right click")
+            eventData = _extractMouseEventDetails(event);
+            eventData.button = 2;
+          } else {
+            eventData = event;
+          }
+
+          grid.dispatchEvent(new CustomEvent(eventName, {detail: eventData}));
         }
-        grid.dispatchEvent(new CustomEvent(eventName, {detail: event}));
+
+        if (grid.preventDefaultMouseClickActions) {
+          event.preventDefault();
+        }
       }
 
-      if(grid.preventDefaultMouseClickActions) {
-        event.preventDefault();
+      function _extractMouseEventDetails(mouseEvent) {
+        return {
+          itemKey: mouseEvent.itemKey,
+          internalColumnId: mouseEvent.internalColumnId,
+          screenX: mouseEvent.screenX,
+          screenY: mouseEvent.screenY,
+          clientX: mouseEvent.clientX,
+          clientY: mouseEvent.clientY,
+          detail: mouseEvent.detail,
+          button: mouseEvent.button,
+          ctrlKey: mouseEvent.ctrlKey,
+          shiftKey: mouseEvent.shiftKey,
+          altKey: mouseEvent.altKey,
+          metaKey: mouseEvent.metaKey
+        };
       }
-    }
 
 
-    grid.cellClassNameGenerator = function(column, rowData) {
+
+
+      grid.cellClassNameGenerator = function(column, rowData) {
         const style = rowData.item.style;
         if (!style) {
             return;
