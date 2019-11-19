@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Component;
@@ -275,7 +276,7 @@ class GridColumnOrderHelper<T> {
          * {@link Grid.Column#getInternalId()}s of leaf {@link Grid.Column}s
          * nested under this node. The sets are unmodifiable.
          */
-        private final Map<Component, Set<String>> nodeLeafsCache = new HashMap<>();
+        private final Map<Component, Set<String>> nodeLeafsCache = new ConcurrentHashMap<>();
 
         /**
          * Returns a set of {@link Grid.Column#getInternalId()} of columns

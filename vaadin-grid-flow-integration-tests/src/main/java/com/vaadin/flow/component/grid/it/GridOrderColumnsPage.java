@@ -27,8 +27,6 @@ import com.vaadin.flow.router.Route;
 public class GridOrderColumnsPage extends VerticalLayout {
     public GridOrderColumnsPage() {
         Grid<Integer> grid = new Grid<>();
-        grid.appendHeaderRow();
-        grid.appendFooterRow();
 
         Grid.Column<Integer> column1 = grid.addColumn(value -> "col1 " + value)
                 .setHeader("Col1").setKey("1");
@@ -38,6 +36,9 @@ public class GridOrderColumnsPage extends VerticalLayout {
                 .setHeader("Col3").setKey("3");
         Grid.Column<Integer> column4 = grid.addColumn(value -> "col4 " + value)
                 .setHeader("Col4").setKey("4");
+
+        grid.appendHeaderRow();
+        grid.appendFooterRow();
 
         // Adding invisible column to make sure it's not affecting ordering
         // of the visible columns
