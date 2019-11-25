@@ -15,6 +15,7 @@
  */
 package com.vaadin.flow.component.grid;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import com.vaadin.flow.data.renderer.Rendering;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.internal.HtmlUtils;
+import com.vaadin.flow.internal.nodefeature.ElementData;
 
 /**
  * Base class with common implementation for different types of columns used
@@ -49,6 +51,9 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
 
     private String rawHeaderTemplate;
     private boolean sortingIndicators;
+
+    private Component headerComponent;
+    private Component footerComponent;
 
     /**
      * Base constructor with the destination Grid.
@@ -89,6 +94,22 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
+    }
+
+    @Override
+    public void onEnabledStateChanged(boolean enabled) {
+        super.onEnabledStateChanged(enabled);
+
+        // Once https://github.com/vaadin/flow/issues/3998 is fixed, this can be removed.
+        propagateStateChangedTo(enabled, headerComponent, footerComponent);
+    }
+
+    private void propagateStateChangedTo(boolean enabled, Component ...components) {
+        Arrays.stream(components).forEach(component -> {
+            if (component != null && component.getElement().getNode().hasFeature(ElementData.class)) {
+                component.getElement().setAttribute("disabled", !enabled);
+            }
+        });
     }
 
     protected void setHeaderRenderer(Renderer<?> renderer) {
@@ -178,10 +199,12 @@ abstract class AbstractColumn<T extends AbstractColumn<T>> extends Component
         /*
          * Uses the special renderer to take care of the vaadin-grid-sorter.
          */
+        this.headerComponent = component;
         setHeaderRenderer(new GridSorterComponentRenderer<>(this, component));
     }
 
     protected void setFooterComponent(Component component) {
+        this.footerComponent = component;
         setFooterRenderer(new ComponentRenderer<>(() -> component));
     }
 

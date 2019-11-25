@@ -97,7 +97,6 @@ public class DisabledGridIT extends AbstractComponentIT {
         assertEmptyMessage(message);
     }
 
-    @Ignore // https://github.com/vaadin/flow/issues/3998
     @Test
     public void gridIsDisabled_componentsInHeaderHaveDisabledAttribute() {
         open();
@@ -113,6 +112,23 @@ public class DisabledGridIT extends AbstractComponentIT {
         Assert.assertFalse(
                 "Button in the header should have 'disabled' attribute",
                 headerButton.isEnabled());
+    }
+
+    @Test
+    public void gridIsDisabled_componentsInFooterHaveDisabledAttribute() {
+        open();
+        GridElement grid = $(GridElement.class).id("grid");
+        TestBenchElement footerButton = grid
+                .findElement(By.id("footer-button"));
+
+        Assert.assertTrue("Button in the footer should be enabled",
+                footerButton.isEnabled());
+
+        disableGrid();
+
+        Assert.assertFalse(
+                "Button in the footer should have 'disabled' attribute",
+                footerButton.isEnabled());
     }
 
     @Test

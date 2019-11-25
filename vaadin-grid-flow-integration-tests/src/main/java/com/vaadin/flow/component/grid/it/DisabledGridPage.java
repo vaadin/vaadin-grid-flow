@@ -15,8 +15,6 @@
  */
 package com.vaadin.flow.component.grid.it;
 
-import java.util.Arrays;
-
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -24,6 +22,8 @@ import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
+
+import java.util.Arrays;
 
 @Route("disabled-grid")
 public class DisabledGridPage extends Div {
@@ -47,6 +47,11 @@ public class DisabledGridPage extends Div {
                 event -> reportError());
         headerButton.setId("header-button");
         grid.prependHeaderRow().getCells().get(0).setComponent(headerButton);
+
+        NativeButton footerButton = new NativeButton("Button in footer",
+                event -> reportError());
+        footerButton.setId("footer-button");
+        grid.prependFooterRow().getCells().get(0).setComponent(footerButton);
 
         NativeButton toggleEnabled = new NativeButton("Toggle enabled",
                 event -> grid.setEnabled(!grid.isEnabled()));
