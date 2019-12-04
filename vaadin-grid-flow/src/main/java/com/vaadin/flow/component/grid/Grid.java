@@ -576,8 +576,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 ValueProvider<T, V> keyExtractor) {
             Objects.requireNonNull(keyExtractor,
                     "Key extractor must not be null");
-            setComparator(Comparator.comparing(keyExtractor,
-                    Comparator.nullsLast(Comparator.naturalOrder())));
+            setComparator(SerializableComparator.comparing(keyExtractor,
+                    SerializableComparator.nullsLast(SerializableComparator.naturalOrder())));
             return this;
         }
 
@@ -1774,9 +1774,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         column.setSortProperty(matchingSortingProperties
                 .toArray(new String[matchingSortingProperties.size()]));
-        Comparator<T> combinedComparator = (a, b) -> 0;
-        Comparator nullsLastComparator = Comparator
-                .nullsLast(Comparator.naturalOrder());
+        SerializableComparator<T> combinedComparator = (a, b) -> 0;
+        SerializableComparator nullsLastComparator = Comparator
+                .nullsLast(SerializableComparator.naturalOrder());
         for (String sortProperty : matchingSortingProperties) {
             ValueProvider<T, ?> provider = valueProviders.get(sortProperty);
             combinedComparator = combinedComparator.thenComparing((a, b) -> {
@@ -3494,7 +3494,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static int compareComparables(Object a, Object b) {
-        return ((Comparator) Comparator.nullsLast(Comparator.naturalOrder()))
+        return ((SerializableComparator) SerializableComparator.nullsLast(SerializableComparator.naturalOrder()))
                 .compare(a, b);
     }
 
