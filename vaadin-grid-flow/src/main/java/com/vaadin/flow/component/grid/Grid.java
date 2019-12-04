@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -576,8 +577,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
                 ValueProvider<T, V> keyExtractor) {
             Objects.requireNonNull(keyExtractor,
                     "Key extractor must not be null");
-            setComparator(SerializableComparator.comparing(keyExtractor,
-                    SerializableComparator.nullsLast(SerializableComparator.naturalOrder())));
+            setComparator((SerializableComparator<T>) Comparator.comparing(keyExtractor,
+                    Comparator.nullsLast(Comparator.naturalOrder())));
             return this;
         }
 
@@ -1775,11 +1776,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         column.setSortProperty(matchingSortingProperties
                 .toArray(new String[matchingSortingProperties.size()]));
         SerializableComparator<T> combinedComparator = (a, b) -> 0;
-        SerializableComparator nullsLastComparator = SerializableComparator
-                .nullsLast(SerializableComparator.naturalOrder());
+        SerializableComparator nullsLastComparator = (SerializableComparator) Comparator
+                .nullsLast(Comparator.naturalOrder());
         for (String sortProperty : matchingSortingProperties) {
             ValueProvider<T, ?> provider = valueProviders.get(sortProperty);
-            combinedComparator = combinedComparator.thenComparing((a, b) -> {
+            combinedComparator = (SerializableComparator<T>) combinedComparator
+                    .thenComparing((a, b) -> {
                 Object aa = provider.apply(a);
                 if (!(aa instanceof Comparable)) {
                     return 0;
@@ -3494,7 +3496,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static int compareComparables(Object a, Object b) {
-        return ((SerializableComparator) SerializableComparator.nullsLast(SerializableComparator.naturalOrder()))
+        return ((SerializableComparator) SerializableComparator.nullsLast(Comparator.naturalOrder()))
                 .compare(a, b);
     }
 
