@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -549,7 +548,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          *            the comparator to use when sorting data in this column
          * @return this column
          */
-        public Column<T> setComparator(Comparator<T> comparator) {
+        public Column<T> setComparator(SerializableComparator<T> comparator) {
             Objects.requireNonNull(comparator, "Comparator must not be null");
             setSortable(true);
             this.comparator = comparator::compare;
