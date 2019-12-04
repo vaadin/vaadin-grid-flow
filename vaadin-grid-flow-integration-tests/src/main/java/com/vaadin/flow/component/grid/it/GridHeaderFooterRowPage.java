@@ -28,6 +28,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 
@@ -66,7 +67,7 @@ public class GridHeaderFooterRowPage extends Div {
         add(button);
 
         button = new NativeButton("Set sortable", event -> column
-                .setComparator(Comparator.comparing(String::toString)));
+                .setComparator((SerializableComparator) Comparator.comparing(String::toString)));
         button.setId("set-sortable");
         add(button);
 
