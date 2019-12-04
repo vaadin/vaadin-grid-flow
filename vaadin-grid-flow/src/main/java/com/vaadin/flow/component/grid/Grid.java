@@ -3496,7 +3496,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static int compareComparables(Object a, Object b) {
-        return ((SerializableComparator) SerializableComparator.nullsLast(Comparator.naturalOrder()))
+        return ((SerializableComparator) Comparator.nullsLast(Comparator.naturalOrder()))
                 .compare(a, b);
     }
 
