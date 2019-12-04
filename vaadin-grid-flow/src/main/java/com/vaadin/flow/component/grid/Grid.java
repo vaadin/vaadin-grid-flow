@@ -1775,7 +1775,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         column.setSortProperty(matchingSortingProperties
                 .toArray(new String[matchingSortingProperties.size()]));
         SerializableComparator<T> combinedComparator = (a, b) -> 0;
-        SerializableComparator nullsLastComparator = Comparator
+        SerializableComparator nullsLastComparator = SerializableComparator
                 .nullsLast(SerializableComparator.naturalOrder());
         for (String sortProperty : matchingSortingProperties) {
             ValueProvider<T, ?> provider = valueProviders.get(sortProperty);
