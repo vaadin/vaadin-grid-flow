@@ -67,7 +67,7 @@ public class GridHeaderFooterRowPage extends Div {
         add(button);
 
         button = new NativeButton("Set sortable", event -> column
-                .setComparator((SerializableComparator) Comparator.comparing(String::toString)));
+                .setComparator((o1, o2)->o1.toString().compareTo(o2.toString()));
         button.setId("set-sortable");
         add(button);
 
