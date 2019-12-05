@@ -305,8 +305,13 @@ public class TreeGrid<T> extends Grid<T>
                 .withProperty("name",
                         value -> String.valueOf(valueProvider.apply(value))));
         column.setComparator(
-                ((a, b) -> compareMaybeComparables(valueProvider.apply(a),
-                        valueProvider.apply(b))));
+                new SerializableComparator<T>() {
+                    @Override
+                    public int compare(T a, T b) {
+                    return compareMaybeComparables(valueProvider.apply(a),
+                            valueProvider.apply(b));
+                    }
+                });
 
         return column;
     }
