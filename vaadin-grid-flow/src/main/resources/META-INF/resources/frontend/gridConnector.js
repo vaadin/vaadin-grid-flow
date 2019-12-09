@@ -395,9 +395,9 @@
             treePageCallbacks[parentUniqueKey][page] = callback;
           }
           grid.$connector.fetchPage(
-              (firstIndex, size) => grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key),
-              page,
-              parentUniqueKey
+            (firstIndex, size) => grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key),
+            page,
+            parentUniqueKey
           );
 
         } else {
@@ -748,7 +748,7 @@
         return false;
       };
 
-      grid.$connector.reset = function() {
+      grid.$connector.reset = tryCatchWrapper(function() {
         grid.size = 0;
         deleteObjectContents(cache);
         deleteObjectContents(grid._cache.items);
@@ -764,14 +764,14 @@
         ensureSubCacheQueue = [];
         parentRequestQueue = [];
         updateAllGridRowsInDomBasedOnCache();
-      };
+      });
 
-      const deleteObjectContents = tryCatchWrapper(function(obj) {
+      const deleteObjectContents = function(obj) {
         let props = Object.keys(obj);
         for (let i = 0; i < props.length; i++) {
           delete obj[props[i]];
         }
-      })
+      };
 
       grid.$connector.updateSize = function(newSize) {
         grid.size = newSize;
@@ -856,7 +856,7 @@
             // Makes sure to push all new rows before this stack execution is done so any timeout expiration called after will be applied on a fully updated grid
             //Resolves https://github.com/vaadin/vaadin-grid-flow/issues/511
             if(grid._debounceIncreasePool){
-                grid._debounceIncreasePool.flush();
+              grid._debounceIncreasePool.flush();
             }
 
           }
