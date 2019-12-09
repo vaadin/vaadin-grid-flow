@@ -1,11 +1,11 @@
+// Not using ES6 imports in this file yet because the connector in V14 must
+// still work in Legacy bower projects. See: `gridConnector-es6.js` for
+// the Polymer3 approach.
 (function () {
   const tryCatchWrapper = function (callback) {
     return window.Vaadin.Flow.tryCatchWrapper(callback, 'Vaadin Grid', 'vaadin-grid-flow');
   };
 
-  // Not using ES6 imports in this file yet because the connector in V14 must
-  // still work in Legacy bower projects. See: `contextMenuConnector-es6.js` for
-  // the Polymer3 approach.
   window.Vaadin.Flow.Legacy = window.Vaadin.Flow.Legacy || {};
 
   window.Vaadin.Flow.gridConnector = {
@@ -126,11 +126,11 @@
       grid.$connector = {};
 
       grid.$connector.hasEnsureSubCacheQueue = tryCatchWrapper(function() {
-          return ensureSubCacheQueue.length > 0;
+        return ensureSubCacheQueue.length > 0;
       })
 
       grid.$connector.hasParentRequestQueue = tryCatchWrapper(function() {
-          return parentRequestQueue.length > 0;
+        return parentRequestQueue.length > 0;
       })
 
       grid.$connector.beforeEnsureSubCacheForScaledIndex = tryCatchWrapper(function(targetCache, scaledIndex) {
@@ -146,11 +146,11 @@
           return a.scaledIndex - b.scaledIndex || a.level - b.level;
         });
         if(!ensureSubCacheDebouncer) {
-            grid.$connector.flushQueue(
-              (debouncer) => ensureSubCacheDebouncer = debouncer,
-              () => grid.$connector.hasEnsureSubCacheQueue(),
-              () => grid.$connector.flushEnsureSubCache(),
-              (action) => Debouncer.debounce(ensureSubCacheDebouncer, animationFrame, action));
+          grid.$connector.flushQueue(
+            (debouncer) => ensureSubCacheDebouncer = debouncer,
+            () => grid.$connector.hasEnsureSubCacheQueue(),
+            () => grid.$connector.flushEnsureSubCache(),
+            (action) => Debouncer.debounce(ensureSubCacheDebouncer, animationFrame, action));
         }
       })
 
@@ -270,8 +270,8 @@
           return;
         }
         if(flush()) {
-            timeoutIdSetter(startTimeout(() =>
-              grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout)));
+          timeoutIdSetter(startTimeout(() =>
+            grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout)));
         } else {
           grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout);
         }
@@ -308,8 +308,8 @@
         let pendingFetches = parentRequestQueue.splice(0, parentRequestBatchMaxSize);
 
         if(pendingFetches.length) {
-            grid.$server.setParentRequestedRanges(pendingFetches);
-            return true;
+          grid.$server.setParentRequestedRanges(pendingFetches);
+          return true;
         }
         return false;
       })
@@ -324,12 +324,11 @@
           });
 
           if(!parentRequestDebouncer) {
-              grid.$connector.flushQueue(
-                (debouncer) => parentRequestDebouncer = debouncer,
-                () => grid.$connector.hasParentRequestQueue(),
-                () => grid.$connector.flushParentRequests(),
-                (action) => Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay), action)
-                );
+            grid.$connector.flushQueue(
+              (debouncer) => parentRequestDebouncer = debouncer,
+              () => grid.$connector.hasParentRequestQueue(),
+              () => grid.$connector.flushParentRequests(),
+              (action) => Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay), action));
           }
 
         } else {
@@ -395,9 +394,11 @@
           } else {
             treePageCallbacks[parentUniqueKey][page] = callback;
           }
-          grid.$connector.fetchPage((firstIndex, size) =>
-              grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key),
-              page, parentUniqueKey);
+          grid.$connector.fetchPage(
+              (firstIndex, size) => grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key),
+              page,
+              parentUniqueKey
+          );
 
         } else {
           // workaround: sometimes grid-element gives page index that overflows
@@ -426,7 +427,7 @@
 
       grid.$connector.setSorterDirections = tryCatchWrapper(function(directions) {
         sorterDirectionsSetFromServer = true;
-        setTimeout(() => {
+        setTimeout(tryCatchWrapper(() => {
           try {
             let allSorters = grid.querySelectorAll("vaadin-grid-sorter");
             allSorters.forEach(sorter => sorter.direction = null);
@@ -441,7 +442,7 @@
           } finally {
             sorterDirectionsSetFromServer = false;
           }
-        });
+        }));
       })
       grid._createPropertyObserver("_previousSorters", sorterChangeListener);
 
@@ -490,7 +491,7 @@
         }
       })
 
-      const itemsUpdated = tryCatchWrapper(function(items) {
+      const itemsUpdated = function(items) {
         if (!items || !Array.isArray(items)) {
           throw 'Attempted to call itemsUpdated with an invalid value: ' + JSON.stringify(items);
         }
@@ -521,7 +522,7 @@
             return selectedKeys[e]
           });
         }
-      })
+      };
 
       /**
        * Updates the cache for the given page for grid or tree-grid.
@@ -530,7 +531,7 @@
        * @param parentKey the key of the parent item for the page
        * @returns an array of the updated items for the page, or undefined if no items were cached for the page
        */
-      const updateGridCache = tryCatchWrapper(function(page, parentKey) {
+      const updateGridCache = function(page, parentKey) {
         let items;
         if((parentKey || root) !== root) {
           items = cache[parentKey][page];
@@ -547,9 +548,9 @@
           _updateGridCache(page, items, rootPageCallbacks[page], grid._cache);
         }
         return items;
-      });
+      };
 
-      const _updateGridCache = tryCatchWrapper(function(page, items, callback, levelcache) {
+      const _updateGridCache = function(page, items, callback, levelcache) {
         // Force update unless there's a callback waiting
         if (!callback) {
           let rangeStart = page * grid.pageSize;
@@ -570,23 +571,23 @@
             }
           }
         }
-      });
+      };
 
       /**
        * Updates all visible grid rows in DOM.
        */
-      const updateAllGridRowsInDomBasedOnCache = tryCatchWrapper(function () {
+      const updateAllGridRowsInDomBasedOnCache = function () {
         grid._cache.updateSize();
         grid._effectiveSize = grid._cache.effectiveSize;
         grid._assignModels();
-      })
+      };
 
       /**
        * Update the given items in DOM if currently visible.
        *
        * @param array items the items to update in DOM
        */
-      const updateGridItemsInDomBasedOnCache = tryCatchWrapper(function(items) {
+      const updateGridItemsInDomBasedOnCache = function(items) {
         if (!items || !grid._physicalItems) {
           return;
         }
@@ -603,7 +604,7 @@
         if (indexes.length > 0) {
           grid._assignModels(indexes);
         }
-      });
+      };
 
       grid.$connector.set = tryCatchWrapper(function(index, items, parentKey) {
         if (index % grid.pageSize != 0) {
@@ -635,7 +636,7 @@
         }
       });
 
-      const itemToCacheLocation = tryCatchWrapper(function(item) {
+      const itemToCacheLocation = function(item) {
         let parent = item.parentUniqueKey || root;
         if(cache[parent]) {
           for (let page in cache[parent]) {
@@ -647,7 +648,7 @@
           }
         }
         return null;
-      })
+      };
 
       /**
        * Updates the given items for a hierarchical grid.
@@ -736,7 +737,7 @@
         }
       });
 
-      const isSelectedOnGrid = tryCatchWrapper(function(item) {
+      const isSelectedOnGrid = function(item) {
         const selectedItems = grid.selectedItems;
         for(let i = 0; i < selectedItems; i++) {
           let selectedItem = selectedItems[i];
@@ -745,9 +746,9 @@
           }
         }
         return false;
-      })
+      };
 
-      grid.$connector.reset = tryCatchWrapper(function() {
+      grid.$connector.reset = function() {
         grid.size = 0;
         deleteObjectContents(cache);
         deleteObjectContents(grid._cache.items);
@@ -763,7 +764,7 @@
         ensureSubCacheQueue = [];
         parentRequestQueue = [];
         updateAllGridRowsInDomBasedOnCache();
-      });
+      };
 
       const deleteObjectContents = tryCatchWrapper(function(obj) {
         let props = Object.keys(obj);
@@ -793,7 +794,7 @@
         items.forEach(item => {
           let index = grid._getItemIndexInArray(item, newExpandedItems);
           if(index >= 0) {
-              newExpandedItems.splice(index, 1);
+            newExpandedItems.splice(index, 1);
           }
         });
         grid.expandedItems = newExpandedItems;
@@ -810,9 +811,9 @@
       grid.$connector.removeFromArray = tryCatchWrapper(function(array, removeTest) {
         if(array.length) {
           for(let index = array.length - 1; index--; ) {
-             if (removeTest(array[index])) {
-               array.splice(index, 1);
-             }
+            if (removeTest(array[index])) {
+              array.splice(index, 1);
+            }
           }
         }
       })
@@ -881,13 +882,13 @@
 
       grid.$connector.setSelectionMode = tryCatchWrapper(function(mode) {
         if ((typeof mode === 'string' || mode instanceof String)
-        && validSelectionModes.indexOf(mode) >= 0) {
+            && validSelectionModes.indexOf(mode) >= 0) {
           selectionMode = mode;
           selectedKeys = {};
         } else {
           throw 'Attempted to set an invalid selection mode';
         }
-      })
+      });
 
       grid.$connector.deselectAllowed = true;
 
@@ -900,15 +901,15 @@
         // Since the scrollbars were toggled, there might have been some changes to layout
         // size. Notify grid of the resize to ensure everything is in place.
         grid.notifyResize();
-      })
+      });
 
-      const setVerticalScrollingEnabled = tryCatchWrapper(function(scrollable, enabled) {
+      const setVerticalScrollingEnabled = function(scrollable, enabled) {
         // Prevent Y axis scrolling with CSS. This will hide the vertical scrollbar.
         scrollable.style.overflowY = enabled ? '' : 'hidden';
         // Clean up an existing listener
         scrollable.removeEventListener('wheel', scrollable.__wheelListener);
         // Add a wheel event listener with the horizontal scrolling prevention logic
-        !enabled && scrollable.addEventListener('wheel', scrollable.__wheelListener = e => {
+        !enabled && scrollable.addEventListener('wheel', scrollable.__wheelListener = tryCatchWrapper(e => {
           if (e.deltaX) {
             // If there was some horizontal delta related to the wheel event, force the vertical
             // delta to 0 and let grid process the wheel event normally
@@ -918,15 +919,15 @@
             // enable scrolling the page even if grid isn't scrolled to end
             e.stopImmediatePropagation();
           }
-        });
-      })
+        }));
+      };
 
-      const contextMenuListener = tryCatchWrapper(function(e) {
+      const contextMenuListener = function(e) {
         const eventContext = grid.getEventContext(e);
         const key = eventContext.item && eventContext.item.key;
         const colId = eventContext.column && eventContext.column.id;
         grid.$server.updateContextMenuTargetItem(key, colId);
-      })
+      };
 
       grid.addEventListener('vaadin-context-menu-before-open', tryCatchWrapper(function(e) {
         contextMenuListener(grid.$contextMenuConnector.openEvent);
@@ -946,7 +947,7 @@
       grid.addEventListener('click', tryCatchWrapper(e => _fireClickEvent(e, 'item-click')));
       grid.addEventListener('dblclick', tryCatchWrapper(e => _fireClickEvent(e, 'item-double-click')));
 
-      grid.addEventListener('column-resize', e => {
+      grid.addEventListener('column-resize', tryCatchWrapper(e => {
         const cols = grid._getColumnsInOrder().filter(col => !col.hidden);
 
         cols.forEach(col => {
@@ -956,9 +957,9 @@
         grid.dispatchEvent(new CustomEvent('column-drag-resize', { detail: {
           resizedColumnKey: e.detail.resizedColumn._flowId
         }}));
-      });
+      }));
 
-      grid.addEventListener('column-reorder', e => {
+      grid.addEventListener('column-reorder', tryCatchWrapper(e => {
         const columns = grid._columnTree.slice(0).pop()
           .filter(c => c._flowId)
           .sort((b, a) => (b._order - a._order))
@@ -967,7 +968,7 @@
         grid.dispatchEvent(new CustomEvent('column-reorder-all-columns', {
           detail: { columns }
         }));
-      });
+      }));
 
       function _fireClickEvent(event, eventName) {
         if (grid.$connector.activeItem) {
@@ -985,7 +986,7 @@
       grid.cellClassNameGenerator = tryCatchWrapper(function(column, rowData) {
           const style = rowData.item.style;
           if (!style) {
-              return;
+            return;
           }
           return (style.row || '') + ' ' + ((column && style[column._flowId]) || '');
       })
@@ -996,27 +997,27 @@
 
       grid.addEventListener('grid-dragstart', tryCatchWrapper(e => {
 
-          if (grid._isSelected(e.detail.draggedItems[0])) {
-              // Dragging selected (possibly multiple) items
-              if (grid.__selectionDragData) {
-                  Object.keys(grid.__selectionDragData).forEach(type => {
-                      e.detail.setDragData(type, grid.__selectionDragData[type]);
-                  });
-              } else {
-                  (grid.__dragDataTypes || []).forEach(type => {
-                      e.detail.setDragData(type, e.detail.draggedItems.map(item => item.dragData[type]).join('\n'));
-                  });
-              }
-
-              if (grid.__selectionDraggedItemsCount > 1) {
-                  e.detail.setDraggedItemsCount(grid.__selectionDraggedItemsCount);
-              }
+        if (grid._isSelected(e.detail.draggedItems[0])) {
+          // Dragging selected (possibly multiple) items
+          if (grid.__selectionDragData) {
+            Object.keys(grid.__selectionDragData).forEach(type => {
+              e.detail.setDragData(type, grid.__selectionDragData[type]);
+            });
           } else {
-              // Dragging just one (non-selected) item
-              (grid.__dragDataTypes || []).forEach(type => {
-                  e.detail.setDragData(type, e.detail.draggedItems[0].dragData[type]);
-              });
+            (grid.__dragDataTypes || []).forEach(type => {
+              e.detail.setDragData(type, e.detail.draggedItems.map(item => item.dragData[type]).join('\n'));
+            });
           }
+
+          if (grid.__selectionDraggedItemsCount > 1) {
+            e.detail.setDraggedItemsCount(grid.__selectionDraggedItemsCount);
+          }
+        } else {
+          // Dragging just one (non-selected) item
+          (grid.__dragDataTypes || []).forEach(type => {
+            e.detail.setDragData(type, e.detail.draggedItems[0].dragData[type]);
+          });
+        }
       }));
     })
   }
