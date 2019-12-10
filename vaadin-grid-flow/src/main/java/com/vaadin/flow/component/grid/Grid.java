@@ -546,7 +546,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * column as sortable with {@link #setSortable(boolean)}.
          * <p>
          * <strong>Note:</strong> Comparator is not serializable. If you need
-         * to write serializable implementation, use inlined class of 
+         * to write serializable implementation, use inlined class of
          * {@link SerializableComparator} instead of Lambda expression.
          *
          * @param comparator
