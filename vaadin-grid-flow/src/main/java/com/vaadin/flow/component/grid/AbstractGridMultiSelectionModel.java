@@ -42,6 +42,7 @@ import com.vaadin.flow.data.selection.MultiSelectionListener;
 import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.server.Command;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.JsonObject;
@@ -59,6 +60,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
     private final Set<T> selected;
     private final GridSelectionColumn selectionColumn;
     private SelectAllCheckboxVisibility selectAllCheckBoxVisibility;
+    private Optional<Registration> addColumnRegistration = Optional.empty();
 
     /**
      * Constructor for passing a reference of the grid to this implementation.
@@ -76,17 +78,32 @@ public abstract class AbstractGridMultiSelectionModel<T>
 
         selectionColumn
                 .setSelectAllCheckBoxVisibility(isSelectAllCheckboxVisible());
-        grid.getElement()
-                .insertChild(0, selectionColumn.getElement());
+        final Command addColumn = () ->
+                grid.getElement()
+                        .insertChild(0, selectionColumn.getElement());
+        if (grid.getElement().getNode().isAttached()) {
+            addColumn.execute();
+        } else {
+            this.addColumnRegistration = Optional.of(grid.getElement().getNode().addAttachListener(() -> {
+                addColumn.execute();
+                this.clearAddColumnRegistration();
+            }));
+        }
     }
 
     @Override
     protected void remove() {
         super.remove();
         deselectAll();
-        if (selectionColumn.getElement() != null && getGrid().getElement().getChild(0).equals(selectionColumn.getElement())) {
+        if (selectionColumn.getElement().getNode().isAttached()) {
             getGrid().getElement().removeChild(selectionColumn.getElement());
         }
+        this.clearAddColumnRegistration();
+    }
+
+    private void clearAddColumnRegistration() {
+        addColumnRegistration.ifPresent(Registration::remove);
+        addColumnRegistration = Optional.empty();
     }
 
     @Override
