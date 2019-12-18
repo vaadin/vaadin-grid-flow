@@ -50,8 +50,7 @@ import elemental.json.JsonObject;
 /**
  * Abstract implementation of a GridMultiSelectionModel.
  *
- * @param <T>
- *            the grid type
+ * @param <T> the grid type
  * @author Vaadin Ltd.
  */
 public abstract class AbstractGridMultiSelectionModel<T>
@@ -60,14 +59,12 @@ public abstract class AbstractGridMultiSelectionModel<T>
     private final Set<T> selected;
     private final GridSelectionColumn selectionColumn;
     private SelectAllCheckboxVisibility selectAllCheckBoxVisibility;
-    private Optional<Registration> addColumnRegistration = Optional.empty();
 
     /**
      * Constructor for passing a reference of the grid to this implementation.
      *
-     * @param grid
-     *            reference to the grid for which this selection model is
-     *            created
+     * @param grid reference to the grid for which this selection model is
+     *             created
      */
     public AbstractGridMultiSelectionModel(Grid<T> grid) {
         super(grid);
@@ -78,17 +75,22 @@ public abstract class AbstractGridMultiSelectionModel<T>
 
         selectionColumn
                 .setSelectAllCheckBoxVisibility(isSelectAllCheckboxVisible());
-        final Command addColumn = () ->
-                grid.getElement()
-                        .insertChild(0, selectionColumn.getElement());
+
         if (grid.getElement().getNode().isAttached()) {
-            addColumn.execute();
+            grid.getElement().getNode().runWhenAttached(ui ->
+                    this.insertSelectionColumn(grid, selectionColumn));
         } else {
-            this.addColumnRegistration = Optional.of(grid.getElement().getNode().addAttachListener(() -> {
-                addColumn.execute();
-                this.clearAddColumnRegistration();
-            }));
+            grid.getElement().getNode().runWhenAttached(ui -> {
+                if (grid.getSelectionModel() == this) {
+                    this.insertSelectionColumn(grid, selectionColumn);
+                }
+            });
         }
+    }
+
+    private void insertSelectionColumn(Grid<T> grid, GridSelectionColumn selectionColumn) {
+        grid.getElement()
+                .insertChild(0, selectionColumn.getElement());
     }
 
     @Override
@@ -98,12 +100,6 @@ public abstract class AbstractGridMultiSelectionModel<T>
         if (selectionColumn.getElement().getNode().isAttached()) {
             getGrid().getElement().removeChild(selectionColumn.getElement());
         }
-        this.clearAddColumnRegistration();
-    }
-
-    private void clearAddColumnRegistration() {
-        addColumnRegistration.ifPresent(Registration::remove);
-        addColumnRegistration = Optional.empty();
     }
 
     @Override
@@ -211,14 +207,14 @@ public abstract class AbstractGridMultiSelectionModel<T>
     @Override
     public boolean isSelected(T item) {
         return getSelectedItems().stream().anyMatch(selectedItem -> Objects
-            .equals(getItemId(selectedItem), getItemId(item)));
+                .equals(getItemId(selectedItem), getItemId(item)));
     }
 
     @Override
     public MultiSelect<Grid<T>, T> asMultiSelect() {
         return new MultiSelect<Grid<T>, T>() {
 
-            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             public Registration addValueChangeListener(
                     ValueChangeListener<? super ComponentValueChangeEvent<Grid<T>, Set<T>>> listener) {
@@ -245,7 +241,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
 
             @Override
             public void updateSelection(Set<T> addedItems,
-                    Set<T> removedItems) {
+                                        Set<T> removedItems) {
                 AbstractGridMultiSelectionModel.this.updateSelection(addedItems,
                         removedItems);
             }
@@ -262,7 +258,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
         };
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addSelectionListener(
             SelectionListener<Grid<T>, T> listener) {
@@ -272,7 +268,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
                         .selectionChange((SelectionEvent) event)));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addMultiSelectionListener(
             MultiSelectionListener<Grid<T>, T> listener) {
@@ -298,17 +294,17 @@ public abstract class AbstractGridMultiSelectionModel<T>
     @Override
     public boolean isSelectAllCheckboxVisible() {
         switch (selectAllCheckBoxVisibility) {
-        case DEFAULT:
-            return getGrid().getDataCommunicator().getDataProvider()
-                    .isInMemory();
-        case HIDDEN:
-            return false;
-        case VISIBLE:
-            return true;
-        default:
-            throw new IllegalStateException(String.format(
-                    "Select all checkbox visibility is set to an unsupported value: %s",
-                    selectAllCheckBoxVisibility));
+            case DEFAULT:
+                return getGrid().getDataCommunicator().getDataProvider()
+                        .isInMemory();
+            case HIDDEN:
+                return false;
+            case VISIBLE:
+                return true;
+            default:
+                throw new IllegalStateException(String.format(
+                        "Select all checkbox visibility is set to an unsupported value: %s",
+                        selectAllCheckBoxVisibility));
         }
     }
 
@@ -332,8 +328,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
     /**
      * Method for handling the firing of selection events.
      *
-     * @param event
-     *            the selection event to fire
+     * @param event the selection event to fire
      */
     protected abstract void fireSelectionEvent(
             SelectionEvent<Grid<T>, T> event);
@@ -360,8 +355,7 @@ public abstract class AbstractGridMultiSelectionModel<T>
     /**
      * Fetch all items from the given hierarchical data provider.
      *
-     * @param dataProvider
-     *            the data provider to fetch from
+     * @param dataProvider the data provider to fetch from
      * @return all items in the data provider
      */
     private Stream<T> fetchAllHierarchical(
@@ -373,14 +367,12 @@ public abstract class AbstractGridMultiSelectionModel<T>
      * Fetch all the descendants of the given parent item from the given data
      * provider.
      *
-     * @param parent
-     *            the parent item to fetch descendants for
-     * @param dataProvider
-     *            the data provider to fetch from
+     * @param parent       the parent item to fetch descendants for
+     * @param dataProvider the data provider to fetch from
      * @return the stream of all descendant items
      */
     private Stream<T> fetchAllDescendants(T parent,
-            HierarchicalDataProvider<T, ?> dataProvider) {
+                                          HierarchicalDataProvider<T, ?> dataProvider) {
         if (parent != null && !dataProvider.hasChildren(parent)) {
             return Stream.empty();
         }
@@ -405,23 +397,23 @@ public abstract class AbstractGridMultiSelectionModel<T>
     }
 
     private void doUpdateSelection(Set<T> addedItems, Set<T> removedItems,
-            boolean userOriginated) {
+                                   boolean userOriginated) {
         Map<Object, T> addedItemsMap = mapItemsById(addedItems);
         Map<Object, T> removedItemsMap = mapItemsById(removedItems);
         addedItemsMap.keySet().stream().filter(removedItemsMap::containsKey)
-            .collect(Collectors.toList()).forEach(key -> {
+                .collect(Collectors.toList()).forEach(key -> {
             addedItemsMap.remove(key);
             removedItemsMap.remove(key);
         });
-        doUpdateSelection(addedItemsMap,removedItemsMap,userOriginated);
+        doUpdateSelection(addedItemsMap, removedItemsMap, userOriginated);
     }
 
     private void doUpdateSelection(Map<Object, T> addedItems,
-        Map<Object, T> removedItems, boolean userOriginated) {
+                                   Map<Object, T> removedItems, boolean userOriginated) {
 
         Map<Object, T> selectedMap = mapItemsById(selected);
         if (selectedMap.keySet().containsAll(addedItems.keySet()) && Collections
-            .disjoint(selectedMap.keySet(), removedItems.keySet())) {
+                .disjoint(selectedMap.keySet(), removedItems.keySet())) {
             return;
         }
         Set<T> oldSelection = new LinkedHashSet<>(selected);
@@ -431,13 +423,13 @@ public abstract class AbstractGridMultiSelectionModel<T>
         selected.addAll(selectedMap.values());
 
         sendSelectionUpdate(new LinkedHashSet<>(addedItems.values()),
-            getGrid()::doClientSideSelection);
+                getGrid()::doClientSideSelection);
         sendSelectionUpdate(new LinkedHashSet<>(removedItems.values()),
-            getGrid()::doClientSideDeselection);
+                getGrid()::doClientSideDeselection);
 
         fireSelectionEvent(
-            new MultiSelectionEvent<>(getGrid(), getGrid().asMultiSelect(),
-                oldSelection, userOriginated));
+                new MultiSelectionEvent<>(getGrid(), getGrid().asMultiSelect(),
+                        oldSelection, userOriginated));
         if (!removedItems.isEmpty()) {
             selectionColumn.setSelectAllCheckboxState(false);
         }
@@ -445,11 +437,11 @@ public abstract class AbstractGridMultiSelectionModel<T>
 
     private Map<Object, T> mapItemsById(Set<T> items) {
         return items.stream().collect(LinkedHashMap::new,
-            (map, item) -> map.put(this.getItemId(item), item), Map::putAll);
+                (map, item) -> map.put(this.getItemId(item), item), Map::putAll);
     }
 
     private void sendSelectionUpdate(Set<T> updatedItems,
-            Consumer<Set<T>> clientSideUpdater) {
+                                     Consumer<Set<T>> clientSideUpdater) {
         // Avoid sending updates for the items that the client doesn't have.
         // This is important for the performance of e.g. selectAll.
         Set<T> activeItems = updatedItems.stream()
