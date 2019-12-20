@@ -47,15 +47,16 @@ public class AbstractNoW3c extends AbstractComponentIT {
     }
 
     public static WebDriver createChromeDriverWithoutW3c(
-        Optional<LocalExecution> localExecution, DesiredCapabilities capabilities, String hubURL) throws Exception {
+        Optional<LocalExecution> localExecution,
+        DesiredCapabilities capabilities, String hubURL) throws Exception {
 
         final ChromeOptions options = createChromeOptions();
         options.merge(capabilities);
 
-        if(!localExecution.isPresent()) {
-            return TestBench.createDriver(
-                new RemoteWebDriver(new URL(hubURL), options));
-        }else if(localExecution.get().value() == Browser.CHROME) {
+        if (!localExecution.isPresent()) {
+            return TestBench
+                .createDriver(new RemoteWebDriver(new URL(hubURL), options));
+        } else if (localExecution.get().value() == Browser.CHROME) {
             return TestBench.createDriver(new ChromeDriver(options));
         }
         return null;
