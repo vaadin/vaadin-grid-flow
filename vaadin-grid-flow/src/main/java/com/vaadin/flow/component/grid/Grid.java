@@ -2532,7 +2532,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see GridSelectionModel
      */
     public void deselectAll() {
+        setDeselectAllowed(this,true);
         getSelectionModel().deselectAll();
+    }
+
+    private void setDeselectAllowed(Grid<?> grid, boolean deselectAllowed) {
+        if (grid.getSelectionModel() instanceof AbstractGridSingleSelectionModel) {
+            ((AbstractGridSingleSelectionModel<?>) grid.getSelectionModel())
+                    .setDeselectAllowed(deselectAllowed);
+        }
     }
 
     void doClientSideSelection(Set<T> items) {
@@ -2548,7 +2556,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private void callSelectionFunctionForItems(String function, Set<T> items) {
-        if (items.isEmpty()) {
+        if (items.isEmpty() || items.stream().noneMatch(Objects::nonNull)) {
             return;
         }
         JsonArray jsonArray = Json.createArray();
