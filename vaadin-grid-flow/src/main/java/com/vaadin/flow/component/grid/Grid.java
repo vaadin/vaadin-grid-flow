@@ -2536,6 +2536,14 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         getSelectionModel().deselectAll();
     }
 
+    /**
+     * This method is to set DeselectAllowed
+     *
+     * @param grid
+     *           the current grid
+     * @param deselectAllowed
+     *           value to set for deselectAllowed
+     */
     private void setDeselectAllowed(Grid<?> grid, boolean deselectAllowed) {
         if (grid.getSelectionModel() instanceof AbstractGridSingleSelectionModel) {
             ((AbstractGridSingleSelectionModel<?>) grid.getSelectionModel())
