@@ -2564,7 +2564,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private void callSelectionFunctionForItems(String function, Set<T> items) {
-        if (items.isEmpty() || items.stream().noneMatch(Objects::nonNull)) {
+        if (items.isEmpty()) {
             return;
         }
         JsonArray jsonArray = Json.createArray();
