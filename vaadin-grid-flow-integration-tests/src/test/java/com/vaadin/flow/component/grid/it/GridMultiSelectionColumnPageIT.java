@@ -107,7 +107,7 @@ public class GridMultiSelectionColumnPageIT extends AbstractComponentIT {
         // Test switch selection mode from Multi to single mode before adding the grid to DOM
         // By checking the vaadin-grid-cell-content
         WebElement gridSelectionMode = findElement(By.id("in-testing-multi-selection-mode-grid-single"));
-        Assert.assertEquals(0, gridSelectionMode.findElements(By.tagName("vaadin-checkbox")).size());
+        Assert.assertTrue(gridSelectionMode.findElements(By.tagName("vaadin-checkbox")).isEmpty());
     }
 
     @Test
