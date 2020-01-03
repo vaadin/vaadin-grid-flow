@@ -72,15 +72,23 @@ public abstract class AbstractGridSingleSelectionModel<T> extends
             return;
         }
         T oldItem = selectedItem;
-        doSelect(item, false);
 
+        if (getGrid().getDataCommunicator().getKeyMapper().key(selectedItem) != null
+                && item == null
+                && getGrid().getSelectionModel() instanceof GridSingleSelectionModel) {
+            item = oldItem;
+        }
+
+        doSelect(item, false);
         getGrid().doClientSideSelection(Collections.singleton(item));
+
         if (oldItem != null) {
             getGrid().getDataCommunicator().refresh(oldItem);
         }
         if (item != null) {
             getGrid().getDataCommunicator().refresh(item);
         }
+
     }
 
     @Override
