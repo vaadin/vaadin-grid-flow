@@ -85,4 +85,25 @@ public class GridSingleSelectionIT extends AbstractComponentIT {
         Assert.assertTrue("Row 1 was still selected after de-selecting it.",
                 !grid.getRow(1).isSelected());
     }
+
+    @Test
+    public void gridSetItemsAndSelectItemAndSetItemAfterSetDeselectAllowedFalse() {
+        open();
+
+        // De-selection is allowed(deselectAllowed is false) and then setting items for grid
+        GridElement grid = $(GridElement.class)
+                .id(GridSingleSelectionPage.ITEMS_GRID);
+
+        // Set Items again by clicking the button
+        $("button").id(GridSingleSelectionPage.SET_ITEMS)
+                .click();
+
+        grid.getRow(1).select();
+        Assert.assertTrue("Row 1 was selected after selecting it.",
+                grid.getRow(1).isSelected());
+        // Select row 1 again to test deselectAllowed
+        grid.getRow(1).deselect();
+        Assert.assertTrue("Row 1 was still selected after selecting it.",
+                grid.getRow(1).isSelected());
+    }
 }
