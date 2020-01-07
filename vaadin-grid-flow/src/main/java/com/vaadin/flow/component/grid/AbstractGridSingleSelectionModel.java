@@ -72,29 +72,15 @@ public abstract class AbstractGridSingleSelectionModel<T> extends
             return;
         }
         T oldItem = selectedItem;
+        doSelect(item, false);
 
-        // Check if it is in case setItems
-        if (getGrid().getDataCommunicator().getKeyMapper().key(selectedItem) != null
-                && item == null
-                && getGrid().getSelectionModel() instanceof GridSingleSelectionModel
-                && !this.isDeselectAllowed()) {
-            implementSelect(selectedItem);
-        }
-        else {
-            implementSelect(item);
-        }
-
+        getGrid().doClientSideSelection(Collections.singleton(item));
         if (oldItem != null) {
             getGrid().getDataCommunicator().refresh(oldItem);
         }
         if (item != null) {
             getGrid().getDataCommunicator().refresh(item);
         }
-    }
-
-    private void implementSelect(T item) {
-        doSelect(item, false);
-        getGrid().doClientSideSelection(Collections.singleton(item));
     }
 
     @Override
