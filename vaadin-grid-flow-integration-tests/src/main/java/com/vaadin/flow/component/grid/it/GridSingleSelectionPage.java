@@ -33,9 +33,8 @@ public class GridSingleSelectionPage extends VerticalLayout {
     public static final String DESELECT_ALLOWED_TOGGLE_ID = "deselect-allowed-toggle";
     public static final String DESELECT_DISALLOWED_GRID_ID = "deselect-disallowed-grid";
     public static final String DESELECT_DISALLOWED_TOGGLE_ID = "deselect-disallowed-toggle";
-    public static final String DESELECT_ALLOWED_SET_ITEMS = "deselect-allowed-set-item-toggle";
-    public static final String ITEMS_GRID = "items-grid";
     public static final String SET_ITEMS = "set-item-toggle";
+    public static final String ITEMS_GRID = "items-grid";
 
     public GridSingleSelectionPage() {
         setSizeUndefined();
@@ -51,11 +50,12 @@ public class GridSingleSelectionPage extends VerticalLayout {
         NativeButton secondToggle = buildToggle(deselectDisallowedGrid,
                 DESELECT_DISALLOWED_TOGGLE_ID);
 
+        Grid<String> thirdGrid = setDeselectAllowedAndSetItems();
+
         add(deselectAllowedGrid, firstToggle, deselectDisallowedGrid,
-                secondToggle);
+                secondToggle, thirdGrid);
 
-        NativeButton thirdToggle = setDeselectAllowedAndSetItems(SET_ITEMS);
-
+        NativeButton thirdToggle = toggleSetItems(thirdGrid, SET_ITEMS);
         add(thirdToggle);
     }
 
@@ -95,7 +95,7 @@ public class GridSingleSelectionPage extends VerticalLayout {
         return button;
     }
 
-    private NativeButton setDeselectAllowedAndSetItems(String idSetItems) {
+    private Grid<String> setDeselectAllowedAndSetItems() {
         Grid<String> grid = new Grid<>();
 
         GridSingleSelectionModel gssm = (GridSingleSelectionModel) grid
@@ -103,21 +103,20 @@ public class GridSingleSelectionPage extends VerticalLayout {
         // Set deselectAllowed to false
         gssm.setDeselectAllowed(false);
         // Set Items for grid
-        Grid<String> setItems = setItemsGrid(grid,
+        return setItemsGrid(grid,
                 ITEMS_GRID);
+    }
+
+    private NativeButton toggleSetItems(Grid grid, String idSetItems) {
 
         NativeButton buttonSetItems = new NativeButton("Toggle set items", e -> {
             if (!grid.getColumns().isEmpty()) {
                 grid.removeAllColumns();
             }
-            Grid<String> setItemsAgain = setItemsGrid(grid,
+            setItemsGrid(grid,
                     ITEMS_GRID);
-            add(setItemsAgain);
         });
         buttonSetItems.setId(idSetItems);
-
-        add(setItems);
-
         return buttonSetItems;
     }
 }
