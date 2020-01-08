@@ -90,7 +90,7 @@ public class GridSingleSelectionIT extends AbstractComponentIT {
     public void gridSetItemsAndSelectItemAndSetItemAfterSetDeselectAllowedFalse() {
         open();
 
-        // De-selection is allowed(deselectAllowed is false) and then setting items for grid
+        // De-selection is not allowed(deselectAllowed is false) and then setting items for grid
         GridElement grid = $(GridElement.class)
                 .id(GridSingleSelectionPage.ITEMS_GRID);
 

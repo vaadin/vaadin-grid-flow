@@ -109,7 +109,6 @@ public class GridSingleSelectionPage extends VerticalLayout {
     }
 
     private NativeButton toggleSetItems(Grid grid, String idSetItems) {
-
         NativeButton buttonSetItems = new NativeButton("Toggle set items", e -> {
             if (!grid.getColumns().isEmpty()) {
                 grid.removeAllColumns();

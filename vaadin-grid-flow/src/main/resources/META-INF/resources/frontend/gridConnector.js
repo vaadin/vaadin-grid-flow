@@ -214,7 +214,7 @@
         }
         if (!newVal) {
           if (!grid.$connector.deselectAllowed && oldVal) {
-            grid.activeItem = oldVal;
+            grid.$connector.doDeselection([null], true);
           } else if (oldVal && selectedKeys[oldVal.key]) {
             grid.$connector.doDeselection([oldVal], true);
           }
