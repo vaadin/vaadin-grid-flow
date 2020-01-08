@@ -125,7 +125,8 @@ public class TreeGridDemo extends DemoView {
         grid.addHierarchyColumn(Account::toString).setHeader("Account Title");
         grid.addColumn(Account::getCode).setHeader("Code");
 
-        HierarchicalDataProvider dataProvider = new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
+        HierarchicalDataProvider dataProvider =
+                new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
 
             @Override
             public int getChildCount(HierarchicalQuery<Account, Void> query) {
