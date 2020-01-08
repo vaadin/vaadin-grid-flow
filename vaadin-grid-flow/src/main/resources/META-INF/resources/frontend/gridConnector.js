@@ -165,23 +165,20 @@
         }
 
         grid.selectedItems = grid.selectedItems.concat(items);
-        const areAllElementOfItemsNotNull = items.every(function(i) { return i !== null; });
-        if (areAllElementOfItemsNotNull) {
-          items.forEach(item => {
-            if (item) {
-              selectedKeys[item.key] = item;
-              if (userOriginated) {
-                item.selected = true;
-                grid.$server.select(item.key);
-              }
+        items.forEach(item => {
+          if (item) {
+            selectedKeys[item.key] = item;
+            if (userOriginated) {
+              item.selected = true;
+              grid.$server.select(item.key);
             }
-            const isSelectedItemDifferentOrNull = !grid.activeItem || !item || item.key != grid.activeItem.key;
-            if (!userOriginated && selectionMode === 'SINGLE' && isSelectedItemDifferentOrNull) {
-              grid.activeItem = item;
-              grid.$connector.activeItem = item;
-            }
-          });
-        }
+          }
+          const isSelectedItemDifferentOrNull = !grid.activeItem || !item || item.key != grid.activeItem.key;
+          if (!userOriginated && selectionMode === 'SINGLE' && isSelectedItemDifferentOrNull) {
+            grid.activeItem = item;
+            grid.$connector.activeItem = item;
+          }
+        });
       });
 
       grid.$connector.doDeselection = tryCatchWrapper(function(items, userOriginated) {

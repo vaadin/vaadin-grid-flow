@@ -103,8 +103,9 @@ public class GridSingleSelectionPage extends VerticalLayout {
         // Set deselectAllowed to false
         gssm.setDeselectAllowed(false);
         // Set Items for grid
-        return setItemsGrid(grid,
+        grid = setItemsGrid(grid,
                 ITEMS_GRID);
+        return grid;
     }
 
     private NativeButton toggleSetItems(Grid grid, String idSetItems) {
