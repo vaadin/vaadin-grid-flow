@@ -21,6 +21,22 @@ public class WebpageData {
                 "https://vaadin.com/components", webpageList.get(0)));
         webpageList.add(new Webpage("Add-on Directory ",
                 "https://vaadin.com/directory", webpageList.get(0)));
+        webpageList.add(new Webpage("Spring Boot",
+            "https://vaadin.com/start/latest", webpageList.get(1)));
+        webpageList.add(new Webpage("CDI and Java EE",
+            "https://vaadin.com/start/latest", webpageList.get(1)));
+        webpageList.add(new Webpage("Plain Java Servlet",
+            "https://vaadin.com/start/latest", webpageList.get(1)));
+        webpageList.add(new Webpage("Button",
+            "https://vaadin.com/components/vaadin-button", webpageList.get(2)));
+        webpageList.add(new Webpage("Combo Box",
+            "https://vaadin.com/components/vaadin-combo-box", webpageList.get(2)));
+        webpageList.add(new Webpage("Date Picker",
+            "https://vaadin.com/components/vaadin-date-picker", webpageList.get(2)));
+        webpageList.add(new Webpage("Grid",
+            "https://vaadin.com/components/vaadin-grid", webpageList.get(2)));
+        webpageList.add(new Webpage("Text Field",
+            "https://vaadin.com/components/vaadin-text-field", webpageList.get(2)));
         return webpageList;
     }
 
