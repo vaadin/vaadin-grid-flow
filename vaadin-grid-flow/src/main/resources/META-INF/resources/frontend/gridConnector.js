@@ -170,11 +170,11 @@
         items.forEach(item => {
           if (item) {
             selectedKeys[item.key] = item;
-            if (userOriginated && isNotSwitchNewAndOldValue) {
+            if (userOriginated) {
               item.selected = true;
-              grid.$server.select(item.key);
-            } else if (userOriginated) {
-              item.selected = true;
+              if (isNotSwitchNewAndOldValue) {
+                grid.$server.select(item.key);
+              }
             }
           }
           const isSelectedItemDifferentOrNull = !grid.activeItem || !item || item.key != grid.activeItem.key;
