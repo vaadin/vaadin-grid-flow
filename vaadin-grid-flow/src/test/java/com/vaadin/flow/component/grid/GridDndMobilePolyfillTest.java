@@ -68,6 +68,7 @@ public class GridDndMobilePolyfillTest {
 
     @Test
     public void gridDnd_setDropMode_mobilePolyfillShouldBeAdded() {
+        ui.getInternals().dumpPendingJavaScriptInvocations();
         grid.setDropMode(GridDropMode.ON_GRID);
         Assert.assertEquals(
                 "Grid::setDropMode should add DnD mobile polyfill script to the UI.",
@@ -76,6 +77,7 @@ public class GridDndMobilePolyfillTest {
 
     @Test
     public void gridDnd_setRowsDraggable_mobilePolyfillShouldBeAdded() {
+        ui.getInternals().dumpPendingJavaScriptInvocations();
         grid.setRowsDraggable(true);
         Assert.assertEquals(
                 "Grid::setRowsDraggable should add DnD mobile polyfill script to the UI.",
