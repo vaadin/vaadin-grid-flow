@@ -21,6 +21,10 @@ import org.junit.Test;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import javax.validation.constraints.AssertTrue;
 
 @TestPath("grid-single-selection")
 public class GridSingleSelectionIT extends AbstractComponentIT {
@@ -102,5 +106,27 @@ public class GridSingleSelectionIT extends AbstractComponentIT {
                 .click();
         $("button").id(GridSingleSelectionPage.SET_ITEMS)
                 .click();
+    }
+
+    @Test
+    public void selectionAnotherItemGetCommunicateWithServerWhenSetDeSelectAllowedIsFalse() {
+        open();
+
+        // De-selection is not allowed(deselectAllowed is false) and then setting items for grid
+        GridElement grid = $(GridElement.class)
+                .id(GridSingleSelectionPage.ITEMS_GRID);
+        grid.getRow(1).select();
+        Assert.assertTrue("Row 1 was selected after selecting it.",
+                grid.getRow(1).isSelected());
+        grid.getRow(1).deselect();
+        grid.getRow(2).select();
+        grid.getRow(2).select();
+        grid.getRow(2).select();
+        Assert.assertTrue("Row 2 was selected after selecting it.",
+                grid.getRow(2).isSelected());
+        WebElement text1 = findElement(By.id("testing-text0"));
+        Assert.assertTrue("Text 1 should be existed after selecting item of grid", text1.isDisplayed());
+        WebElement text2 = findElement(By.id("testing-text1"));
+        Assert.assertTrue("Text 2 should be existed after selecting item of grid", text2.isDisplayed());
     }
 }

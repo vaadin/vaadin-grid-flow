@@ -120,8 +120,6 @@
 
       let sorterDirectionsSetFromServer = false;
 
-      let isNotSwitchNewAndOldValue = true;
-
       grid.size = 0; // To avoid NaN here and there before we get proper data
       grid.itemIdPath = 'key';
 
@@ -172,9 +170,7 @@
             selectedKeys[item.key] = item;
             if (userOriginated) {
               item.selected = true;
-              if (isNotSwitchNewAndOldValue) {
-                grid.$server.select(item.key);
-              }
+              grid.$server.select(item.key);
             }
           }
           const isSelectedItemDifferentOrNull = !grid.activeItem || !item || item.key != grid.activeItem.key;
@@ -182,7 +178,6 @@
             grid.activeItem = item;
             grid.$connector.activeItem = item;
           }
-          isNotSwitchNewAndOldValue = true;
         });
       });
 
@@ -218,8 +213,7 @@
           return;
         }
         if (!newVal) {
-          if (!grid.$connector.deselectAllowed && oldVal) {
-            isNotSwitchNewAndOldValue = false;
+          if (!grid.$connector.deselectAllowed && oldVal && selectedKeys[oldVal.key]) {
             grid.activeItem = oldVal;
           } else if (oldVal && selectedKeys[oldVal.key]) {
             grid.$connector.doDeselection([oldVal], true);

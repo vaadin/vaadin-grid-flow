@@ -15,8 +15,10 @@
  */
 package com.vaadin.flow.component.grid.it;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSingleSelectionModel;
 import com.vaadin.flow.component.html.NativeButton;
@@ -105,6 +107,14 @@ public class GridSingleSelectionPage extends VerticalLayout {
         // Set Items for grid
         grid = setItemsGrid(grid,
                 ITEMS_GRID);
+
+        AtomicInteger count = new AtomicInteger(0);
+        grid.addSelectionListener( e -> {
+            Button text = new Button("Test");
+            text.setId("testing-text"+ count);
+            count.getAndIncrement();
+            add(text);
+        });
         return grid;
     }
 
@@ -119,4 +129,6 @@ public class GridSingleSelectionPage extends VerticalLayout {
         buttonSetItems.setId(idSetItems);
         return buttonSetItems;
     }
+
+
 }
