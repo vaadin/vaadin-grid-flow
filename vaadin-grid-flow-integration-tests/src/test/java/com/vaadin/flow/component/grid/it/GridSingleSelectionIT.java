@@ -91,7 +91,7 @@ public class GridSingleSelectionIT extends AbstractComponentIT {
     }
 
     @Test
-    public void gridSetItemsAndSelectItemAndSetItemAfterSetDeselectAllowedFalse() {
+    public void selectItemAndSetItemsWithDeselectDisallowed() {
         open();
 
         // De-selection is not allowed(deselectAllowed is false) and then setting items for grid
@@ -109,24 +109,29 @@ public class GridSingleSelectionIT extends AbstractComponentIT {
     }
 
     @Test
-    public void selectionAnotherItemGetCommunicateWithServerWhenSetDeSelectAllowedIsFalse() {
+    public void selectAnotherItemWithDeselectDisallowed() {
         open();
 
         // De-selection is not allowed(deselectAllowed is false) and then setting items for grid
         GridElement grid = $(GridElement.class)
                 .id(GridSingleSelectionPage.ITEMS_GRID);
-        grid.getRow(1).select();
+
+        grid.getRow(0).select();
+
         Assert.assertTrue("Row 1 was selected after selecting it.",
-                grid.getRow(1).isSelected());
-        grid.getRow(1).deselect();
-        grid.getRow(2).select();
-        grid.getRow(2).select();
-        grid.getRow(2).select();
+                grid.getRow(0).isSelected());
+
+        WebElement text1 = findElement(By.id("item1"));
+        Assert.assertTrue("Row 1 is selected", text1.isDisplayed());
+
+        grid.getRow(0).deselect();
+
+        grid.getRow(1).select();
+
         Assert.assertTrue("Row 2 was selected after selecting it.",
-                grid.getRow(2).isSelected());
-        WebElement text1 = findElement(By.id("testing-text0"));
-        Assert.assertTrue("Text 1 should be existed after selecting item of grid", text1.isDisplayed());
-        WebElement text2 = findElement(By.id("testing-text1"));
-        Assert.assertTrue("Text 2 should be existed after selecting item of grid", text2.isDisplayed());
+                grid.getRow(1).isSelected());
+
+        WebElement text2 = findElement(By.id("item2"));
+        Assert.assertTrue("Row 2 is selected", text2.isDisplayed());
     }
 }
