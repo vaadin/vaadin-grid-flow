@@ -15,7 +15,6 @@
  */
 package com.vaadin.flow.component.grid.it;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.button.Button;
