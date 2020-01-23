@@ -153,4 +153,26 @@ public class GridMultiSelectionColumnPageIT extends AbstractComponentIT {
                 "All selection shouldn't be possible when the selectAll is hidden",
                 "", message.getText());
     }
+
+    @Test
+    public void setWidthSelectionColumn() {
+        open();
+        WebElement grid = findElement(By.id("set-width-selection-column"));
+
+        // Test autoWidth of selection column is true
+        WebElement gridSelectionMode = grid.findElement(By.tagName("vaadin-grid-flow-selection-column"));
+        String width = gridSelectionMode.getAttribute("width");
+        Assert.assertEquals("80px", width);
+    }
+
+    @Test
+    public void setAutoWidthOfSelectionColumnIsTrue() {
+        open();
+        WebElement grid = findElement(By.id("set-auto-width-true"));
+
+        // Test autoWidth of selection column is true
+        WebElement gridSelectionMode = grid.findElement(By.tagName("vaadin-grid-flow-selection-column"));
+        String autoWidth = gridSelectionMode.getAttribute("autoWidth");
+        Assert.assertTrue("autoWidth should be true", Boolean.parseBoolean(autoWidth));
+    }
 }

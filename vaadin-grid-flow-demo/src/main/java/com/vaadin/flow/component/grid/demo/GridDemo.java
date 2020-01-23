@@ -871,6 +871,12 @@ public class GridDemo extends DemoView {
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.setSelectionMode(SelectionMode.MULTI);
+        ((GridMultiSelectionModel<?>) grid
+                .setSelectionMode(Grid.SelectionMode.MULTI))
+                .setAutoWidthSelectionColumn(true);
+        ((GridMultiSelectionModel<?>) grid
+                .setSelectionMode(Grid.SelectionMode.MULTI))
+                .setWidthSelectionColumn("150px");
 
         grid.asMultiSelect().addValueChangeListener(event -> {
             String message = String.format("Selection changed from %s to %s",
@@ -900,7 +906,6 @@ public class GridDemo extends DemoView {
         Grid<Person> secondGrid = new Grid<>();
         secondGrid.setItems(personList);
         secondGrid.setSelectionMode(SelectionMode.MULTI);
-
         TextField filterField = new TextField();
         filterField.setValueChangeMode(ValueChangeMode.EAGER);
         filterField.addValueChangeListener(event -> {

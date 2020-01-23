@@ -130,7 +130,8 @@ public interface GridMultiSelectionModel<T>
      *            whether to freeze or unfreeze the selection column
      */
     void setSelectionColumnFrozen(boolean frozen);
-
+    void setAutoWidthSelectionColumn(boolean autoWidth);
+    void setWidthSelectionColumn(String width);
     /**
      * Gets the the selection column's frozen state.
      *
