@@ -871,13 +871,6 @@ public class GridDemo extends DemoView {
         grid.addColumn(Person::getAge).setHeader("Age");
 
         grid.setSelectionMode(SelectionMode.MULTI);
-        ((GridMultiSelectionModel<?>) grid
-                .setSelectionMode(Grid.SelectionMode.MULTI))
-                .setAutoWidthSelectionColumn(true);
-        ((GridMultiSelectionModel<?>) grid
-                .setSelectionMode(Grid.SelectionMode.MULTI))
-                .setWidthSelectionColumn("150px");
-
         grid.asMultiSelect().addValueChangeListener(event -> {
             String message = String.format("Selection changed from %s to %s",
                     event.getOldValue(), event.getValue());
