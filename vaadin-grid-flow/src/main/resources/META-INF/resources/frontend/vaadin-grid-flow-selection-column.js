@@ -36,7 +36,7 @@ import { GridColumnElement } from '@vaadin/vaadin-grid/src/vaadin-grid-column.js
          */
         width: {
           type: String,
-          value: '58px'
+          value: '56px'
         },
 
         /**
