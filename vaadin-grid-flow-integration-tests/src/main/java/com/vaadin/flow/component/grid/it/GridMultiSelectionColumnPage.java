@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.NativeButton;
@@ -56,8 +55,7 @@ public class GridMultiSelectionColumnPage extends Div {
         add(message);
         createBasicGridFromSingleToMultiBeforeAttached();
         createBasicGridFromMultiToSingleBeforeAttached();
-        setAutoWidthIsTrue();
-        setWidthSelectionColumn();
+        setAutoWidthIsTrueOfSelectionColumn();
     }
 
     private void createLazyGrid() {
@@ -149,7 +147,7 @@ public class GridMultiSelectionColumnPage extends Div {
         add(grid);
     }
 
-    private void setAutoWidthIsTrue() {
+    private void setAutoWidthIsTrueOfSelectionColumn() {
         Grid<String> grid = new Grid<>();
         grid.setItems(
                 IntStream.range(0, ITEM_COUNT).mapToObj(Integer::toString));
@@ -158,31 +156,6 @@ public class GridMultiSelectionColumnPage extends Div {
         add(new H2("In-set-auto-width-true"), grid);
 
         grid.setSelectionMode(SelectionMode.MULTI);
-
-        ((GridMultiSelectionModel<?>) grid
-                .setSelectionMode(Grid.SelectionMode.MULTI))
-                .setAutoWidthSelectionColumn(true);
         add(grid);
-    }
-        private void setWidthSelectionColumn() {
-            Grid<String> grid = new Grid<>();
-            grid.setItems(
-                    IntStream.range(0, ITEM_COUNT).mapToObj(Integer::toString));
-            setUp(grid);
-            grid.setId("set-width-selection-column");
-            add(new H2("In-set-width-selection-column"), grid);
-
-            grid.setSelectionMode(SelectionMode.MULTI);
-
-            // Make sure autoWidth is false
-            ((GridMultiSelectionModel<?>) grid
-                    .setSelectionMode(Grid.SelectionMode.MULTI))
-                    .setAutoWidthSelectionColumn(false);
-
-            // Set the width is 80px
-            ((GridMultiSelectionModel<?>) grid
-                    .setSelectionMode(Grid.SelectionMode.MULTI))
-                    .setWidthSelectionColumn("80px");
-            add(grid);
     }
 }

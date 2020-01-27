@@ -321,14 +321,6 @@ public abstract class AbstractGridMultiSelectionModel<T>
     }
 
     @Override
-    public void setAutoWidthSelectionColumn(boolean autoWidth) {
-        selectionColumn.setAutoWidth(autoWidth);
-    }
-    @Override
-    public void setWidthSelectionColumn(String width) {
-        selectionColumn.setWidth(width);
-    }
-    @Override
     public boolean isSelectionColumnFrozen() {
         return selectionColumn.isFrozen();
     }

@@ -132,22 +132,6 @@ public interface GridMultiSelectionModel<T>
     void setSelectionColumnFrozen(boolean frozen);
 
     /**
-     * Sets the selection column's auto-width.
-     *
-     * @param autoWidth
-     *            is true or false
-     */
-    void setAutoWidthSelectionColumn(boolean autoWidth);
-
-    /**
-     * Sets the selection column's auto-width.
-     *
-     * @param width
-     *            the number px
-     */
-    void setWidthSelectionColumn(String width);
-
-    /**
      * Gets the the selection column's frozen state.
      *
      * @return whether the selection column is frozen

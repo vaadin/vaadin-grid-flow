@@ -155,17 +155,6 @@ public class GridMultiSelectionColumnPageIT extends AbstractComponentIT {
     }
 
     @Test
-    public void setWidthSelectionColumn() {
-        open();
-        WebElement grid = findElement(By.id("set-width-selection-column"));
-
-        // Test autoWidth of selection column is true
-        WebElement gridSelectionMode = grid.findElement(By.tagName("vaadin-grid-flow-selection-column"));
-        String width = gridSelectionMode.getAttribute("width");
-        Assert.assertEquals("80px", width);
-    }
-
-    @Test
     public void setAutoWidthOfSelectionColumnIsTrue() {
         open();
         WebElement grid = findElement(By.id("set-auto-width-true"));

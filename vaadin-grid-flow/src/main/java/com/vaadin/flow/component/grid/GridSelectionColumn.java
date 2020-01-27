@@ -81,14 +81,6 @@ public class GridSelectionColumn extends Component {
         getElement().setProperty("frozen", frozen);
     }
 
-    public void setAutoWidth(boolean autoWidth) {
-        getElement().setProperty("autoWidth", autoWidth);
-    }
-
-    public void setWidth(String width) {
-        getElement().setProperty("width", width);
-    }
-
     /**
      * Gets the this column's frozen state.
      *
