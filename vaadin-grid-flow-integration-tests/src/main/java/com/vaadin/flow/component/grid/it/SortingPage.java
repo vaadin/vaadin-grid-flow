@@ -17,6 +17,7 @@ package com.vaadin.flow.component.grid.it;
 
 import java.util.List;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridSortOrder;
@@ -34,12 +35,12 @@ public class SortingPage extends Div {
 
     public SortingPage() {
         Grid<Person> grid = new Grid<>();
+        grid.setId("sorting-grid");
         grid.setItems(new Person("B", 20), new Person("A", 30));
         Column<Person> nameColumn = grid.addColumn(Person::getFirstName)
                 .setHeader("Name");
         Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
-        add(grid);
 
         List<GridSortOrder<Person>> sortByName = new GridSortOrderBuilder<Person>()
                 .thenAsc(nameColumn).build();
@@ -51,7 +52,11 @@ public class SortingPage extends Div {
             grid.sort(sortByAge);
         });
         button.setId("sort-by-age");
-        add(button);
+        Button btRm = new Button("De-Attach", evt -> remove(grid));
+        btRm.setId("btn-rm");
+        Button btattach = new Button("Attach", evt -> add(grid));
+        btattach.setId(("btn-attach"));
+        add(button, btRm, btattach, grid);
     }
 
 }

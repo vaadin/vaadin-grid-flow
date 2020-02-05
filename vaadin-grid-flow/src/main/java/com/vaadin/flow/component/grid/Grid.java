@@ -47,7 +47,6 @@ import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.dnd.DragSource;
@@ -137,7 +136,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     // package-private because it's used in tests
     static final String DRAG_SOURCE_DATA_KEY = "drag-source-data";
 
-    boolean isOldVal = false;
+    boolean isPreviousSortValueNotEmpty = false;
     boolean isResetSort = false;
     boolean isSorted = false;
 
@@ -2956,7 +2955,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     @ClientCallable
     private void oldValueSortSendServer(boolean isOldValue) {
-        isOldVal = isOldValue;
+        isPreviousSortValueNotEmpty = isOldValue;
     }
 
     @ClientCallable
@@ -3022,7 +3021,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
 
         boolean isSortOrderNotEmptyAfterReAttached = false;
-        if (order.isEmpty() && isSorted && !sortOrder.isEmpty() && !isOldVal) {
+        if (order.isEmpty() && isSorted && !sortOrder.isEmpty() && !isPreviousSortValueNotEmpty) {
             isSortOrderNotEmptyAfterReAttached = true;
         }
         // In case that refreshing the page or something to keep the sort-state

@@ -26,6 +26,7 @@ import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 import com.vaadin.testbench.TestBenchElement;
+import org.openqa.selenium.WebElement;
 
 @TestPath("sorting")
 public class SortingIT extends AbstractComponentIT {
@@ -60,6 +61,20 @@ public class SortingIT extends AbstractComponentIT {
     public void setInitialSortOrder_changeOrderFromServer_sortIndicatorsUpdated() {
         findElement(By.id("sort-by-age")).click();
         assertAscendingSorter("Age");
+    }
+    @Test
+    public void keepSortStateAfterReAttach() {
+        WebElement btnAttach = findElement(By.id("btn-attach"));
+        WebElement btnRemove = findElement(By.id("btn-rm"));
+        Assert.assertEquals("A", grid.getCell(0, 0).getText());
+        findElement(By.id("sort-by-age")).click();
+        String textColumnAfterSort = grid.getCell(0,0).getText();
+        Assert.assertEquals("B", grid.getCell(0, 0).getText());
+        btnRemove.click();
+        btnAttach.click();
+        waitForElementPresent(By.id("sorting-grid"));
+        GridElement grid = $(GridElement.class).id("sorting-grid");
+        Assert.assertEquals("B", grid.getCell(0, 0).getText());
     }
 
     private void assertAscendingSorter(String expectedColumnHeader) {

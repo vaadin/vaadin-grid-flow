@@ -23,8 +23,6 @@ import org.junit.Test;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 @TestPath("preserve-on-refresh")
 public class PreserveOnRefreshIT extends AbstractComponentIT {
@@ -61,28 +59,8 @@ public class PreserveOnRefreshIT extends AbstractComponentIT {
                 CoreMatchers.containsString("<span>footer</span>"));
     }
 
-    @Test
-    public void refresh_sorterComponentRendered() {
-        getDriver().navigate().refresh();
-
-        WebElement btnAttach = findElement(By.id("btn-attach"));
-        WebElement btnRemove = findElement(By.id("btn-rm"));
-        WebElement btnSortRandom = findElement(By.id("btn-sort-by-random"));
-        String textColumnBeforeRemove = getGridSecond().getCell(0,3).getText();
-        btnSortRandom.click();
-        String textColumnAfterSort = getGridSecond().getCell(0,3).getText();
-        Assert.assertNotEquals(textColumnBeforeRemove, textColumnAfterSort);
-        btnRemove.click();
-        btnAttach.click();
-        String textColumnAfterReAttach = getGridSecond().getCell(0,3).getText();
-        Assert.assertEquals(textColumnAfterSort, textColumnAfterReAttach);
-    }
-
     private GridElement getGrid() {
         return $(GridElement.class).first();
-    }
-    private GridElement getGridSecond() {
-        return $(GridElement.class).get(1);
     }
 
 }
