@@ -609,22 +609,22 @@ public class GridViewIT extends TabbedComponentDemoTest {
         clickElementWithJs(invertButton);
         assertSortMessageEquals(QuerySortOrder.asc("firstName").build(), false);
 
-//        clickElementWithJs(resetButton);
-//        assertSortMessageEquals(Collections.emptyList(), false);
-//
-//        // enable multi sort
-//        clickElementWithJs(findElement(By.id("grid-multi-sort-toggle")));
-//        getCellContent(grid.getHeaderCell(0)).click();
-//        getCellContent(grid.getHeaderCell(1)).click();
-//        assertSortMessageEquals(
-//                QuerySortOrder.asc("age").thenAsc("firstName").build(), true);
-//        clickElementWithJs(invertButton);
-//        assertSortMessageEquals(
-//                QuerySortOrder.desc("age").thenDesc("firstName").build(),
-//                false);
-//
-//        clickElementWithJs(resetButton);
-//        assertSortMessageEquals(Collections.emptyList(), false);
+        clickElementWithJs(resetButton);
+        assertSortMessageEquals(Collections.emptyList(), false);
+
+        // enable multi sort
+        clickElementWithJs(findElement(By.id("grid-multi-sort-toggle")));
+        getCellContent(grid.getHeaderCell(0)).click();
+        getCellContent(grid.getHeaderCell(1)).click();
+        assertSortMessageEquals(
+                QuerySortOrder.asc("age").thenAsc("firstName").build(), true);
+        clickElementWithJs(invertButton);
+        assertSortMessageEquals(
+                QuerySortOrder.desc("age").thenDesc("firstName").build(),
+                false);
+
+        clickElementWithJs(resetButton);
+        assertSortMessageEquals(Collections.emptyList(), false);
 
     }
 
