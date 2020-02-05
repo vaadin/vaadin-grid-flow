@@ -399,6 +399,8 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
 
       const sorterChangeListener = tryCatchWrapper(function(_, oldValue) {
         if (oldValue !== undefined && !sorterDirectionsSetFromServer) {
+          const isOldValue = oldValue.length > 0 ? true:false;
+          grid.$server.isOldValSortHasValue(isOldValue);
           grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
             return {
               path: sorter.path,

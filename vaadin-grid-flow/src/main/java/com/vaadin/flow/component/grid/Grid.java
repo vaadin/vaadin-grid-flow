@@ -2950,6 +2950,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
+    boolean isOldVal = false;
+    @ClientCallable
+    private void isOldValSortHasValue(boolean isOldValue) {
+        isOldVal = isOldValue;
+    }
+
     @ClientCallable
     private void sortersChanged(JsonArray sorters) {
         GridSortOrderBuilder<T> sortOrderBuilder = new GridSortOrderBuilder<>();
@@ -2992,13 +2998,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #setMultiSort(boolean)
      * @see #getSortOrder()
      */
+    boolean isResetSort = false;
     public void sort(List<GridSortOrder<T>> order) {
         if (order == null) {
             order = Collections.emptyList();
+            isResetSort = true;
         }
         setSortOrder(order, false);
     }
 
+    boolean isSorted = false;
     private void setSortOrder(List<GridSortOrder<T>> order,
             boolean userOriginated) {
         Objects.requireNonNull(order, "Sort order list cannot be null");
@@ -3009,6 +3018,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         if (!userOriginated) {
             updateClientSideSorterIndicators(order);
+        }
+
+        // In case that refreshing the page or something to keep the sort-state
+        // exception cases: reset, or set back to sort size = 0
+        if (!isResetSort && order.size() == 0 && isSorted && sortOrder.size() > 0 && !isOldVal) {
+            order = sortOrder.stream().collect(Collectors.toList());
         }
 
         sortOrder.clear();
@@ -3022,6 +3037,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
         sortOrder.addAll(order);
         sort(userOriginated);
+        isSorted = true;
+        isResetSort = false;
     }
 
     /**
