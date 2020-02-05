@@ -3028,6 +3028,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         // exception cases: reset, or set back to sort size = 0
         if (!isResetSort && isSortOrderNotEmptyAfterReAttached) {
             order = sortOrder.stream().collect(Collectors.toList());
+            updateClientSideSorterIndicators(order);
         }
 
         sortOrder.clear();
