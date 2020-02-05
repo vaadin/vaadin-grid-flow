@@ -2952,7 +2952,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     boolean isOldVal = false;
     @ClientCallable
-    private void isOldValSortHasValue(boolean isOldValue) {
+    private void oldValueSortSendServer(boolean isOldValue) {
         isOldVal = isOldValue;
     }
 

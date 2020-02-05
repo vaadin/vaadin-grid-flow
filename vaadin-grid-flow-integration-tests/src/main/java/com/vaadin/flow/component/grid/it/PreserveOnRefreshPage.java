@@ -39,14 +39,14 @@ public class PreserveOnRefreshPage extends Div {
         grid.addComponentColumn(person -> new Span(person.getFirstName()))
                 .setHeader(new Span("header")).setFooter(new Span("footer"));
         add(grid);
-        TEST_GUI();
+        TestGui();
     }
 
-    private List<TEST_DATA> createTestData() {
-        List<TEST_DATA> data = new ArrayList<>();
+    private List<TestData> createTestData() {
+        List<TestData> data = new ArrayList<>();
 
         for(int i = 0; i < 99; i++) {
-            data.add(new TEST_DATA("test" + i, i, (int)(Math.random() * 20)));
+            data.add(new TestData("test" + i, i, (int)(Math.random() * 20)));
         }
 
         return data;
@@ -54,8 +54,8 @@ public class PreserveOnRefreshPage extends Div {
 
 
 
-    public void TEST_GUI() {
-        Grid<TEST_DATA> grid = new Grid<>(TEST_DATA.class);
+    public void TestGui() {
+        Grid<TestData> grid = new Grid<>(TestData.class);
         setSizeFull();
 
         grid.setSizeFull();
@@ -65,26 +65,26 @@ public class PreserveOnRefreshPage extends Div {
         // removes generated columns
         grid.removeAllColumns();
 
-        Grid.Column<TEST_DATA> stringColumn = grid.addColumn(TEST_DATA::getStest).setSortable(true).setHeader("String");
+        Grid.Column<TestData> stringColumn = grid.addColumn(TestData::getStest).setSortable(true).setHeader("String");
         stringColumn.setId("string-column");
-        Grid.Column<TEST_DATA> indexColumn = grid.addColumn(TEST_DATA::getSint).setSortable(true).setHeader("index");
+        Grid.Column<TestData> indexColumn = grid.addColumn(TestData::getSint).setSortable(true).setHeader("index");
         indexColumn.setId("index-column");
-        Grid.Column<TEST_DATA> randomColumn = grid.addColumn(TEST_DATA::getRandom).setSortable(true).setHeader("random");
+        Grid.Column<TestData> randomColumn = grid.addColumn(TestData::getRandom).setSortable(true).setHeader("random");
         randomColumn.setId("random-column");
 
         grid.setMultiSort(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        List<GridSortOrder<TEST_DATA>> sortByString = new GridSortOrderBuilder<TEST_DATA>()
+        List<GridSortOrder<TestData>> sortByString = new GridSortOrderBuilder<TestData>()
                 .thenAsc(stringColumn).build();
         NativeButton buttonString = new NativeButton("Sort by String", e -> {
             grid.sort(sortByString);
         });
-        List<GridSortOrder<TEST_DATA>> sortByIndex = new GridSortOrderBuilder<TEST_DATA>()
+        List<GridSortOrder<TestData>> sortByIndex = new GridSortOrderBuilder<TestData>()
                 .thenAsc(indexColumn).build();
         NativeButton buttonIndex = new NativeButton("Sort by Index", e -> {
             grid.sort(sortByIndex);
         });
-        List<GridSortOrder<TEST_DATA>> sortByRandom = new GridSortOrderBuilder<TEST_DATA>()
+        List<GridSortOrder<TestData>> sortByRandom = new GridSortOrderBuilder<TestData>()
                 .thenAsc(randomColumn).build();
         NativeButton buttonRandom = new NativeButton("Sort by Random", e -> {
             grid.sort(sortByRandom);
@@ -101,12 +101,12 @@ public class PreserveOnRefreshPage extends Div {
         add(btRm, btattach, buttonString, buttonIndex, buttonRandom, grid);
     }
 
-    public class TEST_DATA {
+    public class TestData {
         public String stest;
         public int sint;
         public int random;
 
-        public TEST_DATA(String stest, int sint, int random) {
+        public TestData(String stest, int sint, int random) {
             super();
             this.stest = stest;
             this.sint = sint;

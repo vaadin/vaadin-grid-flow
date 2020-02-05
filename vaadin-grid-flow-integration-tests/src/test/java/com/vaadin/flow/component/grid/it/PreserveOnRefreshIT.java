@@ -69,7 +69,6 @@ public class PreserveOnRefreshIT extends AbstractComponentIT {
         WebElement btnRemove = findElement(By.id("btn-rm"));
         WebElement btnSortRandom = findElement(By.id("btn-sort-by-random"));
         String textColumnBeforeRemove = getGridSecond().getCell(0,3).getText();
-//        btnAttach.click();
         btnSortRandom.click();
         String textColumnAfterSort = getGridSecond().getCell(0,3).getText();
         Assert.assertNotEquals(textColumnBeforeRemove, textColumnAfterSort);
