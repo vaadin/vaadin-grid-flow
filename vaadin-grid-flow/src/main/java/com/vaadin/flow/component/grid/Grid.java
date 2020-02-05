@@ -137,6 +137,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     // package-private because it's used in tests
     static final String DRAG_SOURCE_DATA_KEY = "drag-source-data";
 
+    boolean isOldVal = false;
+    boolean isResetSort = false;
+    boolean isSorted = false;
+
     protected static class UpdateQueue implements Update {
         private final ArrayList<SerializableRunnable> queue = new ArrayList<>();
         private final UpdateQueueData data;
@@ -2950,7 +2954,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
     }
 
-    boolean isOldVal = false;
     @ClientCallable
     private void oldValueSortSendServer(boolean isOldValue) {
         isOldVal = isOldValue;
@@ -2998,7 +3001,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #setMultiSort(boolean)
      * @see #getSortOrder()
      */
-    boolean isResetSort = false;
     public void sort(List<GridSortOrder<T>> order) {
         if (order == null) {
             order = Collections.emptyList();
@@ -3007,7 +3009,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         setSortOrder(order, false);
     }
 
-    boolean isSorted = false;
     private void setSortOrder(List<GridSortOrder<T>> order,
             boolean userOriginated) {
         Objects.requireNonNull(order, "Sort order list cannot be null");
@@ -3020,9 +3021,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             updateClientSideSorterIndicators(order);
         }
 
+        boolean isSortOrderNotEmptyAfterReAttached = false;
+        if (order.isEmpty() && isSorted && !sortOrder.isEmpty() && !isOldVal) {
+            isSortOrderNotEmptyAfterReAttached = true;
+        }
         // In case that refreshing the page or something to keep the sort-state
         // exception cases: reset, or set back to sort size = 0
-        if (!isResetSort && order.size() == 0 && isSorted && sortOrder.size() > 0 && !isOldVal) {
+        if (!isResetSort && isSortOrderNotEmptyAfterReAttached) {
             order = sortOrder.stream().collect(Collectors.toList());
         }
 
