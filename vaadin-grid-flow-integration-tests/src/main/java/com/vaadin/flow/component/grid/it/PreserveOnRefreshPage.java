@@ -33,4 +33,5 @@ public class PreserveOnRefreshPage extends Div {
                 .setHeader(new Span("header")).setFooter(new Span("footer"));
         add(grid);
     }
+
 }

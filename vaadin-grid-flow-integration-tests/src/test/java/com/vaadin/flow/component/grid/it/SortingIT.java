@@ -66,15 +66,15 @@ public class SortingIT extends AbstractComponentIT {
     public void keepSortStateAfterReAttach() {
         WebElement btnAttach = findElement(By.id("btn-attach"));
         WebElement btnRemove = findElement(By.id("btn-rm"));
-        Assert.assertEquals("A", grid.getCell(0, 0).getText());
+        Assert.assertEquals("30", grid.getCell(0, 1).getText());
         findElement(By.id("sort-by-age")).click();
-        String textColumnAfterSort = grid.getCell(0,0).getText();
-        Assert.assertEquals("B", grid.getCell(0, 0).getText());
+        Assert.assertEquals("20", grid.getCell(0, 1).getText());
         btnRemove.click();
         btnAttach.click();
+        btnAttach.click();
         waitForElementPresent(By.id("sorting-grid"));
-        GridElement grid = $(GridElement.class).id("sorting-grid");
-        Assert.assertEquals("B", grid.getCell(0, 0).getText());
+        Assert.assertEquals("20", grid.getCell(0, 1).getText());
+        assertAscendingSorter("Age");
     }
 
     private void assertAscendingSorter(String expectedColumnHeader) {
