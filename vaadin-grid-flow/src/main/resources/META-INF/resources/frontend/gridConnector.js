@@ -399,14 +399,14 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
 
       const sorterChangeListener = tryCatchWrapper(function(_, oldValue) {
         let isSortersDuplicate = false;
-        let temp1 = [];
+        let sortersDuplicate = [];
         console.log(grid._sorters)
         if(grid._sorters.length > 1) {
           for(let i = 0; i < grid._sorters.length - 1; i++) {
             for(let j = i + 1; j < grid._sorters.length; j++) {
               if(grid._sorters[i].direction === grid._sorters[j].direction &&
                   grid._sorters[i].path === grid._sorters[j].path) {
-                temp1.push(j);
+                sortersDuplicate.push(j);
                 isSortersDuplicate =true;
                 break;
               }
@@ -416,36 +416,24 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             }
           }
         }
-        console.log(temp1);
-        if(temp1.length > 0 ) {
+        if(sortersDuplicate.length > 0 ) {
           let tempGrid = grid._sorters;
           grid._sorters = [];
-          let check = false;
+          let isSortersDuplicate = false;
           for(let i = 0; i < tempGrid.length; i++) {
-            for(let j = 0; j < temp1.length; j++) {
-              if(i === temp1[j]) {
-                check = true;
+            for(let j = 0; j < sortersDuplicate.length; j++) {
+              if(i === sortersDuplicate[j]) {
+                isSortersDuplicate = true;
               }
             }
-            if(!check) {
+            if(!isSortersDuplicate) {
               grid._sorters.push(tempGrid[i]);
-              check = false;
+              isSortersDuplicate = false;
             }
           }
         }
 
-        // if(isSortersDuplicate) {
-        //   let tempGrid = grid._sorters;
-        //   grid._sorters = [];
-        //   console.log(tempGrid);
-        //   for(let i = 0; i < temp1[0]; i++) {
-        //     grid._sorters.push(tempGrid[i]);
-        //   }
-        // }
-        // console.log(grid._sorters)
         if (oldValue !== undefined && !sorterDirectionsSetFromServer) {
-          console.log("checking")
-          // isSortersDuplicate = false;
           const isOldValue = oldValue.length > 0;
           grid.$server.oldValueSortSendServer(isOldValue);
           grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
@@ -455,18 +443,6 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             };
           }));
         }
-        // else if (!isSortersDuplicate) {
-        //   if (oldValue !== undefined && !sorterDirectionsSetFromServer) {
-        //     const isOldValue = oldValue.length > 0;
-        //     grid.$server.oldValueSortSendServer(isOldValue);
-        //     grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
-        //       return {
-        //         path: sorter.path,
-        //         direction: sorter.direction
-        //       };
-        //     }));
-        //   }
-        // }
       });
 
       grid.$connector.setSorterDirections = tryCatchWrapper(function(directions) {

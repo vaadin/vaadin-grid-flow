@@ -3015,9 +3015,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (sortOrder.equals(order)) {
             if (!order.isEmpty()) {
                 updateClientSideSorterIndicators(order);
-//                sort(userOriginated);
             }
-
             return;
         }
 
@@ -3029,7 +3027,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         if (!userOriginated) {
             updateClientSideSorterIndicators(order);
-        } else if (userOriginated && !sortOrder.isEmpty() && !order.isEmpty() && sortOrder.size() == order.size() && isOldValSameNewValWithoutOrder) {
+        } else if (userOriginated
+                && !sortOrder.isEmpty()
+                && !order.isEmpty()
+                && sortOrder.size() == order.size()
+                && isOldValSameNewValWithoutOrder) {
             order = sortOrder.stream().collect(Collectors.toList());
             updateClientSideSorterIndicators(order);
             return;
