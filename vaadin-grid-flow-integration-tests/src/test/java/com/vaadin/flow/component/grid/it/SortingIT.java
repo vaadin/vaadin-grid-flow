@@ -63,18 +63,29 @@ public class SortingIT extends AbstractComponentIT {
         assertAscendingSorter("Age");
     }
     @Test
-    public void keepSortStateAfterReAttach() {
+    public void keepSortStatesAfterReAttach() {
+        WebElement gridElementBefore = findElement(By.id("sorting-grid"));
         WebElement btnAttach = findElement(By.id("btn-attach"));
         WebElement btnRemove = findElement(By.id("btn-rm"));
         Assert.assertEquals("30", grid.getCell(0, 1).getText());
+        Assert.assertEquals("asc", gridElementBefore.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("direction"));
         findElement(By.id("sort-by-age")).click();
         Assert.assertEquals("20", grid.getCell(0, 1).getText());
         btnRemove.click();
         btnAttach.click();
-        btnAttach.click();
+
+        WebElement gridElementAfter = findElement(By.id("sorting-grid"));
         waitForElementPresent(By.id("sorting-grid"));
-        Assert.assertEquals("20", grid.getCell(0, 1).getText());
-        assertAscendingSorter("Age");
+        gridElementAfter.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("direction");
+        boolean isNameColumnDirectionEmpty =
+                gridElementAfter.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("direction") == null;
+
+        Assert.assertTrue("Direction attribute should not be in name column", isNameColumnDirectionEmpty);
+        Assert.assertEquals("asc", gridElementAfter.findElements(By.tagName("vaadin-grid-sorter")).get(1).getAttribute("direction"));
+        GridElement gridAfterAttach;
+        gridAfterAttach = $(GridElement.class).first();
+        Assert.assertEquals("20", gridAfterAttach.getCell(0, 1).getText());
+        Assert.assertEquals("30", gridAfterAttach.getCell(1, 1).getText());
     }
 
     private void assertAscendingSorter(String expectedColumnHeader) {

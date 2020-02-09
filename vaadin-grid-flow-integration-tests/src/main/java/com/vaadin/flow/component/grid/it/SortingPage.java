@@ -41,7 +41,6 @@ public class SortingPage extends Div {
                 .setHeader("Name");
         Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
-
         List<GridSortOrder<Person>> sortByName = new GridSortOrderBuilder<Person>()
                 .thenAsc(nameColumn).build();
         grid.sort(sortByName);
