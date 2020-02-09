@@ -417,22 +417,22 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
           }
         }
         console.log(temp1);
-        // if(temp1.length > 0 ) {
-        //   let tempGrid = grid._sorters;
-        //   grid._sorters = [];
-        //   let check = false;
-        //   for(let i = 0; i < tempGrid.length; i++) {
-        //     for(let j = 0; j < temp1.length; j++) {
-        //       if(i === temp1[j]) {
-        //         check = true;
-        //       }
-        //     }
-        //     if(!check) {
-        //       grid._sorters.push(tempGrid[i]);
-        //       check = false;
-        //     }
-        //   }
-        // }
+        if(temp1.length > 0 ) {
+          let tempGrid = grid._sorters;
+          grid._sorters = [];
+          let check = false;
+          for(let i = 0; i < tempGrid.length; i++) {
+            for(let j = 0; j < temp1.length; j++) {
+              if(i === temp1[j]) {
+                check = true;
+              }
+            }
+            if(!check) {
+              grid._sorters.push(tempGrid[i]);
+              check = false;
+            }
+          }
+        }
 
         // if(isSortersDuplicate) {
         //   let tempGrid = grid._sorters;

@@ -3013,6 +3013,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         Objects.requireNonNull(order, "Sort order list cannot be null");
 
         if (sortOrder.equals(order)) {
+            if (!order.isEmpty()) {
+                updateClientSideSorterIndicators(order);
+//                sort(userOriginated);
+            }
+
             return;
         }
 
@@ -3026,7 +3031,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             updateClientSideSorterIndicators(order);
         } else if (userOriginated && !sortOrder.isEmpty() && !order.isEmpty() && sortOrder.size() == order.size() && isOldValSameNewValWithoutOrder) {
             order = sortOrder.stream().collect(Collectors.toList());
-//            updateClientSideSorterIndicators(sortOrder);
+            updateClientSideSorterIndicators(order);
+            return;
         }
 
         boolean isSortOrderNotEmptyAfterReAttached = false;
