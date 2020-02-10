@@ -298,7 +298,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public static class Column<T> extends AbstractColumn<Column<T>> {
 
         private final String columnInternalId; // for internal implementation
-                                               // only
+        // only
         private String columnKey; // defined and used by the user
 
         private boolean sortingEnabled;
@@ -1382,11 +1382,11 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
          * @return the build data communicator object
          */
         protected DataCommunicator<T> build(Element element,
-                CompositeDataGenerator<T> dataGenerator, U arrayUpdater,
-                SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
+                                            CompositeDataGenerator<T> dataGenerator, U arrayUpdater,
+                                            SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
             return new DataCommunicator<>(
                     dataGenerator, arrayUpdater, data -> element
-                            .callJsFunction("$connector.updateFlatData", data),
+                    .callJsFunction("$connector.updateFlatData", data),
                     element.getNode());
         }
     }
@@ -1461,8 +1461,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         String columnId = createColumnId(false);
 
         C column = addColumn(new ColumnPathRenderer<T>(columnId,
-                value -> formatValueToSendToTheClient(
-                        valueProvider.apply(value))),
+                        value -> formatValueToSendToTheClient(
+                                valueProvider.apply(value))),
                 columnFactory);
         ((Column<T>) column).comparator = ((a, b) -> compareMaybeComparables(
                 valueProvider.apply(a), valueProvider.apply(b)));
@@ -1609,7 +1609,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #removeColumn(Column)
      */
     protected <C extends Column<T>> C addColumn(Renderer<T> renderer,
-            BiFunction<Renderer<T>, String, C> columnFactory) {
+                                                BiFunction<Renderer<T>, String, C> columnFactory) {
         String columnId = createColumnId(true);
 
         C column = columnFactory.apply(renderer, columnId);
@@ -1721,7 +1721,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the created column
      */
     public Column<T> addColumn(Renderer<T> renderer,
-            String... sortingProperties) {
+                               String... sortingProperties) {
         BiFunction<Renderer<T>, String, Column<T>> defaultFactory = getDefaultColumnFactory();
         return addColumn(renderer, defaultFactory, sortingProperties);
     }
@@ -1765,8 +1765,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected <C extends Column<T>> C addColumn(Renderer<T> renderer,
-            BiFunction<Renderer<T>, String, C> columnFactory,
-            String... sortingProperties) {
+                                                BiFunction<Renderer<T>, String, C> columnFactory,
+                                                String... sortingProperties) {
         C column = addColumn(renderer, columnFactory);
 
         Map<String, ValueProvider<T, ?>> valueProviders = renderer
@@ -1872,7 +1872,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the created column
      */
     protected <C extends Column<T>> C addColumn(String propertyName,
-            BiFunction<Renderer<T>, String, C> columnFactory) {
+                                                BiFunction<Renderer<T>, String, C> columnFactory) {
         checkForBeanGrid();
         Objects.requireNonNull(propertyName, "Property name can't be null");
 
@@ -1892,7 +1892,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private <C extends Column<T>> C addColumn(PropertyDefinition<T, ?> property,
-            BiFunction<Renderer<T>, String, C> columnFactory) {
+                                              BiFunction<Renderer<T>, String, C> columnFactory) {
         @SuppressWarnings("unchecked")
         C column = (C) addColumn(item -> runPropertyValueGetter(property, item),
                 columnFactory).setHeader(property.getCaption());
@@ -1911,7 +1911,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private Object runPropertyValueGetter(PropertyDefinition<T, ?> property,
-            T item) {
+                                          T item) {
         return property.getGetter().apply(item);
     }
 
@@ -2192,7 +2192,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @return the new layer
      */
     protected ColumnLayer insertColumnLayer(int index,
-            List<AbstractColumn<?>> columns) {
+                                            List<AbstractColumn<?>> columns) {
         ColumnLayer layer = new ColumnLayer(this, columns);
         columnLayers.add(index, layer);
         return layer;
@@ -2223,7 +2223,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private ColumnLayer insertInmostColumnLayer(boolean forHeaderRow,
-            boolean forFooterRow) {
+                                                boolean forFooterRow) {
         ColumnLayer bottomLayer = columnLayers.get(0);
         List<AbstractColumn<?>> columns = bottomLayer.getColumns();
 
@@ -2401,7 +2401,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * @see #setSelectionMode(SelectionMode)
      */
     protected void setSelectionModel(GridSelectionModel<T> model,
-            SelectionMode selectionMode) {
+                                     SelectionMode selectionMode) {
         Objects.requireNonNull(model, "selection model cannot be null");
         Objects.requireNonNull(selectionMode, "selection mode cannot be null");
         if (selectionModel != null
@@ -2785,7 +2785,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     private void removeEmptyColumnGroups(ColumnGroup columnGroup,
-            int columnLayerIndex) {
+                                         int columnLayerIndex) {
         Component parent = columnGroup.getParent().get();
         if (columnGroup.getChildColumns().size() == 0) {
             parent.getElement().removeChild(columnGroup.getElement());
@@ -2907,7 +2907,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     @SuppressWarnings("unchecked")
     private void appendChildColumns(List<Column<T>> list,
-            ColumnBase<?> column) {
+                                    ColumnBase<?> column) {
         if (column instanceof Column) {
             list.add((Column<T>) column);
         } else if (column instanceof ColumnGroup) {
@@ -2970,15 +2970,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             }
             if (sorter.hasKey("direction")) {
                 switch (sorter.getString("direction")) {
-                case "asc":
-                    sortOrderBuilder.thenAsc(column);
-                    break;
-                case "desc":
-                    sortOrderBuilder.thenDesc(column);
-                    break;
-                default:
-                    throw new IllegalArgumentException(
-                            "Received a sorters changed call from the client containing an invalid sorting direction");
+                    case "asc":
+                        sortOrderBuilder.thenAsc(column);
+                        break;
+                    case "desc":
+                        sortOrderBuilder.thenDesc(column);
+                        break;
+                    default:
+                        throw new IllegalArgumentException(
+                                "Received a sorters changed call from the client containing an invalid sorting direction");
                 }
             }
         }
@@ -3005,11 +3005,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             order = Collections.emptyList();
             isResetSort = true;
         }
-        setSortOrder(order, false);
+        if ( this.getColumns().size() > 0)
+            setSortOrder(order, false);
     }
 
     private void setSortOrder(List<GridSortOrder<T>> order,
-            boolean userOriginated) {
+                              boolean userOriginated) {
         Objects.requireNonNull(order, "Sort order list cannot be null");
 
         if (sortOrder.equals(order)) {
@@ -3085,15 +3086,15 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
             if (gridSortOrder.getDirection() != null) {
                 switch (gridSortOrder.getDirection()) {
-                case ASCENDING:
-                    direction.put("direction", "asc");
-                    break;
-                case DESCENDING:
-                    direction.put("direction", "desc");
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown gridSortOrder: "
-                            + gridSortOrder.getDirection());
+                    case ASCENDING:
+                        direction.put("direction", "asc");
+                        break;
+                    case DESCENDING:
+                        direction.put("direction", "desc");
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown gridSortOrder: "
+                                + gridSortOrder.getDirection());
                 }
             }
             directions.set(i, direction);
@@ -3125,7 +3126,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     protected SerializableComparator<T> createSortingComparator() {
         BinaryOperator<SerializableComparator<T>> operator = (comparator1,
-                comparator2) -> {
+                                                              comparator2) -> {
             /*
              * thenComparing is defined to return a serializable comparator as
              * long as both original comparators are also serializable
@@ -3195,7 +3196,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *         the Grid
      */
     public Registration addValueProvider(String property,
-            ValueProvider<T, ?> valueProvider) {
+                                         ValueProvider<T, ?> valueProvider) {
         Objects.requireNonNull(property);
         Objects.requireNonNull(valueProvider);
 
@@ -3749,7 +3750,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            Function to be executed on row data generation.
      */
     public void setDragDataGenerator(String type,
-            SerializableFunction<T, String> dragDataGenerator) {
+                                     SerializableFunction<T, String> dragDataGenerator) {
         this.dragDataGenerators.put(type, dragDataGenerator);
 
         JsonArray types = Json.createArray();
@@ -3777,7 +3778,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      *            data type:data -entries
      */
     public void setSelectionDragDetails(int draggedItemsCount,
-            Map<String, String> dragData) {
+                                        Map<String, String> dragData) {
         this.getElement().setProperty("__selectionDraggedItemsCount",
                 draggedItemsCount);
 
