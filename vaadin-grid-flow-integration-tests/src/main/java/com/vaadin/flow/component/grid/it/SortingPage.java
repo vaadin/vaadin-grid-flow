@@ -56,6 +56,7 @@ public class SortingPage extends Div {
         button.setId("sort-by-age");
         add(button, grid);
 
+        setSizeFull();
         gui1 = new TestGui();
         Button btnReset = new Button("reset", evt -> gui1.getGrid().sort(null));
         btnReset.setId("btn-reset");
@@ -69,9 +70,11 @@ public class SortingPage extends Div {
 
     private List<TestData> createTestData() {
         List<TestData> data = new ArrayList<>();
+
         for(int i=0; i<9; i++) {
             data.add(new TestData("test" + i, i, (int)(Math.random() * 100)));
         }
+
         return data;
     }
 
@@ -84,26 +87,20 @@ public class SortingPage extends Div {
             grid.setId("second-grid");
             // removes generated columns
             grid.removeAllColumns();
-
             Grid.Column<TestData> string = grid.addColumn(TestData::getStest).setSortable(true).setHeader("String");
             Grid.Column<TestData> index = grid.addColumn(TestData::getSint).setSortable(true).setHeader("index");
             grid.addColumn(TestData::getRandom).setSortable(true).setHeader("random");
-
             grid.setMultiSort(true);
             grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
             List<GridSortOrder<TestData>> sortByNameSecondGrid = new GridSortOrderBuilder<TestData>()
                     .thenAsc(string).build();
             grid.sort(sortByNameSecondGrid);
-
             List<GridSortOrder<TestData>> sortByNameSecondGrid2 = new GridSortOrderBuilder<TestData>()
                     .thenAsc(index).build();
             grid.sort(sortByNameSecondGrid2);
-
             grid.addSortListener(e -> {
                 System.out.println(e.getSortOrder().size());
             });
-
             add(grid);
         }
         public Grid<TestData> getGrid() {
@@ -115,7 +112,6 @@ public class SortingPage extends Div {
         public String stest;
         public int sint;
         public int random;
-
         public TestData(String stest, int sint, int random) {
             super();
             this.stest = stest;
