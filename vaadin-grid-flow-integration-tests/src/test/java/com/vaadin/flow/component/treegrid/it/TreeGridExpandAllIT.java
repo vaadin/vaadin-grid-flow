@@ -55,12 +55,13 @@ public class TreeGridExpandAllIT extends AbstractTreeGridIT {
         open();
         TreeGridElement grid = $(TreeGridElement.class).get(1);
         WebElement expandToggleElement = grid.getExpandToggleElement(1, 0);
-        int widthBeforeExpend = grid.findElements(By.tagName("vaadin-grid-cell-content")).get(2).getSize().getWidth();
+        int widthBeforeExpend = grid.getCell(1,0).getSize().getWidth();
         expandToggleElement.click();
-        int widthAfterExpend = grid.findElements(By.tagName("vaadin-grid-cell-content")).get(2).getSize().getWidth();
+        grid.getCell(1,0);
+        int widthAfterExpend = grid.getCell(1,0).getSize().getWidth();
         Assert.assertNotEquals(widthBeforeExpend, widthAfterExpend);
         grid.collapseWithClick(1);
-        int widthAfterCollapse = grid.findElements(By.tagName("vaadin-grid-cell-content")).get(2).getSize().getWidth();
+        int widthAfterCollapse = grid.getCell(1,0).getSize().getWidth();
         Assert.assertEquals(widthBeforeExpend, widthAfterCollapse);
     }
 

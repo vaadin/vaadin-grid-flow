@@ -64,8 +64,8 @@ public class TreeGridExpandAllPage extends Div {
         treeGrid = new TreeGrid<>();
         treeGrid.setDataProvider(inMemoryDataProvider);
         treeGrid.setWidth("100%");
-        treeGrid.addHierarchyColumn(String::toString).setHeader("String");
-        treeGrid.addColumn((i) -> "Second Column").setHeader("Second Column");
+        treeGrid.addHierarchyColumn(String::toString).setHeader("String").setAutoWidth(true);
+        treeGrid.addColumn((i) -> "Second Column").setHeader("Second Column").setAutoWidth(true);
         treeGrid.setId("second-grid");
         treeGrid.addCollapseListener(e -> treeGrid.recalculateColumnWidths());
         treeGrid.addExpandListener(e -> treeGrid.recalculateColumnWidths());
