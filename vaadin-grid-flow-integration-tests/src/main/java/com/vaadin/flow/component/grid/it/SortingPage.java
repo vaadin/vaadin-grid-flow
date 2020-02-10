@@ -55,7 +55,12 @@ public class SortingPage extends Div {
         btRm.setId("btn-rm");
         Button btattach = new Button("Attach", evt -> add(grid));
         btattach.setId(("btn-attach"));
-        add(button, btRm, btattach, grid);
+        Button btnSetMultisort = new Button("Multi-sort", evt -> grid.setMultiSort(true));
+        btnSetMultisort.setId("multi-sort");
+        Button btnSetSingleSort = new Button("Single-sort", evt -> grid.setMultiSort(false));
+        btnSetSingleSort.setId("single-sort");
+        btRm.setId("btn-rm");
+        add(button, btRm, btattach, btnSetMultisort, btnSetSingleSort, grid);
     }
 
 }

@@ -41,17 +41,20 @@ public class SortingIT extends AbstractComponentIT {
 
     @Test
     public void setInitialSortOrder_dataSorted() {
+        findElement(By.id("single-sort")).click();
         Assert.assertEquals("A", grid.getCell(0, 0).getText());
         Assert.assertEquals("B", grid.getCell(1, 0).getText());
     }
 
     @Test
     public void setInitialSortOrder_sortIndicatorsUpdated() {
+        findElement(By.id("single-sort")).click();
         assertAscendingSorter("Name");
     }
 
     @Test
     public void setInitialSortOrder_changeOrderFromServer_dataSorted() {
+        findElement(By.id("single-sort")).click();
         findElement(By.id("sort-by-age")).click();
         Assert.assertEquals("B", grid.getCell(0, 0).getText());
         Assert.assertEquals("A", grid.getCell(1, 0).getText());
@@ -59,11 +62,13 @@ public class SortingIT extends AbstractComponentIT {
 
     @Test
     public void setInitialSortOrder_changeOrderFromServer_sortIndicatorsUpdated() {
+        findElement(By.id("single-sort")).click();
         findElement(By.id("sort-by-age")).click();
         assertAscendingSorter("Age");
     }
     @Test
     public void keepSortStatesAfterReAttach() {
+        findElement(By.id("multi-sort")).click();
         WebElement gridElementBefore = findElement(By.id("sorting-grid"));
         WebElement btnAttach = findElement(By.id("btn-attach"));
         WebElement btnRemove = findElement(By.id("btn-rm"));
@@ -86,6 +91,27 @@ public class SortingIT extends AbstractComponentIT {
         gridAfterAttach = $(GridElement.class).first();
         Assert.assertEquals("20", gridAfterAttach.getCell(0, 1).getText());
         Assert.assertEquals("30", gridAfterAttach.getCell(1, 1).getText());
+
+        // Continue to click Attach, without Deattach grid, it should keep the sort states
+        btnAttach.click();
+        gridElementAfter.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("direction");
+        isNameColumnDirectionEmpty =
+                gridElementAfter.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("direction") == null;
+
+        Assert.assertTrue("Direction attribute should not be in name column", isNameColumnDirectionEmpty);
+        Assert.assertEquals("asc", gridElementAfter.findElements(By.tagName("vaadin-grid-sorter")).get(1).getAttribute("direction"));
+        gridAfterAttach = $(GridElement.class).first();
+        Assert.assertEquals("20", gridAfterAttach.getCell(0, 1).getText());
+        Assert.assertEquals("30", gridAfterAttach.getCell(1, 1).getText());
+
+        // Multi-sort
+        findElement(By.id("multi-sort")).click();
+        final WebElement firstColumn = findElements(By.tagName("vaadin-grid-sorter")).get(0);
+        firstColumn.click();
+        Assert.assertEquals("30", gridAfterAttach.getCell(0, 1).getText());
+        Assert.assertEquals("20", gridAfterAttach.getCell(1, 1).getText());
+        Assert.assertEquals("A", gridAfterAttach.getCell(0, 0).getText());
+        Assert.assertEquals("B", gridAfterAttach.getCell(1, 0).getText());
     }
 
     private void assertAscendingSorter(String expectedColumnHeader) {
