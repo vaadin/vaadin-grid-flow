@@ -34,7 +34,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @Route("sorting")
 @Theme(Lumo.class)
 public class SortingPage extends Div {
-    private TEST_GUI gui1;
+    private TestGui gui1;
 
     public SortingPage() {
         Grid<Person> grid = new Grid<>();
@@ -56,87 +56,47 @@ public class SortingPage extends Div {
         button.setId("sort-by-age");
         add(button, grid);
 
-        // second grid for multi sort
-//        Grid<Person> secondGrid = new Grid<>();
-//        secondGrid.setId("sorting-grid-second");
-//        secondGrid.setMultiSort(true);
-//        secondGrid.setItems(new Person("B", 20), new Person("A", 30));
-//        Column<Person> nameColumnSecondGrid = secondGrid.addColumn(Person::getFirstName)
-//                .setHeader("Name").setSortable(true);
-//        Column<Person> ageColumnSecondGrid = secondGrid.addColumn(Person::getAge)
-//                .setHeader("Age").setSortable(true);
-////
-////        List<GridSortOrder<Person>> sortByNameSecondGrid = new GridSortOrderBuilder<Person>()
-////                .thenAsc(nameColumnSecondGrid).build();
-////        grid.sort(sortByNameSecondGrid);
-//        NativeButton btnSortByNameSecondGrid = new NativeButton("Sort by name", e -> {
-//            List<GridSortOrder<Person>> sortByNameSecondGridBuild = new GridSortOrderBuilder<Person>()
-//                    .thenAsc(nameColumnSecondGrid).build();
-//            secondGrid.sort(sortByNameSecondGridBuild);
-//        });
-//
-//        secondGrid.setMultiSort(true);
-//        List<GridSortOrder<Person>> sortByAgeSecondGrid = new GridSortOrderBuilder<Person>()
-//                .thenAsc(ageColumnSecondGrid).build();
-//        grid.sort(sortByAgeSecondGrid);
-//        NativeButton btnSortByAgeSecondGrid = new NativeButton("Sort by age", e -> {
-//            List<GridSortOrder<Person>> sortByAgeSecondGridBuild = new GridSortOrderBuilder<Person>()
-//                    .thenAsc(ageColumnSecondGrid).build();
-//            secondGrid.sort(sortByAgeSecondGridBuild);
-//        });
-//
-//        btnSortByAgeSecondGrid.setId("sort-by-age-second-grid");
-//        btnSortByNameSecondGrid.setId("sort-by-name-second-grid");
-//
-//        Button btnDeattachSecondGrid = new Button("De-Attach", evt -> remove(secondGrid));
-//        btnDeattachSecondGrid.setId("btn-rm");
-//        Button btnAttachSecondGrid = new Button("Attach", evt -> add(secondGrid));
-//        btnAttachSecondGrid.setId(("btn-attach"));
-//        add(btnSortByAgeSecondGrid, btnSortByNameSecondGrid, btnDeattachSecondGrid, btnAttachSecondGrid, secondGrid);
-
-        setSizeFull();
-        gui1 = new TEST_GUI();
-        Button btnReset = new Button("rs", evt -> gui1.getGrid().sort(null));
-        Button btRm = new Button("rm", evt -> remove(gui1));
+        gui1 = new TestGui();
+        Button btnReset = new Button("reset", evt -> gui1.getGrid().sort(null));
+        btnReset.setId("btn-reset");
+        Button btRm = new Button("deattach", evt -> remove(gui1));
+        btRm.setId("btn-deattach");
         Button btattach = new Button("attach",
                 evt -> add(gui1));
+        btattach.setId("btn-attach");
         add(btRm, btattach,btnReset);
     }
 
-    private List<TEST_DATA> createTestData() {
-        List<TEST_DATA> data = new ArrayList<>();
-
+    private List<TestData> createTestData() {
+        List<TestData> data = new ArrayList<>();
         for(int i=0; i<9; i++) {
-            data.add(new TEST_DATA("test" + i, i, (int)(Math.random() * 100)));
+            data.add(new TestData("test" + i, i, (int)(Math.random() * 100)));
         }
-
         return data;
     }
 
-    public class TEST_GUI extends FlexLayout {
-        Grid<TEST_DATA> grid = new Grid<>(TEST_DATA.class);
-        public TEST_GUI() {
+    public class TestGui extends FlexLayout {
+        Grid<TestData> grid = new Grid<>(TestData.class);
+        public TestGui() {
             setSizeFull();
-
-
             grid.setSizeFull();
-
             grid.setItems(createTestData());
+            grid.setId("second-grid");
             // removes generated columns
             grid.removeAllColumns();
 
-            Grid.Column<TEST_DATA> string = grid.addColumn(TEST_DATA::getStest).setSortable(true).setHeader("String");
-            Grid.Column<TEST_DATA> index = grid.addColumn(TEST_DATA::getSint).setSortable(true).setHeader("index");
-            grid.addColumn(TEST_DATA::getRandom).setSortable(true).setHeader("random");
+            Grid.Column<TestData> string = grid.addColumn(TestData::getStest).setSortable(true).setHeader("String");
+            Grid.Column<TestData> index = grid.addColumn(TestData::getSint).setSortable(true).setHeader("index");
+            grid.addColumn(TestData::getRandom).setSortable(true).setHeader("random");
 
             grid.setMultiSort(true);
             grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-            List<GridSortOrder<TEST_DATA>> sortByNameSecondGrid = new GridSortOrderBuilder<TEST_DATA>()
+            List<GridSortOrder<TestData>> sortByNameSecondGrid = new GridSortOrderBuilder<TestData>()
                     .thenAsc(string).build();
             grid.sort(sortByNameSecondGrid);
 
-            List<GridSortOrder<TEST_DATA>> sortByNameSecondGrid2 = new GridSortOrderBuilder<TEST_DATA>()
+            List<GridSortOrder<TestData>> sortByNameSecondGrid2 = new GridSortOrderBuilder<TestData>()
                     .thenAsc(index).build();
             grid.sort(sortByNameSecondGrid2);
 
@@ -146,17 +106,17 @@ public class SortingPage extends Div {
 
             add(grid);
         }
-        public Grid<TEST_DATA> getGrid() {
+        public Grid<TestData> getGrid() {
             return this.grid;
         }
     }
 
-    public class TEST_DATA {
+    public class TestData {
         public String stest;
         public int sint;
         public int random;
 
-        public TEST_DATA(String stest, int sint, int random) {
+        public TestData(String stest, int sint, int random) {
             super();
             this.stest = stest;
             this.sint = sint;
@@ -164,9 +124,6 @@ public class SortingPage extends Div {
         }
         public String getStest() {
             return stest;
-        }
-        public void setStest(String stest) {
-            this.stest = stest;
         }
         public int getSint() {
             return sint;
