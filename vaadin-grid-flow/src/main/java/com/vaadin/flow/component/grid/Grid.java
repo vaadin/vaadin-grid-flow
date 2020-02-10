@@ -3041,7 +3041,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         if (order.isEmpty() && isSorted && !sortOrder.isEmpty() && !isPreviousSortValueNotEmpty) {
             isSortOrderNotEmptyAfterReAttached = true;
         }
-        // In case that refreshing the page or something to keep the sort-state
+        // In case that reattach the grid or something to keep the sort-state
         // exception cases: reset, or set back to sort size = 0
         if (!isResetSort && isSortOrderNotEmptyAfterReAttached) {
             order = sortOrder.stream().collect(Collectors.toList());
