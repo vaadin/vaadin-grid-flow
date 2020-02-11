@@ -44,6 +44,7 @@ public class SortingPage extends Div {
                 .setHeader("Name");
         Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
+        add(grid);
         List<GridSortOrder<Person>> sortByName = new GridSortOrderBuilder<Person>()
                 .thenAsc(nameColumn).build();
         grid.sort(sortByName);
@@ -54,7 +55,7 @@ public class SortingPage extends Div {
             grid.sort(sortByAge);
         });
         button.setId("sort-by-age");
-        add(button, grid);
+        add(button);
 
         setSizeFull();
         gui1 = new TestGui();
@@ -98,9 +99,7 @@ public class SortingPage extends Div {
             List<GridSortOrder<TestData>> sortByNameSecondGrid2 = new GridSortOrderBuilder<TestData>()
                     .thenAsc(index).build();
             grid.sort(sortByNameSecondGrid2);
-            grid.addSortListener(e -> {
-                System.out.println(e.getSortOrder().size());
-            });
+
             add(grid);
         }
         public Grid<TestData> getGrid() {

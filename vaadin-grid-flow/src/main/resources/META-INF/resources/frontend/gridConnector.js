@@ -400,7 +400,6 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       const sorterChangeListener = tryCatchWrapper(function(_, oldValue) {
         let isSortersDuplicate = false;
         let sortersDuplicate = [];
-        console.log(grid._sorters)
         if(grid._sorters.length > 1) {
           for(let i = 0; i < grid._sorters.length - 1; i++) {
             for(let j = i + 1; j < grid._sorters.length; j++) {
@@ -417,17 +416,17 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
           }
         }
         if(sortersDuplicate.length > 0 ) {
-          let tempGrid = grid._sorters;
+          let tempSorters = grid._sorters;
           grid._sorters = [];
           let isSortersDuplicate = false;
-          for(let i = 0; i < tempGrid.length; i++) {
+          for(let i = 0; i < tempSorters.length; i++) {
             for(let j = 0; j < sortersDuplicate.length; j++) {
               if(i === sortersDuplicate[j]) {
                 isSortersDuplicate = true;
               }
             }
             if(!isSortersDuplicate) {
-              grid._sorters.push(tempGrid[i]);
+              grid._sorters.push(tempSorters[i]);
               isSortersDuplicate = false;
             }
           }
@@ -443,7 +442,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             };
           }));
         }
-      });
+      })
 
       grid.$connector.setSorterDirections = tryCatchWrapper(function(directions) {
         sorterDirectionsSetFromServer = true;
