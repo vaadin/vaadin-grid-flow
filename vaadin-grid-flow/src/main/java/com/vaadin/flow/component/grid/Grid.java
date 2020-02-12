@@ -3003,9 +3003,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        if (!sortOrder.isEmpty()) {
-            updateClientSideSorterIndicators(sortOrder);
-        }
+        updateClientSideSorterIndicators(sortOrder);
     }
 
     private void setSortOrder(List<GridSortOrder<T>> order,
