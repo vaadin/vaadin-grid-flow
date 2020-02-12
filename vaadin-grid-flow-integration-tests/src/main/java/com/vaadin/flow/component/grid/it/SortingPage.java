@@ -45,6 +45,7 @@ public class SortingPage extends Div {
         Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
         add(grid);
+
         List<GridSortOrder<Person>> sortByName = new GridSortOrderBuilder<Person>()
                 .thenAsc(nameColumn).build();
         grid.sort(sortByName);
@@ -67,16 +68,6 @@ public class SortingPage extends Div {
                 evt -> add(gui1));
         btattach.setId("btn-attach");
         add(btRm, btattach,btnReset);
-    }
-
-    private List<TestData> createTestData() {
-        List<TestData> data = new ArrayList<>();
-
-        for(int i=0; i<9; i++) {
-            data.add(new TestData("test" + i, i, (int)(Math.random() * 100)));
-        }
-
-        return data;
     }
 
     public class TestGui extends FlexLayout {
@@ -105,12 +96,19 @@ public class SortingPage extends Div {
         public Grid<TestData> getGrid() {
             return this.grid;
         }
+        private List<TestData> createTestData() {
+            List<TestData> data = new ArrayList<>();
+            for(int i=0; i<9; i++) {
+                data.add(new TestData("test" + i, i, 3 * 100));
+            }
+            return data;
+        }
     }
 
     public class TestData {
-        public String stest;
-        public int sint;
-        public int random;
+        private String stest;
+        private int sint;
+        private int random;
         public TestData(String stest, int sint, int random) {
             super();
             this.stest = stest;

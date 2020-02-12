@@ -158,83 +158,57 @@ public class SortingIT extends AbstractComponentIT {
     }
 
     @Test
-    public void attach_reset_reattch_addSort_deattach_reset() {
+    public void indicatorsSortStateNumbers() {
         WebElement btnAttach = findElement(By.id("btn-attach"));
         WebElement btnRemove = findElement(By.id("btn-deattach"));
-        WebElement btnReset = findElement(By.id("btn-reset"));
 
+        // Attach grid
         btnAttach.click();
 
         WebElement secondGrid = findElement(By.id("second-grid"));
-        // Assert sort from server side before reattach
-        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(1).getAttribute("direction"));
-
-        boolean isFirstColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(0).getAttribute("direction") == null;
-        boolean isThirdColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(2).getAttribute("direction") == null;
-        Assert.assertTrue("Direction attribute should not be in first column", isFirstColumnDirectionEmpty);
-        Assert.assertTrue("Direction attribute should not be in third column", isThirdColumnDirectionEmpty);
-
-        btnReset.click();
-
-        // After reset
-        isFirstColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(0).getAttribute("direction") == null;
-        boolean isSecondColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(1).getAttribute("direction") == null;
-        isThirdColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(2).getAttribute("direction") == null;
-        Assert.assertTrue("Direction attribute should not be in first column", isFirstColumnDirectionEmpty);
-        Assert.assertTrue("Direction attribute should not be in second column", isSecondColumnDirectionEmpty);
-        Assert.assertTrue("Direction attribute should not be in third column", isThirdColumnDirectionEmpty);
-
-        btnAttach.click();
         GridElement secondGridElement = $(GridElement.class).get(1);
+
+        secondGrid = findElement(By.id("second-grid"));
+
         // Sort with first and third columns
         secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
                 .get(0).click();
         secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
                 .get(2).click();
+
         Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
                 .get(0).getAttribute("direction"));
         Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(1).getAttribute("direction"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
                 .get(2).getAttribute("direction"));
-
-        secondGridElement = $(GridElement.class).get(1);
-        String textFirstStringColumnBeforeReattch = secondGridElement.getCell(0, 1).getText();
-        String textFirstIndexColumnBeforeReattch = secondGridElement.getCell(0, 2).getText();
-        String textFirstRandomColumnBeforeReattch = secondGridElement.getCell(0, 3).getText();
+        String sortStateNumberFirstColumn
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("_order");
+        String sortStateNumberSecondColumn
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(1).getAttribute("_order");
+        String sortStateNumberThirdColumn
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(2).getAttribute("_order");
 
         // Deattach
         btnRemove.click();
+        // Reattach
         btnAttach.click();
-        secondGridElement = $(GridElement.class).get(1);
-        String textFirstStringColumnAfterReattch = secondGridElement.getCell(0, 1).getText();
-        String textFirstIndexColumnAfterReattch = secondGridElement.getCell(0, 2).getText();
-        String textFirstRandomColumnAfterReattch = secondGridElement.getCell(0, 3).getText();
         secondGrid = findElement(By.id("second-grid"));
         Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
                 .get(0).getAttribute("direction"));
         Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(1).getAttribute("direction"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
                 .get(2).getAttribute("direction"));
-        Assert.assertEquals(textFirstStringColumnBeforeReattch, textFirstStringColumnAfterReattch);
-        Assert.assertEquals(textFirstIndexColumnBeforeReattch, textFirstIndexColumnAfterReattch);
-        Assert.assertEquals(textFirstRandomColumnBeforeReattch, textFirstRandomColumnAfterReattch);
-
-        btnReset.click();
-
-        // After reset
-        isFirstColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(0).getAttribute("direction") == null;
-        isSecondColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(1).getAttribute("direction") == null;
-        isThirdColumnDirectionEmpty = secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
-                .get(2).getAttribute("direction") == null;
-        Assert.assertTrue("Direction attribute should not be in first column", isFirstColumnDirectionEmpty);
-        Assert.assertTrue("Direction attribute should not be in second column", isSecondColumnDirectionEmpty);
-        Assert.assertTrue("Direction attribute should not be in third column", isThirdColumnDirectionEmpty);
+        String sortStateNumberFirstColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("_order");
+        String sortStateNumberSecondColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(1).getAttribute("_order");
+        String sortStateNumberThirdColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(2).getAttribute("_order");
+        Assert.assertEquals(sortStateNumberFirstColumn, sortStateNumberFirstColumnAfterDeattach);
+        Assert.assertEquals(sortStateNumberSecondColumn, sortStateNumberSecondColumnAfterDeattach);
+        Assert.assertEquals(sortStateNumberThirdColumn, sortStateNumberThirdColumnAfterDeattach);
     }
 
     private void assertAscendingSorter(String expectedColumnHeader) {

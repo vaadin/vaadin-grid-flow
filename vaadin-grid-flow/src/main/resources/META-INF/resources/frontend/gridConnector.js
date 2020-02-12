@@ -398,43 +398,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       })
 
       const sorterChangeListener = tryCatchWrapper(function(_, oldValue) {
-        let isSortersDuplicate = false;
-        let sortersDuplicate = [];
-        if(grid._sorters.length > 1) {
-          for(let i = 0; i < grid._sorters.length - 1; i++) {
-            for(let j = i + 1; j < grid._sorters.length; j++) {
-              if(grid._sorters[i].direction === grid._sorters[j].direction &&
-                  grid._sorters[i].path === grid._sorters[j].path) {
-                sortersDuplicate.push(j);
-                isSortersDuplicate =true;
-                break;
-              }
-            }
-            if(isSortersDuplicate) {
-              break;
-            }
-          }
-        }
-        if(sortersDuplicate.length > 0 ) {
-          let tempSorters = grid._sorters;
-          grid._sorters = [];
-          let isSortersDuplicate = false;
-          for(let i = 0; i < tempSorters.length; i++) {
-            for(let j = 0; j < sortersDuplicate.length; j++) {
-              if(i === sortersDuplicate[j]) {
-                isSortersDuplicate = true;
-              }
-            }
-            if(!isSortersDuplicate) {
-              grid._sorters.push(tempSorters[i]);
-              isSortersDuplicate = false;
-            }
-          }
-        }
-
         if (oldValue !== undefined && !sorterDirectionsSetFromServer) {
-          const isOldValue = oldValue.length > 0;
-          grid.$server.oldValueSortSendServer(isOldValue);
           grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
             return {
               path: sorter.path,

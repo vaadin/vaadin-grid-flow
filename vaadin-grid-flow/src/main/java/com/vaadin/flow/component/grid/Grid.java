@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -47,6 +48,7 @@ import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.dnd.DragSource;
@@ -135,10 +137,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     // package-private because it's used in tests
     static final String DRAG_SOURCE_DATA_KEY = "drag-source-data";
-
-    boolean isPreviousSortValueNotEmpty = false;
-    boolean isResetSort = false;
-    boolean isSorted = false;
 
     protected static class UpdateQueue implements Update {
         private final ArrayList<SerializableRunnable> queue = new ArrayList<>();
@@ -2954,11 +2952,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     @ClientCallable
-    private void oldValueSortSendServer(boolean isOldValue) {
-        isPreviousSortValueNotEmpty = isOldValue;
-    }
-
-    @ClientCallable
     private void sortersChanged(JsonArray sorters) {
         GridSortOrderBuilder<T> sortOrderBuilder = new GridSortOrderBuilder<>();
         for (int i = 0; i < sorters.length(); ++i) {
@@ -3003,10 +2996,16 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     public void sort(List<GridSortOrder<T>> order) {
         if (order == null) {
             order = Collections.emptyList();
-            isResetSort = true;
         }
-        if ( this.getColumns().size() > 0)
-            setSortOrder(order, false);
+        setSortOrder(order, false);
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        if (!sortOrder.isEmpty()) {
+            updateClientSideSorterIndicators(sortOrder);
+        }
     }
 
     private void setSortOrder(List<GridSortOrder<T>> order,
@@ -3014,37 +3013,10 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         Objects.requireNonNull(order, "Sort order list cannot be null");
 
         if (sortOrder.equals(order)) {
-            if (!order.isEmpty()) {
-                updateClientSideSorterIndicators(order);
-            }
             return;
-        }
-
-        boolean isOldValSameNewValWithoutOrder = false;
-        List<GridSortOrder<T>> tempSortOrder = sortOrder.stream().collect(Collectors.toList());
-        if (tempSortOrder.containsAll(order) && order.containsAll(tempSortOrder)) {
-            isOldValSameNewValWithoutOrder = true;
         }
 
         if (!userOriginated) {
-            updateClientSideSorterIndicators(order);
-        } else if (!sortOrder.isEmpty()
-                && !order.isEmpty()
-                && sortOrder.size() == order.size()
-                && isOldValSameNewValWithoutOrder) {
-            order = sortOrder.stream().collect(Collectors.toList());
-            updateClientSideSorterIndicators(order);
-            return;
-        }
-
-        boolean isSortOrderNotEmptyAfterReAttached = false;
-        if (order.isEmpty() && isSorted && !sortOrder.isEmpty() && !isPreviousSortValueNotEmpty) {
-            isSortOrderNotEmptyAfterReAttached = true;
-        }
-        // In case that reattach the grid or something to keep the sort-state
-        // exception cases: reset, or set back to sort size = 0
-        if (!isResetSort && isSortOrderNotEmptyAfterReAttached) {
-            order = sortOrder.stream().collect(Collectors.toList());
             updateClientSideSorterIndicators(order);
         }
 
@@ -3059,8 +3031,6 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         }
         sortOrder.addAll(order);
         sort(userOriginated);
-        isSorted = true;
-        isResetSort = false;
     }
 
     /**
