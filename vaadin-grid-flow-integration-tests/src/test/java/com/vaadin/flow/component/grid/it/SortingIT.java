@@ -209,6 +209,44 @@ public class SortingIT extends AbstractComponentIT {
         Assert.assertEquals(sortStateNumberFirstColumn, sortStateNumberFirstColumnAfterDeattach);
         Assert.assertEquals(sortStateNumberSecondColumn, sortStateNumberSecondColumnAfterDeattach);
         Assert.assertEquals(sortStateNumberThirdColumn, sortStateNumberThirdColumnAfterDeattach);
+
+        // Continue to reattach
+        btnAttach.click();
+        secondGrid = findElement(By.id("second-grid"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(0).getAttribute("direction"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(1).getAttribute("direction"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(2).getAttribute("direction"));
+        sortStateNumberFirstColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("_order");
+        sortStateNumberSecondColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(1).getAttribute("_order");
+        sortStateNumberThirdColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(2).getAttribute("_order");
+        Assert.assertEquals(sortStateNumberFirstColumn, sortStateNumberFirstColumnAfterDeattach);
+        Assert.assertEquals(sortStateNumberSecondColumn, sortStateNumberSecondColumnAfterDeattach);
+        Assert.assertEquals(sortStateNumberThirdColumn, sortStateNumberThirdColumnAfterDeattach);
+
+        // Continue to reattach again
+        btnAttach.click();
+        secondGrid = findElement(By.id("second-grid"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(0).getAttribute("direction"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(1).getAttribute("direction"));
+        Assert.assertEquals("asc", secondGrid.findElements(By.tagName("vaadin-grid-sorter"))
+                .get(2).getAttribute("direction"));
+        sortStateNumberFirstColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(0).getAttribute("_order");
+        sortStateNumberSecondColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(1).getAttribute("_order");
+        sortStateNumberThirdColumnAfterDeattach
+                = secondGrid.findElements(By.tagName("vaadin-grid-sorter")).get(2).getAttribute("_order");
+        Assert.assertEquals(sortStateNumberFirstColumn, sortStateNumberFirstColumnAfterDeattach);
+        Assert.assertEquals(sortStateNumberSecondColumn, sortStateNumberSecondColumnAfterDeattach);
+        Assert.assertEquals(sortStateNumberThirdColumn, sortStateNumberThirdColumnAfterDeattach);
     }
 
     private void assertAscendingSorter(String expectedColumnHeader) {
