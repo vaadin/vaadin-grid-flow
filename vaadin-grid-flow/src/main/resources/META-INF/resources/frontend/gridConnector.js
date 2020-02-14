@@ -398,12 +398,14 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       })
 
       const sorterChangeListener = tryCatchWrapper(function(_, oldValue) {
-        grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
-          return {
-            path: sorter.path,
-            direction: sorter.direction
-          };
-        }));
+        if (oldValue !== undefined && !sorterDirectionsSetFromServer) {
+          grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
+            return {
+              path: sorter.path,
+              direction: sorter.direction
+            };
+          }));
+        }
       })
 
       grid.$connector.setSorterDirections = tryCatchWrapper(function(directions) {
