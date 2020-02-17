@@ -34,6 +34,7 @@ public class SortingPage extends Div {
 
     public SortingPage() {
         Grid<Person> grid = new Grid<>();
+        grid.setMultiSort(true);
         grid.setId("sorting-grid");
         grid.setItems(new Person("B", 20), new Person("A", 30));
         Column<Person> nameColumn = grid.addColumn(Person::getFirstName)
