@@ -1,18 +1,21 @@
 package com.vaadin.flow.component.treegrid.demo;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.demo.GridDemo.Person;
 import com.vaadin.flow.component.treegrid.demo.data.DepartmentData;
-import com.vaadin.flow.component.treegrid.demo.data.WebpageData;
+import com.vaadin.flow.component.treegrid.demo.data.FileSystemData;
 import com.vaadin.flow.component.treegrid.demo.entity.Account;
 import com.vaadin.flow.component.treegrid.demo.entity.Department;
-import com.vaadin.flow.component.treegrid.demo.entity.Webpage;
+import com.vaadin.flow.component.treegrid.demo.entity.FileSystemItem;
 import com.vaadin.flow.component.treegrid.demo.service.AccountService;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
@@ -154,16 +157,19 @@ public class TreeGridDemo extends DemoView {
     }
 
     private void createTreeGridWithComponentsInHierarchyColumnUsage() {
-        WebpageData webpageData = new WebpageData();
+        FileSystemData fileSystemData = new FileSystemData();
 
         // begin-source-example
         // source-example-heading: TreeGrid with Component in Hierarchy Column
-        TreeGrid<Webpage> grid = new TreeGrid<>();
+        TreeGrid<FileSystemItem> grid = new TreeGrid<>();
 
-        grid.setItems(webpageData.getRootPages(), webpageData::getChildPages);
+        grid.setItems(fileSystemData.getRootFiles(), fileSystemData::getChildFiles);
         grid.addComponentHierarchyColumn(
-                page -> new Anchor(page.getUrl(), page.getName()))
-                .setHeader("Webpages");
+                file -> {
+                    Icon icon = file.getIcon().create();
+                    icon.getStyle().set("height", "18px");
+                    return new Span(icon, new Text(file.getName()));
+                }).setHeader("Files");
 
         // end-source-example
         grid.setId("treegridcomponent");
