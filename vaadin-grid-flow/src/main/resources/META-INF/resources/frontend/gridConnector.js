@@ -460,6 +460,13 @@
                 if(content._attachRenderedComponentIfAble) {
                   content._attachRenderedComponentIfAble();
                 }
+                // In hierarchy column of tree grid, the component renderer is inside its content,
+                // this updates it renderer from innerContent
+                Array.from(content.children).forEach(innerContent => {
+                    if(innerContent._attachRenderedComponentIfAble) {
+                    	innerContent._attachRenderedComponentIfAble();
+                    }
+                  });
               });
             }
           });
