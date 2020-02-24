@@ -11,7 +11,6 @@ import com.vaadin.flow.component.treegrid.demo.entity.Account;
 import com.vaadin.flow.component.treegrid.demo.entity.Department;
 import com.vaadin.flow.component.treegrid.demo.entity.FileSystemItem;
 import com.vaadin.flow.component.treegrid.demo.service.AccountService;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
