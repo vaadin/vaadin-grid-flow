@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import com.vaadin.flow.component.Html;
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.flow.component.ComponentEventListener;
@@ -638,6 +639,7 @@ public class GridDemo extends DemoView {
         createDropLocations();
         createDragData();
         createDragDropFilters();
+        createStyling();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -2603,6 +2605,55 @@ public class GridDemo extends DemoView {
 
         addCard("Drag and Drop", "Drag and Drop Filters", vl);
     }
+
+    private void createStyling() {
+        //@formatter:off
+        /*
+        // begin-source-example
+        // source-example-heading: Styling Grid Cells
+        // source-example-type: CSS
+         [part~="cell"].subscriber {
+            background: rgb(245, 245, 255);
+         }
+         [part~="cell"].minor {
+           color: red;
+           font-weight: bold;
+         }
+        // end-source-example
+        */
+        //@formatter:on
+        String instructions = "<p>In order to inject styles into Grid cells, "
+                + "create a style like in the snippet below, "
+                + "put it into an css-file in your frontent/styles folder, "
+                + "and import it with <code>@CssImport(value = \"./styles/fileName.css\", themeFor = \"vaadin-grid\")</code>. "
+                + "After this you can apply the CSS classes "
+                + "(<code>subscriber</code> and <code>minor</code> in this case) "
+                + "into grid rows and cells as shown in the next example.</p>";
+        addCard("Styling", "Styling Grid Cells", new Html(instructions));
+
+        // begin-source-example
+        // source-example-heading: Generating CSS Class Names for Cells
+        Grid<Person> grid = new Grid<>();
+        grid.setItems(createItems(150));
+        grid.setSelectionMode(SelectionMode.NONE);
+
+        grid.addColumn(Person::getFirstName).setHeader("Name");
+        Column<Person> ageColumn = grid.addColumn(Person::getAge)
+            .setHeader("Age");
+        grid.addColumn(person -> person.isSubscriber() ? "Yes" : "")
+            .setHeader("Subscriber");
+
+        grid.setClassNameGenerator(
+                person -> person.isSubscriber() ? "subscriber" : "");
+
+        ageColumn.setClassNameGenerator(
+                person -> person.getAge() < 18 ? "minor" : "");
+
+        // end-source-example
+        grid.setId("class-name-generator");
+        addCard("Styling", "Generating CSS Class Names for Cells", grid);
+    }
+
 
     private List<Person> getItems() {
         // return
