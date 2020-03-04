@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.Html;
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.flow.component.ComponentEventListener;
@@ -55,6 +54,7 @@ import com.vaadin.flow.component.grid.dnd.GridDropEvent;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
