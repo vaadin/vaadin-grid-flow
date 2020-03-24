@@ -81,7 +81,7 @@ import { GridColumnElement } from '@vaadin/vaadin-grid/src/vaadin-grid-column.js
         this._grid.addEventListener('select', this._boundOnSelectEvent);
         this._grid.addEventListener('deselect', this._boundOnDeselectEvent);
         // Prevent flickering when using the Lumo compact theme
-        if (this._grid.theme === "compact") {
+        if (this._grid.theme && this._grid.theme.split(' ').indexOf('compact') > -1) {
             this.width = '40px';
         }
       }
