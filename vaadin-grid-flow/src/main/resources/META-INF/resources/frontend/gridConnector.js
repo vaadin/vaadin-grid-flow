@@ -445,11 +445,13 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
                 }
                 // In hierarchy column of tree grid, the component renderer is inside its content,
                 // this updates it renderer from innerContent
-                Array.from(content.children).forEach(innerContent => {
-                    if(innerContent._attachRenderedComponentIfAble) {
-                    	innerContent._attachRenderedComponentIfAble();
-                    }
-                  });
+                if (content.children){
+                	Array.from(content.children).forEach(innerContent => {
+                		if(innerContent._attachRenderedComponentIfAble) {
+                			innerContent._attachRenderedComponentIfAble();
+                		}
+                	});
+                }
               });
             }
           });
