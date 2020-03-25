@@ -82,6 +82,11 @@ import { GridColumnElement } from '@vaadin/vaadin-grid/src/vaadin-grid-column.js
         this._grid.addEventListener('deselect', this._boundOnDeselectEvent);
         // Prevent flickering when using the Lumo compact theme
         if (this._grid.theme && this._grid.theme.split(' ').indexOf('compact') > -1) {
+            /* This value of 40px includes:
+             * 1. calc(var(--lumo-space-s) * 2) - cell padding = 16px
+             * 2. calc(1em + 2px) - checkbox width = 18px
+             * 3. calc(0.1875em * 2) - checkbox margin = 6px
+             */
             this.width = '40px';
         }
       }
