@@ -3,15 +3,18 @@ package com.vaadin.flow.component.treegrid.demo;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.demo.GridDemo.Person;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.component.treegrid.demo.data.DepartmentData;
 import com.vaadin.flow.component.treegrid.demo.entity.Account;
 import com.vaadin.flow.component.treegrid.demo.entity.Department;
 import com.vaadin.flow.component.treegrid.demo.service.AccountService;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
+import com.vaadin.flow.data.provider.hierarchy.AbstractHierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.demo.DemoView;
@@ -44,6 +47,7 @@ public class TreeGridDemo extends DemoView {
     protected void initView() {
         createBasicTreeGridUsage();
         createLazyLoadingTreeGridUsage();
+        createDragAndDrop();
     }
 
     private void createBasicTreeGridUsage() {
@@ -119,8 +123,7 @@ public class TreeGridDemo extends DemoView {
         grid.addHierarchyColumn(Account::toString).setHeader("Account Title");
         grid.addColumn(Account::getCode).setHeader("Code");
 
-        HierarchicalDataProvider dataProvider =
-                new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
+        HierarchicalDataProvider dataProvider = new AbstractBackEndHierarchicalDataProvider<Account, Void>() {
 
             @Override
             public int getChildCount(HierarchicalQuery<Account, Void> query) {
@@ -145,5 +148,79 @@ public class TreeGridDemo extends DemoView {
         grid.setId("treegridlazy");
 
         addCard("TreeGrid with lazy loading", grid);
+    }
+
+    // Drag and drop
+    private Department draggedItem;
+
+    private void createDragAndDrop() {
+        DepartmentData departmentData = new DepartmentData();
+        // begin-source-example
+        // source-example-heading: Drag and drop
+        TreeGrid<Department> treeGrid = new TreeGrid<>();
+
+        treeGrid.setDataProvider(
+                new AbstractHierarchicalDataProvider<Department, Object>() {
+                    @Override
+                    public int getChildCount(
+                            HierarchicalQuery<Department, Object> query) {
+                        return departmentData.getChildCount(query.getParent());
+                    }
+
+                    @Override
+                    public Stream<Department> fetchChildren(
+                            HierarchicalQuery<Department, Object> query) {
+                        return departmentData
+                                .getChildDepartments(query.getParent())
+                                .stream();
+                    }
+
+                    @Override
+                    public boolean hasChildren(Department item) {
+                        return departmentData.hasChildren(item);
+                    }
+
+                    @Override
+                    public boolean isInMemory() {
+                        return false;
+                    }
+                });
+
+        treeGrid.addHierarchyColumn(Department::getName)
+                .setHeader("Department Name");
+        treeGrid.addColumn(Department::getManager).setHeader("Manager");
+        treeGrid.setRowsDraggable(true);
+        treeGrid.setDropMode(GridDropMode.ON_TOP);
+
+        treeGrid.addDragStartListener(
+                event -> draggedItem = event.getDraggedItems().get(0));
+
+        treeGrid.addDragEndListener(event -> draggedItem = null);
+
+        treeGrid.addDropListener(event -> {
+            Department department = event.getDropTargetItem().get();
+            while (department != null) {
+                if (draggedItem.equals(department)) {
+                    Notification.show(
+                            "You can't drag an item to itself or to its children!");
+                    return;
+                }
+                department = department.getParent();
+            }
+
+            Department oldParent = draggedItem.getParent();
+            draggedItem.setParent(event.getDropTargetItem().get());
+            treeGrid.getDataProvider()
+                    .refreshItem(event.getDropTargetItem().get(), true);
+
+            if (oldParent == null) {
+                treeGrid.getDataProvider().refreshAll();
+            } else {
+                treeGrid.getDataProvider().refreshItem(oldParent, true);
+            }
+        });
+
+        // end-source-example
+        addCard("Drag and drop", treeGrid);
     }
 }

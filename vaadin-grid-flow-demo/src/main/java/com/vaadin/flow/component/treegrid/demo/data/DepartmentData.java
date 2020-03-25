@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DepartmentData {
-    private static final List<Department> DEPARTMENT_LIST = createDepartmentList();
+    private final List<Department> DEPARTMENT_LIST = createDepartmentList();
 
     private static List<Department> createDepartmentList() {
         List<Department> departmentList = new ArrayList<>();
@@ -62,4 +62,14 @@ public class DepartmentData {
                 .collect(Collectors.toList());
     }
 
+    public boolean hasChildren(Department parent) {
+        return DEPARTMENT_LIST.stream().anyMatch(
+                department -> Objects.equals(department.getParent(), parent));
+    }
+
+    public int getChildCount(Department parent) {
+        return (int) DEPARTMENT_LIST.stream().filter(
+                department -> Objects.equals(department.getParent(), parent))
+                .count();
+    }
 }
