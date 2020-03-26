@@ -150,41 +150,23 @@ public class TreeGridDemo extends DemoView {
         addCard("TreeGrid with lazy loading", grid);
     }
 
-    // Drag and drop
-    private Department draggedItem;
-
     private void createDragAndDrop() {
         DepartmentData departmentData = new DepartmentData();
-        // begin-source-example
-        // source-example-heading: Drag and drop
+        TreeGrid<Department> treeGrid = createDnDTreeGrid(departmentData);
+
+        addCard("Drag and drop", treeGrid);
+    }
+
+    // begin-source-example
+    // source-example-heading: Drag and drop
+
+    private Department draggedItem;
+
+    private TreeGrid<Department> createDnDTreeGrid(
+            DepartmentData departmentData) {
         TreeGrid<Department> treeGrid = new TreeGrid<>();
 
-        treeGrid.setDataProvider(
-                new AbstractHierarchicalDataProvider<Department, Object>() {
-                    @Override
-                    public int getChildCount(
-                            HierarchicalQuery<Department, Object> query) {
-                        return departmentData.getChildCount(query.getParent());
-                    }
-
-                    @Override
-                    public Stream<Department> fetchChildren(
-                            HierarchicalQuery<Department, Object> query) {
-                        return departmentData
-                                .getChildDepartments(query.getParent())
-                                .stream();
-                    }
-
-                    @Override
-                    public boolean hasChildren(Department item) {
-                        return departmentData.hasChildren(item);
-                    }
-
-                    @Override
-                    public boolean isInMemory() {
-                        return false;
-                    }
-                });
+        treeGrid.setDataProvider(createDataProvider(departmentData));
 
         treeGrid.addHierarchyColumn(Department::getName)
                 .setHeader("Department Name");
@@ -192,20 +174,24 @@ public class TreeGridDemo extends DemoView {
         treeGrid.setRowsDraggable(true);
         treeGrid.setDropMode(GridDropMode.ON_TOP);
 
+        // To keep the dragged item.
         treeGrid.addDragStartListener(
                 event -> draggedItem = event.getDraggedItems().get(0));
 
+        // To clear the dragged item when the dragged drop operation ends.
         treeGrid.addDragEndListener(event -> draggedItem = null);
 
+        // To change the parent of the dragged item to item where it is dropped
+        // on
         treeGrid.addDropListener(event -> {
-            Department department = event.getDropTargetItem().get();
-            while (department != null) {
-                if (draggedItem.equals(department)) {
+            Department targetDepartment = event.getDropTargetItem().get();
+            while (targetDepartment != null) {
+                if (draggedItem.equals(targetDepartment)) {
                     Notification.show(
                             "You can't drag an item to itself or to its children!");
                     return;
                 }
-                department = department.getParent();
+                targetDepartment = targetDepartment.getParent();
             }
 
             Department oldParent = draggedItem.getParent();
@@ -219,8 +205,35 @@ public class TreeGridDemo extends DemoView {
                 treeGrid.getDataProvider().refreshItem(oldParent, true);
             }
         });
+        return treeGrid;
+    }
+    // end-source-example
 
-        // end-source-example
-        addCard("Drag and drop", treeGrid);
+    private AbstractHierarchicalDataProvider<Department, Object> createDataProvider(
+            DepartmentData departmentData) {
+        return new AbstractHierarchicalDataProvider<Department, Object>() {
+            @Override
+            public int getChildCount(
+                    HierarchicalQuery<Department, Object> query) {
+                return departmentData.getChildCount(query.getParent());
+            }
+
+            @Override
+            public Stream<Department> fetchChildren(
+                    HierarchicalQuery<Department, Object> query) {
+                return departmentData.getChildDepartments(query.getParent())
+                        .stream();
+            }
+
+            @Override
+            public boolean hasChildren(Department item) {
+                return departmentData.hasChildren(item);
+            }
+
+            @Override
+            public boolean isInMemory() {
+                return false;
+            }
+        };
     }
 }
