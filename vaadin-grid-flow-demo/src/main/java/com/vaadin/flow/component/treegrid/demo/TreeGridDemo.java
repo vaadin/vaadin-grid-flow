@@ -2,19 +2,16 @@ package com.vaadin.flow.component.treegrid.demo;
 
 import com.vaadin.flow.component.Component;
 
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.demo.GridDemo.Person;
 import com.vaadin.flow.component.treegrid.demo.data.DepartmentData;
-import com.vaadin.flow.component.treegrid.demo.data.FileSystemData;
 import com.vaadin.flow.component.treegrid.demo.entity.Account;
 import com.vaadin.flow.component.treegrid.demo.entity.Department;
-import com.vaadin.flow.component.treegrid.demo.entity.FileSystemItem;
 import com.vaadin.flow.component.treegrid.demo.service.AccountService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
@@ -155,19 +152,24 @@ public class TreeGridDemo extends DemoView {
     }
 
     private void createTreeGridWithComponentsInHierarchyColumnUsage() {
-        FileSystemData fileSystemData = new FileSystemData();
+    	DepartmentData departmentData = new DepartmentData();
 
         // begin-source-example
         // source-example-heading: TreeGrid with Component in Hierarchy Column
-        TreeGrid<FileSystemItem> grid = new TreeGrid<>();
+        TreeGrid<Department> grid = new TreeGrid<>();
 
-        grid.setItems(fileSystemData.getRootFiles(), fileSystemData::getChildFiles);
+        grid.setItems(departmentData.getRootDepartments(), departmentData::getChildDepartments);
         grid.addComponentHierarchyColumn(
-                file -> {
-                    Icon icon = file.getIcon().create();
-                    icon.getStyle().set("height", "18px");
-                    return new Span(icon, new Text(file.getName()));
-                }).setHeader("Files");
+                department -> {
+                    Span departmentName = new Span(department.getName());
+                    Span managerName = new Span(department.getManager());
+                    managerName.getStyle().set("color", "var(--lumo-secondary-text-color)");
+                    managerName.getStyle().set("font-size", "var(--lumo-font-size-s)");
+                    VerticalLayout departmentLine = new VerticalLayout(departmentName, managerName);
+                    departmentLine.setPadding(false);
+                    departmentLine.setSpacing(false);
+                    return departmentLine;
+                }).setHeader("Departments");
 
         // end-source-example
         grid.setId("treegridcomponent");
