@@ -67,7 +67,7 @@ public class TreeComponentColumnsPage extends Div {
             component.setReadOnly(true);
             component.setValue(item);
         });
-        
+
         grid.addComponentHierarchyColumn(this::createTextField).setHeader("Header A").setId("textfield");
         grid.addColumn(componentRenderer).setHeader("Header B");
 
@@ -90,7 +90,7 @@ public class TreeComponentColumnsPage extends Div {
             add(grid);
         }
     }
-    
+
     private TextField createTextField(String val) {
         TextField textField = new TextField();
         textField.setReadOnly(true);

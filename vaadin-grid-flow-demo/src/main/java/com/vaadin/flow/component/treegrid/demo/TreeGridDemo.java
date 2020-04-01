@@ -152,8 +152,7 @@ public class TreeGridDemo extends DemoView {
     }
 
     private void createTreeGridWithComponentsInHierarchyColumnUsage() {
-    	DepartmentData departmentData = new DepartmentData();
-
+        DepartmentData departmentData = new DepartmentData();
         // begin-source-example
         // source-example-heading: TreeGrid with Component in Hierarchy Column
         TreeGrid<Department> grid = new TreeGrid<>();
