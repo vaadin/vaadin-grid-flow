@@ -2108,6 +2108,28 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         return insertColumnLayer(getLastFooterLayerIndex() + 1).asFooterRow();
     }
 
+
+    /**
+     * Removes all footer rows of the grid.
+     * <p>
+     * It can be used to recalculate the footer rows. Therefore you have to remove all footers and the recalculated
+     * footer rows.
+     */
+    public void removeAllFooterRows() {
+        columnLayers.stream()
+                .filter(ColumnLayer::isFooterRow)
+                .map(columnLayer -> {
+                    if (columnLayer.isHeaderRow()) {
+                        columnLayer.removeFooterRow();
+                        return null;
+                    } else {
+                        return columnLayer;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .forEach(this::removeColumnLayer);
+    }
+
     protected List<ColumnLayer> getColumnLayers() {
         return Collections.unmodifiableList(columnLayers);
     }
