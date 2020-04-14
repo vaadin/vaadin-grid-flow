@@ -8,9 +8,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DepartmentData {
-    private static final List<Department> DEPARTMENT_LIST = createDepartmentList();
+    private final List<Department> DEPARTMENT_LIST = createDepartmentList();
 
-    private static List<Department> createDepartmentList() {
+    private List<Department> createDepartmentList() {
         List<Department> departmentList = new ArrayList<>();
 
         departmentList
@@ -60,6 +60,54 @@ public class DepartmentData {
         return DEPARTMENT_LIST.stream().filter(
                 department -> Objects.equals(department.getParent(), parent))
                 .collect(Collectors.toList());
+    }
+
+    public List<Department> addFilter(String filterText) {
+        return DEPARTMENT_LIST.stream()
+                .filter(department -> department.getParent() == null
+                        && (filterText == null || filterText.length() == 0
+                                || department.getName().toLowerCase()
+                                        .startsWith(filterText.toLowerCase())))
+                .collect(Collectors.toList());
+    }
+
+    public void removeDepartment(Department department) {
+        DEPARTMENT_LIST.remove(department);
+    }
+
+    public void insertNewAfter(Department department) {
+        Integer index = DEPARTMENT_LIST.indexOf(department);
+        Department newDepartment = new Department(getLastId() + 1, "New",
+                department.getParent(), "Unknown");
+        DEPARTMENT_LIST.add(index + 1, newDepartment);
+    }
+
+    public void insertNewBefore(Department department) {
+        int index = DEPARTMENT_LIST.indexOf(department);
+        Department newDepartment = new Department(getLastId() + 1, "New",
+                department.getParent(), "Unknown");
+        DEPARTMENT_LIST.add(index, newDepartment);
+    }
+
+    private int getLastId() {
+        Integer maxId = Integer.MIN_VALUE;
+        for (Department department : DEPARTMENT_LIST) {
+            if (department.getId() > maxId) {
+                maxId = department.getId();
+            }
+        }
+        return maxId;
+    }
+
+    public boolean hasChildren(Department parent) {
+        return DEPARTMENT_LIST.stream().anyMatch(
+                department -> Objects.equals(department.getParent(), parent));
+    }
+
+    public int getChildCount(Department parent) {
+        return (int) DEPARTMENT_LIST.stream().filter(
+                department -> Objects.equals(department.getParent(), parent))
+                .count();
     }
 
 }
