@@ -2554,7 +2554,9 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
             JsonObject jsonObject = item != null ? generateJsonForSelection(item) : null;
             jsonArray.set(jsonArray.length(), jsonObject);
         }
-        getElement().callJsFunction("$connector." + function, jsonArray, false);
+        getElement().getNode().runWhenAttached(ui -> ui
+            .beforeClientResponse(this, context -> getElement()
+                .callJsFunction("$connector." + function, jsonArray, false)));
     }
 
     private JsonObject generateJsonForSelection(T item) {
