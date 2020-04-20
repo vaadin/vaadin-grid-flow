@@ -19,7 +19,6 @@ import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 import com.vaadin.testbench.TestBenchElement;
-import org.junit.Assert;
 import org.junit.Test;
 
 @TestPath("gridsetitemsafterdetachpage")
