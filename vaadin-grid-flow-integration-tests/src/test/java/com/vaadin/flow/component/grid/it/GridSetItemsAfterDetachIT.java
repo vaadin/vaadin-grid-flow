@@ -35,8 +35,7 @@ public class GridSetItemsAfterDetachIT extends AbstractComponentIT {
         waitForDevServer();
         $(TestBenchElement.class).id("set-items-and-attach").click();
         waitForDevServer();
-        Assert.assertFalse("Client-side error was thrown.",
-            $(TestBenchElement.class)
-                .attributeContains("class", "v-system-error").exists());
+
+        checkLogsForErrors();
     }
 }
