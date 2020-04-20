@@ -26,14 +26,17 @@ import org.junit.Test;
 public class GridSetItemsAfterDetachIT extends AbstractComponentIT {
 
     @Test
-    public void reattachGrid() {
+    public void selectItem_detachGrid_setItemsAndAttachGrid_noClientSideErrors() {
         open();
         final GridElement grid = $(GridElement.class).waitForFirst();
         grid.select(0);
 
-        $(TestBenchElement.class).id("back").click();
+        $(TestBenchElement.class).id("detach").click();
         waitForDevServer();
-        Assert.assertFalse($(TestBenchElement.class)
-            .attributeContains("class", "v-system-error").exists());
+        $(TestBenchElement.class).id("set-items-and-attach").click();
+        waitForDevServer();
+        Assert.assertFalse("Client-side error was thrown.",
+            $(TestBenchElement.class)
+                .attributeContains("class", "v-system-error").exists());
     }
 }
