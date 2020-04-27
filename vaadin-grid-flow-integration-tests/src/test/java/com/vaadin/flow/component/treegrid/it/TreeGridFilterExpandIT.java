@@ -34,7 +34,8 @@ public class TreeGridFilterExpandIT extends AbstractTreeGridIT {
     }
 
     @Test // https://github.com/vaadin/vaadin-grid-flow/issues/891
-    public void filterAndExpandAllMultipleTimes_correctItemsShown() {
+    public void filterAndExpandAllMultipleTimes_correctItemsShown()
+            throws InterruptedException {
         TestBenchElement filterField = $("input").first();
 
         // Typing two letters with ValueChangeMode.EAGER on the field to trigger
@@ -45,7 +46,7 @@ public class TreeGridFilterExpandIT extends AbstractTreeGridIT {
         // cache, and the incorrect updates are coming asynchronously, there
         // seems to be no way of checking when all the requests have been
         // responded, and no more forceful updates are coming.
-        waitForSeconds(2);
+        Thread.sleep(2000);
 
         String[] expectedTextContents = new String[] { "transportation", "map",
                 "personnel logistics", "request & approval",
@@ -53,13 +54,6 @@ public class TreeGridFilterExpandIT extends AbstractTreeGridIT {
                 "approve purpose of visit", "approve replacement" };
 
         Assert.assertArrayEquals(expectedTextContents, getActualTextContents());
-    }
-
-    private void waitForSeconds(int seconds) {
-        try {
-            waitUntil(d -> false, seconds);
-        } catch (Exception e) {
-        }
     }
 
     private String[] getActualTextContents() {
