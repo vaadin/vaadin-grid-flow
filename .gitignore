@@ -22,3 +22,4 @@ tsconfig.json
 types.d.ts
 node_modules/
 
+vaadin-grid-flow-integration-tests/tmp-benchmark-clone/

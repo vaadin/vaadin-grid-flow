@@ -2,7 +2,7 @@ const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const REF_DIR = './tmp';
+const REF_DIR = './tmp-benchmark-clone';
 const REF_JETTY_PORT = 8088;
 const processes = [];
 const testVariants = [];
