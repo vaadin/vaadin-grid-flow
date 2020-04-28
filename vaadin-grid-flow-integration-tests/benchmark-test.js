@@ -2,7 +2,7 @@ const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const REF_DIR = './tmp-benchmark-clone';
+const REF_DIR = './benchmark/reference-clone';
 const REF_JETTY_PORT = 8088;
 const processes = [];
 const testVariants = [];
@@ -41,19 +41,16 @@ const startJetty = (cwd) => {
   });
 };
 
-const rmTmpDir = () => fs.rmdirSync(REF_DIR, { recursive: true });
-
-const cloneReferenceGrid = () => {
-  rmTmpDir();
+const prepareReferenceGrid = () => {
+  const referenceGridBranch = '5.0.0';
   // TODO: Use a version that reports techometer results
   execSync(
-    `git clone --depth=1 --single-branch --branch 5.0.0 https://github.com/vaadin/vaadin-grid-flow.git ${REF_DIR}`
+    `git clone --depth=1 --single-branch --branch ${referenceGridBranch} https://github.com/vaadin/vaadin-grid-flow.git ${REF_DIR}`
   );
 
+  const refDirPath = path.resolve(REF_DIR);
   // Add Jetty config to start the server on a different port
-  const pomFile = `${path.resolve(
-    REF_DIR
-  )}/vaadin-grid-flow-integration-tests/pom.xml`;
+  const pomFile = `${refDirPath}/vaadin-grid-flow-integration-tests/pom.xml`;
   const pomFileContent = fs.readFileSync(pomFile, 'utf8');
 
   const result = pomFileContent.replace(
@@ -70,6 +67,10 @@ const cloneReferenceGrid = () => {
   );
 
   fs.writeFileSync(pomFile, result, 'utf8');
+
+  execSync(`mvn versions:set -DnewVersion=${referenceGridBranch}-BENCHMARK`, { cwd: refDirPath });
+
+  execSync(`mvn install -DskipTests`, { cwd: refDirPath })
 };
 
 const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
@@ -96,8 +97,8 @@ const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
 
 const run = async () => {
   if (!fs.existsSync(path.resolve(REF_DIR))) {
-    console.log('Cloning the reference Grid');
-    cloneReferenceGrid();
+    console.log('Prepare the reference Grid project');
+    prepareReferenceGrid();
   }
 
   console.log('Starting the Jetty server: Grid');
@@ -105,10 +106,6 @@ const run = async () => {
 
   console.log('Starting the Jetty server: reference Grid');
   await startJetty(`${REF_DIR}/vaadin-grid-flow-integration-tests`);
-
-  if (!fs.existsSync('./benchmark')) {
-    fs.mkdirSync('./benchmark');
-  }
 
   for (const testVariant of testVariants) {
     console.log(
