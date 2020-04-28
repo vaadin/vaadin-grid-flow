@@ -1,0 +1,44 @@
+{
+  "benchmarks": [
+    {
+      "name": "http://localhost:9998/benchmark?variant=treegrid&metric=nodeexpandtime",
+      "mean": {
+        "low": 431.18437852305385,
+        "high": 516.7106214788274
+      },
+      "differences": [
+        null,
+        {
+          "absolute": {
+            "low": 114.20758437964837,
+            "high": 204.08741562223287
+          },
+          "percentChange": {
+            "low": 35.448889544994536,
+            "high": 65.66133917224855
+          }
+        }
+      ]
+    },
+    {
+      "name": "http://localhost:9998/benchmark?variant=treegrid&metric=nodeexpandtime",
+      "mean": {
+        "low": 300.98292876488057,
+        "high": 328.61707123511945
+      },
+      "differences": [
+        {
+          "absolute": {
+            "low": -204.08741562223287,
+            "high": -114.20758437964837
+          },
+          "percentChange": {
+            "low": -40.243600410254224,
+            "high": -26.914681889209223
+          }
+        },
+        null
+      ]
+    }
+  ]
+}

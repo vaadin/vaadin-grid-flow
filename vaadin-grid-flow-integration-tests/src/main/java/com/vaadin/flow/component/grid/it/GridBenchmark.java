@@ -50,12 +50,15 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         QueryParameters queryParameters = location.getQueryParameters();
 
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
-        if (!parametersMap.containsKey("variant") || !parametersMap.containsKey("metric")) {
-            add(new Text("Provide query parameters: variant and metric"));
-            return;
-        }
 
-        switch (parametersMap.get("variant").get(0)) {
+        // if (!parametersMap.containsKey("metric")) {
+        //     add(new Text("Provide query parameters: variant and metric"));
+        //     return;
+        // }
+
+        System.out.println("okok");
+
+        switch ("simple") {
             case "simple":
                 grid = getSimpleGrid();
                 break;
@@ -63,7 +66,7 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
                 break;
         }
 
-        switch (parametersMap.get("metric").get(0)) {
+        switch ("rendertime") {
             case "scrollframetime":
                 add(grid);
                 // TODO: When ready

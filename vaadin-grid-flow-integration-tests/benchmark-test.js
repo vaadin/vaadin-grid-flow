@@ -1,7 +1,7 @@
 const { spawn, exec, execSync } = require('child_process');
 const fs = require('fs');
 
-const TMP_DIR = 'tmp';
+const REF_DIR = 'tmp';
 const REF_JETTY_PORT = 8088;
 
 const startJetty = (cwd, port) => {
@@ -16,17 +16,16 @@ const startJetty = (cwd, port) => {
         resolve();
       }
     });
-
   });
 };
 
-const rmTmpDir = () => fs.rmdirSync(TMP_DIR, { recursive: true });
+const rmTmpDir = () => fs.rmdirSync(REF_DIR, { recursive: true });
 
 const cloneReferenceGrid = () => {
   rmTmpDir();
   // TODO: Use a version that reports techometer results
   execSync(
-    `git clone --depth=1 --single-branch --branch 5.0.0 https://github.com/vaadin/vaadin-grid-flow.git ${TMP_DIR}`
+    `git clone --depth=1 --single-branch --branch 5.0.0 https://github.com/vaadin/vaadin-grid-flow.git ${REF_DIR}`
   );
 };
 
@@ -38,16 +37,15 @@ const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
   args.push('--browser', 'chrome-headless,firefox-headless');
   // const ports = [9998, REF_JETTY_PORT];
   const ports = [9998];
-  ports.forEach(port => {
-    `http://localhost:${port}/benchmark?variant=${variantName}&metric=${metricName}`
+  ports.forEach((port) => {
+    args.push(`http://localhost:${port}/benchmark?variant=${variantName}&metric=${metricName}`);
   });
-  const tach = spawn('node_modules/.bin/tach', args);
-
-  tach.stdout.on('data', (data) => console.log(data.toString()));
-  tach.stderr.on('data', (data) => console.error(data.toString()));
 
   return new Promise((resolve) => {
-    // TODO
+    const tach = spawn('node_modules/.bin/tach', args);
+    tach.stderr.on('data', (data) => console.error(data.toString()));
+    tach.stdout.on('data', (data) => console.log(data.toString()));
+    tach.on('close', resolve);
   });
 };
 
@@ -59,7 +57,7 @@ const run = async () => {
   await startJetty('.', 9998);
 
   console.log('Starting the Jetty server: reference Grid');
-  // await startJetty(`${TMP_DIR}/vaadin-grid-integration-tests`, REF_JETTY_PORT);
+  // await startJetty(`${REF_DIR}/vaadin-grid-integration-tests`, REF_JETTY_PORT);
 
   const testVariants = [];
   ['simple', 'emptycells', 'componentrenderers', 'detailsopened'].forEach(
@@ -81,6 +79,10 @@ const run = async () => {
     metricName: 'nodeexpandtime',
     sampleSize: 10,
   });
+
+  if (!fs.existsSync('./benchmark')) {
+    fs.mkdirSync('./benchmark');
+  }
 
   for (const testVariant of testVariants) {
     console.log(
