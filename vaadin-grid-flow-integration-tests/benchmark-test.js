@@ -1,13 +1,35 @@
-const { spawn, exec, execSync } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
 const REF_DIR = './tmp';
 const REF_JETTY_PORT = 8088;
+const processes = [];
+const testVariants = [];
+['simple', 'emptycells', 'componentrenderers', 'detailsopened'].forEach(
+  (variantName) => {
+    testVariants.push({
+      variantName,
+      metricName: 'rendertime',
+      sampleSize: 20,
+    });
+    testVariants.push({
+      variantName,
+      metricName: 'scrollframetime',
+      sampleSize: 10,
+    });
+  }
+);
+testVariants.push({
+  variantName: 'treegrid',
+  metricName: 'nodeexpandtime',
+  sampleSize: 10,
+});
 
 const startJetty = (cwd) => {
   return new Promise((resolve) => {
     const jetty = spawn('mvn', ['jetty:run'], { cwd });
+    processes.push(jetty);
     jetty.stderr.on('data', (data) => console.error(data.toString()));
     jetty.stdout.on('data', (data) => {
       console.log(data.toString());
@@ -29,10 +51,14 @@ const cloneReferenceGrid = () => {
   );
 
   // Add Jetty config to start the server on a different port
-  const pomFile = `${path.resolve(REF_DIR)}/vaadin-grid-flow-integration-tests/pom.xml`;
+  const pomFile = `${path.resolve(
+    REF_DIR
+  )}/vaadin-grid-flow-integration-tests/pom.xml`;
   const pomFileContent = fs.readFileSync(pomFile, 'utf8');
 
-  const result = pomFileContent.replace(/<artifactId>jetty-maven-plugin<\/artifactId>/g, `
+  const result = pomFileContent.replace(
+    /<artifactId>jetty-maven-plugin<\/artifactId>/g,
+    `
     <artifactId>jetty-maven-plugin</artifactId>
       <configuration>
         <httpConnector>
@@ -40,7 +66,8 @@ const cloneReferenceGrid = () => {
         </httpConnector>
         <stopPort>${REF_JETTY_PORT + 1}</stopPort>
       </configuration>
-    `);
+    `
+  );
 
   fs.writeFileSync(pomFile, result, 'utf8');
 };
@@ -54,7 +81,9 @@ const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
   // const ports = [9998, REF_JETTY_PORT];
   const ports = [9998];
   ports.forEach((port) => {
-    args.push(`http://localhost:${port}/benchmark?variant=${variantName}&metric=${metricName}`);
+    args.push(
+      `http://localhost:${port}/benchmark?variant=${variantName}&metric=${metricName}`
+    );
   });
 
   return new Promise((resolve) => {
@@ -66,35 +95,16 @@ const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
 };
 
 const run = async () => {
-  console.log('Cloning the reference Grid');
-  cloneReferenceGrid();
+  if (!fs.existsSync(path.resolve(REF_DIR))) {
+    console.log('Cloning the reference Grid');
+    cloneReferenceGrid();
+  }
 
   console.log('Starting the Jetty server: Grid');
   await startJetty('.');
 
   console.log('Starting the Jetty server: reference Grid');
   await startJetty(`${REF_DIR}/vaadin-grid-flow-integration-tests`);
-
-  const testVariants = [];
-  ['simple', 'emptycells', 'componentrenderers', 'detailsopened'].forEach(
-    (variantName) => {
-      testVariants.push({
-        variantName,
-        metricName: 'rendertime',
-        sampleSize: 20,
-      });
-      testVariants.push({
-        variantName,
-        metricName: 'scrollframetime',
-        sampleSize: 10,
-      });
-    }
-  );
-  testVariants.push({
-    variantName: 'treegrid',
-    metricName: 'nodeexpandtime',
-    sampleSize: 10,
-  });
 
   if (!fs.existsSync('./benchmark')) {
     fs.mkdirSync('./benchmark');
@@ -108,10 +118,8 @@ const run = async () => {
     await runTachometerTest(testVariant);
   }
 
-  // Remove the tmp clone
-  rmTmpDir();
-
   // Exit
+  processes.forEach((ps) => ps.kill());
   process.exit(0);
 };
 
