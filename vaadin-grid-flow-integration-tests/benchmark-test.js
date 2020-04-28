@@ -3,27 +3,35 @@ const fs = require('fs');
 const path = require('path');
 
 const REF_DIR = './benchmark/reference-clone';
+const RESULTS_DIR = './benchmark/results';
 const REF_JETTY_PORT = 8088;
+// TODO: Fix
+const REF_GIT_TAG = 'benchmark';
 const processes = [];
 const testVariants = [];
-['simple', 'emptycells', 'componentrenderers', 'detailsopened'].forEach(
-  (variantName) => {
-    testVariants.push({
-      variantName,
-      metricName: 'rendertime',
-      sampleSize: 20,
-    });
-    testVariants.push({
-      variantName,
-      metricName: 'scrollframetime',
-      sampleSize: 10,
-    });
-  }
-);
-testVariants.push({
-  variantName: 'treegrid',
-  metricName: 'nodeexpandtime',
-  sampleSize: 10,
+['firefox-headless', 'chrome-headless'].forEach((browserName) => {
+  ['simple', 'emptycells', 'componentrenderers', 'detailsopened'].forEach(
+    (variantName) => {
+      testVariants.push({
+        variantName,
+        browserName,
+        metricName: 'rendertime',
+        sampleSize: 20,
+      });
+      testVariants.push({
+        variantName,
+        browserName,
+        metricName: 'scrollframetime',
+        sampleSize: 10,
+      });
+    }
+  );
+  testVariants.push({
+    variantName: 'treegrid',
+    browserName,
+    metricName: 'nodeexpandtime',
+    sampleSize: 10,
+  });
 });
 
 const startJetty = (cwd) => {
@@ -42,10 +50,8 @@ const startJetty = (cwd) => {
 };
 
 const prepareReferenceGrid = () => {
-  const referenceGridBranch = '5.0.0';
-  // TODO: Use a version that reports techometer results
   execSync(
-    `git clone --depth=1 --single-branch --branch ${referenceGridBranch} https://github.com/vaadin/vaadin-grid-flow.git ${REF_DIR}`
+    `git clone --depth=1 --single-branch --branch ${REF_GIT_TAG} https://github.com/vaadin/vaadin-grid-flow.git ${REF_DIR}`
   );
 
   const refDirPath = path.resolve(REF_DIR);
@@ -68,19 +74,28 @@ const prepareReferenceGrid = () => {
 
   fs.writeFileSync(pomFile, result, 'utf8');
 
-  execSync(`mvn versions:set -DnewVersion=${referenceGridBranch}-BENCHMARK`, { cwd: refDirPath });
+  execSync(`mvn versions:set -DnewVersion=${REF_GIT_TAG}-BENCHMARK`, {
+    cwd: refDirPath,
+  });
 
-  execSync(`mvn install -DskipTests`, { cwd: refDirPath })
+  execSync(`mvn install -DskipTests`, { cwd: refDirPath });
 };
 
-const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
+const runTachometerTest = ({
+  variantName,
+  metricName,
+  sampleSize,
+  browserName,
+}) => {
   const args = [];
   args.push('--measure', 'global');
   args.push('--sample-size', sampleSize);
-  args.push('--json-file', `benchmark/${variantName}-${metricName}.json`);
-  args.push('--browser', 'chrome-headless,firefox-headless');
-  // const ports = [9998, REF_JETTY_PORT];
-  const ports = [9998];
+  args.push(
+    '--json-file',
+    `${RESULTS_DIR}/${variantName}-${metricName}-${browserName}.json`
+  );
+  args.push('--browser', browserName);
+  const ports = [9998, REF_JETTY_PORT];
   ports.forEach((port) => {
     args.push(
       `http://localhost:${port}/benchmark?variant=${variantName}&metric=${metricName}`
