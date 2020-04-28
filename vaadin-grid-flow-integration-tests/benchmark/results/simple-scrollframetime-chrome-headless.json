@@ -1,0 +1,44 @@
+{
+  "benchmarks": [
+    {
+      "name": "http://localhost:9998/benchmark?variant=simple&metric=scrollframetime",
+      "mean": {
+        "low": 374.95571687399104,
+        "high": 390.33228310942025
+      },
+      "differences": [
+        null,
+        {
+          "absolute": {
+            "low": -29.77264407160365,
+            "high": -0.27835594886309245
+          },
+          "percentChange": {
+            "low": -7.385285460149568,
+            "high": -0.17149222089467078
+          }
+        }
+      ]
+    },
+    {
+      "name": "http://localhost:8088/benchmark?variant=simple&metric=scrollframetime",
+      "mean": {
+        "low": 385.0850428953065,
+        "high": 410.2539571085715
+      },
+      "differences": [
+        {
+          "absolute": {
+            "low": 0.27835594886309245,
+            "high": 29.77264407160365
+          },
+          "percentChange": {
+            "low": 0.031030613040623767,
+            "high": 7.82248336368922
+          }
+        },
+        null
+      ]
+    }
+  ]
+}
