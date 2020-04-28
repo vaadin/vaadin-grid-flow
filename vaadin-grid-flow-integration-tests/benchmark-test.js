@@ -1,11 +1,11 @@
 const { spawn, exec, execSync } = require('child_process');
 const fs = require('fs');
+const path = require('path');
 
-const REF_DIR = 'tmp';
+const REF_DIR = './tmp';
 const REF_JETTY_PORT = 8088;
 
-const startJetty = (cwd, port) => {
-  // TODO: How to make Jetty use the port
+const startJetty = (cwd) => {
   return new Promise((resolve) => {
     const jetty = spawn('mvn', ['jetty:run'], { cwd });
     jetty.stderr.on('data', (data) => console.error(data.toString()));
@@ -27,6 +27,22 @@ const cloneReferenceGrid = () => {
   execSync(
     `git clone --depth=1 --single-branch --branch 5.0.0 https://github.com/vaadin/vaadin-grid-flow.git ${REF_DIR}`
   );
+
+  // Add Jetty config to start the server on a different port
+  const pomFile = `${path.resolve(REF_DIR)}/vaadin-grid-flow-integration-tests/pom.xml`;
+  const pomFileContent = fs.readFileSync(pomFile, 'utf8');
+
+  const result = pomFileContent.replace(/<artifactId>jetty-maven-plugin<\/artifactId>/g, `
+    <artifactId>jetty-maven-plugin</artifactId>
+      <configuration>
+        <httpConnector>
+          <port>${REF_JETTY_PORT}</port>
+        </httpConnector>
+        <stopPort>${REF_JETTY_PORT + 1}</stopPort>
+      </configuration>
+    `);
+
+  fs.writeFileSync(pomFile, result, 'utf8');
 };
 
 const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
@@ -51,13 +67,13 @@ const runTachometerTest = ({ variantName, metricName, sampleSize }) => {
 
 const run = async () => {
   console.log('Cloning the reference Grid');
-  // cloneReferenceGrid();
+  cloneReferenceGrid();
 
   console.log('Starting the Jetty server: Grid');
-  await startJetty('.', 9998);
+  await startJetty('.');
 
   console.log('Starting the Jetty server: reference Grid');
-  // await startJetty(`${REF_DIR}/vaadin-grid-integration-tests`, REF_JETTY_PORT);
+  await startJetty(`${REF_DIR}/vaadin-grid-flow-integration-tests`);
 
   const testVariants = [];
   ['simple', 'emptycells', 'componentrenderers', 'detailsopened'].forEach(
