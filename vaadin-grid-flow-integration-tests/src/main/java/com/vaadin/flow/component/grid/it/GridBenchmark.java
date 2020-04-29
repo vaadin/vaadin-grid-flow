@@ -17,17 +17,20 @@ package com.vaadin.flow.component.grid.it;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.treegrid.TreeGrid;
-import com.vaadin.flow.data.bean.PeopleGenerator;
-import com.vaadin.flow.data.bean.Person;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Location;
@@ -42,7 +45,25 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @JsModule("./benchmark.js")
 public class GridBenchmark extends Div implements HasUrlParameter<String> {
 
-    private Grid<Person> grid; // Might be a TreeGrid
+    private Grid<String> grid;
+
+    private static List<String> items = IntStream.range(0, 1000).boxed().map(Object::toString)
+            .collect(Collectors.toList());
+    private static TreeData<String> treeData = new TreeData<>();
+
+    static {
+        addTreeItems(treeData, null, 1000, 2);
+    }
+
+    private static void addTreeItems(TreeData<String> treeData, String parent, int count, int level) {
+        IntStream.range(0, count).forEach(index -> {
+            String child = parent != null ? parent + "-" + index : String.valueOf(index);
+            treeData.addItem(parent, child);
+            if (level > 0) {
+                addTreeItems(treeData, child, 3, level - 1);
+            }
+        });
+    }
 
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
@@ -50,23 +71,45 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         QueryParameters queryParameters = location.getQueryParameters();
 
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
+        if (!parametersMap.containsKey("variant") || !parametersMap.containsKey("metric")) {
+            add(new Text("Provide query parameters: variant and metric"));
+            return;
+        }
+        String metric = parametersMap.get("metric").get(0);
+        String variant = parametersMap.get("variant").get(0);
 
-        // if (!parametersMap.containsKey("metric")) {
-        //     add(new Text("Provide query parameters: variant and metric"));
-        //     return;
-        // }
+        System.out.println("Sample: " + variant + "-" + metric);
 
-        System.out.println("okok");
-
-        switch ("simple") {
+        switch (variant) {
             case "simple":
-                grid = getSimpleGrid();
+                grid = getGrid();
+                addColumns(grid, 5, false);
+                break;
+            case "multicolumn":
+                grid = getGrid();
+                addColumns(grid, 50, false);
+                break;
+            case "componentrenderers":
+                grid = getGrid();
+                addColumns(grid, 5, true);
+                break;
+            case "detailsopened":
+                grid = getGrid();
+                grid.setItemDetailsRenderer(new ComponentRenderer<>(item -> new Text(item.toString())));
+                ((ListDataProvider<String>) grid.getDataProvider()).getItems().forEach(item -> {
+                    grid.setDetailsVisible(item, true);
+                });
+                break;
+            case "tree":
+                grid = getTreeGrid();
+                ((TreeGrid<String>) grid).addHierarchyColumn(i -> i);
+                addColumns(grid, 5, false);
                 break;
             default:
                 break;
         }
 
-        switch ("rendertime") {
+        switch (metric) {
             case "scrollframetime":
                 add(grid);
                 // TODO: When ready
@@ -85,8 +128,8 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
                 // TODO: When ready
                 UI.getCurrent().getElement().executeJs("return window.startWhenReady()").then(v -> {
                     grid.getElement().executeJs("window.measureRender(this)");
-                    TreeGrid<Person> treeGrid = (TreeGrid<Person>) grid;
-                    TreeData<Person> data = ((TreeDataProvider<Person>) treeGrid.getDataProvider()).getTreeData();
+                    TreeGrid<String> treeGrid = (TreeGrid<String>) grid;
+                    TreeData<String> data = ((TreeDataProvider<String>) treeGrid.getDataProvider()).getTreeData();
                     treeGrid.expandRecursively(data.getRootItems(), 5);
                 });
                 break;
@@ -95,11 +138,26 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         }
     }
 
-    private Grid<Person> getSimpleGrid() {
-        Grid<Person> grid = new Grid<>(Person.class);
-        // TODO: Must not change
-        grid.setItems(new PeopleGenerator().generatePeople(1000));
+    private Grid<String> getGrid() {
+        Grid<String> grid = new Grid<>();
+        grid.setItems(items);
         return grid;
+    }
+
+    private TreeGrid<String> getTreeGrid() {
+        TreeGrid<String> grid = new TreeGrid<>();
+        grid.setTreeData(treeData);
+        return grid;
+    }
+
+    private void addColumns(Grid<String> grid, int count, boolean componentrenderers) {
+        IntStream.range(0, count).forEach(index -> {
+            if (componentrenderers) {
+                grid.addColumn(new ComponentRenderer<>(item -> new NativeButton(item.toString())));
+            } else {
+                grid.addColumn(item -> item.toString());
+            }
+        });
     }
 
 }

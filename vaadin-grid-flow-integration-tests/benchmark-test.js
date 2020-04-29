@@ -9,8 +9,9 @@ const REF_JETTY_PORT = 8088;
 const REF_GIT_TAG = 'benchmark';
 const processes = [];
 const testVariants = [];
+
 ['firefox-headless', 'chrome-headless'].forEach((browserName) => {
-  ['simple', 'emptycells', 'componentrenderers', 'detailsopened'].forEach(
+  ['simple', 'multicolumn', 'componentrenderers', 'detailsopened'].forEach(
     (variantName) => {
       testVariants.push({
         variantName,
@@ -27,7 +28,7 @@ const testVariants = [];
     }
   );
   testVariants.push({
-    variantName: 'treegrid',
+    variantName: 'tree',
     browserName,
     metricName: 'nodeexpandtime',
     sampleSize: 10,

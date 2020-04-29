@@ -3,6 +3,27 @@ import {
   css,
 } from '@vaadin/vaadin-themable-mixin/register-styles.js';
 
+var style = document.createElement('style');
+style.type = 'text/css';
+style.appendChild(
+  document.createTextNode(`
+  @keyframes content-ready {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  vaadin-grid-tree-toggle[leaf] {
+    transition: opacity 1s;
+    opacity: 0.9;
+  }
+`)
+);
+document.head.appendChild(style);
+
 registerStyles(
   'vaadin-grid',
   css`
@@ -18,6 +39,14 @@ registerStyles(
 
     [part~='cell'] {
       animation: content-ready 1s;
+    }
+
+    :host {
+      transition: opacity 1s;
+    }
+
+    :host[loading] {
+      opacity: 0.9;
     }
   `
 );
@@ -52,23 +81,27 @@ window.measureRender = (grid) => {
   let endTime;
   let readyTimer;
   const listener = (e) => {
-    if (e.animationName === 'content-ready') {
+    if (e.animationName === 'content-ready' || e.propertyName === 'opacity') {
       endTime = performance.now();
       readyTimer && clearTimeout(readyTimer);
-      readyTimer = setTimeout(() => {
-        // @ts-ignore
-        window.tachometerResult = endTime - start;
-        // TODO: This needs to be large enough so everything gets rendered
-        // but small enough so the tests won't take forever
-      }, 500);
+      // @ts-ignore
+      if (!grid.loading) {
+        readyTimer = setTimeout(() => {
+          // @ts-ignore
+          window.tachometerResult = endTime - start;
+          // TODO: This needs to be large enough so everything gets rendered
+          // but small enough so the tests won't take forever
+        }, 1000);
+      }
     }
   };
 
   grid.$.scroller.addEventListener('animationstart', listener);
   grid.addEventListener('animationstart', listener);
+  grid.addEventListener('transitionstart', listener);
 };
 
-const SCROLL_TIME = 10000
+const SCROLL_TIME = 10000;
 const WARMUP_TIME = 1000;
 
 const scroll = (grid, frames, startTime, previousTime) => {
@@ -76,7 +109,6 @@ const scroll = (grid, frames, startTime, previousTime) => {
   const e = new CustomEvent('wheel', { bubbles: true, cancelable: true });
   // @ts-ignore
   e.deltaY = now - previousTime;
-  // e.deltaX = deltaX;
   grid.dispatchEvent(e);
 
   if (now < startTime + WARMUP_TIME + SCROLL_TIME) {
