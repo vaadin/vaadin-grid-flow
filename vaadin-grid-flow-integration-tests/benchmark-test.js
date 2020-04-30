@@ -17,13 +17,13 @@ const testVariants = [];
         variantName,
         browserName,
         metricName: 'rendertime',
-        sampleSize: 20,
+        sampleSize: 40,
       });
       testVariants.push({
         variantName,
         browserName,
         metricName: 'scrollframetime',
-        sampleSize: 10,
+        sampleSize: 20,
       });
     }
   );
@@ -31,7 +31,7 @@ const testVariants = [];
     variantName: 'tree',
     browserName,
     metricName: 'nodeexpandtime',
-    sampleSize: 10,
+    sampleSize: 40,
   });
 });
 
