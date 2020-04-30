@@ -1,0 +1,44 @@
+{
+  "benchmarks": [
+    {
+      "name": "http://localhost:9998/benchmark?variant=tree&metric=expandtime",
+      "mean": {
+        "low": 1704.2552955309268,
+        "high": 1828.5947044690731
+      },
+      "differences": [
+        null,
+        {
+          "absolute": {
+            "low": -171.44941666578262,
+            "high": -3.300583334217393
+          },
+          "percentChange": {
+            "low": -9.152939048438004,
+            "high": -0.27364418599936796
+          }
+        }
+      ]
+    },
+    {
+      "name": "http://localhost:8088/benchmark?variant=tree&metric=expandtime",
+      "mean": {
+        "low": 1797.2011008594714,
+        "high": 1910.3988991405286
+      },
+      "differences": [
+        {
+          "absolute": {
+            "low": 3.300583334217393,
+            "high": 171.44941666578262
+          },
+          "percentChange": {
+            "low": 0.056713128708599236,
+            "high": 9.83614957420831
+          }
+        },
+        null
+      ]
+    }
+  ]
+}

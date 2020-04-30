@@ -27,7 +27,7 @@ document.head.appendChild(style);
 registerStyles(
   'vaadin-grid',
   css`
-    [part~='row'] {
+    [part~='body-cell'] {
       height: 50px;
     }
 

@@ -95,8 +95,9 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
                 break;
             case "detailsopened":
                 grid = getGrid();
+                addColumns(grid, 5, false);
                 grid.setItemDetailsRenderer(new ComponentRenderer<>(item -> new Text(item.toString())));
-                ((ListDataProvider<String>) grid.getDataProvider()).getItems().forEach(item -> {
+                items.forEach(item -> {
                     grid.setDetailsVisible(item, true);
                 });
                 break;
@@ -104,6 +105,15 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
                 grid = getTreeGrid();
                 ((TreeGrid<String>) grid).addHierarchyColumn(i -> i);
                 addColumns(grid, 5, false);
+                break;
+            case "mixed":
+                grid = getTreeGrid();
+                ((TreeGrid<String>) grid).addHierarchyColumn(i -> i);
+                addColumns(grid, 50, true);
+                grid.setItemDetailsRenderer(new ComponentRenderer<>(item -> new Text(item.toString())));
+                treeData.getRootItems().forEach(item -> {
+                    grid.setDetailsVisible(item, true);
+                });
                 break;
             default:
                 break;

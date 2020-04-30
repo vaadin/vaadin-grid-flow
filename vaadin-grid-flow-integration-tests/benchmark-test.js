@@ -17,21 +17,27 @@ const testVariants = [];
         variantName,
         browserName,
         metricName: 'rendertime',
-        sampleSize: 40,
       });
       testVariants.push({
         variantName,
         browserName,
         metricName: 'scrollframetime',
-        sampleSize: 20,
       });
     }
   );
-  testVariants.push({
-    variantName: 'tree',
-    browserName,
-    metricName: 'nodeexpandtime',
-    sampleSize: 40,
+
+  ['rendertime', 'scrollframetime', 'expandtime'].forEach((metricName) => {
+    testVariants.push({
+      variantName: 'tree',
+      browserName,
+      metricName,
+    });
+
+    testVariants.push({
+      variantName: 'mixed',
+      browserName,
+      metricName,
+    });
   });
 });
 
@@ -82,12 +88,16 @@ const prepareReferenceGrid = () => {
   execSync(`mvn install -DskipTests`, { cwd: refDirPath });
 };
 
-const runTachometerTest = ({
-  variantName,
-  metricName,
-  sampleSize,
-  browserName,
-}) => {
+const runTachometerTest = (
+  { variantName, metricName, browserName }
+) => {
+
+  const sampleSize = {
+    'rendertime': 40,
+    'expandtime': 40,
+    'scrollframetime': 20
+  }[metricName];
+
   const args = [];
   args.push('--measure', 'global');
   args.push('--sample-size', sampleSize);
@@ -102,6 +112,10 @@ const runTachometerTest = ({
       `http://localhost:${port}/benchmark?variant=${variantName}&metric=${metricName}`
     );
   });
+
+  if (!fs.existsSync('./node_modules/.bin/tach')) {
+    execSync('npm i tachometer');
+  }
 
   return new Promise((resolve) => {
     const tach = spawn('node_modules/.bin/tach', args);
