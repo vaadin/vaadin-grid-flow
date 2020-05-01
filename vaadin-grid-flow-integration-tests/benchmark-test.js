@@ -95,7 +95,7 @@ const runTachometerTest = (
   const sampleSize = {
     'rendertime': 40,
     'expandtime': 40,
-    'scrollframetime': 20
+    'scrollframetime': 10
   }[metricName];
 
   const args = [];
