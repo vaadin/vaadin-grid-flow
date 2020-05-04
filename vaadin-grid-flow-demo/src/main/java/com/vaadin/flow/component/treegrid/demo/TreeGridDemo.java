@@ -70,6 +70,7 @@ public class TreeGridDemo extends DemoView {
         grid.addCollapseListener(event -> message.setValue(
                 String.format("Collapsed %s item(s)", event.getItems().size())
                         + "\n" + message.getValue()));
+        add(grid, message);
 
         // end-source-example
         grid.setId("treegridbasic");
@@ -142,7 +143,7 @@ public class TreeGridDemo extends DemoView {
         };
 
         grid.setDataProvider(dataProvider);
-
+        add(grid);
         // end-source-example
         grid.setId("treegridlazy");
 
