@@ -678,6 +678,7 @@ public class GridDemo extends DemoView {
         // reorder the properties we use the 'setColumns' method.
         grid.setColumns("firstName", "lastName", "age", "address",
                 "phoneNumber");
+        add(grid);
 
         // end-source-example
         grid.setId("basic-usage");
@@ -706,6 +707,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getLastName).setHeader("Last Name");
         grid.addColumn(Person::getAge).setHeader("Age");
+        add(grid);
 
         // end-source-example
 
@@ -724,6 +726,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(Person::getAge).setHeader("Age");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
+        add(grid);
 
         // end-source-example
 
@@ -774,7 +777,7 @@ public class GridDemo extends DemoView {
         FooterRow footerRow = grid.appendFooterRow();
         footerRow.getCell(firstNameColumn).setComponent(addButton);
         footerRow.getCell(lastNameColumn).setComponent(removeButton);
-
+        add(grid, addButton, removeButton);
         // end-source-example
         grid.setId("assigning-array-data");
         addButton.setId("assigning-array-data-add");
@@ -836,6 +839,7 @@ public class GridDemo extends DemoView {
         FooterRow footerRow = grid.appendFooterRow();
         footerRow.getCell(firstNameColumn).setComponent(addButton);
         footerRow.getCell(lastNameColumn).setComponent(removeButton);
+        add(grid, addButton, removeButton);
 
         // end-source-example
         grid.setId("dynamic-height");
@@ -862,6 +866,7 @@ public class GridDemo extends DemoView {
                     event.getOldValue(), event.getValue());
             messageDiv.setText(message);
         });
+        add(grid, messageDiv);
         // end-source-example
         grid.setId("single-selection");
         messageDiv.setId("single-selection-message");
@@ -889,6 +894,7 @@ public class GridDemo extends DemoView {
 
         // You can pre-select items
         grid.asMultiSelect().select(personList.get(0), personList.get(1));
+        add(grid, messageDiv);
         // end-source-example
         grid.setId("multi-selection");
         messageDiv.setId("multi-selection-message");
@@ -941,6 +947,8 @@ public class GridDemo extends DemoView {
         selectAllBtn.addClickListener(
                 event -> ((GridMultiSelectionModel<Person>) secondGrid
                         .getSelectionModel()).selectAll());
+        add(filterField, firstHeader, firstGrid, secondHeader, secondGrid,
+                selectAllBtn, deselectBtn);
         // end-source-example
         filterField.setId("programmatic-select-filter");
         firstHeader.setId("programmatic-select-first-header");
@@ -996,6 +1004,8 @@ public class GridDemo extends DemoView {
 
         NativeButton resetAllSortings = new NativeButton("Reset all sortings",
                 event -> grid.sort(null));
+        add(grid, multiSort, messageDiv, invertAllSortings,
+                resetAllSortings);
         // end-source-example
         grid.setId("grid-sortable-columns");
         multiSort.setId("grid-multi-sort-toggle");
@@ -1076,6 +1086,7 @@ public class GridDemo extends DemoView {
         filterRow.getCell(postalCodeColumn).setComponent(postalCodeField);
         postalCodeField.setSizeFull();
         postalCodeField.setPlaceholder("Filter");
+        add(grid);
         // end-source-example
         grid.setId("grid-with-filters");
         addCard("Filtering", "Using text fields for filtering items", grid);
@@ -1159,6 +1170,7 @@ public class GridDemo extends DemoView {
 
         // Columns for sub-properties can be added easily
         grid.addColumn("address.postalCode");
+        add(grid);
 
         // end-source-example
         grid.setId("configuring-columns");
@@ -1195,6 +1207,7 @@ public class GridDemo extends DemoView {
                 "Toggle user reordering of columns");
         userReordering.addValueChangeListener(event -> grid
                 .setColumnReorderingAllowed(!grid.isColumnReorderingAllowed()));
+        add(grid, idColumnVisibility, userReordering);
         // end-source-example
 
         grid.setId("column-api-example");
@@ -1221,6 +1234,7 @@ public class GridDemo extends DemoView {
                 "Recalculate column widths");
         recalculateWidthsButton.addClickListener(
                 buttonClickEvent -> grid.recalculateColumnWidths());
+        add(grid, recalculateWidthsButton);
         // end-source-example
 
         grid.setId("column-auto-width-grid");
@@ -1275,7 +1289,7 @@ public class GridDemo extends DemoView {
                 .setHeader("Marital status").setWidth("200px");
         secondGrid.addColumn(Person::getBirthDate).setHeader("Birth Date")
                 .setWidth("200px");
-
+        add(firstHeader, firstGrid, secondHeader, secondGrid);
         // end-source-example
         firstGrid.setId("frozen-column-first-grid");
         secondGrid.setId("frozen-column-first-grid");
@@ -1306,6 +1320,7 @@ public class GridDemo extends DemoView {
         alignments.setValue(ColumnTextAlign.START);
         alignments.addValueChangeListener(event -> grid.getColumnByKey("age")
                 .setTextAlign(event.getValue()));
+        add(grid, alignments);
 
         // end-source-example
         grid.setId("column-alignment-example");
@@ -1335,6 +1350,7 @@ public class GridDemo extends DemoView {
         grid.addColumnReorderListener(event ->
                 columnOrder.setText(event.getColumns().stream()
                         .map(Column::getKey).collect(Collectors.joining(", "))));
+        grid(grid, columnOrder);
 
         // end-source-example
         grid.setId("column-reorder-example");
@@ -1359,6 +1375,7 @@ public class GridDemo extends DemoView {
 
         grid.addColumn(Person::getAge).setHeader("Age")
                 .setFooter("Average: " + averageOfAge);
+        add(grid);
         // end-source-example
         grid.setId("header-and-footer");
         addCard("Header and footer", "Header and footer texts", grid);
@@ -1404,7 +1421,7 @@ public class GridDemo extends DemoView {
         half2Header.getStyle().set("text-align", "right");
         half2Header.setSizeFull();
         halfheaderRow.join(quarter3, quarter4).setComponent(half2Header);
-
+        add(grid);
         // Footers can be set with a similar API
 
         // end-source-example
@@ -1461,6 +1478,7 @@ public class GridDemo extends DemoView {
 
         grid.appendFooterRow().getCell(nameColumn).setComponent(
                 new Label("Total: " + personList.size() + " people"));
+        add(grid);
 
         // end-source-example
         grid.setId("using-components");
@@ -1503,7 +1521,7 @@ public class GridDemo extends DemoView {
         grid.addColumn(new LocalDateRenderer<>(Item::getEstimatedDeliveryDate,
                 DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
                 .setHeader("Estimated Delivery Date");
-
+        add(grid);
         // end-source-example
 
         grid.setId("grid-formatting-contents");
@@ -1553,6 +1571,7 @@ public class GridDemo extends DemoView {
                         order -> formatter.format(order.getPurchaseDate()))
                 .withProperty("address", order -> order.getAddress()))
                 .setHeader("Delivery").setFlexGrow(6);
+        add(grid);
 
         // end-source-example
         grid.setId("template-renderer");
@@ -1628,7 +1647,7 @@ public class GridDemo extends DemoView {
                 .withEventHandler("handleClick", person -> {
                     grid.getDataProvider().refreshItem(person);
                 }));
-
+        add(header, grid);
         // end-source-example
         grid.setId("item-details");
         header.setId("item-details-header");
@@ -1668,7 +1687,7 @@ public class GridDemo extends DemoView {
 
         grid.addColumn(new NativeButtonRenderer<>("Details", item -> grid
                 .setDetailsVisible(item, !grid.isDetailsVisible(item))));
-
+        grid(header, grid);
         // end-source-example
         grid.setId("open-details-programmatically");
         header.setId("open-details-programmatically-header");
@@ -1732,6 +1751,7 @@ public class GridDemo extends DemoView {
                         event.getItem().map(Task::toString)
                                 .orElse("-no item-"),
                         event.getColumnId().orElse("-no column-"))));
+        add(grid, contextMenu, message);
 
         // end-source-example
         grid.setId("context-menu-grid");
@@ -1777,6 +1797,7 @@ public class GridDemo extends DemoView {
             items.add(items.indexOf(item.get()) + 1, createItems(1).get(0));
             dataProvider.refreshAll();
         });
+        add(grid, contextMenu);
         // end-source-example
         grid.setId("context-sub-menu-grid");
         addCard("Context Menu", "Using Context Sub Menu With Grid", grid,
@@ -1807,6 +1828,7 @@ public class GridDemo extends DemoView {
             contextMenu.addItem("Due date: " + task.getDueDate());
             return true; // show the context menu
         });
+        add(grid, contextMenu);
         // end-source-example
         grid.setId("dynamic-context-menu-grid");
         addCard("Context Menu", "Dynamic Context Menu", grid, contextMenu);
@@ -1840,6 +1862,7 @@ public class GridDemo extends DemoView {
                     age.setText(String.valueOf(event.getItem().getAge()));
                     column.setText(event.getColumn().getKey());
                 });
+        add(grid, formLayout);
 
         // end-source-example
         grid.setId("item-click-listener");
@@ -1869,6 +1892,7 @@ public class GridDemo extends DemoView {
             name.setText(event.getItem().getFirstName());
             age.setText(String.valueOf(event.getItem().getAge()));
         });
+        add(grid, formLayout);
 
         // end-source-example
         grid.setId("item-doubleclick-listener");
@@ -1951,6 +1975,7 @@ public class GridDemo extends DemoView {
         editor.addSaveListener(
                 event -> message.setText(event.getItem().getFirstName() + ", "
                         + event.getItem().getAge()));
+        add(message, validationStatus, grid);
 
         // end-source-example
         grid.setId("buffered-editor");
@@ -2010,6 +2035,7 @@ public class GridDemo extends DemoView {
                         + binder.getBean().getAge());
             }
         });
+        add(message, grid);
 
         // end-source-example
         grid.setId("not-buffered-editor");
@@ -2147,6 +2173,7 @@ public class GridDemo extends DemoView {
                 event -> message.setText(event.getItem().getFirstName() + ", "
                         + event.getItem().getCountry() + ", "
                         + event.getItem().getState()));
+        add(message, grid);
         // end-source-example
         grid.setId("buffered-dynamic-editor");
         addCard("Grid Editor", "Dynamic Editor in Buffered Mode", message,
@@ -2241,7 +2268,7 @@ public class GridDemo extends DemoView {
                         + binder.getBean().getState());
             }
         });
-
+        add(message, grid);
         // end-source-example
         grid.setId("not-buffered-dynamic-editor");
         addCard("Grid Editor", "Dynamic Editor in Not Buffered Mode", message,
@@ -2287,7 +2314,7 @@ public class GridDemo extends DemoView {
                 grid.getDataProvider().refreshAll();
             }
         });
-
+        add(grid);
         // end-source-example
 
         addCard("Drag and Drop", "Row Reordering", grid);
@@ -2362,7 +2389,7 @@ public class GridDemo extends DemoView {
         grid2.addDragEndListener(dragEndListener);
         grid2.setRowsDraggable(true);
         grid2.setColumns("firstName", "lastName");
-
+        add(grid, grid2);
         // end-source-example
 
         HorizontalLayout hl = new HorizontalLayout(grid, grid2);
@@ -2428,7 +2455,7 @@ public class GridDemo extends DemoView {
             }
             treeGrid.getDataProvider().refreshAll();
         });
-
+        add(grid, treeGrid);
         // end-source-example
 
         HorizontalLayout hl = new HorizontalLayout(grid, treeGrid);
@@ -2526,7 +2553,7 @@ public class GridDemo extends DemoView {
             persons.removeAll(draggedItems);
             grid.getDataProvider().refreshAll();
         });
-
+        add(grid);
         // end-source-example
 
         addCard("Drag and Drop", "Custom Drag Data", grid);
@@ -2606,7 +2633,7 @@ public class GridDemo extends DemoView {
                 grid.getDataProvider().refreshAll();
             });
         });
-
+        add(grid);
         // end-source-example
         VerticalLayout vl = new VerticalLayout(new Label("Supervisors"), grid);
 
@@ -2655,7 +2682,7 @@ public class GridDemo extends DemoView {
 
         ageColumn.setClassNameGenerator(
                 person -> person.getAge() < 18 ? "minor" : "");
-
+        add(grid);
         // end-source-example
         grid.setId("class-name-generator");
         addCard("Styling", "Generating CSS Class Names for Cells", grid);
