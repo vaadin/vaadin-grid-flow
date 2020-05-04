@@ -71,7 +71,6 @@ public class TreeGridDemo extends DemoView {
                 String.format("Collapsed %s item(s)", event.getItems().size())
                         + "\n" + message.getValue()));
         add(grid, message);
-
         // end-source-example
         grid.setId("treegridbasic");
 
