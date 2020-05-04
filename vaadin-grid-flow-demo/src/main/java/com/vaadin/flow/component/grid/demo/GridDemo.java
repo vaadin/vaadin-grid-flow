@@ -1350,7 +1350,7 @@ public class GridDemo extends DemoView {
         grid.addColumnReorderListener(event ->
                 columnOrder.setText(event.getColumns().stream()
                         .map(Column::getKey).collect(Collectors.joining(", "))));
-        grid(grid, columnOrder);
+        add(grid, columnOrder);
 
         // end-source-example
         grid.setId("column-reorder-example");
@@ -1687,7 +1687,7 @@ public class GridDemo extends DemoView {
 
         grid.addColumn(new NativeButtonRenderer<>("Details", item -> grid
                 .setDetailsVisible(item, !grid.isDetailsVisible(item))));
-        grid(header, grid);
+        add(header, grid);
         // end-source-example
         grid.setId("open-details-programmatically");
         header.setId("open-details-programmatically-header");
