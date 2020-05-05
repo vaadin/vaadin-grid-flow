@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.GridDataViewer;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -319,7 +320,10 @@ public class GridDemo extends DemoView {
         private PersonData personData = new PersonData();
 
         public List<Person> fetch(int offset, int limit) {
-            return personData.getPersons().subList(offset, offset + limit);
+            if(offset+limit < count()) {
+                return personData.getPersons().subList(offset, offset + limit);
+            }
+            return personData.getPersons().subList(offset, count());
         }
 
         public int count() {
@@ -677,8 +681,16 @@ public class GridDemo extends DemoView {
 
         // end-source-example
         grid.setId("basic-usage");
+        GridDataViewer<Person> data = new GridDataViewer<>(grid);
+        Button getItem = new Button("item", event -> System.out.println(data.getItemOnRow(1)));
+                Button getnext = new Button("next", event -> System.out.println(data.getNextÏtem(personList.get(2))));
+        Button getprevious = new Button("prev", event ->
+            System.out.println(data.getPreviousÏtem(personList.get(2))));
+        Button select = new Button("select", event -> data.selectItemOnRow(2));
+        Button getcurrent = new Button("current", event -> data.getCurrentItemSet().forEach(i ->
+                System.out.println(i)));
 
-        addCard("Grid Basics", grid);
+        addCard("Grid Basics", new VerticalLayout(grid,getItem, getnext, getprevious, select, getcurrent));
     }
 
     private void createGridWithLazyLoading() {
@@ -707,7 +719,19 @@ public class GridDemo extends DemoView {
 
         grid.setId("lazy-loading");
 
-        addCard("Grid with lazy loading", grid);
+        GridDataViewer<Person> data = new GridDataViewer<>(grid);
+        Button getItem = new Button("item", event -> System.out.println(data.getItemOnRow(1)));
+        Button getnext = new Button("next", event -> System.out.println(data.getNextÏtem(data.getItemOnRow(1))));
+        Button getprevious = new Button("prev", event ->
+                System.out.println(data.getPreviousÏtem(data.getItemOnRow(1))));
+        Button select = new Button("select", event -> data.selectItemOnRow(2));
+        Button getcurrent = new Button("current", event -> data.getCurrentItemSet().forEach(i ->
+                System.out.println(i)));
+        Button getAll = new Button("All", event -> data.getAllItems().forEach(i -> System.out.println(i)));
+
+        Span size = new Span(Integer.toString(data.getDataSize()));
+        data.addSizeChangeListener(event -> size.setText(Integer.toString(event.getSize())));
+        addCard("Grid with lazy loading", new VerticalLayout(grid, getItem, getnext, getprevious, select, getcurrent, getAll,size));
     }
 
     private void addVariantFeature() {

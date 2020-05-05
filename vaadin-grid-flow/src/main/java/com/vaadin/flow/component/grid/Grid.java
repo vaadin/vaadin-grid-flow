@@ -41,6 +41,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.GridDataViewer;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
@@ -80,6 +81,7 @@ import com.vaadin.flow.data.provider.DataProviderListener;
 import com.vaadin.flow.data.provider.HasDataGenerators;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.provider.QueryDataCommunicator;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -1382,7 +1384,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
         protected DataCommunicator<T> build(Element element,
                 CompositeDataGenerator<T> dataGenerator, U arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
-            return new DataCommunicator<>(
+            return new QueryDataCommunicator<>(
                     dataGenerator, arrayUpdater, data -> element
                             .callJsFunction("$connector.updateFlatData", data),
                     element.getNode());
@@ -2293,7 +2295,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     }
 
     @Override
-    public void setDataProvider(DataProvider<? extends T, ?> dataProvider) {
+    public void setDataProvider(DataProvider<T, ?> dataProvider) {
         Objects.requireNonNull(dataProvider, "data provider cannot be null");
         handleDataProviderChange(dataProvider);
 
@@ -2329,6 +2331,12 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      */
     public DataCommunicator<T> getDataCommunicator() {
         return dataCommunicator;
+    }
+    public QueryDataCommunicator<T> getQueryDataCommunicator() {
+        return (QueryDataCommunicator) dataCommunicator;
+    }
+    public GridDataViewer getDataManager() {
+        return new GridDataViewer(this);
     }
 
     /**

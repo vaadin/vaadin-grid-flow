@@ -37,6 +37,7 @@ import com.vaadin.flow.data.binder.PropertyDefinition;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.QueryDataCommunicator;
 import com.vaadin.flow.data.provider.hierarchy.HasHierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalArrayUpdater.HierarchicalUpdate;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataCommunicator;
@@ -276,7 +277,7 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     @Override
-    public void setDataProvider(DataProvider<? extends T, ?> dataProvider) {
+    public void setDataProvider(DataProvider<T, ?> dataProvider) {
         if (!(dataProvider instanceof HierarchicalDataProvider)) {
             throw new IllegalArgumentException(
                     "TreeGrid only accepts hierarchical data providers. "
