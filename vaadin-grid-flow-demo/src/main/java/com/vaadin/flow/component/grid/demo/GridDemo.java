@@ -681,7 +681,7 @@ public class GridDemo extends DemoView {
 
         // end-source-example
         grid.setId("basic-usage");
-        GridDataViewer<Person> data = new GridDataViewer<>(grid);
+        GridDataViewer<Person> data = grid.getDataManager();
         Button getItem = new Button("item", event -> System.out.println(data.getItemOnRow(1)));
                 Button getnext = new Button("next", event -> System.out.println(data.getNextÏtem(personList.get(2))));
         Button getprevious = new Button("prev", event ->
@@ -719,7 +719,7 @@ public class GridDemo extends DemoView {
 
         grid.setId("lazy-loading");
 
-        GridDataViewer<Person> data = new GridDataViewer<>(grid);
+        GridDataViewer<Person> data = grid.getDataManager();
         Button getItem = new Button("item", event -> System.out.println(data.getItemOnRow(1)));
         Button getnext = new Button("next", event -> System.out.println(data.getNextÏtem(data.getItemOnRow(1))));
         Button getprevious = new Button("prev", event ->

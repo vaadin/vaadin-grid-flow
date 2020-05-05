@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.data.provider.ActiveDataChangeHandler;
+import com.vaadin.flow.data.provider.ActiveDataChangeListener;
 import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.QueryDataCommunicator;
@@ -14,15 +16,18 @@ import com.vaadin.flow.data.provider.SizeChangeListener;
 import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.shared.Registration;
 
-public class GridDataViewer<T> implements SizeChangeHandler {
+public class GridDataViewer<T>
+        implements SizeChangeHandler, ActiveDataChangeHandler {
 
     private Grid<T> grid;
     int latestSize = 0;
     Set<SizeChangeListener> sizeChangeListeners;
+    Set<ActiveDataChangeListener> dataChangeListeners;
 
     public GridDataViewer(Grid<T> grid) {
         this.grid = grid;
         grid.getQueryDataCommunicator().setSizeChangeHandler(this);
+        grid.getQueryDataCommunicator().setActiveDataChangeHandler(this);
     }
 
     public Registration addSizeChangeListener(SizeChangeListener listener) {
@@ -83,7 +88,8 @@ public class GridDataViewer<T> implements SizeChangeHandler {
     }
 
     public T getNextÏtem(T item) {
-        QueryDataCommunicator<T> dataCommunicator = grid.getQueryDataCommunicator();
+        QueryDataCommunicator<T> dataCommunicator = grid
+                .getQueryDataCommunicator();
         if (dataCommunicator.getKeyMapper().has(item)) {
             final List<String> activeKeyOrder = dataCommunicator
                     .getActiveKeyOrder();
@@ -104,7 +110,8 @@ public class GridDataViewer<T> implements SizeChangeHandler {
     }
 
     public T getPreviousÏtem(T item) {
-        QueryDataCommunicator<T> dataCommunicator = grid.getQueryDataCommunicator();
+        QueryDataCommunicator<T> dataCommunicator = grid
+                .getQueryDataCommunicator();
         if (dataCommunicator.getKeyMapper().has(item)) {
             final List<String> activeKeyOrder = dataCommunicator
                     .getActiveKeyOrder();
@@ -131,5 +138,25 @@ public class GridDataViewer<T> implements SizeChangeHandler {
                     new SizeChangeListener.SizeChangeEvent(grid, size)));
         }
         latestSize = size;
+    }
+
+    public Registration addActiveDataChangeListener(
+            ActiveDataChangeListener listener) {
+        if (dataChangeListeners == null) {
+            dataChangeListeners = new HashSet<>();
+        }
+        dataChangeListeners.add(listener);
+        return () -> dataChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void activeDataChanged() {
+        if (dataChangeListeners != null) {
+
+            dataChangeListeners.forEach(listener -> listener
+                    .activeDataChangeEvent(
+                            new ActiveDataChangeListener.ActiveDataChangeEvent<T, Grid<T>>(
+                                    grid, getCurrentItemSet())));
+        }
     }
 }

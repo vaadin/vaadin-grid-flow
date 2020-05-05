@@ -2,6 +2,7 @@ package com.vaadin.flow.data.provider;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.internal.Range;
@@ -13,6 +14,8 @@ public class QueryDataCommunicator<T> extends DataCommunicator<T> {
 
     private SizeChangeHandler sizeChangeHandler = size -> {
     };
+
+    private ActiveDataChangeHandler dataChangeHandler = () -> {};
 
     /**
      * Creates a new instance.
@@ -61,5 +64,16 @@ public class QueryDataCommunicator<T> extends DataCommunicator<T> {
         // send latest assumed size as this might be gotten after first
         // get data provider size calls
         sizeChangeHandler.sizeEvent(getAssumedSize());
+    }
+
+    @Override
+    protected Stream<T> fetchFromProvider(int offset, int limit) {
+        Stream<T> fetch  =  super.fetchFromProvider(offset, limit);
+        dataChangeHandler.activeDataChanged();
+        return fetch;
+    }
+
+    public void setActiveDataChangeHandler(ActiveDataChangeHandler dataChangeHandler) {
+        this.dataChangeHandler = dataChangeHandler;
     }
 }
