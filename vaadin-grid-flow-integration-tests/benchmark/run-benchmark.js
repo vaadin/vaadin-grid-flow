@@ -98,6 +98,20 @@ const prepareReferenceGrid = () => {
   execSync(`mvn install -DskipTests`, { cwd: refGridPath });
 };
 
+const reportTestResults = (testVariantName, testResultsFilePath) => {
+  const testResultsFileContent = fs.readFileSync(testResultsFilePath, 'utf-8');
+  const { benchmarks } = JSON.parse(testResultsFileContent);
+  const { low, high } = benchmarks[0].differences.find((d) => d).percentChange;
+  const relativeDifferenceAverage = (low + high) / 2;
+
+  // Print the test result as TeamCity build statistics
+  console.log(
+    `##teamcity[buildStatisticValue key='${testVariantName}' value='${relativeDifferenceAverage.toFixed(
+      6
+    )}']\n`
+  );
+};
+
 const runTachometerTest = ({ variantName, metricName, browserName }) => {
   const sampleSize = {
     rendertime: 40,
@@ -105,13 +119,15 @@ const runTachometerTest = ({ variantName, metricName, browserName }) => {
     scrollframetime: 10,
   }[metricName];
 
+  const testVariantName = `${variantName}-${metricName}-${browserName}`;
+  const testResultsFilePath = path.resolve(
+    resultsPath,
+    `${testVariantName}.json`
+  );
   const args = [];
   args.push('--measure', 'global');
   args.push('--sample-size', sampleSize);
-  args.push(
-    '--json-file',
-    `${resultsPath}/${variantName}-${metricName}-${browserName}.json`
-  );
+  args.push('--json-file', testResultsFilePath);
   args.push('--browser', browserName);
   const ports = [9998, REF_JETTY_PORT];
   ports.forEach((port) => {
@@ -121,10 +137,13 @@ const runTachometerTest = ({ variantName, metricName, browserName }) => {
   });
 
   return new Promise((resolve) => {
-    const tach = spawn('node_modules/.bin/tach', args, {cwd: gridTestPath});
+    const tach = spawn('node_modules/.bin/tach', args, { cwd: gridTestPath });
     tach.stderr.on('data', (data) => console.error(data.toString()));
     tach.stdout.on('data', (data) => console.log(data.toString()));
-    tach.on('close', resolve);
+    tach.on('close', () => {
+      reportTestResults(testVariantName, testResultsFilePath);
+      resolve();
+    });
   });
 };
 
@@ -142,7 +161,7 @@ const run = async () => {
 
   if (!fs.existsSync('./node_modules/.bin/tach')) {
     console.log('Installing tachometer');
-    execSync('npm i tachometer', {cwd: gridTestPath});
+    execSync('npm i tachometer', { cwd: gridTestPath });
   }
 
   for (const testVariant of testVariants) {
