@@ -3,19 +3,19 @@
     {
       "name": "http://localhost:9998/benchmark?variant=detailsopened&metric=rendertime",
       "mean": {
-        "low": 403.73033061919267,
-        "high": 418.2030027141406
+        "low": 445.1165979963773,
+        "high": 459.016735336956
       },
       "differences": [
         null,
         {
           "absolute": {
-            "low": -16.233887590363203,
-            "high": 4.65610981258542
+            "low": -16.606001501580167,
+            "high": 7.339334834913517
           },
           "percentChange": {
-            "low": -3.877259286444494,
-            "high": 1.099185275566813
+            "low": -3.618481541835624,
+            "high": 1.5894325673082201
           }
         }
       ]
@@ -23,18 +23,18 @@
     {
       "name": "http://localhost:8088/benchmark?variant=detailsopened&metric=rendertime",
       "mean": {
-        "low": 409.22339527567374,
-        "high": 424.2877158354373
+        "low": 446.951085776087,
+        "high": 466.448914223913
       },
       "differences": [
         {
           "absolute": {
-            "low": -4.65610981258542,
-            "high": 16.233887590363203
+            "low": -7.339334834913517,
+            "high": 16.606001501580167
           },
           "percentChange": {
-            "low": -1.1502113105727452,
-            "high": 3.967417355940038
+            "low": -1.6326851012283743,
+            "high": 3.6825302568101432
           }
         },
         null
