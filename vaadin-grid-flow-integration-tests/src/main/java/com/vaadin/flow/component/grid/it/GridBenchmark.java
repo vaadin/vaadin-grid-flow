@@ -163,9 +163,9 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
     private void addColumns(Grid<String> grid, int count, boolean componentrenderers) {
         IntStream.range(0, count).forEach(index -> {
             if (componentrenderers) {
-                grid.addColumn(new ComponentRenderer<>(item -> new NativeButton(item.toString())));
+                grid.addColumn(new ComponentRenderer<>(item -> new NativeButton(item.toString()))).setHeader(String.valueOf(count));
             } else {
-                grid.addColumn(item -> item.toString());
+                grid.addColumn(item -> item.toString()).setHeader(String.valueOf(count));
             }
         });
     }
