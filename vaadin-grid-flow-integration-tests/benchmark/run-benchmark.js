@@ -161,7 +161,7 @@ const run = async () => {
 
   if (!fs.existsSync('./node_modules/.bin/tach')) {
     console.log('Installing tachometer');
-    execSync('npm i tachometer', { cwd: gridTestPath });
+    execSync('npm i tachometer@0.4.18', { cwd: gridTestPath });
   }
 
   for (const testVariant of testVariants) {
