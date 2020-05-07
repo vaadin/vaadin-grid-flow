@@ -122,8 +122,7 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         switch (metric) {
             case "scrollframetime":
                 add(grid);
-                // TODO: When ready
-                UI.getCurrent().getElement().executeJs("return window.startWhenReady()").then(v -> {
+                grid.getElement().executeJs("window.whenRendered(this)").then(v -> {
                     grid.getElement().executeJs("window.measureScrollFrameTime(this)");
                 });
                 break;
@@ -135,8 +134,7 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
                 break;
             case "expandtime":
                 add(grid);
-                // TODO: When ready
-                UI.getCurrent().getElement().executeJs("return window.startWhenReady()").then(v -> {
+                grid.getElement().executeJs("window.whenRendered(this)").then(v -> {
                     grid.getElement().executeJs("window.measureRender(this)");
                     TreeGrid<String> treeGrid = (TreeGrid<String>) grid;
                     TreeData<String> data = ((TreeDataProvider<String>) treeGrid.getDataProvider()).getTreeData();

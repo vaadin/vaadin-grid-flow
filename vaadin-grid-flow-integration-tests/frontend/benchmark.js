@@ -66,6 +66,35 @@ registerStyles(
   `
 );
 
+const whenRendered = grid => {
+  return new Promise(resolve => {
+    let readyTimer;
+    let endTime;
+    const listener = (e) => {
+      if (e.animationName === 'content-ready' || e.propertyName === 'opacity') {
+        endTime = performance.now();
+        readyTimer && clearTimeout(readyTimer);
+        // @ts-ignore
+        if (!grid.loading) {
+          readyTimer = setTimeout(() => {
+            // @ts-ignore
+            grid.$.scroller.removeEventListener('animationstart', listener);
+            grid.removeEventListener('animationstart', listener);
+            grid.removeEventListener('transitionstart', listener);
+            resolve(performance.now() - endTime);
+            // TODO: This needs to be large enough so everything gets rendered
+            // but small enough so the tests won't take forever
+          }, 1000);
+        }
+      }
+    };
+
+    grid.$.scroller.addEventListener('animationstart', listener);
+    grid.addEventListener('animationstart', listener);
+    grid.addEventListener('transitionstart', listener);
+  })
+};
+
 let start = 0;
 
 // @ts-ignore
@@ -77,28 +106,21 @@ window.startWhenReady = () => {
 };
 
 // @ts-ignore
-window.measureRender = (grid) => {
-  let endTime;
-  let readyTimer;
-  const listener = (e) => {
-    if (e.animationName === 'content-ready' || e.propertyName === 'opacity') {
-      endTime = performance.now();
-      readyTimer && clearTimeout(readyTimer);
-      // @ts-ignore
-      if (!grid.loading) {
-        readyTimer = setTimeout(() => {
-          // @ts-ignore
-          window.tachometerResult = endTime - start;
-          // TODO: This needs to be large enough so everything gets rendered
-          // but small enough so the tests won't take forever
-        }, 1000);
-      }
-    }
-  };
+window.startWhenRendered = (grid) => {
+  return whenRendered(grid).then(() => {
+    start = performance.now();
+  });
+}
 
-  grid.$.scroller.addEventListener('animationstart', listener);
-  grid.addEventListener('animationstart', listener);
-  grid.addEventListener('transitionstart', listener);
+// @ts-ignore
+window.whenRendered = whenRendered;
+
+// @ts-ignore
+window.measureRender = (grid) => {
+  whenRendered(grid).then(idleTime => {
+    // @ts-ignore
+    window.tachometerResult = performance.now() - start - idleTime;
+  })
 };
 
 const SCROLL_TIME = 10000;
@@ -128,6 +150,6 @@ const scroll = (grid, frames, startTime, previousTime) => {
 };
 
 // @ts-ignore
-window.measureScrollFrameTime = (grid) => {
+window.measureScrollFrameTime = grid => {
   scroll(grid, 0, performance.now(), performance.now());
 };
