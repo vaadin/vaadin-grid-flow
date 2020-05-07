@@ -15,12 +15,15 @@ const refGridTestPath = path.resolve(refGridPath, TEST_DIR);
 const resultsPath = path.resolve('./results');
 
 const REF_JETTY_PORT = 8088;
-// TODO: Fix
+// TODO: Fix as a Grid tag of a revision that will be used as the baseline/reference for the tests
 const REF_GIT_TAG = 'benchmark';
 
 const processes = [];
-const testVariants = [];
+const cleanup = () => processes.forEach((ps) => ps.kill());
+process.on('exit', cleanup);
+process.on('SIGINT', cleanup);
 
+const testVariants = [];
 ['firefox-headless', 'chrome-headless'].forEach((browserName) => {
   ['simple', 'multicolumn', 'componentrenderers', 'detailsopened'].forEach(
     (variantName) => {
@@ -95,6 +98,7 @@ const prepareReferenceGrid = () => {
     cwd: refGridPath,
   });
 
+  console.log('Installing the reference grid');
   execSync(`mvn install -DskipTests`, { cwd: refGridPath });
 };
 
@@ -159,7 +163,7 @@ const run = async () => {
   console.log('Starting the Jetty server: reference Grid');
   await startJetty(refGridTestPath);
 
-  if (!fs.existsSync('./node_modules/.bin/tach')) {
+  if (!fs.existsSync(path.resolve(gridTestPath, 'node_modules', '.bin', 'tach'))) {
     console.log('Installing tachometer');
     execSync('npm i tachometer@0.4.18', { cwd: gridTestPath });
   }
@@ -173,7 +177,6 @@ const run = async () => {
   }
 
   // Exit
-  processes.forEach((ps) => ps.kill());
   process.exit(0);
 };
 
