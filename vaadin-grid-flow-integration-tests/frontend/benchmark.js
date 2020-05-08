@@ -66,8 +66,8 @@ registerStyles(
   `
 );
 
-const whenRendered = grid => {
-  return new Promise(resolve => {
+const whenRendered = (grid) => {
+  return new Promise((resolve) => {
     let readyTimer;
     let endTime;
     const listener = (e) => {
@@ -92,7 +92,18 @@ const whenRendered = grid => {
     grid.$.scroller.addEventListener('animationstart', listener);
     grid.addEventListener('animationstart', listener);
     grid.addEventListener('transitionstart', listener);
-  })
+  });
+};
+
+const reportResult = (result) => {
+  // @ts-ignore
+  window.tachometerResult = result;
+
+  const resultDiv = document.createElement('div');
+  resultDiv.textContent = `Result: ${result}`;
+  resultDiv.style.position = 'fixed';
+  resultDiv.style.left = resultDiv.style.top = '0';
+  document.body.appendChild(resultDiv);
 };
 
 let start = 0;
@@ -110,28 +121,41 @@ window.startWhenRendered = (grid) => {
   return whenRendered(grid).then(() => {
     start = performance.now();
   });
-}
+};
 
 // @ts-ignore
 window.whenRendered = whenRendered;
 
 // @ts-ignore
 window.measureRender = (grid) => {
-  whenRendered(grid).then(idleTime => {
-    // @ts-ignore
-    window.tachometerResult = performance.now() - start - idleTime;
-  })
+  whenRendered(grid).then((idleTime) => {
+    reportResult(performance.now() - start - idleTime);
+  });
 };
 
 const SCROLL_TIME = 10000;
 const WARMUP_TIME = 1000;
 
-const scroll = (grid, frames, startTime, previousTime) => {
+const scroll = (grid, frames, startTime, previousTime, deltaXMultiplier, deltaYMultiplier) => {
   const now = performance.now();
   const e = new CustomEvent('wheel', { bubbles: true, cancelable: true });
+
   // @ts-ignore
-  e.deltaY = now - previousTime;
+  e.deltaX = (now - previousTime) * deltaXMultiplier;
+  // @ts-ignore
+  e.deltaY = (now - previousTime) * deltaYMultiplier;
+
   grid.dispatchEvent(e);
+
+  // Switch horizontal scroll direction in case end was reached
+  if (deltaXMultiplier) {
+    const overflow = grid.getAttribute('overflow');
+    if (deltaXMultiplier === 1 && !overflow.includes('right')) {
+      deltaXMultiplier = -1;
+    } else if (deltaXMultiplier === -1 && !overflow.includes('left')) {
+      deltaXMultiplier = 1;
+    }
+  }
 
   if (now < startTime + WARMUP_TIME + SCROLL_TIME) {
     requestAnimationFrame(() =>
@@ -139,17 +163,25 @@ const scroll = (grid, frames, startTime, previousTime) => {
         grid,
         now > startTime + WARMUP_TIME ? frames + 1 : 0,
         startTime,
-        now
+        now,
+        deltaXMultiplier,
+        deltaYMultiplier
       )
     );
   } else {
     const frameTime = SCROLL_TIME / frames;
-    // @ts-ignore
-    window.tachometerResult = frameTime;
+    reportResult(frameTime);
   }
 };
 
 // @ts-ignore
-window.measureScrollFrameTime = grid => {
-  scroll(grid, 0, performance.now(), performance.now());
+window.measureScrollFrameTime = (grid, horizontal) => {
+  scroll(
+    grid,
+    0,
+    performance.now(),
+    performance.now(),
+    horizontal ? 1 : 0,
+    horizontal ? 0 : 1
+  );
 };

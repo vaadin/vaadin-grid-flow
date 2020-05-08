@@ -120,10 +120,16 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         }
 
         switch (metric) {
-            case "scrollframetime":
+            case "verticalscrollframetime":
                 add(grid);
                 grid.getElement().executeJs("window.whenRendered(this)").then(v -> {
-                    grid.getElement().executeJs("window.measureScrollFrameTime(this)");
+                    grid.getElement().executeJs("window.measureScrollFrameTime(this, false)");
+                });
+                break;
+            case "horizontalscrollframetime":
+                add(grid);
+                grid.getElement().executeJs("window.whenRendered(this)").then(v -> {
+                    grid.getElement().executeJs("window.measureScrollFrameTime(this, true)");
                 });
                 break;
             case "rendertime":
@@ -161,9 +167,9 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
     private void addColumns(Grid<String> grid, int count, boolean componentrenderers) {
         IntStream.range(0, count).forEach(index -> {
             if (componentrenderers) {
-                grid.addColumn(new ComponentRenderer<>(item -> new NativeButton(item.toString()))).setHeader(String.valueOf(count));
+                grid.addColumn(new ComponentRenderer<>(item -> new NativeButton(item.toString()))).setHeader(String.valueOf(index));
             } else {
-                grid.addColumn(item -> item.toString()).setHeader(String.valueOf(count));
+                grid.addColumn(item -> item.toString()).setHeader(String.valueOf(index));
             }
         });
     }

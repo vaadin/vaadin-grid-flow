@@ -25,33 +25,38 @@ process.on('SIGINT', cleanup);
 
 const testVariants = [];
 ['firefox-headless', 'chrome-headless'].forEach((browserName) => {
-  ['simple', 'multicolumn', 'componentrenderers', 'detailsopened'].forEach(
-    (variantName) => {
+  [
+    'simple',
+    'multicolumn',
+    'componentrenderers',
+    'detailsopened',
+    'tree',
+    'mixed',
+  ].forEach((gridVariantName) => {
+    testVariants.push({
+      gridVariantName,
+      browserName,
+      metricName: 'rendertime',
+    });
+    testVariants.push({
+      gridVariantName,
+      browserName,
+      metricName: 'verticalscrollframetime',
+    });
+    if (['tree', 'mixed'].includes(gridVariantName)) {
       testVariants.push({
-        variantName,
+        gridVariantName,
         browserName,
-        metricName: 'rendertime',
-      });
-      testVariants.push({
-        variantName,
-        browserName,
-        metricName: 'scrollframetime',
+        metricName: 'expandtime',
       });
     }
-  );
-
-  ['rendertime', 'scrollframetime', 'expandtime'].forEach((metricName) => {
-    testVariants.push({
-      variantName: 'tree',
-      browserName,
-      metricName,
-    });
-
-    testVariants.push({
-      variantName: 'mixed',
-      browserName,
-      metricName,
-    });
+    if (['multicolumn', 'mixed'].includes(gridVariantName)) {
+      testVariants.push({
+        gridVariantName,
+        browserName,
+        metricName: 'horizontalscrollframetime',
+      });
+    }
   });
 });
 
@@ -120,7 +125,8 @@ const runTachometerTest = ({ variantName, metricName, browserName }) => {
   const sampleSize = {
     rendertime: 40,
     expandtime: 40,
-    scrollframetime: 10,
+    horizontalscrollframetime: 10,
+    verticalscrollframetime: 10,
   }[metricName];
 
   const testVariantName = `${variantName}-${metricName}-${browserName}`;
@@ -163,7 +169,9 @@ const run = async () => {
   console.log('Starting the Jetty server: reference Grid');
   await startJetty(refGridTestPath);
 
-  if (!fs.existsSync(path.resolve(gridTestPath, 'node_modules', '.bin', 'tach'))) {
+  if (
+    !fs.existsSync(path.resolve(gridTestPath, 'node_modules', '.bin', 'tach'))
+  ) {
     console.log('Installing tachometer');
     execSync('npm i tachometer@0.4.18', { cwd: gridTestPath });
   }
