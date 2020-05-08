@@ -121,7 +121,7 @@ const reportTestResults = (testVariantName, testResultsFilePath) => {
   );
 };
 
-const runTachometerTest = ({ variantName, metricName, browserName }) => {
+const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
   const sampleSize = {
     rendertime: 40,
     expandtime: 40,
@@ -129,7 +129,11 @@ const runTachometerTest = ({ variantName, metricName, browserName }) => {
     verticalscrollframetime: 10,
   }[metricName];
 
-  const testVariantName = `${variantName}-${metricName}-${browserName}`;
+  const testVariantName = `${gridVariantName}-${metricName}-${browserName}`;
+  if (!fs.existsSync(resultsPath)) {
+    fs.mkdirSync(resultsPath);
+  }
+
   const testResultsFilePath = path.resolve(
     resultsPath,
     `${testVariantName}.json`
@@ -142,7 +146,7 @@ const runTachometerTest = ({ variantName, metricName, browserName }) => {
   const ports = [9998, REF_JETTY_PORT];
   ports.forEach((port) => {
     args.push(
-      `http://localhost:${port}/benchmark?variant=${variantName}&metric=${metricName}`
+      `http://localhost:${port}/benchmark?variant=${gridVariantName}&metric=${metricName}`
     );
   });
 
@@ -179,7 +183,7 @@ const run = async () => {
   for (const testVariant of testVariants) {
     console.log(
       'Running test:',
-      `${testVariant.variantName}-${testVariant.metricName}`
+      `${testVariant.gridVariantName}-${testVariant.metricName}`
     );
     await runTachometerTest(testVariant);
   }

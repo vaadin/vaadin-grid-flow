@@ -27,7 +27,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.treegrid.TreeGrid;
-import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -167,7 +166,8 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
     private void addColumns(Grid<String> grid, int count, boolean componentrenderers) {
         IntStream.range(0, count).forEach(index -> {
             if (componentrenderers) {
-                grid.addColumn(new ComponentRenderer<>(item -> new NativeButton(item.toString()))).setHeader(String.valueOf(index));
+                grid.addColumn(new ComponentRenderer<>(item -> new NativeButton(item.toString())))
+                        .setHeader(String.valueOf(index));
             } else {
                 grid.addColumn(item -> item.toString()).setHeader(String.valueOf(index));
             }

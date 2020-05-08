@@ -74,16 +74,15 @@ const whenRendered = (grid) => {
       if (e.animationName === 'content-ready' || e.propertyName === 'opacity') {
         endTime = performance.now();
         readyTimer && clearTimeout(readyTimer);
-        // @ts-ignore
         if (!grid.loading) {
           readyTimer = setTimeout(() => {
-            // @ts-ignore
             grid.$.scroller.removeEventListener('animationstart', listener);
             grid.removeEventListener('animationstart', listener);
             grid.removeEventListener('transitionstart', listener);
             resolve(performance.now() - endTime);
-            // TODO: This needs to be large enough so everything gets rendered
-            // but small enough so the tests won't take forever
+            // The timeout needs to be large enough so everything gets rendered
+            // but small enough so the tests won't take forever. This resolves with
+            // the idle time between the last invocation and timeout.
           }, 1000);
         }
       }
