@@ -69,20 +69,19 @@ registerStyles(
 const whenRendered = (grid) => {
   return new Promise((resolve) => {
     let readyTimer;
-    let endTime;
     const listener = (e) => {
       if (e.animationName === 'content-ready' || e.propertyName === 'opacity') {
-        endTime = performance.now();
+        const endTime = performance.now();
         readyTimer && clearTimeout(readyTimer);
         if (!grid.loading) {
           readyTimer = setTimeout(() => {
             grid.$.scroller.removeEventListener('animationstart', listener);
             grid.removeEventListener('animationstart', listener);
             grid.removeEventListener('transitionstart', listener);
-            resolve(performance.now() - endTime);
+            resolve(endTime);
             // The timeout needs to be large enough so everything gets rendered
             // but small enough so the tests won't take forever. This resolves with
-            // the idle time between the last invocation and timeout.
+            // the timestamp of the listener's last invocation.
           }, 1000);
         }
       }
@@ -127,15 +126,20 @@ window.whenRendered = whenRendered;
 
 // @ts-ignore
 window.measureRender = (grid) => {
-  whenRendered(grid).then((idleTime) => {
-    reportResult(performance.now() - start - idleTime);
-  });
+  whenRendered(grid).then((endTime) => reportResult(endTime - start));
 };
 
 const SCROLL_TIME = 10000;
 const WARMUP_TIME = 1000;
 
-const scroll = (grid, frames, startTime, previousTime, deltaXMultiplier, deltaYMultiplier) => {
+const scroll = (
+  grid,
+  frames,
+  startTime,
+  previousTime,
+  deltaXMultiplier,
+  deltaYMultiplier
+) => {
   const now = performance.now();
   const e = new CustomEvent('wheel', { bubbles: true, cancelable: true });
 
