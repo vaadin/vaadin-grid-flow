@@ -66,7 +66,10 @@ registerStyles(
   `
 );
 
-const whenRendered = (grid) => {
+/** @type {any} */
+const _window = window;
+
+_window.whenRendered = (grid) => {
   return new Promise((resolve) => {
     let readyTimer;
     const listener = (e) => {
@@ -94,8 +97,7 @@ const whenRendered = (grid) => {
 };
 
 const reportResult = (result) => {
-  // @ts-ignore
-  window.tachometerResult = result;
+  _window.tachometerResult = result;
 
   const resultDiv = document.createElement('div');
   resultDiv.textContent = `Result: ${result}`;
@@ -106,27 +108,21 @@ const reportResult = (result) => {
 
 let start = 0;
 
-// @ts-ignore
-window.startWhenReady = () => {
+_window.startWhenReady = () => {
   return Promise.all([
     customElements.whenDefined('vaadin-grid'),
     customElements.whenDefined('vaadin-grid-column'),
   ]).then(() => (start = performance.now()));
 };
 
-// @ts-ignore
-window.startWhenRendered = (grid) => {
-  return whenRendered(grid).then(() => {
+_window.startWhenRendered = (grid) => {
+  return _window.whenRendered(grid).then(() => {
     start = performance.now();
   });
 };
 
-// @ts-ignore
-window.whenRendered = whenRendered;
-
-// @ts-ignore
-window.measureRender = (grid) => {
-  whenRendered(grid).then((endTime) => reportResult(endTime - start));
+_window.measureRender = (grid) => {
+  _window.whenRendered(grid).then((endTime) => reportResult(endTime - start));
 };
 
 const SCROLL_TIME = 10000;
@@ -141,11 +137,10 @@ const scroll = (
   deltaYMultiplier
 ) => {
   const now = performance.now();
-  const e = new CustomEvent('wheel', { bubbles: true, cancelable: true });
 
-  // @ts-ignore
+  /** @type {any} */
+  const e = new CustomEvent('wheel', { bubbles: true, cancelable: true });
   e.deltaX = (now - previousTime) * deltaXMultiplier;
-  // @ts-ignore
   e.deltaY = (now - previousTime) * deltaYMultiplier;
 
   grid.dispatchEvent(e);
@@ -177,8 +172,7 @@ const scroll = (
   }
 };
 
-// @ts-ignore
-window.measureScrollFrameTime = (grid, horizontal) => {
+_window.measureScrollFrameTime = (grid, horizontal) => {
   scroll(
     grid,
     0,
