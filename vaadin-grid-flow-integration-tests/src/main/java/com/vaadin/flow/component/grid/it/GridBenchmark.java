@@ -50,9 +50,9 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
 
     private Grid<String> grid;
 
-    private final static List<String> items = Collections
+    private static final List<String> items = Collections
             .unmodifiableList(IntStream.range(0, 1000).mapToObj(String::valueOf).collect(Collectors.toList()));
-    private final static TreeData<String> treeData = new TreeData<>();
+    private static final TreeData<String> treeData = new TreeData<>();
 
     static {
         addTreeItems(treeData, null, 1000, 2);
@@ -81,7 +81,7 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         String metric = parametersMap.get("metric").get(0);
         String variant = parametersMap.get("variant").get(0);
 
-        LoggerFactory.getLogger(getClass()).info("Sample: " + variant + "-" + metric);
+        LoggerFactory.getLogger(GridBenchmark.class).warn("Sample: " + variant + "-" + metric);
 
         switch (variant) {
             case "simple":
@@ -121,15 +121,11 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         switch (metric) {
             case "verticalscrollframetime":
                 add(grid);
-                whenRendered(grid).then(v -> {
-                    grid.getElement().executeJs("window.measureScrollFrameTime(this, false)");
-                });
+                whenRendered(grid).then(v -> grid.getElement().executeJs("window.measureScrollFrameTime(this, false)"));
                 break;
             case "horizontalscrollframetime":
                 add(grid);
-                whenRendered(grid).then(v -> {
-                    grid.getElement().executeJs("window.measureScrollFrameTime(this, true)");
-                });
+                whenRendered(grid).then(v -> grid.getElement().executeJs("window.measureScrollFrameTime(this, true)"));
                 break;
             case "rendertime":
                 measureRendered(grid);
