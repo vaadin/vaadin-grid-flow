@@ -125,8 +125,8 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
   const sampleSize = {
     rendertime: 40,
     expandtime: 40,
-    horizontalscrollframetime: 10,
-    verticalscrollframetime: 10,
+    horizontalscrollframetime: 20,
+    verticalscrollframetime: 20,
   }[metricName];
 
   const testVariantName = `${gridVariantName}-${metricName}-${browserName}`;

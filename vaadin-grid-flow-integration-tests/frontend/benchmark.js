@@ -125,7 +125,7 @@ _window.measureRender = (grid) => {
   _window.whenRendered(grid).then((endTime) => reportResult(endTime - start));
 };
 
-const SCROLL_TIME = 10000;
+const SCROLL_TIME = 4000;
 const WARMUP_TIME = 1000;
 
 const scroll = (
