@@ -133,7 +133,7 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
                 break;
             case "expandtime":
                 add(grid);
-                whenRendered(grid).then(v -> {
+                startWhenRendered(grid).then(v -> {
                     measureRendered(grid);
                     TreeGrid<String> treeGrid = (TreeGrid<String>) grid;
                     TreeData<String> data = ((TreeDataProvider<String>) treeGrid.getDataProvider()).getTreeData();
@@ -147,6 +147,10 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
 
     private PendingJavaScriptResult whenRendered(Grid<String> grid) {
         return grid.getElement().executeJs("return window.whenRendered(this)");
+    }
+
+    private PendingJavaScriptResult startWhenRendered(Grid<String> grid) {
+        return grid.getElement().executeJs("return window.startWhenRendered(this)");
     }
 
     private void measureRendered(Grid<String> grid) {
