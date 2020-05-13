@@ -15,8 +15,8 @@ const refGridTestPath = path.resolve(refGridPath, TEST_DIR);
 const resultsPath = path.resolve('./results');
 
 const REF_JETTY_PORT = 8088;
-// TODO: Fix as a Grid tag of a revision that will be used as the baseline/reference for the tests
-const REF_GIT_TAG = 'benchmark';
+// The branch whose latest revision is used as the reference Grid
+const REF_GIT_BRANCH = 'benchmark';
 
 const processes = [];
 const cleanup = () => processes.forEach((ps) => ps.kill());
@@ -77,7 +77,7 @@ const startJetty = (cwd) => {
 
 const prepareReferenceGrid = () => {
   execSync(
-    `git clone --depth=1 --single-branch --branch ${REF_GIT_TAG} https://github.com/vaadin/vaadin-grid-flow.git ${refGridPath}`
+    `git clone --depth=1 --single-branch --branch ${REF_GIT_BRANCH} https://github.com/vaadin/vaadin-grid-flow.git ${refGridPath}`
   );
 
   // Add Jetty config to start the server on a different port
@@ -99,7 +99,7 @@ const prepareReferenceGrid = () => {
 
   fs.writeFileSync(pomFile, result, 'utf8');
 
-  execSync(`mvn versions:set -DnewVersion=${REF_GIT_TAG}-BENCHMARK`, {
+  execSync(`mvn versions:set -DnewVersion=${REF_GIT_BRANCH}-BENCHMARK`, {
     cwd: refGridPath,
   });
 
