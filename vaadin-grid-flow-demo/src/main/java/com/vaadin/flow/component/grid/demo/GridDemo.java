@@ -1835,7 +1835,7 @@ public class GridDemo extends DemoView {
             contextMenu.addItem("Due date: " + task.getDueDate());
             return true; // show the context menu
         });
-        grid(grid, contextMenu);
+        add(grid, contextMenu);
         // end-source-example
         grid.setId("dynamic-context-menu-grid");
         addCard("Context Menu", "Dynamic Context Menu", grid, contextMenu);
