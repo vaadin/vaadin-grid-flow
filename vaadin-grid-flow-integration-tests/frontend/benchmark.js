@@ -126,7 +126,6 @@ _window.measureRender = (grid) => {
 };
 
 const SCROLL_TIME = 4000;
-const WARMUP_TIME = 1000;
 
 const scroll = (
   grid,
@@ -159,11 +158,11 @@ const scroll = (
     }
   }
 
-  if (now < startTime + WARMUP_TIME + SCROLL_TIME) {
+  if (now < startTime + SCROLL_TIME) {
     requestAnimationFrame(() =>
       scroll(
         grid,
-        now > startTime + WARMUP_TIME ? frames + 1 : 0,
+        frames + 1,
         startTime,
         now,
         deltaXMultiplier,
