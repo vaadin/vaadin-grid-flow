@@ -147,11 +147,15 @@ const scroll = (
 
   // Switch horizontal scroll direction in case end was reached
   if (deltaXMultiplier) {
-    const overflow = grid.getAttribute('overflow');
-    if (deltaXMultiplier === 1 && !overflow.includes('right')) {
-      deltaXMultiplier = -1;
-    } else if (deltaXMultiplier === -1 && !overflow.includes('left')) {
-      deltaXMultiplier = 1;
+    if (deltaXMultiplier === 1) {
+      const remaining = (grid.$.table.scrollWidth - grid.$.table.clientWidth) - grid.$.table.scrollLeft;
+      if (remaining < 100) {
+        deltaXMultiplier = -1;
+      }
+    } else if (deltaXMultiplier === -1) {
+      if (grid.$.table.scrollLeft < 100) {
+        deltaXMultiplier = 1;
+      }
     }
   }
 
