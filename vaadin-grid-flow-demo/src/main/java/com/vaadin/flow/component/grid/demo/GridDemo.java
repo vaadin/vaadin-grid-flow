@@ -28,8 +28,10 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.DataGrid;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -41,6 +43,7 @@ import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.contextmenu.GridMenuItem;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.demo.data.CountryData;
 import com.vaadin.flow.component.grid.demo.data.CustomerData;
 import com.vaadin.flow.component.grid.demo.data.StatesData;
@@ -63,6 +66,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -241,7 +245,7 @@ public class GridDemo extends DemoView {
 
         @Override
         public String toString() {
-            return firstName;
+            return String.format("%s, %s", firstName, lastName);
         }
 
         @Override
@@ -638,6 +642,7 @@ public class GridDemo extends DemoView {
         createDropLocations();
         createDragData();
         createDragDropFilters();
+        createDataView(); // DataView usage demo
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -2609,9 +2614,77 @@ public class GridDemo extends DemoView {
         addCard("Drag and Drop", "Drag and Drop Filters", vl);
     }
 
+    private void createDataView() {
+        // begin-source-example
+        // source-example-heading: Using DataView for data manipulation
+        List<Person> personList = getItems();
+
+        DataGrid<Person> grid = new DataGrid<>(Person.class);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(DataProvider.ofCollection(personList));
+
+        grid.removeColumnByKey("id");
+
+        // The Grid<>(Person.class) sorts the properties and in order to
+        // reorder the properties we use the 'setColumns' method.
+        grid.setColumns("firstName", "lastName", "age", "address",
+                "phoneNumber");
+
+        final FooterRow footerRow = grid.appendFooterRow();
+        final FooterRow.FooterCell footer = footerRow.getCells().get(0);
+        footer.setText(Integer.toString(dataView.getDataSize()));
+
+
+        // Create data controls
+        // For selecting a row to manipulate through the data view
+        IntegerField rowSelect = new IntegerField("Target row");
+        Button selectItemOnRow = new Button("Select item",
+                event -> dataView.selectItemOnRow(rowSelect.getValue()));
+        Button showItemData = new Button("Person data", event -> new Dialog(
+                new Span(
+                        dataView.getItemOnRow(rowSelect.getValue()).toString()))
+                .open());
+        Button showNextData = new Button("Next person", event -> new Dialog(
+                new Span(dataView.getNextItem(
+                        dataView.getItemOnRow(rowSelect.getValue()))
+                        .toString())).open());
+        Button showPreviousData = new Button("Previous person",
+                event -> new Dialog(new Span(dataView.getPreviousItem(
+                        dataView.getItemOnRow(rowSelect.getValue()))
+                        .toString())).open());
+        TextField filterByFirstName = new TextField("Firstname filter",
+                event -> dataView.withFilter(
+                        item -> item.firstName.contains(event.getValue())));
+
+
+        dataView.addSizeChangeListener(event -> { footer
+                .setText(Integer.toString(event.getSize()));
+            showPreviousData.setEnabled(rowSelect.getValue() > 0);
+            showNextData.setEnabled(rowSelect.getValue() < event.getSize());
+        });
+        // end-source-example
+
+        rowSelect.setValue(0);
+        showPreviousData.setEnabled(false);
+        rowSelect.addValueChangeListener(event -> {
+            if (event.getValue() >= dataView.getDataSize()) {
+                new Dialog(new Span("Item outside of data rage of [0," + (
+                        dataView.getDataSize() - 1)
+                        + "]. Resetting to previous")).open();
+                rowSelect.setValue(event.getOldValue());
+                return;
+            }
+            showPreviousData.setEnabled(event.getValue() > 0);
+            showNextData.setEnabled(event.getValue() < dataView.getDataSize()-1);
+        });
+
+
+        addCard("DataView", "Using DataView for data manipulation", grid,
+                rowSelect, new HorizontalLayout(selectItemOnRow, showItemData,
+                        showNextData, showPreviousData), filterByFirstName);
+    }
+
     private List<Person> getItems() {
-        // return
-        // items.stream().map(Person::clone).collect(Collectors.toList());
         PersonService personService = new PersonService();
         List<Person> personList = personService.fetchAll();
         return personList;
