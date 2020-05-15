@@ -143,10 +143,11 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
   args.push('--sample-size', sampleSize);
   args.push('--json-file', testResultsFilePath);
   args.push('--browser', browserName);
+  let clientHostname = process.env['CLIENT_HOSTNAME'] || 'localhost';
   const ports = [9998, REF_JETTY_PORT];
   ports.forEach((port) => {
     args.push(
-      `http://localhost:${port}/benchmark?variant=${gridVariantName}&metric=${metricName}`
+      `http://${clientHostname}:${port}/benchmark?variant=${gridVariantName}&metric=${metricName}`
     );
   });
 
