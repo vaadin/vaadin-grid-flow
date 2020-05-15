@@ -24,7 +24,7 @@ process.on('exit', cleanup);
 process.on('SIGINT', cleanup);
 
 const testVariants = [];
-['firefox-headless@http://172.16.0.218:4444/wd/hub', 'chrome-headless@http://172.16.0.218:4444/wd/hub'].forEach((browserName) => {
+['firefox-headless', 'chrome-headless'].forEach((browserName) => {
   [
     'simple',
     'multicolumn',
@@ -138,11 +138,13 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
     resultsPath,
     `${testVariantName}.json`
   );
+  const hubAddress = process.env['HUB_ADDRESS'];
+  const browserParamValue = hubAddress ? `${browserName}@${hubAddress}` : browserName;
   const args = [];
   args.push('--measure', 'global');
   args.push('--sample-size', sampleSize);
   args.push('--json-file', testResultsFilePath);
-  args.push('--browser', browserName);
+  args.push('--browser', browserParamValue);
   let clientHostname = process.env['CLIENT_HOSTNAME'] || 'localhost';
   const ports = [9998, REF_JETTY_PORT];
   ports.forEach((port) => {
