@@ -24,7 +24,7 @@ process.on('exit', cleanup);
 process.on('SIGINT', cleanup);
 
 const testVariants = [];
-['firefox-headless', 'chrome-headless'].forEach((browserName) => {
+['firefox-headless@http://172.16.0.218:4444/wd/hub', 'chrome-headless@http://172.16.0.218:4444/wd/hub'].forEach((browserName) => {
   [
     'simple',
     'multicolumn',
