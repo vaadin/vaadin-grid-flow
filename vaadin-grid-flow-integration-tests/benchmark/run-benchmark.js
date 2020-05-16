@@ -24,7 +24,7 @@ process.on('exit', cleanup);
 process.on('SIGINT', cleanup);
 
 const testVariants = [];
-['firefox-headless', 'chrome-headless'].forEach((browserName) => {
+['firefox-headless'/*, 'chrome-headless'*/].forEach((browserName) => {
   [
     'simple',
     'multicolumn',
@@ -104,7 +104,7 @@ const prepareReferenceGrid = () => {
   });
 
   console.log('Installing the reference grid');
-  execSync(`mvn install -DskipTests`, { cwd: refGridPath });
+  execSync(`mvn -B -q install -DskipTests`, { cwd: refGridPath });
 };
 
 const reportTestResults = (testVariantName, testResultsFilePath) => {
