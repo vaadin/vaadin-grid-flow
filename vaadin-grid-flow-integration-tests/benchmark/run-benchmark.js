@@ -62,7 +62,7 @@ const testVariants = [];
 
 const startJetty = (cwd) => {
   return new Promise((resolve) => {
-    const jetty = spawn('mvn', ['jetty:run'], { cwd });
+    const jetty = spawn('mvn', ['-B', '-q', 'jetty:run'], { cwd });
     processes.push(jetty);
     jetty.stderr.on('data', (data) => console.error(data.toString()));
     jetty.stdout.on('data', (data) => {
@@ -99,7 +99,7 @@ const prepareReferenceGrid = () => {
 
   fs.writeFileSync(pomFile, result, 'utf8');
 
-  execSync(`mvn versions:set -DnewVersion=${REF_GIT_BRANCH}-BENCHMARK`, {
+  execSync(`mvn versions:set -B -q -DnewVersion=${REF_GIT_BRANCH}-BENCHMARK`, {
     cwd: refGridPath,
   });
 
@@ -180,7 +180,7 @@ const run = async () => {
     !fs.existsSync(path.resolve(gridTestPath, 'node_modules', '.bin', 'tach'))
   ) {
     console.log('Installing tachometer');
-    execSync('npm i tachometer@0.4.18', { cwd: gridTestPath });
+    execSync('npm i --quiet tachometer@0.4.18', { cwd: gridTestPath });
   }
 
   for (const testVariant of testVariants) {
