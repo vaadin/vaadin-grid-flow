@@ -12,6 +12,6 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v1.2.0
             - name: Mvn install
-              run: mvn install -DskipTests
+              run: mvn -B -q install -DskipTests
             - name: run script
               run: cd vaadin-grid-flow-integration-tests/benchmark/ && node run-benchmark.js
