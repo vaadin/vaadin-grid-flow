@@ -152,9 +152,10 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
   });
 
   return new Promise((resolve) => {
-    const tach = spawn('node_modules/.bin/tach', args, { cwd: gridTestPath });
-    tach.stderr.on('data', (data) => console.error(data.toString()));
-    tach.stdout.on('data', (data) => console.log(data.toString()));
+    const tach = spawn('node_modules/.bin/tach', args, {
+      cwd: gridTestPath,
+      stdio: [process.stdin, process.stdout, process.stderr],
+    });
     tach.on('close', () => {
       reportTestResults(testVariantName, testResultsFilePath);
       resolve();
