@@ -31,7 +31,6 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.DataGrid;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -2619,9 +2618,9 @@ public class GridDemo extends DemoView {
         // source-example-heading: Using DataView for data manipulation
         List<Person> personList = getItems();
 
-        DataGrid<Person> grid = new DataGrid<>(Person.class);
+        Grid<Person> grid = new Grid<>(Person.class);
         final GridListDataView<Person> dataView = grid
-                .setDataProvider(DataProvider.ofCollection(personList));
+                .setDataProvider(personList);
 
         grid.removeColumnByKey("id");
 

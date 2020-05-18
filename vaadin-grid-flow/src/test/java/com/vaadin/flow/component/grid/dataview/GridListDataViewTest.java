@@ -36,13 +36,13 @@ public class GridListDataViewTest {
         DataProvider<String, Void> dataProvider = DataProvider
                 .fromCallbacks(query -> Arrays.asList("one").stream(),
                         query -> 1);
-        exceptionRule.expect(IllegalArgumentException.class);
+        exceptionRule.expect(IllegalStateException.class);
         exceptionRule.expectMessage(
-                "ListDataView only supports ListDataProviders, but was given a 'AbstractBackEndDataProvider'");
+                "GridListDataView only supports 'ListDataProvider' or it's subclasses, but was given a 'AbstractBackEndDataProvider'");
 
         Grid<String> grid = new Grid<>();
         grid.setDataProvider(dataProvider);
-        new GridListDataViewImpl<String>(grid);
+        new GridListDataView<String>(grid);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class GridListDataViewTest {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
         grid.setDataProvider(DataProvider.ofItems(items));
-        GridListDataView<String> dataView = new GridListDataViewImpl<>(grid);
+        GridListDataView<String> dataView = new GridListDataView<>(grid);
 
         // Test getItemOnRow returns correct item
         Assert.assertEquals("Wrong item returned for row", items[2],
@@ -90,9 +90,9 @@ public class GridListDataViewTest {
 
         // Test containsItem
         Assert.assertTrue("Set item was not found in the data",
-                dataView.dataContainsItem(items[3]));
+                dataView.isItemPresent(items[3]));
         Assert.assertFalse("Non existent item found in data",
-                dataView.dataContainsItem("item6"));
+                dataView.isItemPresent("item6"));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class GridListDataViewTest {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
         grid.setDataProvider(DataProvider.ofItems(items));
-        GridListDataView<String> dataView = new GridListDataViewImpl<>(grid);
+        GridListDataView<String> dataView = new GridListDataView<>(grid);
 
         dataView.withFilter(s -> s.endsWith("4"));
 
@@ -108,10 +108,10 @@ public class GridListDataViewTest {
                 dataView.getDataSize());
 
         Assert.assertTrue("Expected item is missing from filtered data",
-                dataView.dataContainsItem(items[3]));
+                dataView.isItemPresent(items[3]));
         Assert.assertFalse(
                 "Item that should be filtered out is available in the data",
-                dataView.dataContainsItem(items[1]));
+                dataView.isItemPresent(items[1]));
 
         Assert.assertEquals("Wrong item on row for filtered data.", items[3],
                 dataView.getItemOnRow(0));
