@@ -66,8 +66,6 @@ const startJetty = (cwd) => {
     processes.push(jetty);
     jetty.stderr.on('data', (data) => console.error(data.toString()));
     jetty.stdout.on('data', (data) => {
-      console.log(data.toString());
-
       if (data.toString().includes('Frontend compiled successfully')) {
         resolve();
       }
