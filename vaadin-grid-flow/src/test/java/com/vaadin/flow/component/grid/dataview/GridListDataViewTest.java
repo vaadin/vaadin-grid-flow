@@ -16,34 +16,13 @@
 
 package com.vaadin.flow.component.grid.dataview;
 
-import java.util.Arrays;
-
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.DataProvider;
 
 public class GridListDataViewTest {
-
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
-
-    @Test
-    public void dataViewForFaultyDataProvider_throwsException() {
-        DataProvider<String, Void> dataProvider = DataProvider
-                .fromCallbacks(query -> Arrays.asList("one").stream(),
-                        query -> 1);
-        exceptionRule.expect(IllegalStateException.class);
-        exceptionRule.expectMessage(
-                "GridListDataView only supports 'ListDataProvider' or it's subclasses, but was given a 'AbstractBackEndDataProvider'");
-
-        Grid<String> grid = new Grid<>();
-        grid.setDataProvider(dataProvider);
-        new GridListDataView<String>(grid);
-    }
 
     @Test
     public void dataViewWithItems_returnsExpectedItemsForMethods() {
