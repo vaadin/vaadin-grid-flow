@@ -17,6 +17,7 @@ package com.vaadin.flow.component.grid;
 
 import java.util.Collections;
 
+import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.renderer.Renderer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,6 +48,29 @@ public class BeanGridTest {
     public void beanGrid_columnsForPropertiesAddedWithCorrectKeysInAlphabeticalOrder() {
         String[] expectedKeys = new String[] { "born", "friend", "grades",
                 "items", "name" };
+        Object[] keys = grid.getColumns().stream().map(Column::getKey)
+                .toArray();
+
+        Assert.assertArrayEquals("Unexpected columns or column-keys",
+                expectedKeys, keys);
+    }
+
+    @Test
+    public void beanGrid_columnsNotAutoCreatedOnAutoCreateColumnSetToFalse() {
+        grid = new Grid<>(Person.class, false);
+        String[] expectedKeys = new String[0];
+        Object[] keys = grid.getColumns().stream().map(Column::getKey)
+                .toArray();
+
+        Assert.assertArrayEquals("Unexpected columns or column-keys",
+                expectedKeys, keys);
+    }
+
+
+    @Test
+    public void beanTreeGrid_columnsNotAutoCreatedOnAutoCreateColumnSetToFalse() {
+        grid = new TreeGrid<>(Person.class, false);
+        String[] expectedKeys = new String[0];
         Object[] keys = grid.getColumns().stream().map(Column::getKey)
                 .toArray();
 
