@@ -2344,7 +2344,7 @@ public class Grid<T> extends Component
             return (GridListDataView) dataView;
         }
         throw new IllegalStateException(
-                "Required ListDataProvider, but got " + getDataCommunicator()
+                "Required ListDataProvider, but got " + getDataProvider()
                         .getClass().getSuperclass().getSimpleName());
     }
 

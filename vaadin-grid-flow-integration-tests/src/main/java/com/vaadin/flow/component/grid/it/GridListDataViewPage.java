@@ -92,7 +92,6 @@ public class GridListDataViewPage extends Div {
             showPreviousData.setEnabled(rowSelect.getValue() > 0);
             showNextData.setEnabled(rowSelect.getValue() < event.getSize());
         });
-        // end-source-example
 
         rowSelect.setValue(0);
         showPreviousData.setEnabled(false);

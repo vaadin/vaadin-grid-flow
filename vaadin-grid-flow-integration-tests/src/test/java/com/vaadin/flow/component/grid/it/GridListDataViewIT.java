@@ -36,14 +36,6 @@ import static com.vaadin.flow.component.grid.it.GridListDataViewPage.SHOW_PREVIO
 @TestPath("gridlistdataviewpage")
 public class GridListDataViewIT extends AbstractComponentIT {
 
-    //    public static final String ITEM_COUNT = "itemCount";
-    //    public static final String ITEM_DATA = "itemData";
-    //    public static final String ROW_SELECT = "rowSelect";
-    //    public static final String SHOW_ITEM_DATA = "showItemData";
-    //    public static final String SHOW_NEXT_DATA = "showNextData";
-    //    public static final String SHOW_PREVIOUS_DATA = "showPreviousData";
-    //    public static final String FIRST_NAME_FILTER = "firstNameFilter";
-
     @Test
     public void gridDataViewReturnsExpectedData() {
         open();
