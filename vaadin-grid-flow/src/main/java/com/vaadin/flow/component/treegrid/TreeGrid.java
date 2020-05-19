@@ -172,9 +172,9 @@ public class TreeGrid<T> extends Grid<T>
     }
 
     /**
-     * Creates a new {@code TreeGrid} with an initial set of columns for each of
-     * the bean's properties. The property-values of the bean will be converted
-     * to Strings. Full names of the properties will be used as the
+     * Creates a new {@code TreeGrid}, optionally with an initial set of columns
+     * for each of the bean's properties. The property-values of the bean will
+     * be converted to Strings. Full names of the properties will be used as the
      * {@link Column#setKey(String) column keys} and the property captions will
      * be used as the {@link Column#setHeader(String) column headers}.
      *
