@@ -221,4 +221,9 @@ public class BeanGridTest {
         Assert.assertEquals(Person.class, grid.getBeanType());
     }
 
+    @Test
+    public void testHeaderBarMissing() {
+        grid = new Grid<>(Person.class, false);
+        Assert.assertEquals(1, grid.getHeaderRows().size());
+    }
 }

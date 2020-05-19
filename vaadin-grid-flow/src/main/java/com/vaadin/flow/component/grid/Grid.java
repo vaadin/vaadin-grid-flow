@@ -1331,6 +1331,8 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
         addDragStartListener(this::onDragStart);
         addDragEndListener(this::onDragEnd);
+
+        appendHeaderRow();
     }
 
     private void generateUniqueKeyData(T item, JsonObject jsonObject) {

@@ -66,8 +66,8 @@ public class HeaderFooterTest {
     }
 
     @Test
-    public void initGrid_noHeaderFooterRows() {
-        Assert.assertEquals("Grid should not have header rows initially", 0,
+    public void initGrid_oneHeaderNoFooterRows() {
+        Assert.assertEquals("Grid should have 1 header row initially", 1,
                 grid.getHeaderRows().size());
         Assert.assertEquals("Grid should not have footer rows initially", 0,
                 grid.getFooterRows().size());
@@ -113,7 +113,7 @@ public class HeaderFooterTest {
 
     @Test
     public void appendHeaderRows_firstOnTop() {
-        HeaderRow first = grid.appendHeaderRow();
+        HeaderRow first = grid.getHeaderRows().get(0);
         HeaderRow second = grid.appendHeaderRow();
 
         List<List<Element>> layers = getColumnLayersAndAssertCount(2);
@@ -123,7 +123,7 @@ public class HeaderFooterTest {
 
     @Test
     public void prependHeaderRows_firstOnBottom() {
-        HeaderRow first = grid.prependHeaderRow();
+        HeaderRow first = grid.getHeaderRows().get(0);
         HeaderRow second = grid.prependHeaderRow();
 
         List<List<Element>> layers = getColumnLayersAndAssertCount(2);
@@ -153,7 +153,7 @@ public class HeaderFooterTest {
 
     @Test
     public void addHeaderRows_addFooterRows_footersOnLowerLayer() {
-        HeaderRow h1 = grid.prependHeaderRow();
+        HeaderRow h1 = grid.getHeaderRows().get(0);
         HeaderRow h2 = grid.prependHeaderRow();
 
         FooterRow f1 = grid.appendFooterRow();
@@ -174,7 +174,7 @@ public class HeaderFooterTest {
         FooterRow f1 = grid.appendFooterRow();
         FooterRow f2 = grid.appendFooterRow();
 
-        HeaderRow h1 = grid.prependHeaderRow();
+        HeaderRow h1 = grid.getHeaderRows().get(0);
         HeaderRow h2 = grid.prependHeaderRow();
 
         List<List<Element>> layers = getColumnLayersAndAssertCount(3);
@@ -191,7 +191,7 @@ public class HeaderFooterTest {
     public void addHeaderAndFooterRows_addColumns_rowsUpdatedToWrapCorrectElements() {
         grid = new Grid<>();
 
-        HeaderRow h1 = grid.prependHeaderRow();
+        HeaderRow h1 = grid.getHeaderRows().get(0);
         HeaderRow h2 = grid.prependHeaderRow();
 
         FooterRow f1 = grid.appendFooterRow();
@@ -211,7 +211,7 @@ public class HeaderFooterTest {
 
     @Test
     public void joinTwoFirstHeaderCells() {
-        HeaderRow bottom = grid.prependHeaderRow();
+        HeaderRow bottom = grid.getHeaderRows().get(0);
         HeaderRow top = grid.prependHeaderRow();
         HeaderCell lastCell = top.getCells().get(2);
         HeaderCell joined = top.join(firstColumn, secondColumn);
@@ -233,7 +233,7 @@ public class HeaderFooterTest {
 
     @Test
     public void joinTwoLastHeaderCells() {
-        HeaderRow bottom = grid.prependHeaderRow();
+        HeaderRow bottom = grid.getHeaderRows().get(0);
         HeaderRow top = grid.prependHeaderRow();
         HeaderCell firstCell = top.getCells().get(0);
         HeaderCell joined = top.join(secondColumn, thirdColumn);
@@ -300,7 +300,6 @@ public class HeaderFooterTest {
     @Test
     public void joinTwoFirstHeaderCellsOnLowerLayer_layerMovedToTop() {
         grid.appendFooterRow();
-        grid.prependHeaderRow();
 
         FooterRow footer = grid.appendFooterRow();
         HeaderRow header = grid.prependHeaderRow();
@@ -324,7 +323,6 @@ public class HeaderFooterTest {
     @Test
     public void joinTwoLastHeaderCellsOnLowerLayer_layerMovedToTop() {
         grid.appendFooterRow();
-        grid.prependHeaderRow();
 
         FooterRow footer = grid.appendFooterRow();
         HeaderRow header = grid.prependHeaderRow();
@@ -348,7 +346,6 @@ public class HeaderFooterTest {
     @Test
     public void joinAllHeaderCellsOnLowerLayer_layerMovedToTop() {
         grid.appendFooterRow();
-        grid.prependHeaderRow();
 
         FooterRow footer = grid.appendFooterRow();
         HeaderRow header = grid.prependHeaderRow();
@@ -367,7 +364,6 @@ public class HeaderFooterTest {
     @Test
     public void joinAllFooterCellsOnLowerLayer_layerMovedToTop() {
         grid.appendFooterRow();
-        grid.prependHeaderRow();
 
         HeaderRow header = grid.prependHeaderRow();
         FooterRow footer = grid.appendFooterRow();
@@ -386,7 +382,6 @@ public class HeaderFooterTest {
     @Test
     public void joinFooters_joinHeadersForSameColumns_headersNotMoved() {
         grid.appendFooterRow();
-        grid.prependHeaderRow();
 
         HeaderRow header = grid.prependHeaderRow();
         FooterRow footer = grid.appendFooterRow();
@@ -407,7 +402,6 @@ public class HeaderFooterTest {
     @Test
     public void joinFooters_joinHeadersForMoreColumns_headersMovedToTop() {
         grid.appendFooterRow();
-        grid.prependHeaderRow();
 
         HeaderRow header = grid.prependHeaderRow();
         FooterRow footer = grid.appendFooterRow();
@@ -428,7 +422,6 @@ public class HeaderFooterTest {
     @Test
     public void joinFooters_joinHeadersForConflictingColumns_throws() {
         grid.appendFooterRow();
-        grid.prependHeaderRow();
 
         HeaderRow header = grid.prependHeaderRow();
         FooterRow footer = grid.appendFooterRow();
@@ -443,7 +436,6 @@ public class HeaderFooterTest {
 
     @Test
     public void joinHeaders_prependRow_newRowHasJoinedCellAlso() {
-        grid.prependHeaderRow();
         HeaderRow header = grid.prependHeaderRow();
         header.join(firstColumn, secondColumn);
 
@@ -469,7 +461,7 @@ public class HeaderFooterTest {
     @Test
     public void addHeaderRow_joinHeaderCells_addFooterRow_joinFooterCells_repeat() {
         FooterRow footer0 = grid.appendFooterRow();
-        HeaderRow header0 = grid.prependHeaderRow();
+        HeaderRow header0 = grid.getHeaderRows().get(0);
 
         HeaderRow header1 = grid.prependHeaderRow();
         header1.join(firstColumn, secondColumn);
@@ -505,7 +497,7 @@ public class HeaderFooterTest {
 
     @Test
     public void getHeaderRows_orderFromTopToBottom() {
-        HeaderRow row1 = grid.prependHeaderRow();
+        HeaderRow row1 = grid.getHeaderRows().get(0);
         assertHeaderRowOrder(row1);
 
         HeaderRow row2 = grid.prependHeaderRow();
@@ -588,7 +580,7 @@ public class HeaderFooterTest {
 
     @Test
     public void addHeadersAndFooters_removeColumn_cellsAreRemoved() {
-        HeaderRow header = grid.prependHeaderRow();
+        HeaderRow header = grid.getHeaderRows().get(0);
         FooterRow footer = grid.appendFooterRow();
         grid.removeColumn(secondColumn);
 
@@ -604,7 +596,7 @@ public class HeaderFooterTest {
 
     @Test
     public void addHeader_joinCells_removeColumn_joinedCellRemains() {
-        HeaderRow bottomHeader = grid.prependHeaderRow();
+        HeaderRow bottomHeader = grid.getHeaderRows().get(0);
         HeaderRow topHeader = grid.prependHeaderRow();
 
         HeaderCell joinedCell = topHeader.join(firstColumn, secondColumn);

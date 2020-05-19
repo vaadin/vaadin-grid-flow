@@ -157,7 +157,6 @@ public class GridColumnOrderTest {
 
     @Test
     public void joiningHeadersWorkAfterReordering1() {
-        grid.appendHeaderRow();
         final HeaderRow header = grid.prependHeaderRow();
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
         assertEquals("(fourthColumn), (thirdColumn), (secondColumn), (firstColumn)", dumpColumnHierarchyFromDOM());
@@ -167,7 +166,6 @@ public class GridColumnOrderTest {
 
     @Test
     public void joiningHeadersWorkAfterReordering2() {
-        grid.appendHeaderRow();
         final HeaderRow header = grid.prependHeaderRow();
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
         assertEquals("(fourthColumn), (thirdColumn), (secondColumn), (firstColumn)", dumpColumnHierarchyFromDOM());
@@ -179,7 +177,6 @@ public class GridColumnOrderTest {
     public void joiningHeadersWorkAfterReordering3() {
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
         assertEquals("fourthColumn, thirdColumn, secondColumn, firstColumn", dumpColumnHierarchyFromDOM());
-        grid.appendHeaderRow();
         final HeaderRow header = grid.prependHeaderRow();
         header.join(secondColumn, firstColumn);
         assertEquals("(fourthColumn), (thirdColumn), (secondColumn, firstColumn)", dumpColumnHierarchyFromDOM());
@@ -189,7 +186,6 @@ public class GridColumnOrderTest {
     public void joiningHeadersWorkAfterReordering4() {
         grid.setColumnOrder(fourthColumn, thirdColumn, secondColumn, firstColumn);
         assertEquals("fourthColumn, thirdColumn, secondColumn, firstColumn", dumpColumnHierarchyFromDOM());
-        grid.appendHeaderRow();
         final HeaderRow header = grid.prependHeaderRow();
         header.join(secondColumn, thirdColumn);
         assertEquals("(fourthColumn), (thirdColumn, secondColumn), (firstColumn)", dumpColumnHierarchyFromDOM());
