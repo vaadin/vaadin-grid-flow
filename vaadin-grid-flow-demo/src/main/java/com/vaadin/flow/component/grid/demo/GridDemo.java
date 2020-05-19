@@ -1095,13 +1095,9 @@ public class GridDemo extends DemoView {
         maritalStatus.setItems(MaritalStatus.values());
         birthDateField = new DatePicker("Filter by birth date: ");
 
-        maritalStatus.addValueChangeListener(event -> {
-            applyFilter(dataView);
-        });
+        maritalStatus.addValueChangeListener(event -> applyFilter(dataView));
 
-        birthDateField.addValueChangeListener(event -> {
-            applyFilter(dataView);
-        });
+        birthDateField.addValueChangeListener(event -> applyFilter(dataView));
 
         layout.add(maritalStatus, birthDateField, grid);
         return layout;
@@ -1428,18 +1424,15 @@ public class GridDemo extends DemoView {
                 streetColumn, postalCodeColumn);
 
         // Create and add buttons
-        Button lessThanTwentyYearsold = new Button("-20 years old", event -> {
-            dataView.withFilter(person -> person.getAge() < 20);
-        });
+        Button lessThanTwentyYearsold = new Button("-20 years old",
+                event -> dataView.withFilter(person -> person.getAge() < 20));
 
-        Button twentyToForty = new Button("Between 20-40 years old", event -> {
-            dataView.withFilter(
-                    person -> (person.getAge() >= 20 && person.getAge() <= 40));
-        });
+        Button twentyToForty = new Button("Between 20-40 years old",
+                event -> dataView.withFilter(person -> (person.getAge() >= 20
+                        && person.getAge() <= 40)));
 
-        Button overForty = new Button("+40 years old", event -> {
-            dataView.withFilter(person -> person.getAge() > 40);
-        });
+        Button overForty = new Button("+40 years old",
+                event -> dataView.withFilter(person -> person.getAge() > 40));
 
         HorizontalLayout filter = new HorizontalLayout(lessThanTwentyYearsold,
                 twentyToForty, overForty);
@@ -1567,11 +1560,10 @@ public class GridDemo extends DemoView {
         return grid;
     }
 
-    private Button createRemoveButton(GridListDataView<Person> dataView, Person item) {
-        @SuppressWarnings("unchecked")
-        Button button = new Button("Remove", clickEvent -> {
-            dataView.removeItem(item);
-        });
+    private Button createRemoveButton(GridListDataView<Person> dataView,
+            Person item) {
+        Button button = new Button("Remove",
+                clickEvent -> dataView.removeItem(item));
         return button;
     }
 
@@ -2652,8 +2644,7 @@ public class GridDemo extends DemoView {
 
     private List<Person> getItems() {
         PersonService personService = new PersonService();
-        List<Person> personList = personService.fetchAll();
-        return personList;
+        return personService.fetchAll();
     }
 
     private static List<Person> createItems() {
