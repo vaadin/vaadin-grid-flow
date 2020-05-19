@@ -127,9 +127,14 @@ public class GridListDataView<T> extends AbstractListDataView<T>
     }
 
     private void validateRowIndex(int rowIndex) {
-        if (rowIndex < 0 || rowIndex >= getDataSize()) {
+        if (getDataSize() == 0) {
             throw new IndexOutOfBoundsException(
-                    String.format("Give row %d is outside of the accepted range '0 - %d'",rowIndex,getDataSize()-1));
+                    String.format("Requested row %d on empty data.", rowIndex));
+        }
+        if (rowIndex < 0 || rowIndex >= getDataSize()) {
+            throw new IndexOutOfBoundsException(String.format(
+                    "Give row %d is outside of the accepted range '0 - %d'",
+                    rowIndex, getDataSize() - 1));
         }
     }
 

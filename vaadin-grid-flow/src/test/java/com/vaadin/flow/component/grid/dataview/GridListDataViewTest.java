@@ -16,6 +16,8 @@
 
 package com.vaadin.flow.component.grid.dataview;
 
+import java.util.ArrayList;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,6 +25,7 @@ import org.junit.rules.ExpectedException;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 
 public class GridListDataViewTest {
 
@@ -51,6 +54,17 @@ public class GridListDataViewTest {
                 .setDataProvider("one", "two", "three", "four");
 
         dataView.getItemOnRow(-7);
+    }
+    @Test
+    public void dataViewWithoutItems_exceptionThrown() {
+        expectedException.expect(IndexOutOfBoundsException.class);
+        expectedException.expectMessage("Requested row 5 on empty data.");
+
+        Grid<String> grid = new Grid<>();
+        GridListDataView<String> dataView = grid
+                .setDataProvider(new ListDataProvider<>(new ArrayList<>()));
+
+        dataView.getItemOnRow(5);
     }
 
     @Test
