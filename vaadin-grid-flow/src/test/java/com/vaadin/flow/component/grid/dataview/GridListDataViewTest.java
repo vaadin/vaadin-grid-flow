@@ -17,12 +17,41 @@
 package com.vaadin.flow.component.grid.dataview;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.DataProvider;
 
 public class GridListDataViewTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    @Test
+    public void dataViewWithItem_rowOutsideSetRequested_exceptionThrown() {
+        expectedException.expect(IndexOutOfBoundsException.class);
+        expectedException.expectMessage("Give row 7 is outside of the accepted range '0 - 3'");
+
+        Grid<String> grid = new Grid<>();
+        GridListDataView<String> dataView = grid
+                .setDataProvider("one", "two", "three", "four");
+
+        dataView.getItemOnRow(7);
+    }
+
+    @Test
+    public void dataViewWithItem_negativeRowRequested_exceptionThrown() {
+        expectedException.expect(IndexOutOfBoundsException.class);
+        expectedException.expectMessage("Give row -7 is outside of the accepted range '0 - 3'");
+
+        Grid<String> grid = new Grid<>();
+        GridListDataView<String> dataView = grid
+                .setDataProvider("one", "two", "three", "four");
+
+        dataView.getItemOnRow(-7);
+    }
 
     @Test
     public void dataViewWithItems_returnsExpectedItemsForMethods() {
