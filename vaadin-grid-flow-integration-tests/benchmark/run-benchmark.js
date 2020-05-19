@@ -2,6 +2,19 @@ const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+const options = (args => {
+    const result = {};
+    for(let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        let property;
+        if (arg === "--browser") property = "browser";
+        else if(arg === "--huburl") property = "huburl";
+    
+        if(property) result[property] = args[++i];
+    }
+    return result;
+})(process.argv.slice(2));
+
 const GRID_DIR = '../../';
 const REF_GRID_DIR = './reference-clone';
 const TEST_DIR = 'vaadin-grid-flow-integration-tests';
@@ -24,7 +37,8 @@ process.on('exit', cleanup);
 process.on('SIGINT', cleanup);
 
 const testVariants = [];
-['firefox-headless'/*, 'chrome-headless'*/].forEach((browserName) => {
+const browsers = options.browser ? [options.browser] : ['firefox-headless', 'chrome-headless'];
+browsers.forEach((browserName) => {
   [
     'simple',
     'multicolumn',
@@ -136,7 +150,7 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
     resultsPath,
     `${testVariantName}.json`
   );
-  const hubAddress = process.env['HUB_ADDRESS'];
+  const hubAddress = options.huburl;
   const browserParamValue = hubAddress ? `${browserName}@${hubAddress}` : browserName;
   const args = [];
   args.push('--measure', 'global');
