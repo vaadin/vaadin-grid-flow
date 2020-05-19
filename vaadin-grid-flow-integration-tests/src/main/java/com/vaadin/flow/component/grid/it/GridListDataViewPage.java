@@ -79,12 +79,17 @@ public class GridListDataViewPage extends Div {
         showNextData.setId(SHOW_NEXT_DATA);
         Button showPreviousData = new Button("Previous person",
                 event -> itemData.setText("Item: " + dataView.getPreviousItem(
-                        dataView.getItemOnRow(rowSelect.getValue())).getFirstName()));
+                        dataView.getItemOnRow(rowSelect.getValue()))
+                        .getFirstName()));
         showPreviousData.setId(SHOW_PREVIOUS_DATA);
         TextField filterByFirstName = new TextField("Firstname filter",
-                event -> dataView.withFilter(
-                        item -> item.getFirstName().toLowerCase()
-                                .contains(event.getValue().toLowerCase())));
+                event -> {
+                    dataView.withFilter(
+                            item -> item.getFirstName().toLowerCase()
+                                    .contains(event.getValue().toLowerCase()));
+                    // TODO: this is not needed after size change events are fired.
+                    count.setText(Integer.toString(dataView.getDataSize()));
+                });
         filterByFirstName.setId(FIRST_NAME_FILTER);
 
         dataView.addSizeChangeListener(event -> {

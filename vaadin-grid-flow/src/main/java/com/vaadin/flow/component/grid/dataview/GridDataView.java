@@ -47,7 +47,7 @@ public interface GridDataView<T> extends DataView<T> {
     T getItemOnRow(int rowIndex);
 
     /**
-     * Select an item at the given row index.
+     * Select an item at the given row index and scroll row into view.
      *
      * @param rowIndex
      *         row index to select item at

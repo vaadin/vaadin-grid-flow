@@ -24,7 +24,6 @@ import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataController;
 import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.provider.SizeChangeEvent;
 import com.vaadin.flow.data.provider.SizeChangeListener;
 import com.vaadin.flow.shared.Registration;
 
@@ -53,9 +52,9 @@ public class GridDataController<T> implements DataController<T> {
     }
 
     /**
-     * Get the currently
+     * Get the currently active sorted items that have been sent to the client.
      *
-     * @return
+     * @return items sent to the client
      */
     public Stream<T> getCurrentItems() {
         final DataKeyMapper<T> keyMapper = dataCommunicator.getKeyMapper();
@@ -89,23 +88,15 @@ public class GridDataController<T> implements DataController<T> {
     }
 
     /**
-     * Fire a size change event to all registered listeners.
-     */
-    public void fireSizeChangeEvent() {
-        if (listeners != null) {
-            SizeChangeEvent<Grid> event = new SizeChangeEvent<>(grid,
-                    getDataSize());
-            listeners.forEach(listener -> listener.sizeChanged(event));
-        }
-    }
-
-    /**
      * Select given item in controller grid component.
      *
      * @param item
      *         item to select
+     * @param rowIndex
+     *         index of item
      */
-    public void select(T item) {
+    public void selectAndScrollTo(T item, int rowIndex) {
         grid.select(item);
+        grid.scrollToIndex(rowIndex);
     }
 }

@@ -61,11 +61,11 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -610,7 +610,6 @@ public class GridDemo extends DemoView {
         createProgrammaticSelect();
         createGridWithSortableColumns();// Sorting
         createGridWithTextFieldFilters();// Filtering
-        createGridWithFilters();
         createGridWithDataTypeSpecificFilters();
         createConfiguringColumns();// Configuring Columns
         createManuallyDefiningColumns();
@@ -641,7 +640,7 @@ public class GridDemo extends DemoView {
         createDropLocations();
         createDragData();
         createDragDropFilters();
-        createDataView(); // DataView usage demo
+        createExternalDataNavigation();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));
@@ -800,7 +799,8 @@ public class GridDemo extends DemoView {
         // discouraged to avoid performance issues.
         grid.setHeightByRows(true);
 
-        grid.setItems(personList);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(personList);
 
         Grid.Column<Person> firstNameColumn = grid
                 .addColumn(Person::getFirstName).setHeader("First Name");
@@ -809,27 +809,15 @@ public class GridDemo extends DemoView {
         Grid.Column<Person> ageColumn = grid.addColumn(Person::getAge)
                 .setHeader("Age");
 
-        @SuppressWarnings("unchecked")
-        ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
-                .getDataProvider();
-
         Button addButton = new Button("Add Item", event -> {
-
-            dataProvider.getItems().add(new Person(106, "X", "Y", 16,
+            dataView.addItem(new Person(106, "X", "Y", 16,
                     new Address("95632", "New York"), "187-338-588"));
-            // The dataProvider knows which List it is based on, so when you
-            // edit the list
-            // you edit the dataprovider.
-            grid.getDataProvider().refreshAll();
-
         });
 
         Button removeButton = new Button("Remove last", event -> {
-
             personList.remove(personList.size() - 1);
             // The dataProvider knows which List it is based on, so when you
-            // edit the list
-            // you edit the dataprovider.
+            // edit the list you edit the dataprovider.
             grid.getDataProvider().refreshAll();
         });
 
@@ -1012,9 +1000,8 @@ public class GridDemo extends DemoView {
         // source-example-heading: Using text fields for filtering items
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
-        ListDataProvider<Person> dataProvider = new ListDataProvider<>(
-                personList);
-        grid.setDataProvider(dataProvider);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(personList);
 
         Grid.Column<Person> firstNameColumn = grid
                 .addColumn(Person::getFirstName).setHeader("Name");
@@ -1030,7 +1017,7 @@ public class GridDemo extends DemoView {
         HeaderRow filterRow = grid.appendHeaderRow();
         // First filter
         TextField firstNameField = new TextField();
-        firstNameField.addValueChangeListener(event -> dataProvider.addFilter(
+        firstNameField.addValueChangeListener(event -> dataView.addFilter(
                 person -> StringUtils.containsIgnoreCase(person.getFirstName(),
                         firstNameField.getValue())));
 
@@ -1042,9 +1029,10 @@ public class GridDemo extends DemoView {
 
         // Second filter
         TextField ageField = new TextField();
-        ageField.addValueChangeListener(event -> dataProvider
-                .addFilter(person -> StringUtils.containsIgnoreCase(
-                        String.valueOf(person.getAge()), ageField.getValue())));
+        ageField.addValueChangeListener(event -> dataView.addFilter(
+                person -> StringUtils
+                        .containsIgnoreCase(String.valueOf(person.getAge()),
+                                ageField.getValue())));
 
         ageField.setValueChangeMode(ValueChangeMode.EAGER);
 
@@ -1054,9 +1042,10 @@ public class GridDemo extends DemoView {
 
         // Third filter
         TextField cityField = new TextField();
-        cityField.addValueChangeListener(event -> dataProvider
-                .addFilter(person -> StringUtils.containsIgnoreCase(
-                        person.getAddress().getCity(), cityField.getValue())));
+        cityField.addValueChangeListener(event -> dataView.addFilter(
+                person -> StringUtils
+                        .containsIgnoreCase(person.getAddress().getCity(),
+                                cityField.getValue())));
 
         cityField.setValueChangeMode(ValueChangeMode.EAGER);
 
@@ -1066,8 +1055,8 @@ public class GridDemo extends DemoView {
 
         // Fourth filter
         TextField postalCodeField = new TextField();
-        postalCodeField.addValueChangeListener(
-                event -> dataProvider.addFilter(person -> StringUtils
+        postalCodeField.addValueChangeListener(event -> dataView.addFilter(
+                person -> StringUtils
                         .containsIgnoreCase(person.getAddress().getPostalCode(),
                                 postalCodeField.getValue())));
 
@@ -1093,9 +1082,8 @@ public class GridDemo extends DemoView {
         List<Person> personList = personService.fetchAll();
 
         Grid<Person> grid = new Grid<>();
-        ListDataProvider<Person> dataProvider = new ListDataProvider<>(
-                personList);
-        grid.setDataProvider(dataProvider);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(personList);
 
         grid.addColumn(Person::getFirstName).setHeader("Name");
         grid.addColumn(Person::getAge).setHeader("Age");
@@ -1108,11 +1096,11 @@ public class GridDemo extends DemoView {
         birthDateField = new DatePicker("Filter by birth date: ");
 
         maritalStatus.addValueChangeListener(event -> {
-            applyFilter(dataProvider);
+            applyFilter(dataView);
         });
 
         birthDateField.addValueChangeListener(event -> {
-            applyFilter(dataProvider);
+            applyFilter(dataView);
         });
 
         layout.add(maritalStatus, birthDateField, grid);
@@ -1120,13 +1108,13 @@ public class GridDemo extends DemoView {
 
     }
 
-    private void applyFilter(ListDataProvider<Person> dataProvider) {
-        dataProvider.clearFilters();
+    private void applyFilter(GridListDataView<Person> dataView) {
+        dataView.clearFilters();
         if (birthDateField.getValue() != null)
-            dataProvider.addFilter(person -> Objects
+            dataView.addFilter(person -> Objects
                     .equals(birthDateField.getValue(), person.getBirthDate()));
         if (maritalStatus.getValue() != null)
-            dataProvider.addFilter(person -> maritalStatus.getValue() == person
+            dataView.addFilter(person -> maritalStatus.getValue() == person
                     .getMaritalStatus());
     }
     // end-source-example
@@ -1349,10 +1337,11 @@ public class GridDemo extends DemoView {
 
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
-        grid.setItems(personList);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(personList);
 
         grid.addColumn(Person::getFirstName).setHeader("First Name")
-                .setFooter("Total: " + personList.size() + " people");
+                .setFooter("Total: " + dataView.getDataSize() + " people");
 
         long averageOfAge = Math.round(personList.stream()
                 .mapToInt(Person::getAge).average().orElse(0));
@@ -1416,12 +1405,9 @@ public class GridDemo extends DemoView {
         // begin-source-example
         // source-example-heading: Using components
         List<Person> personList = getItems();
-
-        ListDataProvider<Person> dataProvider = DataProvider
-                .ofCollection(personList);
-
         Grid<Person> grid = new Grid<>();
-        grid.setDataProvider(dataProvider);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(personList);
 
         Grid.Column<Person> nameColumn = grid.addColumn(Person::getFirstName)
                 .setHeader(new Label("Name")).setComparator((p1, p2) -> p1
@@ -1443,16 +1429,16 @@ public class GridDemo extends DemoView {
 
         // Create and add buttons
         Button lessThanTwentyYearsold = new Button("-20 years old", event -> {
-            dataProvider.setFilter(person -> person.getAge() < 20);
+            dataView.withFilter(person -> person.getAge() < 20);
         });
 
         Button twentyToForty = new Button("Between 20-40 years old", event -> {
-            dataProvider.setFilter(
+            dataView.withFilter(
                     person -> (person.getAge() >= 20 && person.getAge() <= 40));
         });
 
         Button overForty = new Button("+40 years old", event -> {
-            dataProvider.setFilter(person -> person.getAge() > 40);
+            dataView.withFilter(person -> person.getAge() > 40);
         });
 
         HorizontalLayout filter = new HorizontalLayout(lessThanTwentyYearsold,
@@ -1566,27 +1552,25 @@ public class GridDemo extends DemoView {
         // source-example-heading: Using Components
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
-        grid.setItems(personList);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(personList);
 
         // Use the component constructor that accepts an item ->
         // new PersonComponent(Person person)
         grid.addComponentColumn(PersonComponent::new).setHeader("Person");
 
         // Or you can use an ordinary function to setup the component
-        grid.addComponentColumn(item -> createRemoveButton(grid, item))
+        grid.addComponentColumn(item -> createRemoveButton(dataView, item))
                 .setHeader("Actions");
 
         grid.setSelectionMode(Grid.SelectionMode.NONE);
         return grid;
     }
 
-    private Button createRemoveButton(Grid<Person> grid, Person item) {
+    private Button createRemoveButton(GridListDataView<Person> dataView, Person item) {
         @SuppressWarnings("unchecked")
         Button button = new Button("Remove", clickEvent -> {
-            ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
-                    .getDataProvider();
-            dataProvider.getItems().remove(item);
-            dataProvider.refreshAll();
+            dataView.removeItem(item);
         });
         return button;
     }
@@ -1675,6 +1659,67 @@ public class GridDemo extends DemoView {
         addCard("Item details", "Open details programmatically", header, grid);
     }
 
+    // begin-source-example
+    // source-example-heading: Navigating grid items externally
+    // Clicking on item in grid opens dialog for item navigation
+    private Grid createExternalDataNavigationGrid() {
+        Grid<Person> grid = new Grid<>(Person.class);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(new PersonService().fetchAll());
+
+        grid.removeColumnByKey("id");
+
+        // The Grid<>(Person.class) sorts the properties and in order to
+        // reorder the properties we use the 'setColumns' method.
+        grid.setColumns("firstName", "lastName", "age", "address",
+                "phoneNumber");
+
+        grid.addItemClickListener(
+                event -> new DataDialog(dataView, event.getItem()).open());
+
+        return grid;
+    }
+
+    private class DataDialog extends Dialog {
+        private Button next;
+        private Button previous;
+        private Person currentItem;
+        private final GridListDataView<Person> dataView;
+        private Span data = new Span();
+
+        public DataDialog(GridListDataView<Person> dataView, Person item) {
+            this.dataView = dataView;
+            next = new Button("Next",
+                    event -> setItem(dataView.getNextItem(currentItem)));
+            previous = new Button("Previous",
+                    event -> setItem(dataView.getPreviousItem(currentItem)));
+            setItem(item);
+            setModal(true);
+            HorizontalLayout layout = new HorizontalLayout(previous, data, next);
+            layout.expand(data);
+            layout.setAlignItems(FlexComponent.Alignment.CENTER);
+            layout.setWidth("400px");
+            add(new VerticalLayout(new Span("Click outside to close"), layout));
+        }
+
+        private void setItem(Person item) {
+            currentItem = item;
+            data.setText(String.format("%s %s", item.getFirstName(), item.getLastName()));
+            next.setEnabled(dataView.hasNextItem(currentItem));
+            previous.setEnabled(dataView.hasPreviousItem(currentItem));
+        }
+    }
+    // end-source-example
+
+    private void createExternalDataNavigation() {
+        Grid grid = createExternalDataNavigationGrid();
+        grid.setId("external-item-navigation");
+        addCard("Item details", "Navigating grid items externally", grid);
+
+    }
+
+
+
     // Context Menu begin
     private void createContextMenu() {
         TextArea message = new TextArea("");
@@ -1746,10 +1791,8 @@ public class GridDemo extends DemoView {
         // source-example-heading: Using Context Sub Menu With Grid
         Grid<Person> grid = new Grid<>();
 
-        ListDataProvider<Person> dataProvider = DataProvider
-                .ofCollection(new PersonService().fetchAll());
-
-        grid.setDataProvider(dataProvider);
+        final GridListDataView<Person> dataView = grid
+                .setDataProvider(new PersonService().fetchAll());
 
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
@@ -1762,9 +1805,9 @@ public class GridDemo extends DemoView {
                 // no selected row
                 return;
             }
-            List<Person> items = (List) dataProvider.getItems();
+            List<Person> items = dataView.getItems();
             items.add(items.indexOf(item.get()), createItems(1).get(0));
-            dataProvider.refreshAll();
+            grid.getDataProvider().refreshAll();
         });
         insert.getSubMenu().add(new Hr());
         insert.getSubMenu().addItem("Insert a row below", event -> {
@@ -1773,9 +1816,9 @@ public class GridDemo extends DemoView {
                 // no selected row
                 return;
             }
-            List<Person> items = (List) dataProvider.getItems();
+            List<Person> items = dataView.getItems();
             items.add(items.indexOf(item.get()) + 1, createItems(1).get(0));
-            dataProvider.refreshAll();
+            grid.getDataProvider().refreshAll();
         });
         // end-source-example
         grid.setId("context-sub-menu-grid");
@@ -1790,10 +1833,8 @@ public class GridDemo extends DemoView {
         // begin-source-example
         // source-example-heading: Dynamic Context Menu
         Grid<Task> grid = new Grid<>();
-        ListDataProvider<Task> dataProvider = DataProvider
-                .ofCollection(taskData.getTasks());
 
-        grid.setDataProvider(dataProvider);
+        grid.setDataProvider(taskData.getTasks());
         grid.addColumn(Task::getName).setHeader("Task Name");
         grid.addColumn(Task::getDueDate).setHeader("Due Date");
         GridContextMenu<Task> contextMenu = new GridContextMenu<>(grid);
@@ -2321,21 +2362,17 @@ public class GridDemo extends DemoView {
             }
 
             // Remove the items from the source grid
-            @SuppressWarnings("unchecked")
-            ListDataProvider<Person> sourceDataProvider = (ListDataProvider<Person>) dragSource
-                    .getDataProvider();
-            List<Person> sourceItems = new ArrayList<>(
-                    sourceDataProvider.getItems());
+            final GridListDataView<Person> sourceDataView = dragSource
+                    .getListDataView();
+            List<Person> sourceItems = sourceDataView.getItems();
             sourceItems.removeAll(draggedItems);
             dragSource.setItems(sourceItems);
 
             // Add dragged items to the target Grid
             Grid<Person> targetGrid = event.getSource();
-            @SuppressWarnings("unchecked")
-            ListDataProvider<Person> targetDataProvider = (ListDataProvider<Person>) targetGrid
-                    .getDataProvider();
-            List<Person> targetItems = new ArrayList<>(
-                    targetDataProvider.getItems());
+            final GridListDataView<Person> targetDataView = targetGrid
+                    .getListDataView();
+            List<Person> targetItems = targetDataView.getItems();
 
             int index = target.map(person -> targetItems.indexOf(person)
                     + (event.getDropLocation() == GridDropLocation.BELOW ? 1
@@ -2611,76 +2648,6 @@ public class GridDemo extends DemoView {
         VerticalLayout vl = new VerticalLayout(new Label("Supervisors"), grid);
 
         addCard("Drag and Drop", "Drag and Drop Filters", vl);
-    }
-
-    private void createDataView() {
-        // begin-source-example
-        // source-example-heading: Using DataView for data manipulation
-        List<Person> personList = getItems();
-
-        Grid<Person> grid = new Grid<>(Person.class);
-        final GridListDataView<Person> dataView = grid
-                .setDataProvider(personList);
-
-        grid.removeColumnByKey("id");
-
-        // The Grid<>(Person.class) sorts the properties and in order to
-        // reorder the properties we use the 'setColumns' method.
-        grid.setColumns("firstName", "lastName", "age", "address",
-                "phoneNumber");
-
-        final FooterRow footerRow = grid.appendFooterRow();
-        final FooterRow.FooterCell footer = footerRow.getCells().get(0);
-        footer.setText(Integer.toString(dataView.getDataSize()));
-
-
-        // Create data controls
-        // For selecting a row to manipulate through the data view
-        IntegerField rowSelect = new IntegerField("Target row");
-        Button selectItemOnRow = new Button("Select item",
-                event -> dataView.selectItemOnRow(rowSelect.getValue()));
-        Button showItemData = new Button("Person data", event -> new Dialog(
-                new Span(
-                        dataView.getItemOnRow(rowSelect.getValue()).toString()))
-                .open());
-        Button showNextData = new Button("Next person", event -> new Dialog(
-                new Span(dataView.getNextItem(
-                        dataView.getItemOnRow(rowSelect.getValue()))
-                        .toString())).open());
-        Button showPreviousData = new Button("Previous person",
-                event -> new Dialog(new Span(dataView.getPreviousItem(
-                        dataView.getItemOnRow(rowSelect.getValue()))
-                        .toString())).open());
-        TextField filterByFirstName = new TextField("Firstname filter",
-                event -> dataView.withFilter(
-                        item -> item.firstName.contains(event.getValue())));
-
-
-        dataView.addSizeChangeListener(event -> { footer
-                .setText(Integer.toString(event.getSize()));
-            showPreviousData.setEnabled(rowSelect.getValue() > 0);
-            showNextData.setEnabled(rowSelect.getValue() < event.getSize());
-        });
-        // end-source-example
-
-        rowSelect.setValue(0);
-        showPreviousData.setEnabled(false);
-        rowSelect.addValueChangeListener(event -> {
-            if (event.getValue() >= dataView.getDataSize()) {
-                new Dialog(new Span("Item outside of data rage of [0," + (
-                        dataView.getDataSize() - 1)
-                        + "]. Resetting to previous")).open();
-                rowSelect.setValue(event.getOldValue());
-                return;
-            }
-            showPreviousData.setEnabled(event.getValue() > 0);
-            showNextData.setEnabled(event.getValue() < dataView.getDataSize()-1);
-        });
-
-
-        addCard("DataView", "Using DataView for data manipulation", grid,
-                rowSelect, new HorizontalLayout(selectItemOnRow, showItemData,
-                        showNextData, showPreviousData), filterByFirstName);
     }
 
     private List<Person> getItems() {

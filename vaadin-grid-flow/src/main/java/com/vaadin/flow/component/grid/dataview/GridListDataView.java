@@ -15,10 +15,12 @@
  */
 package com.vaadin.flow.component.grid.dataview;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractListDataView;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.function.SerializablePredicate;
 
 /**
@@ -54,14 +56,74 @@ public class GridListDataView<T> extends AbstractListDataView<T>
 
     @Override
     public void selectItemOnRow(int rowIndex) {
-        getDataController().select(getItemOnRow(rowIndex));
+        getDataController().selectAndScrollTo(getItemOnRow(rowIndex), rowIndex);
     }
 
-    @Override
-    public GridListDataView<T> withFilter(SerializablePredicate<T> filter) {
-        super.withFilter(filter);
-        getDataController().fireSizeChangeEvent();
+    /**
+     * Add a new data filter.
+     * To be removed after #8313
+     *
+     * @param filter
+     *         the filter to add, not <code>null</code>
+     * @return this
+     */
+    public GridListDataView<T> addFilter(SerializablePredicate<T> filter) {
+        ((ListDataProvider<T>) getDataController().getDataProvider())
+                .addFilter(filter);
         return this;
+    }
+
+    /**
+     * Remove all in-memory filters.
+     * To be removed after #8313
+     *
+     * @return this
+     */
+    public GridListDataView<T> clearFilters() {
+        ((ListDataProvider<T>) getDataController().getDataProvider())
+                .clearFilters();
+        return this;
+    }
+
+    /**
+     * Add an item to the data list.
+     * To be removed after #8382
+     *
+     * @param item
+     *         item to add
+     * @return this ListDataView instance
+     */
+    public GridListDataView<T> addItem(T item) {
+        final ListDataProvider<T> dataProvider = (ListDataProvider<T>) getDataController()
+                .getDataProvider();
+        dataProvider.getItems().add(item);
+        dataProvider.refreshAll();
+        return this;
+    }
+
+    /**
+     * Remove an item from the data list.
+     * To be removed after #8382
+     *
+     * @param item
+     *         item to remove
+     * @return this ListDataView instance
+     */
+    public GridListDataView<T> removeItem(T item) {
+        final ListDataProvider<T> dataProvider = (ListDataProvider<T>) getDataController()
+                .getDataProvider();
+        dataProvider.getItems().remove(item);
+        dataProvider.refreshAll();
+        return this;
+    }
+
+    /**
+     * Get all items as a List.
+     *
+     * @return List of all items
+     */
+    public List<T> getItems() {
+        return getAllItemsAsList();
     }
 
     private void validateRowIndex(int rowIndex) {
