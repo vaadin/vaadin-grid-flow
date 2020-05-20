@@ -179,8 +179,10 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
 
 const run = async () => {
   // Remove a possibly existing reference grid
-  if (fs.existsSync(refGridPath)) {
+  try {
     fs.rmdirSync(refGridPath, { recursive: true });
+  } catch(e) {
+    // Nothing to remove
   }
 
   console.log('Prepare the reference Grid project');
