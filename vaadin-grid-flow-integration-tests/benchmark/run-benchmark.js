@@ -179,10 +179,12 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
 
 const run = async () => {
   // Remove a possibly existing reference grid
-  fs.rmdirSync(refGridPath, { recursive: true });
+  if (fs.existsSync(refGridPath)) {
+    fs.rmdirSync(refGridPath, { recursive: true });
+  }
+
   console.log('Prepare the reference Grid project');
   prepareReferenceGrid();
-
 
   console.log('Starting the Jetty server: Grid');
   await startJetty(gridTestPath);
