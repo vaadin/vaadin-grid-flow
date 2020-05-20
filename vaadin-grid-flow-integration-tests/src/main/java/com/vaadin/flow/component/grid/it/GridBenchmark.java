@@ -128,19 +128,16 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
                 whenRendered(grid).then(v -> grid.getElement().executeJs("window.measureScrollFrameTime(this, true)"));
                 break;
             case "rendertime":
-                whenGridDefined().then(v -> {
-                    measureRendered(grid);
-
-                    add(grid);
-                });
+                measureRendered(grid);
+                UI.getCurrent().getElement().executeJs("return window.startWhenReady()").then(v -> add(grid));
                 break;
             case "expandtime":
                 add(grid);
-                whenRendered(grid).then(v -> {
+                startWhenRendered(grid).then(v -> {
                     measureRendered(grid);
-
                     TreeGrid<String> treeGrid = (TreeGrid<String>) grid;
-                    treeGrid.expandRecursively(treeData.getRootItems(), 5);
+                    TreeData<String> data = ((TreeDataProvider<String>) treeGrid.getDataProvider()).getTreeData();
+                    treeGrid.expandRecursively(data.getRootItems(), 5);
                 });
                 break;
             default:
@@ -152,8 +149,8 @@ public class GridBenchmark extends Div implements HasUrlParameter<String> {
         return grid.getElement().executeJs("return window.whenRendered(this)");
     }
 
-    private PendingJavaScriptResult whenGridDefined() {
-        return UI.getCurrent().getElement().executeJs("return window.whenGridDefined()");
+    private PendingJavaScriptResult startWhenRendered(Grid<String> grid) {
+        return grid.getElement().executeJs("return window.startWhenRendered(this)");
     }
 
     private void measureRendered(Grid<String> grid) {

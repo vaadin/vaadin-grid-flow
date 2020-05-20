@@ -106,15 +106,22 @@ const reportResult = (result) => {
   document.body.appendChild(resultDiv);
 };
 
-_window.whenGridDefined = () => {
+let start = 0;
+
+_window.startWhenReady = () => {
   return Promise.all([
     customElements.whenDefined('vaadin-grid'),
     customElements.whenDefined('vaadin-grid-column'),
-  ]);
+  ]).then(() => (start = performance.now()));
+};
+
+_window.startWhenRendered = (grid) => {
+  return _window.whenRendered(grid).then(() => {
+    start = performance.now();
+  });
 };
 
 _window.measureRender = (grid) => {
-  const start = performance.now()
   _window.whenRendered(grid).then((endTime) => reportResult(endTime - start));
 };
 
