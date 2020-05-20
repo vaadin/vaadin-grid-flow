@@ -9,7 +9,7 @@ const options = (args => {
         let property;
         if (arg === "--browser") property = "browser";
         else if(arg === "--huburl") property = "huburl";
-    
+
         if(property) result[property] = args[++i];
     }
     return result;
@@ -178,10 +178,11 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
 };
 
 const run = async () => {
-  if (!fs.existsSync(refGridPath)) {
-    console.log('Prepare the reference Grid project');
-    prepareReferenceGrid();
-  }
+  // Remove a possibly existing reference grid
+  fs.rmdirSync(refGridPath, { recursive: true });
+  console.log('Prepare the reference Grid project');
+  prepareReferenceGrid();
+
 
   console.log('Starting the Jetty server: Grid');
   await startJetty(gridTestPath);
