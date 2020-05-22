@@ -57,6 +57,8 @@ import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.dataview.GridDataView;
 import com.vaadin.flow.component.grid.dataview.GridDataViewImpl;
+import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
+import com.vaadin.flow.component.grid.dataview.GridLazyDataViewImpl;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
@@ -85,6 +87,7 @@ import com.vaadin.flow.data.provider.HasDataGenerators;
 import com.vaadin.flow.data.provider.HasDataView;
 import com.vaadin.flow.data.provider.HasLazyDataView;
 import com.vaadin.flow.data.provider.HasListDataView;
+import com.vaadin.flow.data.provider.HasLazyDataView;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.ListDataView;
@@ -143,7 +146,8 @@ public class Grid<T> extends Component
         implements HasDataProvider<T>, HasStyle, HasSize, Focusable<Grid<T>>,
         SortNotifier<Grid<T>, GridSortOrder<T>>, HasTheme, HasDataGenerators<T>,
         HasListDataView<T, GridListDataView<T>>,
-        HasDataView<T, GridDataView<T>> {
+        HasDataView<T, GridDataView<T>>,
+        HasLazyDataView<T, GridLazyDataView<T>> {
 
     // package-private because it's used in tests
     static final String DRAG_SOURCE_DATA_KEY = "drag-source-data";
@@ -2417,6 +2421,11 @@ public class Grid<T> extends Component
         return dataCommunicator;
     }
 
+    @Override
+    public GridLazyDataView<T> getLazyDataView() {
+        return new GridLazyDataViewImpl(getDataCommunicator(), this);
+    }
+
     /**
      * Gets the current page size, which is the number of items fetched at a
      * time from the dataprovider.
@@ -2450,6 +2459,7 @@ public class Grid<T> extends Component
         }
         getElement().setProperty("pageSize", pageSize);
         getElement().callJsFunction("$connector.reset");
+        getDataCommunicator().setPageSize(pageSize);
         setRequestedRange(0, pageSize);
         getDataCommunicator().reset();
     }
