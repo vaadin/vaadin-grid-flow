@@ -80,6 +80,7 @@ const startJetty = (cwd) => {
     processes.push(jetty);
     jetty.stderr.on('data', (data) => console.error(data.toString()));
     jetty.stdout.on('data', (data) => {
+      console.log(data.toString());
       if (data.toString().includes('Frontend compiled successfully')) {
         resolve();
       }
@@ -186,9 +187,11 @@ const run = async () => {
 
   console.log('Starting the Jetty server: Grid');
   await startJetty(gridTestPath);
+  execSync('wget -O- localhost:9998', {stdio: [process.stdin, process.stdout, process.stderr]});
 
   console.log('Starting the Jetty server: reference Grid');
   await startJetty(refGridTestPath);
+  execSync(`wget -O- localhost:${REF_JETTY_PORT}`, {stdio: [process.stdin, process.stdout, process.stderr]});
 
   if (
     !fs.existsSync(path.resolve(gridTestPath, 'node_modules', '.bin', 'tach'))
