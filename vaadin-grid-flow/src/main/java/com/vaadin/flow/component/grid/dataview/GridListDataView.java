@@ -20,8 +20,10 @@ import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractListDataView;
-import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.DataCommunicator;
+import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.function.SerializableSupplier;
 
 /**
  * GridListDataView for in-memory list data handling.
@@ -32,20 +34,24 @@ import com.vaadin.flow.function.SerializablePredicate;
  */
 public class GridListDataView<T> extends AbstractListDataView<T>
         implements GridDataView<T> {
+    private SerializableSupplier<DataCommunicator<T>> dataCommunicatorSupplier;
+    private SerializableSupplier<Grid<T>> gridSupplier;
 
-    /**
-     * Construct a new GridListDataView.
-     *
-     * @param grid
-     *         DataView Grid instance
-     */
-    public GridListDataView(Grid grid) {
-        super(new GridDataController<>(grid));
+    public GridListDataView(
+            SerializableSupplier<DataCommunicator<T>> dataCommunicatorSupplier,
+            SerializableSupplier<Grid<T>> gridSupplier) {
+        super(() -> dataCommunicatorSupplier.get().getDataProvider(),
+                gridSupplier);
+        this.dataCommunicatorSupplier = dataCommunicatorSupplier;
+        this.gridSupplier = gridSupplier;
     }
 
     @Override
     public Stream<T> getCurrentItems() {
-        return getDataController().getCurrentItems();
+        DataCommunicator<T> dataCommunicator = dataCommunicatorSupplier.get();
+        final DataKeyMapper<T> keyMapper = dataCommunicator.getKeyMapper();
+        return dataCommunicator.getActiveKeyOrdering().stream()
+                .map(keyMapper::get);
     }
 
     @Override
@@ -56,7 +62,8 @@ public class GridListDataView<T> extends AbstractListDataView<T>
 
     @Override
     public void selectItemOnRow(int rowIndex) {
-        getDataController().selectAndScrollTo(getItemOnRow(rowIndex), rowIndex);
+        gridSupplier.get().select(getItemOnRow(rowIndex));
+        gridSupplier.get().scrollToIndex(rowIndex);
     }
 
     /**
@@ -104,7 +111,14 @@ public class GridListDataView<T> extends AbstractListDataView<T>
         }
     }
 
-    private GridDataController<T> getDataController() {
-        return (GridDataController) dataController;
+    @Override
+    public Stream<T> getAllItems() {
+        return getDataProvider().fetch(dataCommunicatorSupplier.get()
+                .buildQuery(0, Integer.MAX_VALUE));
+    }
+
+    @Override
+    public int getDataSize() {
+        return dataCommunicatorSupplier.get().getDataSize();
     }
 }

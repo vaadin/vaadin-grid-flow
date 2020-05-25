@@ -35,7 +35,8 @@ public class GridListDataViewTest {
     @Test
     public void dataViewWithItem_rowOutsideSetRequested_exceptionThrown() {
         expectedException.expect(IndexOutOfBoundsException.class);
-        expectedException.expectMessage("Give row 7 is outside of the accepted range '0 - 3'");
+        expectedException.expectMessage(
+                "Give row 7 is outside of the accepted range '0 - 3'");
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid
@@ -47,7 +48,8 @@ public class GridListDataViewTest {
     @Test
     public void dataViewWithItem_negativeRowRequested_exceptionThrown() {
         expectedException.expect(IndexOutOfBoundsException.class);
-        expectedException.expectMessage("Give row -7 is outside of the accepted range '0 - 3'");
+        expectedException.expectMessage(
+                "Give row -7 is outside of the accepted range '0 - 3'");
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid
@@ -55,6 +57,7 @@ public class GridListDataViewTest {
 
         dataView.getItemOnRow(-7);
     }
+
     @Test
     public void dataViewWithoutItems_exceptionThrown() {
         expectedException.expect(IndexOutOfBoundsException.class);
@@ -71,8 +74,8 @@ public class GridListDataViewTest {
     public void dataViewWithItems_returnsExpectedItemsForMethods() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
-        grid.setDataProvider(DataProvider.ofItems(items));
-        GridListDataView<String> dataView = new GridListDataView<>(grid);
+        GridListDataView<String> dataView = grid
+                .setDataProvider(DataProvider.ofItems(items));
 
         // Test getItemOnRow returns correct item
         Assert.assertEquals("Wrong item returned for row", items[2],
@@ -121,8 +124,8 @@ public class GridListDataViewTest {
     public void dataView_withFilter_methodsUseFilteredData() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
-        grid.setDataProvider(DataProvider.ofItems(items));
-        GridListDataView<String> dataView = new GridListDataView<>(grid);
+        GridListDataView<String> dataView = grid
+                .setDataProvider(DataProvider.ofItems(items));
 
         dataView.withFilter(s -> s.endsWith("4"));
 
