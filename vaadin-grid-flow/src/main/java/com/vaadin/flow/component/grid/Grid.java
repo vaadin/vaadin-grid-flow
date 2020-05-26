@@ -2339,8 +2339,7 @@ public class Grid<T> extends Component
     public GridListDataView<T> getListDataView() {
         if (getDataProvider() instanceof ListDataProvider) {
             if (dataView == null || !(dataView instanceof ListDataView)) {
-                dataView = new GridListDataView<>(() -> dataCommunicator,
-                        () -> this);
+                dataView = new GridListDataView<>(dataCommunicator, this);
             }
             return (GridListDataView) dataView;
         }
