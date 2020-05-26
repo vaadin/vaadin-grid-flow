@@ -35,7 +35,7 @@ public class GridListDataViewTest {
     public void dataViewWithItem_rowOutsideSetRequested_exceptionThrown() {
         expectedException.expect(IndexOutOfBoundsException.class);
         expectedException.expectMessage(
-                "Give row 7 is outside of the accepted range '0 - 3'");
+                "Given index 7 is outside of the accepted range '0 - 3'");
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid
@@ -48,7 +48,7 @@ public class GridListDataViewTest {
     public void dataViewWithItem_negativeRowRequested_exceptionThrown() {
         expectedException.expect(IndexOutOfBoundsException.class);
         expectedException.expectMessage(
-                "Give row -7 is outside of the accepted range '0 - 3'");
+                "Given index -7 is outside of the accepted range '0 - 3'");
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid
@@ -60,7 +60,7 @@ public class GridListDataViewTest {
     @Test
     public void dataViewWithoutItems_exceptionThrown() {
         expectedException.expect(IndexOutOfBoundsException.class);
-        expectedException.expectMessage("Requested row 5 on empty data.");
+        expectedException.expectMessage("Requested index 5 on empty data.");
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid

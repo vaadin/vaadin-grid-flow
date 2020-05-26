@@ -52,7 +52,7 @@ public class GridListDataView<T> extends AbstractListDataView<T>
 
     @Override
     public T getItemOnRow(int rowIndex) {
-        validateRowIndex(rowIndex);
+        validateItemIndex(rowIndex);
         return getAllItemsAsList().get(rowIndex);
     }
 
@@ -93,18 +93,6 @@ public class GridListDataView<T> extends AbstractListDataView<T>
      */
     public List<T> getItems() {
         return getAllItemsAsList();
-    }
-
-    private void validateRowIndex(int rowIndex) {
-        if (getDataSize() == 0) {
-            throw new IndexOutOfBoundsException(
-                    String.format("Requested row %d on empty data.", rowIndex));
-        }
-        if (rowIndex < 0 || rowIndex >= getDataSize()) {
-            throw new IndexOutOfBoundsException(String.format(
-                    "Give row %d is outside of the accepted range '0 - %d'",
-                    rowIndex, getDataSize() - 1));
-        }
     }
 
     @Override
