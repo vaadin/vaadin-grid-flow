@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
 public class GridListDataViewTest {
@@ -74,8 +73,7 @@ public class GridListDataViewTest {
     public void dataViewWithItems_returnsExpectedItemsForMethods() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
-        GridListDataView<String> dataView = grid
-                .setDataProvider(DataProvider.ofItems(items));
+        GridListDataView<String> dataView = grid.setDataProvider(items);
 
         // Test getItemOnRow returns correct item
         Assert.assertEquals("Wrong item returned for row", items[2],
@@ -124,8 +122,7 @@ public class GridListDataViewTest {
     public void dataView_withFilter_methodsUseFilteredData() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
-        GridListDataView<String> dataView = grid
-                .setDataProvider(DataProvider.ofItems(items));
+        GridListDataView<String> dataView = grid.setDataProvider(items);
 
         dataView.withFilter(s -> s.endsWith("4"));
 
