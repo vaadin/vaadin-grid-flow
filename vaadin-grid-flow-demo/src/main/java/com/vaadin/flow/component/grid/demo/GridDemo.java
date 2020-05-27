@@ -227,19 +227,17 @@ public class GridDemo extends DemoView {
         }
 
         @Override
-        public int hashCode() {
-            return id;
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Person person = (Person) o;
+            return Objects.equals(firstName, person.firstName) &&
+                    Objects.equals(lastName, person.lastName);
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!(obj instanceof Person)) {
-                return false;
-            }
-            Person other = (Person) obj;
-            return id == other.id;
+        public int hashCode() {
+            return Objects.hash(firstName, lastName);
         }
 
         @Override
@@ -318,7 +316,7 @@ public class GridDemo extends DemoView {
 
     // end-source-example
 
-    public class PersonService {
+    public static class PersonService {
         private PersonData personData = new PersonData();
 
         public List<Person> fetch(int offset, int limit) {
