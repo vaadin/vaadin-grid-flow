@@ -15,6 +15,7 @@
  */
 package com.vaadin.flow.component.grid.dataview;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -53,7 +54,7 @@ public class GridListDataView<T> extends AbstractListDataView<T>
     @Override
     public T getItemOnRow(int rowIndex) {
         validateItemIndex(rowIndex);
-        return getAllItemsAsList().get(rowIndex);
+        return getAllItems().skip(rowIndex).findFirst().orElse(null);
     }
 
     @Override
@@ -92,7 +93,12 @@ public class GridListDataView<T> extends AbstractListDataView<T>
      * @return List of all items
      */
     public List<T> getItems() {
-        return getAllItemsAsList();
+        final Collection<T> items = getDataProvider().getItems();
+        if (items instanceof List) {
+            return (List) items;
+        }
+        throw new IllegalArgumentException(
+                "DataProvider collection is not a list.");
     }
 
     @Override
