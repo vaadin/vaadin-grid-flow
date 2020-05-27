@@ -17,6 +17,8 @@
 package com.vaadin.flow.component.grid.dataview;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -67,6 +69,23 @@ public class GridListDataViewTest {
                 .setDataProvider(new ListDataProvider<>(new ArrayList<>()));
 
         dataView.getItemOnRow(5);
+    }
+
+    @Test
+    public void dataProviderOnSet_exceptionThrownForGetItems() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException
+                .expectMessage("DataProvider collection is not a list.");
+
+        Set<String> items = new HashSet<>();
+        items.add("item1");
+        items.add("item2");
+
+        Grid<String> grid = new Grid<>();
+        GridListDataView<String> dataView = grid
+                .setDataProvider(new ListDataProvider<>(items));
+
+        dataView.getItems();
     }
 
     @Test

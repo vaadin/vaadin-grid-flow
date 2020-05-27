@@ -39,7 +39,7 @@ public class GridListDataView<T> extends AbstractListDataView<T>
 
     public GridListDataView(DataCommunicator<T> dataCommunicator,
             Grid<T> grid) {
-        super(() -> dataCommunicator.getDataProvider(), grid);
+        super(dataCommunicator::getDataProvider, grid);
         this.dataCommunicator = dataCommunicator;
         this.grid = grid;
     }
