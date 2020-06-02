@@ -75,7 +75,7 @@ public class Task1 extends DemoView {
         verticalLayout.setDefaultHorizontalComponentAlignment(
                 FlexComponent.Alignment.START);
 
-        verticalLayout.add(grid, filter, sortByLastName, size);
+        verticalLayout.add(grid, filter, sortByLastName, size, export, exportAll);
 
         addCard("Task1", verticalLayout);
     }
