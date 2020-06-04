@@ -15,14 +15,13 @@
  */
 package com.vaadin.flow.component.grid.dataview;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractListDataView;
 import com.vaadin.flow.data.provider.DataCommunicator;
-import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.function.SerializablePredicate;
 
 /**
@@ -45,22 +44,9 @@ public class GridListDataView<T> extends AbstractListDataView<T>
     }
 
     @Override
-    public Stream<T> getCurrentItems() {
-        final DataKeyMapper<T> keyMapper = dataCommunicator.getKeyMapper();
-        return dataCommunicator.getActiveKeyOrdering().stream()
-                .map(keyMapper::get);
-    }
-
-    @Override
     public T getItemOnRow(int rowIndex) {
         validateItemIndex(rowIndex);
         return getAllItems().skip(rowIndex).findFirst().orElse(null);
-    }
-
-    @Override
-    public void selectItemOnRow(int rowIndex) {
-        grid.select(getItemOnRow(rowIndex));
-        grid.scrollToIndex(rowIndex);
     }
 
     /**
@@ -87,20 +73,6 @@ public class GridListDataView<T> extends AbstractListDataView<T>
         return this;
     }
 
-    /**
-     * Get all items as a List.
-     *
-     * @return List of all items
-     */
-    public List<T> getItems() {
-        final Collection<T> items = getDataProvider().getItems();
-        if (items instanceof List) {
-            return (List) items;
-        }
-        throw new IllegalArgumentException(
-                "DataProvider collection is not a list.");
-    }
-
     @Override
     public Stream<T> getAllItems() {
         return getDataProvider()
@@ -111,4 +83,5 @@ public class GridListDataView<T> extends AbstractListDataView<T>
     public int getDataSize() {
         return dataCommunicator.getDataSize();
     }
+
 }
