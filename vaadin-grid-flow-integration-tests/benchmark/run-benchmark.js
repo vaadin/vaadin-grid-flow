@@ -2,6 +2,7 @@ const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const { URLSearchParams } = require('url');
 
 const options = (args => {
     const result = {};
