@@ -15,14 +15,11 @@
  */
 package com.vaadin.flow.component.grid.dataview;
 
-import java.util.ArrayList;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractListDataView;
 import com.vaadin.flow.data.provider.DataCommunicator;
-import com.vaadin.flow.function.SerializablePredicate;
 
 /**
  * GridListDataView for in-memory list data handling.
@@ -47,30 +44,6 @@ public class GridListDataView<T> extends AbstractListDataView<T>
     public T getItemOnRow(int rowIndex) {
         validateItemIndex(rowIndex);
         return getAllItems().skip(rowIndex).findFirst().orElse(null);
-    }
-
-    /**
-     * Add a new data filter.
-     * To be removed after #8313
-     *
-     * @param filter
-     *         the filter to add, not <code>null</code>
-     * @return this
-     */
-    public GridListDataView<T> addFilter(SerializablePredicate<T> filter) {
-        getDataProvider().addFilter(filter);
-        return this;
-    }
-
-    /**
-     * Remove all in-memory filters.
-     * To be removed after #8313
-     *
-     * @return this
-     */
-    public GridListDataView<T> clearFilters() {
-        getDataProvider().clearFilters();
-        return this;
     }
 
     @Override
