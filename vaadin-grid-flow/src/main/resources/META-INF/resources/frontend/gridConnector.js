@@ -399,7 +399,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
 
       const sorterChangeListener = tryCatchWrapper(function(_, oldValue) {
         if (oldValue !== undefined && !sorterDirectionsSetFromServer) {
-          grid.$server.sortersChanged(grid._sorters.map(function(sorter) {
+          grid.$server.sortersChanged(grid._sorters.map(function (sorter) {
             return {
               path: sorter.path,
               direction: sorter.direction
@@ -412,16 +412,21 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         sorterDirectionsSetFromServer = true;
         setTimeout(tryCatchWrapper(() => {
           try {
-            let allSorters = grid.querySelectorAll("vaadin-grid-sorter");
-            allSorters.forEach(sorter => sorter.direction = null);
+            const existingSorters = Array.from(grid.querySelectorAll('vaadin-grid-sorter'));
+            const updatedSorters = directions
+                .map(direction => direction.column)
+                .map(columnId => grid.querySelector("vaadin-grid-sorter[path='" + columnId + "']"));
 
-            for (let i = directions.length - 1; i >= 0; i--) {
-              const columnId = directions[i].column;
-              let sorter = grid.querySelector("vaadin-grid-sorter[path='" + columnId + "']");
-              if (sorter) {
-                sorter.direction = directions[i].direction;
+            existingSorters
+                .filter(sorter => updatedSorters.indexOf(sorter) === -1)
+                .forEach(sorter => sorter.direction = null);
+
+            directions.forEach(({column, direction}) => {
+              const sorter = grid.querySelector("vaadin-grid-sorter[path='" + column + "']");
+              if (sorter && sorter.direction !== direction) {
+                sorter.direction = direction;
               }
-            }
+            });
           } finally {
             sorterDirectionsSetFromServer = false;
           }
