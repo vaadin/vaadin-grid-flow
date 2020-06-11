@@ -415,7 +415,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             const sorters = Array.from(grid.querySelectorAll('vaadin-grid-sorter'));
 
             sorters.forEach(sorter => {
-              if (!directions.some(d => d.column === sorter.getAttribute('path'))) {
+              if (!directions.filter(d => d.column === sorter.getAttribute('path'))[0]) {
                 sorter.direction = null;
               }
             });
