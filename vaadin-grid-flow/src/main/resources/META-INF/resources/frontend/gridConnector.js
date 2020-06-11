@@ -421,12 +421,15 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
                 .filter(sorter => updatedSorters.indexOf(sorter) === -1)
                 .forEach(sorter => sorter.direction = null);
 
-            directions.forEach(({column, direction}) => {
-              const sorter = grid.querySelector("vaadin-grid-sorter[path='" + column + "']");
+            for (let i = directions.length - 1; i >= 0; i--) {
+              const columnId = directions[i].column;
+              const direction = directions[i].direction;
+
+              const sorter = grid.querySelector("vaadin-grid-sorter[path='" + columnId + "']");
               if (sorter && sorter.direction !== direction) {
                 sorter.direction = direction;
               }
-            });
+            }
           } finally {
             sorterDirectionsSetFromServer = false;
           }
