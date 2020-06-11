@@ -412,24 +412,21 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         sorterDirectionsSetFromServer = true;
         setTimeout(tryCatchWrapper(() => {
           try {
-            const existingSorters = Array.from(grid.querySelectorAll('vaadin-grid-sorter'));
-            const updatedSorters = directions
-                .map(direction => direction.column)
-                .map(columnId => grid.querySelector("vaadin-grid-sorter[path='" + columnId + "']"));
+            const sorters = Array.from(grid.querySelectorAll('vaadin-grid-sorter'));
 
-            existingSorters
-                .filter(sorter => updatedSorters.indexOf(sorter) === -1)
-                .forEach(sorter => sorter.direction = null);
-
-            for (let i = directions.length - 1; i >= 0; i--) {
-              const columnId = directions[i].column;
-              const direction = directions[i].direction;
-
-              const sorter = grid.querySelector("vaadin-grid-sorter[path='" + columnId + "']");
-              if (sorter && sorter.direction !== direction) {
-                sorter.direction = direction;
+            sorters.forEach(sorter => {
+              if (!directions.some(d => d.column === sorter.getAttribute('path'))) {
+                sorter.direction = null;
               }
-            }
+            });
+
+            directions.reverse().forEach(({column, direction}) => {
+              sorters.forEach(sorter => {
+                if (sorter.getAttribute('path') === column && sorter.direction !== direction) {
+                  sorter.direction = direction
+                }
+              });
+            });
           } finally {
             sorterDirectionsSetFromServer = false;
           }
