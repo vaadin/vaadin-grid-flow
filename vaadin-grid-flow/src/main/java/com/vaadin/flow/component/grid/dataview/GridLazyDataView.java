@@ -18,5 +18,11 @@ package com.vaadin.flow.component.grid.dataview;
 
 import com.vaadin.flow.data.provider.LazyDataView;
 
+/**
+ * Interface for lazy data view for grid.
+ *
+ * @param <T>
+ *            the type of the items in grid
+ */
 public interface GridLazyDataView<T> extends GridDataView<T>, LazyDataView<T> {
 }

@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import org.apache.commons.lang3.StringUtils;
 
 import com.vaadin.flow.component.ComponentEventListener;
@@ -322,7 +323,12 @@ public class GridDemo extends DemoView {
         private PersonData personData = new PersonData();
 
         public List<Person> fetch(int offset, int limit) {
-            return personData.getPersons().subList(offset, offset + limit);
+            int end = offset + limit;
+            int size = personData.getPersons().size();
+            if (size <= end) {
+                end = size;
+            }
+            return personData.getPersons().subList(offset, end);
         }
 
         public int count() {
@@ -601,8 +607,10 @@ public class GridDemo extends DemoView {
     @Override
     protected void initView() {
         createBasicUsage();// Basic Grid
-        createGridWithLazyLoading();
         addVariantFeature();
+        createGridWithLazyLoading();
+        createGridWithDefinedSize();
+        createGridWithCustomSizeEstimate();
         createArrayData();// Assigning data
         createDynamicHeight();
         createSingleSelect();
@@ -684,37 +692,12 @@ public class GridDemo extends DemoView {
         addCard("Grid Basics", grid);
     }
 
-    private void createGridWithLazyLoading() {
-        // begin-source-example
-        // source-example-heading: Grid with lazy loading
-        Grid<Person> grid = new Grid<>();
-        PersonService personService = new PersonService();
-
-        /*
-         * Grid doesn't load all items into the memory right away.
-         * Grid will request only the data that should be shown in its current
-         * view "window". The Data Provider will use callbacks to load only a
-         * portion of the data.
-         */
-        grid.setDataProvider(query -> personService.fetch(query.getOffset(), query.getLimit()).stream());
-
-        grid.addColumn(Person::getFirstName).setHeader("First Name");
-        grid.addColumn(Person::getLastName).setHeader("Last Name");
-        grid.addColumn(Person::getAge).setHeader("Age");
-
-        // end-source-example
-
-        grid.setId("lazy-loading");
-
-        addCard("Grid with lazy loading", grid);
-    }
-
     private void addVariantFeature() {
         // begin-source-example
         // source-example-heading: Theme variants usage
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
-        grid.setDataSource(personList);
+        grid.setItems(personList);
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,
@@ -727,6 +710,102 @@ public class GridDemo extends DemoView {
                 }, Grid::addThemeVariants, Grid::removeThemeVariants,
                 GridVariant::getVariantName, GridVariant.LUMO_NO_BORDER,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
+    }
+
+    // Lazy Loading Begin
+    private void createGridWithLazyLoading() {
+        // begin-source-example
+        // source-example-heading: Grid with lazy loading
+        Grid<Person> grid = new Grid<>();
+        PersonService personService = new PersonService();
+
+        /*
+         * When provided a callback, the grid doesn't load all items from
+         * backend to server memory right away. It will request only the data
+         * that is shown in its current view "window". The data is provided
+         * based on offset and limit.
+         *
+         * The grid supports both defined and undefined size. In this example it
+         * uses undefined size, which means that it will increase the size as
+         * the user scrolls to the end, until there is no more data in the
+         * backend.
+         */
+        grid.setDataProvider(query -> personService
+                .fetch(query.getOffset(), query.getLimit()).stream());
+
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
+        grid.addColumn(Person::getLastName).setHeader("Last Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
+
+        // end-source-example
+        grid.setId("lazy-loading");
+
+        addCard("Lazy Loading","Grid with lazy loading", grid);
+    }
+
+    private void createGridWithCustomSizeEstimate() {
+        // begin-source-example
+        // source-example-heading: Size estimate callback
+        Grid<Person> grid = new Grid<>();
+        PersonService personService = new PersonService();
+
+        /*
+         * Grid supports both undefined and defined size for the items. When
+         * given a callback for fetching the items lazily, grid has undefined
+         * size.
+         */
+        GridLazyDataView<Person> lazyDataView = grid
+                .setDataProvider(query -> personService
+                        .fetch(query.getOffset(), query.getLimit()).stream());
+        /*
+         * Adding a custom callback which increases the size estimate by 100
+         * items when the user scrolls to the last page. By default, the size is
+         * increased by 200, which is 4 times the default page size of 50.
+         */
+        lazyDataView.setUndefinedSize(
+                query -> query.getPreviousSizeEstimate() + 100);
+
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
+        grid.addColumn(Person::getLastName).setHeader("Last Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
+
+        // end-source-example
+
+        grid.setId("custom-size-callback");
+
+        addCard("Lazy Loading","Size estimate callback", grid);
+    }
+
+    private void createGridWithDefinedSize() {
+        // begin-source-example
+        // source-example-heading: Defined size
+        Grid<Person> grid = new Grid<>();
+        PersonService personService = new PersonService();
+
+        /*
+         * Grid supports both undefined and defined size for the items. To use
+         * defined size where the grid's scrollbar immediately gets the right
+         * size, a second callback returning the size of the grid must be
+         * provided.
+         */
+        GridLazyDataView<Person> lazyDataView = grid.setDataProvider(
+                query -> personService
+                        .fetch(query.getOffset(), query.getLimit()).stream(),
+                query -> personService.count());
+
+        // The grid can be on switched back to undefined size through the
+        // API in the lazy data view:
+        // lazyDataView.setDefinedSize(false);
+
+        grid.addColumn(Person::getFirstName).setHeader("First Name");
+        grid.addColumn(Person::getLastName).setHeader("Last Name");
+        grid.addColumn(Person::getAge).setHeader("Age");
+
+        // end-source-example
+
+        grid.setId("defined-size-callback");
+
+        addCard("Lazy Loading","Defined size", grid);
     }
 
     // Assigning Data Begin
@@ -1736,10 +1815,9 @@ public class GridDemo extends DemoView {
         // begin-source-example
         // source-example-heading: Using ContextMenu With Grid
         Grid<Task> grid = new Grid<>();
-        ListDataProvider<Task> dataProvider = DataProvider
-                .ofCollection(taskData.getTasks());
+        List<Task> tasks = taskData.getTasks();
 
-        grid.setDataSource(dataProvider);
+        GridListDataView<Task> dataView = grid.setDataProvider(tasks);
         grid.addColumn(Task::getName).setHeader("Task Name");
         grid.addColumn(Task::getDueDate).setHeader("Due Date");
         GridContextMenu<Task> contextMenu = new GridContextMenu<>(grid);
@@ -1750,10 +1828,8 @@ public class GridDemo extends DemoView {
             if (!item.isPresent()) {
                 return;
             }
-            List<Task> items = (List) dataProvider.getItems();
-            items.add(items.indexOf(item.get()),
+            dataView.addItemBefore(item.get(),
                     new Task(100, "New Task", LocalDate.parse("02/01/2019", formatter)));
-            dataProvider.refreshAll();
         });
         insert.getSubMenu().add(new Hr());
         insert.getSubMenu().addItem("Add a task after", event -> {
@@ -1762,16 +1838,13 @@ public class GridDemo extends DemoView {
                 // no selected row
                 return;
             }
-            List<Task> items = (List) dataProvider.getItems();
-            items.add(items.indexOf(item.get()) + 1,
+            dataView.addItemAfter(item.get(),
                     new Task(100, "New Task", LocalDate.parse("02/01/2019", formatter)));
-            dataProvider.refreshAll();
         });
 
         contextMenu.addItem("Remove", event -> {
             event.getItem().ifPresent(task -> {
-                dataProvider.getItems().remove(task);
-                dataProvider.refreshAll();
+                dataView.removeItem(task);
             });
         });
 

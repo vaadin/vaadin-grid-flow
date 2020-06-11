@@ -16,15 +16,19 @@
 
 package com.vaadin.flow.component.grid.dataview;
 
-import java.util.stream.Stream;
-
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractDataView;
 import com.vaadin.flow.data.provider.BackEndDataProvider;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.SizeEstimateCallback;
 
+/**
+ * Implementation of the lazy data view for grid.
+ * 
+ * @param <T>
+ *            the type of the items in grid
+ */
 public class GridLazyDataViewImpl<T> extends AbstractDataView<T>
         implements GridLazyDataView<T> {
 
@@ -33,11 +37,14 @@ public class GridLazyDataViewImpl<T> extends AbstractDataView<T>
     /**
      * Creates a new instance and verifies the passed data provider is
      * compatible with this data view implementation.
-     *
+     * 
+     * @param dataCommunicator
+     *            the data communicator of the component
      * @param component
+     *            the grid component
      */
     public GridLazyDataViewImpl(DataCommunicator<T> dataCommunicator,
-            Component component) {
+            Grid<T> component) {
         super(dataCommunicator::getDataProvider, component);
         this.dataCommunicator = dataCommunicator;
     }
@@ -60,37 +67,6 @@ public class GridLazyDataViewImpl<T> extends AbstractDataView<T>
     }
 
     @Override
-    public Stream<T> getAllItems() {
-        return null;
-    }
-
-    @Override
-    public int getDataSize() {
-        return 0;
-    }
-
-    @Override
-    public boolean isItemPresent(T item) {
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
-
-    @Override
-    public Stream<T> getCurrentItems() {
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
-
-    @Override
-    public T getItemOnRow(int rowIndex) {
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
-
-    @Override
-    public void selectItemOnRow(int rowIndex) {
-        // TODO
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
-
-    @Override
     public void setDefinedSize(
             CallbackDataProvider.CountCallback<T, Void> callback) {
         getDataCommunicator().setSizeCallback(callback);
@@ -102,8 +78,7 @@ public class GridLazyDataViewImpl<T> extends AbstractDataView<T>
     }
 
     @Override
-    public void setUndefinedSize(
-            SizeEstimateCallback<T, Void> callback) {
+    public void setUndefinedSize(SizeEstimateCallback<T, Void> callback) {
         getDataCommunicator().setSizeEstimateCallback(callback);
     }
 
@@ -116,4 +91,17 @@ public class GridLazyDataViewImpl<T> extends AbstractDataView<T>
     public boolean isDefinedSize() {
         return getDataCommunicator().isDefinedSize();
     }
+
+    @Override
+    public boolean contains(T item) {
+        // TODO implement this
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    @Override
+    public T getItemOnRow(int rowIndex) {
+        // TODO use fetch query to get the item
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
 }
