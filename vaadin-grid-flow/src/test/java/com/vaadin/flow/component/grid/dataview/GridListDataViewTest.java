@@ -44,7 +44,7 @@ public class GridListDataViewTest extends AbstractListDataViewListenerTest {
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid
-                .setDataProvider("one", "two", "three", "four");
+                .setDataSource("one", "two", "three", "four");
 
         dataView.getItemOnRow(7);
     }
@@ -57,7 +57,7 @@ public class GridListDataViewTest extends AbstractListDataViewListenerTest {
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid
-                .setDataProvider("one", "two", "three", "four");
+                .setDataSource("one", "two", "three", "four");
 
         dataView.getItemOnRow(-7);
     }
@@ -69,7 +69,7 @@ public class GridListDataViewTest extends AbstractListDataViewListenerTest {
 
         Grid<String> grid = new Grid<>();
         GridListDataView<String> dataView = grid
-                .setDataProvider(new ListDataProvider<>(new ArrayList<>()));
+                .setDataSource(new ListDataProvider<>(new ArrayList<>()));
 
         dataView.getItemOnRow(5);
     }
@@ -78,7 +78,7 @@ public class GridListDataViewTest extends AbstractListDataViewListenerTest {
     public void dataViewWithItems_returnsExpectedItemsForMethods() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
-        GridListDataView<String> dataView = grid.setDataProvider(items);
+        GridListDataView<String> dataView = grid.setDataSource(items);
 
         // Test getItemOnRow returns correct item
         Assert.assertEquals("Wrong item returned for row", items[2],
@@ -110,7 +110,7 @@ public class GridListDataViewTest extends AbstractListDataViewListenerTest {
     public void dataView_withFilter_methodsUseFilteredData() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         Grid<String> grid = new Grid<>();
-        GridListDataView<String> dataView = grid.setDataProvider(items);
+        GridListDataView<String> dataView = grid.setDataSource(items);
 
         dataView.setFilter(s -> s.endsWith("4"));
 

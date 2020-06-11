@@ -18,6 +18,7 @@ package com.vaadin.flow.component.grid;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -80,6 +81,7 @@ import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.DataProviderListener;
 import com.vaadin.flow.data.provider.HasDataGenerators;
+import com.vaadin.flow.data.provider.HasLazyDataView;
 import com.vaadin.flow.data.provider.HasListDataView;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -2299,7 +2301,13 @@ public class Grid<T> extends Component
         return -1;
     }
 
+    /**
+     * @inheritDocs
+     * @deprecated use instead one of the setDataSource methods from
+     * {@link HasListDataView} or {@link HasLazyDataView}
+     */
     @Override
+    @Deprecated
     public void setDataProvider(DataProvider<T, ?> dataProvider) {
         Objects.requireNonNull(dataProvider, "data provider cannot be null");
         handleDataProviderChange(dataProvider);
@@ -2320,6 +2328,36 @@ public class Grid<T> extends Component
     }
 
     /**
+     * @inheritDocs
+     * @deprecated use {@link HasListDataView#setDataSource(Object[])} )}
+     */
+    @Override
+    @Deprecated
+    public void setItems(T... items) {
+        setDataSource(items);
+    }
+
+    /**
+     * @inheritDocs
+     * @deprecated use {@link HasListDataView#setDataSource(Collection)}
+     */
+    @Override
+    @Deprecated
+    public void setItems(Collection<T> items) {
+        setDataSource(items);
+    }
+
+    /**
+     * @inheritDocs
+     * @deprecated use {@link HasListDataView#setDataSource(Stream)}
+     */
+    @Override
+    @Deprecated
+    public void setItems(Stream<T> streamOfItems) {
+        setDataSource(streamOfItems);
+    }
+
+    /**
      * Returns the data provider of this grid.
      *
      * @return the data provider of this grid, not {@code null}
@@ -2329,7 +2367,7 @@ public class Grid<T> extends Component
     }
 
     @Override
-    public GridListDataView<T> setDataProvider(
+    public GridListDataView<T> setDataSource(
             ListDataProvider<T> dataProvider) {
         setDataProvider((DataProvider)dataProvider);
         return getListDataView();
