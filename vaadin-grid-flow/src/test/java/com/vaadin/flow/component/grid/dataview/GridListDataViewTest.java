@@ -86,14 +86,14 @@ public class GridListDataViewTest extends AbstractListDataViewListenerTest {
 
         // Test getNext-/-PreviousItem
         Assert.assertEquals("Faulty next item", items[3],
-                dataView.getNextItem(items[2]));
+                dataView.getNextItem(items[2]).get());
         Assert.assertEquals("Faulty previous item", items[1],
-                dataView.getPreviousItem(items[2]));
+                dataView.getPreviousItem(items[2]).get());
 
-        Assert.assertNull("Got next item for last item",
-                dataView.getNextItem(items[3]));
-        Assert.assertNull("Got previous item for first index",
-                dataView.getPreviousItem(items[0]));
+        Assert.assertFalse("Got next item for last item",
+                dataView.getNextItem(items[3]).isPresent());
+        Assert.assertFalse("Got previous item for first index",
+                dataView.getPreviousItem(items[0]).isPresent());
 
         // Test getSize
         Assert.assertEquals("Unexpected size for data", items.length,
