@@ -131,7 +131,7 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
         grid = new Grid<>();
         // it is enough to provide just one callback for fetching data lazyly
         GridLazyDataView<String> lazyDataView = grid
-                .setDataProvider(this::fakeFetch);
+                .setDataSource(this::fakeFetch);
         grid.setHeight("100%");
 
         grid.addColumn(ValueProvider.identity()).setHeader("Name");
@@ -205,7 +205,7 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
         initialEstimateInput = new IntegerField(
                 "setUndefinedSize(int initialEstimate) -> undefined size:",
                 event -> grid.getLazyDataView()
-                        .setUndefinedSize(event.getValue()));
+                        .withUndefinedSize(event.getValue()));
         initialEstimateInput.setId(INITIAL_ESTIMATE_INPUT_ID);
         initialEstimateInput.setWidthFull();
 
@@ -258,17 +258,17 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     }
 
     protected void switchToDataProvider() {
-        grid.setDataProvider(dataProvider);
+        grid.setDataSource(dataProvider);
         dataProviderSizeInput.setEnabled(true);
     }
 
     protected void switchToDefinedSize() {
-        grid.getLazyDataView().setDefinedSize(dataProvider::size);
+        grid.getLazyDataView().withDefinedSize(dataProvider::size);
         dataProviderSizeInput.setEnabled(true);
     }
 
     protected void switchToUndefinedSizeCallback() {
-        grid.setDataProvider(this::fakeFetch);
+        grid.setDataSource(this::fakeFetch);
         dataProviderSizeInput.setEnabled(false);
     }
 
@@ -278,7 +278,7 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     }
 
     protected void switchToSizeEstimateCallback() {
-        grid.getLazyDataView().setUndefinedSize(this::getSizeEstimate);
+        grid.getLazyDataView().withUndefinedSize(this::getSizeEstimate);
     }
 
     private Stream<String> fakeFetch(Query<String, Void> query) {

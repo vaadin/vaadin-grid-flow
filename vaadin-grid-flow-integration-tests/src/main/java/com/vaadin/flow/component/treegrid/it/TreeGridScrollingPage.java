@@ -50,7 +50,7 @@ public class TreeGridScrollingPage extends Div {
                 .setId(DEPTH_PARAMETER);
         grid.addColumn(HierarchicalTestBean::getIndex)
                 .setHeader("Index on this depth").setId("index");
-        grid.setDataProvider(new LazyHierarchicalDataProvider(nodes, depth));
+        grid.setDataSource(new LazyHierarchicalDataProvider(nodes, depth));
         add(grid);
         setSizeFull();
     }

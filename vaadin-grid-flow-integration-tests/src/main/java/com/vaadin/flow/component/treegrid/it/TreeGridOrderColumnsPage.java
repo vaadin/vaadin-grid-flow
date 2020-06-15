@@ -48,7 +48,7 @@ public class TreeGridOrderColumnsPage extends Div {
         treeGrid.setSelectionMode(SelectionMode.MULTI);
         treeGrid.setColumns("id", HierarchicalTestBean::toString,
                 Arrays.asList("id", "depth", "index"));
-        treeGrid.setDataProvider(new LazyHierarchicalDataProvider(3, 2));
+        treeGrid.setDataSource(new LazyHierarchicalDataProvider(3, 2));
 
         treeGrid.setId("testComponent");
 

@@ -67,24 +67,29 @@ public class GridLazyDataViewImpl<T> extends AbstractDataView<T>
     }
 
     @Override
-    public void setDefinedSize(
+    public void withDefinedSize(
             CallbackDataProvider.CountCallback<T, Void> callback) {
         getDataCommunicator().setSizeCallback(callback);
     }
 
     @Override
-    public void setUndefinedSize(int initialSizeEstimate) {
+    public void withUndefinedSize(int initialSizeEstimate) {
         getDataCommunicator().setInitialSizeEstimate(initialSizeEstimate);
     }
 
     @Override
-    public void setUndefinedSize(SizeEstimateCallback<T, Void> callback) {
+    public void withUndefinedSize(SizeEstimateCallback<T, Void> callback) {
         getDataCommunicator().setSizeEstimateCallback(callback);
     }
 
     @Override
-    public void setDefinedSize(boolean definedSize) {
-        getDataCommunicator().setDefinedSize(definedSize);
+    public void withDefinedSize() {
+        getDataCommunicator().setDefinedSize(true);
+    }
+
+    @Override
+    public void withUndefinedSize() {
+        getDataCommunicator().setDefinedSize(false);
     }
 
     @Override

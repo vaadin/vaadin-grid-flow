@@ -72,8 +72,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.data.provider.CallbackDataProvider;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
@@ -697,7 +695,7 @@ public class GridDemo extends DemoView {
         // source-example-heading: Theme variants usage
         List<Person> personList = getItems();
         Grid<Person> grid = new Grid<>();
-        grid.setItems(personList);
+        grid.setDataSource(personList);
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getAge).setHeader("Age");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,
@@ -730,7 +728,7 @@ public class GridDemo extends DemoView {
          * the user scrolls to the end, until there is no more data in the
          * backend.
          */
-        grid.setDataProvider(query -> personService
+        grid.setDataSource(query -> personService
                 .fetch(query.getOffset(), query.getLimit()).stream());
 
         grid.addColumn(Person::getFirstName).setHeader("First Name");
@@ -755,14 +753,14 @@ public class GridDemo extends DemoView {
          * size.
          */
         GridLazyDataView<Person> lazyDataView = grid
-                .setDataProvider(query -> personService
+                .setDataSource(query -> personService
                         .fetch(query.getOffset(), query.getLimit()).stream());
         /*
          * Adding a custom callback which increases the size estimate by 100
          * items when the user scrolls to the last page. By default, the size is
          * increased by 200, which is 4 times the default page size of 50.
          */
-        lazyDataView.setUndefinedSize(
+        lazyDataView.withUndefinedSize(
                 query -> query.getPreviousSizeEstimate() + 100);
 
         grid.addColumn(Person::getFirstName).setHeader("First Name");
@@ -788,7 +786,7 @@ public class GridDemo extends DemoView {
          * size, a second callback returning the size of the grid must be
          * provided.
          */
-        GridLazyDataView<Person> lazyDataView = grid.setDataProvider(
+        GridLazyDataView<Person> lazyDataView = grid.setDataSource(
                 query -> personService
                         .fetch(query.getOffset(), query.getLimit()).stream(),
                 query -> personService.count());
@@ -1817,7 +1815,7 @@ public class GridDemo extends DemoView {
         Grid<Task> grid = new Grid<>();
         List<Task> tasks = taskData.getTasks();
 
-        GridListDataView<Task> dataView = grid.setDataProvider(tasks);
+        GridListDataView<Task> dataView = grid.setDataSource(tasks);
         grid.addColumn(Task::getName).setHeader("Task Name");
         grid.addColumn(Task::getDueDate).setHeader("Due Date");
         GridContextMenu<Task> contextMenu = new GridContextMenu<>(grid);

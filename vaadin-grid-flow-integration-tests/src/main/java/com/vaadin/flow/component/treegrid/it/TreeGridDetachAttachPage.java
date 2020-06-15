@@ -29,7 +29,7 @@ public class TreeGridDetachAttachPage extends Div {
     public TreeGridDetachAttachPage() {
         grid = new TreeGrid<>();
         grid.addHierarchyColumn(HierarchicalTestBean::toString);
-        grid.setDataProvider(new LazyHierarchicalDataProvider(200, 1));
+        grid.setDataSource(new LazyHierarchicalDataProvider(200, 1));
         add(grid);
 
         NativeButton toggleAttached = new NativeButton("toggle attached", e -> {
