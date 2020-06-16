@@ -2382,6 +2382,7 @@ public class Grid<T> extends Component
      *
      * @return DataView instance implementing {@link GridDataView}
      */
+    @Override
     public GridDataView<T> getDataView() {
         if (dataView == null) {
             dataView = new GridDataViewImpl(dataCommunicator, this);
@@ -2403,9 +2404,10 @@ public class Grid<T> extends Component
             }
             return (GridListDataView) dataView;
         }
-        throw new IllegalStateException(
-                "Required ListDataProvider, but got " + getDataProvider()
-                        .getClass().getSuperclass().getSimpleName());
+        throw new IllegalStateException(String.format(
+                "Required ListDataProvider, but got '%s'. Use 'getDataView()' "
+                        + "to get a generic DataView instance.",
+                getDataProvider().getClass().getSuperclass().getSimpleName()));
     }
 
     /**
