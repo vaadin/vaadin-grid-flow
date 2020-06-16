@@ -2305,7 +2305,7 @@ public class Grid<T> extends Component
     }
 
     /**
-     * @inheritDocs
+     * {@inheritDoc}
      * @deprecated use instead one of the {@code setDataSource} methods which
      * provide access to either {@link GridListDataView} or GridLazyDataView
      */
@@ -2331,7 +2331,7 @@ public class Grid<T> extends Component
     }
 
     /**
-     * @inheritDocs
+     * {@inheritDoc}
      * @deprecated use {@link HasListDataView#setDataSource(Object[])} )}
      */
     @Override
@@ -2341,7 +2341,7 @@ public class Grid<T> extends Component
     }
 
     /**
-     * @inheritDocs
+     * {@inheritDoc}
      * @deprecated use {@link HasListDataView#setDataSource(Collection)}
      */
     @Override
@@ -2351,7 +2351,7 @@ public class Grid<T> extends Component
     }
 
     /**
-     * @inheritDocs
+     * {@inheritDoc}
      * @deprecated use {@link HasListDataView#setDataSource(Stream)}
      */
     @Override
