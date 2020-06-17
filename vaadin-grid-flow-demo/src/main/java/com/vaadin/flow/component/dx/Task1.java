@@ -3,9 +3,7 @@ package com.vaadin.flow.component.dx;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.demo.GridDemo;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -15,8 +13,6 @@ import com.vaadin.flow.router.Route;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Route("dx-test2-task1")
 public class Task1 extends DemoView {
@@ -92,14 +88,6 @@ public class Task1 extends DemoView {
         List<GridDemo.Person> persons = personService.fetchAll().subList(0, 50);
         Collections.shuffle(persons);
         return persons;
-    }
-
-    private void export(Stream<GridDemo.Person> persons) {
-        Div exportedView = new Div();
-        String exported = persons.map(GridDemo.Person::toString)
-                .collect(Collectors.joining("; "));
-        exportedView.setText(exported);
-        add(exportedView);
     }
 
     private static class PersonSorting {

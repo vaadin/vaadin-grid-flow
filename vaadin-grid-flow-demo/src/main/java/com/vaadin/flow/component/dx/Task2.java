@@ -18,8 +18,8 @@ import com.vaadin.flow.router.Route;
 
 import java.util.List;
 
-@Route("dx-test2-task3")
-public class Task3 extends DemoView {
+@Route("dx-test2-task2")
+public class Task2 extends DemoView {
 
     @Override
     protected void initView() {
