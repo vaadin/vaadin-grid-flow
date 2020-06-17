@@ -1169,8 +1169,6 @@ public class Grid<T> extends Component
 
     private Registration dataProviderChangeRegistration;
 
-    private GridDataView<T> dataView;
-
     /**
      * Creates a new instance, with page size of 50.
      */
@@ -2384,10 +2382,7 @@ public class Grid<T> extends Component
      */
     @Override
     public GridDataView<T> getDataView() {
-        if (dataView == null) {
-            dataView = new GridDataViewImpl(dataCommunicator, this);
-        }
-        return dataView;
+        return new GridDataViewImpl(dataCommunicator, this);
     }
 
     @Override
@@ -2399,10 +2394,7 @@ public class Grid<T> extends Component
     @Override
     public GridListDataView<T> getListDataView() {
         if (getDataProvider() instanceof ListDataProvider) {
-            if (dataView == null || !(dataView instanceof ListDataView)) {
-                dataView = new GridListDataView<>(dataCommunicator, this);
-            }
-            return (GridListDataView) dataView;
+            return new GridListDataView<>(dataCommunicator, this);
         }
         throw new IllegalStateException(String.format(
                 "Required ListDataProvider, but got '%s'. Use 'getDataView()' "
