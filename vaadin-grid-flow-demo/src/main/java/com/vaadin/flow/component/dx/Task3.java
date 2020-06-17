@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.demo.GridDemo;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -17,7 +18,7 @@ import com.vaadin.flow.router.Route;
 
 import java.util.List;
 
-@Route("dx-test1-task3")
+@Route("dx-test2-task3")
 public class Task3 extends DemoView {
 
     @Override
@@ -33,10 +34,8 @@ public class Task3 extends DemoView {
         grid.addColumn(GridDemo.Person::getLastName).setHeader("Last Name");
         grid.addColumn(GridDemo.Person::getAge).setHeader("Age");
 
-        // When an item is selected, open it in a dialog with the openDialog(Person, Grid)
-        // method
-
-        /* TODO: Add open dialog code here */
+        grid.addItemClickListener(
+                event -> openDialog(event.getItem(), grid));
 
         addCard("Task3", grid);
     }
@@ -54,8 +53,6 @@ public class Task3 extends DemoView {
     private static class PersonDialog extends Dialog {
         private Button next;
         private Button previous;
-        private Button delete;
-        private Button save;
         private GridDemo.Person currentPerson;
         private final Grid<GridDemo.Person> grid;
         private Span data = new Span();
@@ -68,9 +65,12 @@ public class Task3 extends DemoView {
         public PersonDialog(Grid<GridDemo.Person> grid,
                             GridDemo.Person person) {
             this.grid = grid;
+            GridListDataView<GridDemo.Person> dataView = grid.getListDataView();
 
-            // Add buttons to the provided PersonDialog that switch and select the next and
-            // previous items from the grid
+            // Add buttons to the provided PersonDialog that switch and select
+            // the next and previous items from the grid.
+            // Disable the buttons respectively when the first or last row is
+            // selected
 
             next = new Button("Next", event -> {
                 /* TODO: Add next button code here */
@@ -86,14 +86,14 @@ public class Task3 extends DemoView {
             // Add a button to the PersonDialog that deletes the row from grid and closes
             // the dialog
 
-            delete = new Button("Remove", event -> {
+            Button delete = new Button("Remove", event -> {
                 /* TODO: Add delete button code here */
             });
 
             // Make the saveButton in the dialog add the current Person to the grid in
             // case it is not there yet, otherwise just update the existing item
 
-            save = new Button("Save", event -> {
+            Button save = new Button("Save", event -> {
                 /* TODO: Add save button code here */
             });
 
@@ -127,10 +127,7 @@ public class Task3 extends DemoView {
             currentPerson = person;
             binder.readBean(currentPerson);
             data.setText(person.toString());
-
-            // Disable the buttons respectively when the first or last row is selected
-
-            /* TODO: Add code here */
+            grid.select(person);
         }
     }
 }

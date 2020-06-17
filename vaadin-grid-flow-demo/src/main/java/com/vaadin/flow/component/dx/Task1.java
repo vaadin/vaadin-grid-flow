@@ -1,22 +1,24 @@
 package com.vaadin.flow.component.dx;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.demo.GridDemo;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.demo.DemoView;
+import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.router.Route;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Route("dx-test1-task1")
+@Route("dx-test2-task1")
 public class Task1 extends DemoView {
 
     @Override
@@ -32,60 +34,67 @@ public class Task1 extends DemoView {
         grid.addColumn(GridDemo.Person::getLastName).setHeader("Last Name");
         grid.addColumn(GridDemo.Person::getAge).setHeader("Age");
 
-        // Add a label that shows the number of rows in the grid
-        Label size = new Label("Total size: " /* TODO: Add data size code here */);
-
-        // Make the text field value change event filter the rows in the grid
-        TextField filter = new TextField("Filter",
+        // Add a listeners to text fields below and make them filter
+        // the rows in the grid
+        TextField filterByFirstName = new TextField("Filter By First Name",
+                event -> {
+                    /* TODO: Add data filtering code here */
+                });
+        TextField filterByLastName = new TextField("Filter By Last Name",
                 event -> {
                     /* TODO: Add data filtering code here */
                 });
 
-        Checkbox sortByLastName = new Checkbox("Sort By Last Name",
-                event -> {
-                    /* TODO: Add data sorting code here */
-                });
-
-        // Make the number of rows label update when the data in the grid
-        // changes due to filtering
-
-        /* TODO: Add code here */
-
-        // Add a button that triggers the exportGrid(List) method with all
-        // the rows from the grid with current filtering and sorting applied
-        Button export = new Button("Export", event -> {
-            Stream<GridDemo.Person> personsStream = Stream.empty();
-
-            /* TODO: Replace Stream.empty() with your code */
-
-            exportGrid(personsStream);
+        Button removeFilters = new Button("Remove filters", event -> {
+            /* TODO: Add remove filters code here */
         });
 
-        // Add another button that triggers the exportAll(List) method
-        // with all rows without sorting and filtering applied
-        Button exportAll = new Button("Export All", event -> {
-            Stream<GridDemo.Person> personsStream = Stream.empty();
+        CheckboxGroup<PersonSorting> personSortingComboBox =
+                createPersonSortingCheckboxGroup();
 
-            /* TODO: Replace Stream.empty() with your code */
+        personSortingComboBox.addSelectionListener(event -> {
+            /* TODO: Add data sorting code here */
+        });
 
-            exportAll(personsStream);
+        Button sortById = new Button("Sort By Id", event -> {
+            /* TODO: Add data sorting code here */
         });
 
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setDefaultHorizontalComponentAlignment(
                 FlexComponent.Alignment.START);
 
-        verticalLayout.add(grid, filter, sortByLastName, size, export, exportAll);
+        verticalLayout.add(grid, filterByFirstName, filterByLastName,
+                removeFilters, personSortingComboBox, sortById);
 
         addCard("Task1", verticalLayout);
     }
 
-    private List<GridDemo.Person> getPersons() {
-        GridDemo.PersonService personService = new GridDemo.PersonService();
-        return personService.fetchAll().subList(0, 10);
+    private CheckboxGroup<PersonSorting> createPersonSortingCheckboxGroup() {
+        CheckboxGroup<PersonSorting> personsSorting =
+                new CheckboxGroup<>();
+
+        personsSorting.setLabel("Person sorting");
+        personsSorting.setItemLabelGenerator(PersonSorting::getLabel);
+        personsSorting.setItems(
+                new PersonSorting((p1, p2) ->
+                        p1.getFirstName().compareTo(p2.getFirstName()),
+                        "Sort By First Name"),
+                new PersonSorting((p1, p2) ->
+                        p1.getLastName().compareTo(p2.getLastName()),
+                        "Sort By Last Name"));
+
+        return personsSorting;
     }
 
-    private void exportGrid(Stream<GridDemo.Person> persons) {
+    private List<GridDemo.Person> getPersons() {
+        GridDemo.PersonService personService = new GridDemo.PersonService();
+        List<GridDemo.Person> persons = personService.fetchAll().subList(0, 50);
+        Collections.shuffle(persons);
+        return persons;
+    }
+
+    private void export(Stream<GridDemo.Person> persons) {
         Div exportedView = new Div();
         String exported = persons.map(GridDemo.Person::toString)
                 .collect(Collectors.joining("; "));
@@ -93,7 +102,21 @@ public class Task1 extends DemoView {
         add(exportedView);
     }
 
-    private void exportAll(Stream<GridDemo.Person> persons) {
-        exportGrid(persons);
+    private static class PersonSorting {
+        private SerializableComparator<GridDemo.Person> comparator;
+        private String label;
+
+        public PersonSorting(SerializableComparator<GridDemo.Person> comparator, String label) {
+            this.comparator = comparator;
+            this.label = label;
+        }
+
+        public SerializableComparator<GridDemo.Person> getComparator() {
+            return comparator;
+        }
+
+        public String getLabel() {
+            return label;
+        }
     }
 }

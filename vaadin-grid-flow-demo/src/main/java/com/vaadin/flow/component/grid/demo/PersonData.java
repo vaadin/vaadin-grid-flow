@@ -3,6 +3,7 @@ package com.vaadin.flow.component.grid.demo;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class PersonData {
 
@@ -58,10 +59,14 @@ public class PersonData {
 
     public List<GridDemo.Person> getPersons() {
         if (people.isEmpty()) {
-            for (int i = 91; i <= 199; i++) {
+            Random random = new Random();
+            for (int j = 0; j <= 100; j++) {
+                int i = random.nextInt(1000);
+                int otherRandom = random.nextInt(1000);
+
                 final int age = ages[i % ages.length];
                 people.add(new GridDemo.Person(i, names[i % names.length],
-                        surnames[i % surnames.length], age,
+                        surnames[otherRandom % surnames.length], age,
                         new GridDemo.Address(numbers[i % numbers.length],
                                 cities[i % cities.length]),
                         phones[i % phones.length],
