@@ -16,7 +16,9 @@
 
 package com.vaadin.flow.component.grid.dataview;
 
-import com.vaadin.flow.data.provider.LazyDataView;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.data.provider.AbstractLazyDataView;
+import com.vaadin.flow.data.provider.DataCommunicator;
 
 /**
  * Interface for lazy data view for grid.
@@ -24,5 +26,25 @@ import com.vaadin.flow.data.provider.LazyDataView;
  * @param <T>
  *            the type of the items in grid
  */
-public interface GridLazyDataView<T> extends GridDataView<T>, LazyDataView<T> {
+public class GridLazyDataView<T> extends AbstractLazyDataView<T>
+        implements GridDataView<T> {
+
+    /**
+     * Creates a new lazy data view for grid and verifies the passed data
+     * provider is compatible with this data view implementation.
+     *
+     * @param dataCommunicator
+     *            the data communicator of the component
+     * @param component
+     *            the grid
+     */
+    public GridLazyDataView(DataCommunicator<T> dataCommunicator,
+            Grid<T> component) {
+        super(dataCommunicator, component);
+    }
+
+    @Override
+    public T getItemOnRow(int rowIndex) {
+        return getDataCommunicator().getActiveItemOnIndex(rowIndex);
+    }
 }

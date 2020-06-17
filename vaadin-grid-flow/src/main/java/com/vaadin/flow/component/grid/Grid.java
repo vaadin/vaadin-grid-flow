@@ -58,7 +58,6 @@ import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.dataview.GridDataView;
 import com.vaadin.flow.component.grid.dataview.GridDataViewImpl;
 import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
-import com.vaadin.flow.component.grid.dataview.GridLazyDataViewImpl;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
@@ -77,6 +76,7 @@ import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.event.SortEvent.SortNotifier;
 import com.vaadin.flow.data.provider.ArrayUpdater;
 import com.vaadin.flow.data.provider.ArrayUpdater.Update;
+import com.vaadin.flow.data.provider.BackEndDataProvider;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataChangeEvent;
 import com.vaadin.flow.data.provider.DataCommunicator;
@@ -87,7 +87,6 @@ import com.vaadin.flow.data.provider.HasDataGenerators;
 import com.vaadin.flow.data.provider.HasDataView;
 import com.vaadin.flow.data.provider.HasLazyDataView;
 import com.vaadin.flow.data.provider.HasListDataView;
-import com.vaadin.flow.data.provider.HasLazyDataView;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.ListDataView;
@@ -2412,6 +2411,18 @@ public class Grid<T> extends Component
                         .getClass().getSuperclass().getSimpleName());
     }
 
+    // Overridden for now to delegate to setDataProvider for setup
+    @Override
+    public GridLazyDataView<T> setDataSource(BackEndDataProvider<T, Void> dataProvider) {
+        setDataProvider(dataProvider);
+        return getLazyDataView();
+    }
+
+    @Override
+    public GridLazyDataView<T> getLazyDataView() {
+        return new GridLazyDataView<>(getDataCommunicator(), this);
+    }
+
     /**
      * Returns the data communicator of this Grid.
      *
@@ -2419,11 +2430,6 @@ public class Grid<T> extends Component
      */
     public DataCommunicator<T> getDataCommunicator() {
         return dataCommunicator;
-    }
-
-    @Override
-    public GridLazyDataView<T> getLazyDataView() {
-        return new GridLazyDataViewImpl(getDataCommunicator(), this);
     }
 
     /**

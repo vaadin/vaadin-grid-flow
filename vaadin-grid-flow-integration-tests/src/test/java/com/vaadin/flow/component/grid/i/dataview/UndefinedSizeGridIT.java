@@ -48,10 +48,10 @@ public class UndefinedSizeGridIT extends AbstractUndefinedSizeGridIT {
         // scroll to actual end, no more items returned and size is adjusted
         doScroll(500, 500, 5, 450, 500);
         Assert.assertEquals(499, grid.getLastVisibleRowIndex());
-        // FIXME test further after grid is note fetching extra stuff when size
-        // has been adjusted to less than what it is
-
-        // doScroll(0, 450, 7, 0, 100);
+        // TODO #1038 test further after grid is note fetching extra stuff when
+        // size has been adjusted to less than what it is
+        // doScroll(0, 500, 6, 0, 100);
+        // doScroll(450, 500, 7, 400, 500);
     }
 
     @Test

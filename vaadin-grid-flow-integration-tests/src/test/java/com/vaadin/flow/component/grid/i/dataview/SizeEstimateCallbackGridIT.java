@@ -42,7 +42,7 @@ public class SizeEstimateCallbackGridIT extends AbstractUndefinedSizeGridIT {
                 + new BigDecimal(DEFAULT_INITIAL_SIZE_ESTIMATE)
                         .divide(new BigDecimal(5)).intValue();
 
-        /* TODO enable the rest of the test after unnecessary fetches from grid
+        /* TODO #1038 enable the rest of the test after unnecessary fetches from grid
            are fixed
 
         verifyRows(newSize);

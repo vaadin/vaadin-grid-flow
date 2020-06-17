@@ -793,7 +793,7 @@ public class GridDemo extends DemoView {
 
         // The grid can be on switched back to undefined size through the
         // API in the lazy data view:
-        // lazyDataView.setDefinedSize(false);
+        // lazyDataView.withUndefinedSize();
 
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getLastName).setHeader("Last Name");
