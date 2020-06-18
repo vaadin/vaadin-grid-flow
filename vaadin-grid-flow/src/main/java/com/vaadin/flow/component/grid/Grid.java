@@ -2310,7 +2310,7 @@ public class Grid<T> extends Component
     /**
      * @inheritDocs
      * @deprecated use instead one of the {@code setDataSource} methods which
-     * provide access to either {@link GridListDataView} or GridLazyDataView
+     * provide access to either {@link GridListDataView} or {@link GridLazyDataView}
      */
     @Override
     @Deprecated
