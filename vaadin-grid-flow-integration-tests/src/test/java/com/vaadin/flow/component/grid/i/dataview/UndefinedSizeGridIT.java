@@ -80,15 +80,16 @@ public class UndefinedSizeGridIT extends AbstractUndefinedSizeGridIT {
 
         grid.scrollToRow(500);
 
+        int expectedLastItem = 517;
         Assert.assertEquals(
                 "Grid should be able to scroll after changing to defined size",
-                522, grid.getLastVisibleRowIndex());
+                expectedLastItem, grid.getLastVisibleRowIndex());
 
         // switching back to undefined size, nothing changes
         setUndefinedSize();
 
         verifyRows(DEFAULT_DATA_PROVIDER_SIZE);
-        Assert.assertEquals(522, grid.getLastVisibleRowIndex());
+        Assert.assertEquals(expectedLastItem, grid.getLastVisibleRowIndex());
 
         // increase backend size and scroll to current end
         setUndefinedSizeBackendSize(2000);

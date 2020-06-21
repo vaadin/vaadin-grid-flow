@@ -84,7 +84,7 @@ public class SizeEstimateCallbackGridIT extends AbstractUndefinedSizeGridIT {
 
         setNextSizeEstimate(500);
         grid.scrollToRow(240);
-        final int expectedLastRowAfterScroll = 262;
+        final int expectedLastRowAfterScroll = 257;
 
         verifyRows(500);
         Assert.assertEquals(

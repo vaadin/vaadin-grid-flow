@@ -19,7 +19,6 @@ package com.vaadin.flow.component.grid.i.dataview;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.it.dataview.AbstractUndefinedSizeGridPage;
 import com.vaadin.flow.component.grid.testbench.GridElement;
-import com.vaadin.flow.component.menubar.testbench.MenuBarElement;
 import com.vaadin.flow.component.textfield.testbench.IntegerFieldElement;
 import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.testutil.AbstractComponentIT;
@@ -65,43 +64,30 @@ public abstract class AbstractUndefinedSizeGridIT extends AbstractComponentIT {
         verifyRows(expectedRows);
     }
 
-    protected void openDataProviderConfigurationMenu() {
-        $(MenuBarElement.class).first().getButtons().get(0).click();
-    }
-
-    protected void openSizeEstimateConfigurationMenu() {
-        $(MenuBarElement.class).first().getButtons().get(1).click();
-    }
-
     protected void setUndefinedSize() {
-        openDataProviderConfigurationMenu();
         findElement(
                 By.id(AbstractUndefinedSizeGridPage.UNDEFINED_SIZE_BUTTON_ID))
                         .click();
     }
 
     protected void setDefinedSizeCallback() {
-        openDataProviderConfigurationMenu();
         findElement(By.id(AbstractUndefinedSizeGridPage.DEFINED_SIZE_BUTTON_ID))
                 .click();
     }
 
     protected void setUndefinedSizeBackendSize(int size) {
-        openDataProviderConfigurationMenu();
         $(IntegerFieldElement.class).id(
                 AbstractUndefinedSizeGridPage.UNDEFINED_SIZE_BACKEND_SIZE_INPUT_ID)
                 .setValue(size + "");
     }
 
     protected void setSizeEstimateCallback() {
-        openSizeEstimateConfigurationMenu();
         findElement(By.id(
                 AbstractUndefinedSizeGridPage.SIZE_ESTIMATE_CALLBACK_BUTTON_ID))
                         .click();
     }
 
     protected void setNextSizeEstimate(int estimate) {
-        openSizeEstimateConfigurationMenu();
         $(IntegerFieldElement.class).id(
                 AbstractUndefinedSizeGridPage.SIZE_ESTIMATE_CALLBACK_INPUT_ID)
                 .setValue(estimate + "");

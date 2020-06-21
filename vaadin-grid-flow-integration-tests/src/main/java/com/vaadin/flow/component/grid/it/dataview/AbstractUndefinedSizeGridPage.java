@@ -21,13 +21,12 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.provider.AbstractBackEndDataProvider;
@@ -67,9 +66,6 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
         }
     }
 
-    public static final String DATA_COMMUNICATOR_MENU_ITEM_ID = "dc-mi";
-    public static final String ESTIMATE_CALLBACK_MENU_ITEM_ID = "ec-mi";
-    public static final String DATA_PROVIDER_MENU_ITEM_ID = "dp-mi";
     public static final String UNDEFINED_SIZE_BUTTON_ID = "undefined-size";
     public static final String DEFINED_SIZE_BUTTON_ID = "defined-size";
     public static final String DATA_PROVIDER_BUTTON_ID = "data-provider";
@@ -82,7 +78,7 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     public static final int DEFAULT_DATA_PROVIDER_SIZE = 1000;
 
     private LazyLoadingProvider dataProvider;
-    private MenuBar menuBar;
+    private VerticalLayout menuBar;
     private Div logPanel;
     protected IntegerField initialEstimateInput;
     protected IntegerField estimateInput;
@@ -99,78 +95,86 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     private int initialSizeEstimate = -1;
 
     public AbstractUndefinedSizeGridPage() {
-        add(menuBar = new MenuBar());
-
         initGrid();
+
+        logPanel = new Div();
+        logPanel.setWidth("200px");
+        logPanel.setHeight("400px");
+        logPanel.add("Queries:");
+
+        menuBar = new VerticalLayout();
+        menuBar.setWidth(null);
+
+        FlexLayout layout = new FlexLayout();
+        layout.setSizeFull();
+        layout.add(logPanel, grid, menuBar);
+        layout.setFlexGrow(1, grid);
+        add(layout);
+        setFlexGrow(1, layout);
+        setSizeFull();
+
         initDataProvider();
         initEstimateOptions();
         initDataCommunicatorOptions();
         initNavigationLinks();
-
-        Div splitPanel = new Div();
-        splitPanel.getElement().getStyle().set("display", "flex");
-        splitPanel.setSizeFull();
-        splitPanel.add(logPanel, grid);
-        add(splitPanel);
-        setFlexGrow(1, splitPanel);
-        setSizeFull();
     }
 
     private void initNavigationLinks() {
-        SubMenu subMenu = menuBar.addItem("Open initially with").getSubMenu();
-        subMenu.add(
+        menuBar.add("Open initially with");
+        menuBar.add(
                 new RouterLink("UndefinedSize", UndefinedSizeGridPage.class));
-        subMenu.add(new RouterLink("InitialSizeEstimate",
+        menuBar.add(new RouterLink("InitialSizeEstimate",
                 InitialSizeEstimateGridPage.class));
-        subMenu.add(new RouterLink("SizeEstimateCallback",
+        menuBar.add(new RouterLink("SizeEstimateCallback",
                 SizeEstimateCallbackGridPage.class));
-        subMenu.add(new RouterLink("DefinedSize", DefinedSizeCallbackGridPage.class));
+        menuBar.add(new RouterLink("DefinedSize",
+                DefinedSizeCallbackGridPage.class));
     }
 
     private void initGrid() {
         grid = new Grid<>();
-        // it is enough to provide just one callback for fetching data lazyly
-        GridLazyDataView<String> lazyDataView = grid
-                .setDataSource(this::fakeFetch);
-        grid.setHeight("100%");
+        grid.setDataSource(this::fakeFetch);
+        grid.setSizeFull();
 
         grid.addColumn(ValueProvider.identity()).setHeader("Name");
     }
 
     private void initDataProvider() {
-        MenuItem menuItem = menuBar.addItem("Defined / Undefined size");
-        menuItem.setId(DATA_PROVIDER_MENU_ITEM_ID);
+        menuBar.add("Defined / Undefined size");
 
         dataProvider = new LazyLoadingProvider();
 
-        menuItem.getSubMenu()
-                .addItem("withUndefinedSize() -> undefined size",
-                        event -> switchToUndefinedSize())
-                .setId(UNDEFINED_SIZE_BUTTON_ID);
-        menuItem.getSubMenu().add(new Hr());
+        Button button1 = new Button("withUndefinedSize() -> undefined size",
+                event -> switchToUndefinedSize());
+        button1.setId(UNDEFINED_SIZE_BUTTON_ID);
+        menuBar.add(button1);
+        menuBar.add(new Hr());
 
-        menuItem.getSubMenu()
-                .addItem("setDataProvider(FetchCallback) -> undefined size",
-                        event -> switchToUndefinedSizeCallback())
-                .setId("fetchcallback");
+        Button button2 = new Button(
+                "setDataProvider(FetchCallback) -> undefined size",
+                event -> switchToUndefinedSizeCallback());
+        menuBar.add(button2);
+        button2.setId("fetchcallback");
         dataProviderSizeInput = new IntegerField("Fixed size backend size");
-        menuItem.getSubMenu().add(dataProviderSizeInput, new Hr());
+        menuBar.add(dataProviderSizeInput, new Hr());
 
         fetchCallbackSizeInput = new IntegerField("Undefined-size backend size",
                 event -> fetchCallbackSize = event.getValue());
         fetchCallbackSizeInput.setId(UNDEFINED_SIZE_BACKEND_SIZE_INPUT_ID);
         fetchCallbackSizeInput.setWidthFull();
-        menuItem.getSubMenu().add(fetchCallbackSizeInput, new Hr());
+        menuBar.add(fetchCallbackSizeInput, new Hr());
 
-        menuItem.getSubMenu()
-                .addItem("setDefinedSize(CountCallback) -> defined size",
-                        event -> switchToDefinedSize())
-                .setId(DEFINED_SIZE_BUTTON_ID);
+        Button button3 = new Button(
+                "setDefinedSize(CountCallback) -> defined size",
+                event -> switchToDefinedSize());
+        menuBar.add(button3);
+        button3.setId(DEFINED_SIZE_BUTTON_ID);
 
-        menuItem.getSubMenu()
-                .addItem("setDataProvider(DataProvider) -> defined size",
-                        event -> switchToDataProvider())
-                .setId(DATA_PROVIDER_BUTTON_ID);
+        Button button4 = new Button(
+                "setDataProvider(DataProvider) -> defined size",
+                event -> switchToDataProvider());
+        menuBar.add(button4);
+        button4.setId(DATA_PROVIDER_BUTTON_ID);
 
         dataProviderSizeInput.setId(DATA_PROVIDER_SIZE_INPUT_ID);
         dataProviderSizeInput.setValue(dataProviderSize);
@@ -180,27 +184,21 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
             dataProvider.refreshAll();
         });
         dataProviderSizeInput.setEnabled(false);
-        menuItem.getSubMenu().add(dataProviderSizeInput, new Hr());
+        menuBar.add(dataProviderSizeInput, new Hr());
 
-        logPanel = new Div();
-        logPanel.setWidth("200px");
-        logPanel.setHeight("400px");
-        logPanel.add("Queries:");
-
-        MenuItem showLogs = menuItem.getSubMenu().addItem(
-                "Show fetch query logs",
-                event -> logPanel.setVisible(event.getSource().isChecked()));
-        showLogs.setCheckable(true);
-        showLogs.setChecked(true);
+        Checkbox checkbox = new Checkbox("Show fetch query logs",
+                event -> logPanel.setVisible(event.getSource().getValue()));
+        checkbox.setValue(true);
+        menuBar.add(checkbox);
     }
 
     private void initEstimateOptions() {
-        MenuItem menuItem = menuBar.addItem("Size Estimate Configuration");
-        menuItem.setId(ESTIMATE_CALLBACK_MENU_ITEM_ID);
-        menuItem.getSubMenu().addItem(
+        menuBar.add("Size Estimate Configuration");
+        Button button = new Button(
                 "setUndefinedSize(SizeEstimateCallback) -> undefined size",
-                event -> switchToSizeEstimateCallback())
-                .setId(SIZE_ESTIMATE_CALLBACK_BUTTON_ID);
+                event -> switchToSizeEstimateCallback());
+        menuBar.add(button);
+        button.setId(SIZE_ESTIMATE_CALLBACK_BUTTON_ID);
 
         initialEstimateInput = new IntegerField(
                 "setUndefinedSize(int initialEstimate) -> undefined size:",
@@ -214,7 +212,7 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
         estimateInput.setId(SIZE_ESTIMATE_CALLBACK_INPUT_ID);
         estimateInput.setPlaceholder("Test Default is +20% estimate");
         estimateInput.setWidthFull();
-        menuItem.getSubMenu().add(initialEstimateInput, estimateInput);
+        menuBar.add(initialEstimateInput, estimateInput);
     }
 
     private void initDataCommunicatorOptions() {
@@ -231,9 +229,8 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
                 grid.getDataCommunicator().getSizeIncreasePageCount());
         bufferPagesInput.setWidthFull();
 
-        MenuItem menuItem = menuBar.addItem("DataCommunicator Configuration");
-        menuItem.setId(DATA_COMMUNICATOR_MENU_ITEM_ID);
-        menuItem.getSubMenu().add(pageSizeInput, bufferPagesInput);
+        menuBar.add("DataCommunicator Configuration");
+        menuBar.add(pageSizeInput, bufferPagesInput);
     }
 
     private int getSizeEstimate(SizeEstimateQuery<String, Void> query) {
