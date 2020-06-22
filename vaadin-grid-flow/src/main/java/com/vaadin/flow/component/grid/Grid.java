@@ -57,6 +57,7 @@ import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.grid.dataview.GridDataView;
 import com.vaadin.flow.component.grid.dataview.GridDataViewImpl;
+import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDragEndEvent;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
@@ -75,6 +76,7 @@ import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.event.SortEvent.SortNotifier;
 import com.vaadin.flow.data.provider.ArrayUpdater;
 import com.vaadin.flow.data.provider.ArrayUpdater.Update;
+import com.vaadin.flow.data.provider.BackEndDataProvider;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataChangeEvent;
 import com.vaadin.flow.data.provider.DataCommunicator;
@@ -143,7 +145,8 @@ public class Grid<T> extends Component
         implements HasDataProvider<T>, HasStyle, HasSize, Focusable<Grid<T>>,
         SortNotifier<Grid<T>, GridSortOrder<T>>, HasTheme, HasDataGenerators<T>,
         HasListDataView<T, GridListDataView<T>>,
-        HasDataView<T, GridDataView<T>> {
+        HasDataView<T, GridDataView<T>>,
+        HasLazyDataView<T, GridLazyDataView<T>> {
 
     // package-private because it's used in tests
     static final String DRAG_SOURCE_DATA_KEY = "drag-source-data";
@@ -2307,7 +2310,7 @@ public class Grid<T> extends Component
     /**
      * @inheritDocs
      * @deprecated use instead one of the {@code setDataSource} methods which
-     * provide access to either {@link GridListDataView} or GridLazyDataView
+     * provide access to either {@link GridListDataView} or {@link GridLazyDataView}
      */
     @Override
     @Deprecated
@@ -2408,6 +2411,18 @@ public class Grid<T> extends Component
                         .getClass().getSuperclass().getSimpleName());
     }
 
+    // Overridden for now to delegate to setDataProvider for setup
+    @Override
+    public GridLazyDataView<T> setDataSource(BackEndDataProvider<T, Void> dataProvider) {
+        setDataProvider(dataProvider);
+        return getLazyDataView();
+    }
+
+    @Override
+    public GridLazyDataView<T> getLazyDataView() {
+        return new GridLazyDataView<>(getDataCommunicator(), this);
+    }
+
     /**
      * Returns the data communicator of this Grid.
      *
@@ -2450,6 +2465,7 @@ public class Grid<T> extends Component
         }
         getElement().setProperty("pageSize", pageSize);
         getElement().callJsFunction("$connector.reset");
+        getDataCommunicator().setPageSize(pageSize);
         setRequestedRange(0, pageSize);
         getDataCommunicator().reset();
     }
