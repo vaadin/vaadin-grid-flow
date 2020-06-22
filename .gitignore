@@ -22,3 +22,5 @@ tsconfig.json
 types.d.ts
 node_modules/
 
+vaadin-grid-flow-integration-tests/benchmark/reference-clone/
+vaadin-grid-flow-integration-tests/benchmark/results
