@@ -22,7 +22,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractDataView;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.data.provider.IdentityProvider;
 
 public class GridDataViewImpl<T> extends AbstractDataView<T>
         implements GridDataView<T> {
@@ -72,9 +72,8 @@ public class GridDataViewImpl<T> extends AbstractDataView<T>
     }
 
     @Override
-    public void setIdentityProvider(ValueProvider<T, ?> identityProvider) {
+    public void setIdentityProvider(IdentityProvider<T> identityProvider) {
         super.setIdentityProvider(identityProvider);
-        dataCommunicator.getKeyMapper().setIdentifierGetter(
-                        (ValueProvider<T, Object>) identityProvider);
+        dataCommunicator.getKeyMapper().setIdentifierGetter(identityProvider);
     }
 }
