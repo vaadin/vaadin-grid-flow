@@ -17,9 +17,8 @@ package com.vaadin.flow.component.grid.demo;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.demo.GridDemo.Item;
 
@@ -31,11 +30,36 @@ import com.vaadin.flow.component.grid.demo.GridDemo.Item;
  */
 class ItemGenerator extends BeanGenerator {
 
-    public List<Item> generateItems(int amount) {
-        LocalDate baseDate = LocalDate.of(2018, 1, 10);
-        return IntStream.range(0, amount)
+    private int size = 12345;
+
+    public Stream<Item> fetchItems(int offset, int limit) {
+        LocalDate baseDate = LocalDate.of(2020, 1, 10);
+        int endExclusive = offset + limit;
+        if (endExclusive > size) {
+            endExclusive = size;
+        }
+        return IntStream.range(offset, endExclusive)
+                .mapToObj(index -> createItem(index + 1, baseDate));
+    }
+
+    public Stream<Item> fetchItems(int offset, int limit, String filter) {
+        LocalDate baseDate = LocalDate.of(2020, 1, 10);
+        int endExclusive = offset + limit;
+        if (endExclusive > size) {
+            endExclusive = size;
+        }
+        return IntStream.range(0, size)
                 .mapToObj(index -> createItem(index + 1, baseDate))
-                .collect(Collectors.toList());
+                .filter(item -> item.getName().contains(filter)).skip(offset)
+                .limit(endExclusive);
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getCount() {
+        return size;
     }
 
     private Item createItem(int index, LocalDate baseDate) {
