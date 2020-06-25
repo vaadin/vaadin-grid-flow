@@ -33,8 +33,7 @@ public abstract class AbstractUndefinedSizeGridIT extends AbstractComponentIT {
     // items it shows, so changing this is a bad idea ...
     private static final Dimension TARGET_SIZE = new Dimension(1000, 900);
     protected GridElement grid;
-    protected int sizeIncreasePageCount = new Grid<String>()
-            .getDataCommunicator().getSizeIncreasePageCount();
+    protected int sizeIncreasePageCount = 4;
     protected int pageSize = new Grid<String>().getPageSize();
 
     @Override
@@ -64,32 +63,32 @@ public abstract class AbstractUndefinedSizeGridIT extends AbstractComponentIT {
         verifyRows(expectedRows);
     }
 
-    protected void setUndefinedSize() {
+    protected void setUnknownCount() {
         findElement(
                 By.id(AbstractUndefinedSizeGridPage.UNDEFINED_SIZE_BUTTON_ID))
                         .click();
     }
 
-    protected void setDefinedSizeCallback() {
+    protected void setCountCallback() {
         findElement(By.id(AbstractUndefinedSizeGridPage.DEFINED_SIZE_BUTTON_ID))
                 .click();
     }
 
-    protected void setUndefinedSizeBackendSize(int size) {
+    protected void setUnknownCountBackendSize(int size) {
         $(IntegerFieldElement.class).id(
                 AbstractUndefinedSizeGridPage.UNDEFINED_SIZE_BACKEND_SIZE_INPUT_ID)
                 .setValue(size + "");
     }
 
-    protected void setSizeEstimateCallback() {
-        findElement(By.id(
-                AbstractUndefinedSizeGridPage.SIZE_ESTIMATE_CALLBACK_BUTTON_ID))
-                        .click();
+    protected void setEstimateStep(int estimate) {
+        $(IntegerFieldElement.class).id(
+                AbstractUndefinedSizeGridPage.ROW_COUNT_ESTIMATE_STEP_INPUT)
+                .setValue(estimate + "");
     }
 
-    protected void setNextSizeEstimate(int estimate) {
+    protected void setEstimate(int estimate) {
         $(IntegerFieldElement.class).id(
-                AbstractUndefinedSizeGridPage.SIZE_ESTIMATE_CALLBACK_INPUT_ID)
+                AbstractUndefinedSizeGridPage.ROW_COUNT_ESTIMATE_INPUT)
                 .setValue(estimate + "");
     }
 

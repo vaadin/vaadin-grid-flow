@@ -23,8 +23,8 @@ import org.junit.Test;
 
 import static com.vaadin.flow.component.grid.it.dataview.AbstractUndefinedSizeGridPage.DEFAULT_DATA_PROVIDER_SIZE;
 
-@TestPath("undefined-size")
-public class UndefinedSizeGridIT extends AbstractUndefinedSizeGridIT {
+@TestPath("row-count-unknown")
+public class RowCountUnknownGridIT extends AbstractUndefinedSizeGridIT {
 
     @Test
     public void undefinedSizeGrid_defaultPageSizeEvenToDatasetSize_scrollingToEnd() {
@@ -69,10 +69,10 @@ public class UndefinedSizeGridIT extends AbstractUndefinedSizeGridIT {
         Assert.assertEquals(299, grid.getLastVisibleRowIndex());
 
         // change callback backend size limit
-        setUndefinedSizeBackendSize(DEFAULT_DATA_PROVIDER_SIZE);
+        setUnknownCountBackendSize(DEFAULT_DATA_PROVIDER_SIZE);
         // grid has scrolled to end -> switch to defined size callback
         // -> new size updated and more items fetched
-        setDefinedSizeCallback();
+        setCountCallback();
 
         verifyRows(DEFAULT_DATA_PROVIDER_SIZE);
         // new rows are added to end due to size increase
@@ -86,13 +86,13 @@ public class UndefinedSizeGridIT extends AbstractUndefinedSizeGridIT {
                 expectedLastItem, grid.getLastVisibleRowIndex());
 
         // switching back to undefined size, nothing changes
-        setUndefinedSize();
+        setUnknownCount();
 
         verifyRows(DEFAULT_DATA_PROVIDER_SIZE);
         Assert.assertEquals(expectedLastItem, grid.getLastVisibleRowIndex());
 
         // increase backend size and scroll to current end
-        setUndefinedSizeBackendSize(2000);
+        setUnknownCountBackendSize(2000);
         // size has been increased again by default size
         doScroll(1000, 1200, 6, 950, 1100);
 
