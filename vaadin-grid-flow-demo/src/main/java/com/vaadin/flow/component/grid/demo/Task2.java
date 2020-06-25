@@ -29,23 +29,30 @@ import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Route;
 
-@Route("tasks")
-public class Tasks extends VerticalLayout {
+@Route("task2")
+public class Task2 extends VerticalLayout {
 
     private final ItemGenerator backend = new ItemGenerator();
     private final Grid<GridDemo.Item> grid;
 
-    public Tasks() {
+    public Task2() {
         grid = new Grid<>();
         grid.setSizeFull();
+        grid.setDataProvider(createDataProvider());
+        // TODO migrate to automatically extending grid
+
         configureColumns();
-
-        // TODO do tasks here
-
 
         add(grid);
         setFlexGrow(1, grid);
         setSizeFull();
+    }
+
+    private DataProvider<GridDemo.Item, Void> createDataProvider() {
+        CallbackDataProvider<GridDemo.Item, Void> dataProvider = DataProvider
+                .fromCallbacks(query -> backend.fetchItems(query.getOffset(),
+                        query.getLimit()), query -> backend.getCount());
+        return dataProvider;
     }
 
     private void configureColumns() {
