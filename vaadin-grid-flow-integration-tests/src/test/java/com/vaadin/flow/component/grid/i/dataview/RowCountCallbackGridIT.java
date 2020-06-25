@@ -21,19 +21,19 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-@TestPath("defined-size-callback")
-public class DefinedSizeCallbackGridIT extends AbstractUndefinedSizeGridIT {
+@TestPath("row-count-callback")
+public class RowCountCallbackGridIT extends AbstractUndefinedSizeGridIT {
 
     @Test
-    public void definedSizeCallbackGrid_scrolledToMiddleAndSwitchesToUndefinedSize_canScrollPastOldKnownSize() {
+    public void rowCountCallbackCallbackGrid_scrolledToMiddleAndSwitchesToUndefinedSize_canScrollPastOldKnownSize() {
         open(500);
 
         grid.scrollToRow(250);
 
         verifyRows(500);
 
-        setUndefinedSizeBackendSize(1000);
-        setUndefinedSize();
+        setUnknownCountBackendSize(1000);
+        setUnknownCount();
 
         verifyRows(500);
 
@@ -43,7 +43,7 @@ public class DefinedSizeCallbackGridIT extends AbstractUndefinedSizeGridIT {
     }
 
     @Test
-    public void definedSizeCallbackGrid_scrolledToEndAndSwitchesToUndefinedSize_sizeIsIncreased() {
+    public void rowCountCallbackCallbackGrid_scrolledToEndAndSwitchesToUndefinedSize_sizeIsIncreased() {
         open(5800);
 
         verifyRows(5800);
@@ -52,8 +52,8 @@ public class DefinedSizeCallbackGridIT extends AbstractUndefinedSizeGridIT {
 
         Assert.assertEquals(5799, grid.getLastVisibleRowIndex());
 
-        setUndefinedSizeBackendSize(10000);
-        setUndefinedSize();
+        setUnknownCountBackendSize(10000);
+        setUnknownCount();
 
         verifyRows(6000);
 

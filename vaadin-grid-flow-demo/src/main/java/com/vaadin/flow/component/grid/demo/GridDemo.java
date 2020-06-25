@@ -606,9 +606,9 @@ public class GridDemo extends DemoView {
     protected void initView() {
         createBasicUsage();// Basic Grid
         addVariantFeature();
-        createGridWithLazyLoading();
-        createGridWithDefinedSize();
+        createGridWithLazyLoading(); // Lazy Loading
         createGridWithCustomSizeEstimate();
+        createGridWithDefinedSize();
         createArrayData();// Assigning data
         createDynamicHeight();
         createSingleSelect();
@@ -723,10 +723,8 @@ public class GridDemo extends DemoView {
          * that is shown in its current view "window". The data is provided
          * based on offset and limit.
          *
-         * The grid supports both defined and undefined size. In this example it
-         * uses undefined size, which means that it will increase the size as
-         * the user scrolls to the end, until there is no more data in the
-         * backend.
+         * When the user scrolls to the end grid will automatically extend and
+         * fetch more rows until the data source runs out of items.
          */
         grid.setDataSource(query -> personService
                 .fetch(query.getOffset(), query.getLimit()).stream());
@@ -738,72 +736,68 @@ public class GridDemo extends DemoView {
         // end-source-example
         grid.setId("lazy-loading");
 
-        addCard("Lazy Loading","Grid with lazy loading", grid);
+        addCard("Lazy Loading", "Grid with lazy loading", grid);
     }
 
-    private void createGridWithCustomSizeEstimate() {
+    private void createGridWithCustomRowCountEstimate() {
         // begin-source-example
-        // source-example-heading: Size estimate callback
+        // source-example-heading: Customizing row count estimate
         Grid<Person> grid = new Grid<>();
         PersonService personService = new PersonService();
 
-        /*
-         * Grid supports both undefined and defined size for the items. When
-         * given a callback for fetching the items lazily, grid has undefined
-         * size.
-         */
         GridLazyDataView<Person> lazyDataView = grid
                 .setDataSource(query -> personService
                         .fetch(query.getOffset(), query.getLimit()).stream());
         /*
-         * Adding a custom callback which increases the size estimate by 100
-         * items when the user scrolls to the last page. By default, the size is
-         * increased by 200, which is 4 times the default page size of 50.
+         * By default the grid will initially adjust the scrollbar to 200 rows
+         * and as the user scrolls down it automatically increases the size by
+         * 200 until the data source runs out of items.
+         *
+         * Both the estimated row count and its increase step can be customized
+         * to allow the user to scroll down faster when the data source will
+         * have a lot of rows.
          */
-        lazyDataView.withUndefinedSize(
-                query -> query.getPreviousSizeEstimate() + 100);
+        lazyDataView.setRowCountEstimate(1000);
+        lazyDataView.setRowCountEstimateStep(1000);
 
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getLastName).setHeader("Last Name");
         grid.addColumn(Person::getAge).setHeader("Age");
-
         // end-source-example
 
-        grid.setId("custom-size-callback");
+        grid.setId("custom-row-count-estimate");
 
-        addCard("Lazy Loading","Size estimate callback", grid);
+        addCard("Lazy Loading", "Customizing row count estimate", grid);
     }
 
-    private void createGridWithDefinedSize() {
+    private void createGridWithExactRowCount() {
         // begin-source-example
-        // source-example-heading: Defined size
+        // source-example-heading: Exact row count
         Grid<Person> grid = new Grid<>();
         PersonService personService = new PersonService();
 
         /*
-         * Grid supports both undefined and defined size for the items. To use
-         * defined size where the grid's scrollbar immediately gets the right
-         * size, a second callback returning the size of the grid must be
-         * provided.
+         * In case it is desired to show to the user the exact number of rows in
+         * the data source, that can be done providing another callback that
+         * fetches the row count from the data source.
          */
         GridLazyDataView<Person> lazyDataView = grid.setDataSource(
                 query -> personService
                         .fetch(query.getOffset(), query.getLimit()).stream(),
                 query -> personService.count());
 
-        // The grid can be on switched back to undefined size through the
+        // The grid can be on switched back to unknown row count through the
         // API in the lazy data view:
-        // lazyDataView.withUndefinedSize();
+        // lazyDataView.setRowCountUnknown();
 
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getLastName).setHeader("Last Name");
         grid.addColumn(Person::getAge).setHeader("Age");
-
         // end-source-example
 
-        grid.setId("defined-size-callback");
+        grid.setId("count-callback");
 
-        addCard("Lazy Loading","Defined size", grid);
+        addCard("Lazy Loading", "Exact row count", grid);
     }
 
     // Assigning Data Begin
