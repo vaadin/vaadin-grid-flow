@@ -2458,14 +2458,19 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
 
     /**
      * Sets the page size, which is the number of items fetched at a time from
-     * the dataprovider.
+     * the data source. With the default value of {@code 50}, the grid might
+     * fetch items for example as: {@code 0-49, 50-149, 150-200...}.
      * <p>
-     * Note: the number of items in the server-side memory can be considerably
-     * higher than the page size, since the component can show more than one
-     * page at a time.
+     * <em>Note:</em> the number of items in the server-side memory can be
+     * considerably higher than the page size, since the component can show more
+     * than one page at a time.
      * <p>
      * Setting the pageSize after the Grid has been rendered effectively resets
      * the component, and the current page(s) and sent over again.
+     * <p>
+     * With automatically extending grid, controlling the row count and how much
+     * it is increased when scrolling is possible via
+     * {@link #getLazyDataView()}.
      *
      * @param pageSize
      *            the maximum number of items sent per request. Should be

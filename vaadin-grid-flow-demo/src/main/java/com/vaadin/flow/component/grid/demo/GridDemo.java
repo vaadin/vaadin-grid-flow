@@ -607,8 +607,8 @@ public class GridDemo extends DemoView {
         createBasicUsage();// Basic Grid
         addVariantFeature();
         createGridWithLazyLoading(); // Lazy Loading
-        createGridWithCustomSizeEstimate();
-        createGridWithDefinedSize();
+        createGridWithCustomRowCountEstimate();
+        createGridWithExactRowCount();
         createArrayData();// Assigning data
         createDynamicHeight();
         createSingleSelect();
@@ -741,7 +741,7 @@ public class GridDemo extends DemoView {
 
     private void createGridWithCustomRowCountEstimate() {
         // begin-source-example
-        // source-example-heading: Customizing row count estimate
+        // source-example-heading: Faster Scrolling with Custom Row Count Estimate
         Grid<Person> grid = new Grid<>();
         PersonService personService = new PersonService();
 
@@ -753,12 +753,12 @@ public class GridDemo extends DemoView {
          * and as the user scrolls down it automatically increases the size by
          * 200 until the data source runs out of items.
          *
-         * Both the estimated row count and its increase step can be customized
+         * Both the estimated row count and its increase can be customized
          * to allow the user to scroll down faster when the data source will
          * have a lot of rows.
          */
         lazyDataView.setRowCountEstimate(1000);
-        lazyDataView.setRowCountEstimateStep(1000);
+        lazyDataView.setRowCountEstimateIncrease(1000);
 
         grid.addColumn(Person::getFirstName).setHeader("First Name");
         grid.addColumn(Person::getLastName).setHeader("Last Name");
@@ -767,7 +767,7 @@ public class GridDemo extends DemoView {
 
         grid.setId("custom-row-count-estimate");
 
-        addCard("Lazy Loading", "Customizing row count estimate", grid);
+        addCard("Lazy Loading", "Faster Scrolling with Custom Row Count Estimate", grid);
     }
 
     private void createGridWithExactRowCount() {
