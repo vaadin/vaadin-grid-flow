@@ -19,20 +19,17 @@ package com.vaadin.flow.component.grid.dataview;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.DataView;
 import com.vaadin.flow.data.provider.IdentifierProvider;
+
 import org.junit.Assert;
-import org.junit.Before;
+
 import org.junit.Test;
 
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.DataProviderListener;
 import com.vaadin.flow.data.provider.InMemoryDataProvider;
@@ -43,7 +40,7 @@ import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.shared.Registration;
 import org.mockito.Mockito;
 
-public class GridDataViewTest {
+public class GridDataViewTest extends AbstractComponentDataViewTest {
 
     private List<String> items;
 
@@ -87,6 +84,15 @@ public class GridDataViewTest {
         Assert.assertEquals(items.get(0), dataView.getItem(0));
         Assert.assertEquals(items.get(1), dataView.getItem(1));
         Assert.assertEquals(items.get(2), dataView.getItem(2));
+public class GridDataViewImplTest extends AbstractComponentDataViewTest {
+
+    @Test
+    public void dataViewWithItems_getItemOnRow_returnsCorrectItem() {
+        Grid<String> grid = new Grid<>();
+        GridDataView<String> dataView = grid.setDataSource(dataProvider);
+        Assert.assertEquals(items.get(0), dataView.getItemOnRow(0));
+        Assert.assertEquals(items.get(1), dataView.getItemOnRow(1));
+        Assert.assertEquals(items.get(2), dataView.getItemOnRow(2));
     }
 
     @Test
@@ -242,5 +248,8 @@ public class GridDataViewTest {
         public String toString() {
             return String.valueOf(value);
         }
+    @Override
+    protected HasDataView<String, ? extends DataView<String>> getComponent() {
+        return new Grid<>();
     }
 }
