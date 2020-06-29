@@ -19,16 +19,14 @@ package com.vaadin.flow.component.grid.it.dataview;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
-@Route("initial-size-estimate/:size?([0-9]{1,9})")
-public class InitialSizeEstimateGridPage extends AbstractUndefinedSizeGridPage {
-
-    public InitialSizeEstimateGridPage() {
-    }
+@Route("row-count-unknown/:count?([0-9]{1,9})")
+public class RowCountUnknownGridPage extends AbstractRowCountGridPage {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        event.getRouteParameters().get("size")
-                .ifPresent(string -> initialEstimateInput
+        switchToUndefinedSize();
+        event.getRouteParameters().get("count")
+                .ifPresent(string -> fetchCallbackSizeInput
                         .setValue(Integer.parseInt(string)));
     }
 }

@@ -17,7 +17,7 @@
 package com.vaadin.flow.component.grid.i.dataview;
 
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.it.dataview.AbstractUndefinedSizeGridPage;
+import com.vaadin.flow.component.grid.it.dataview.AbstractRowCountGridPage;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.component.textfield.testbench.IntegerFieldElement;
 import com.vaadin.flow.internal.Range;
@@ -27,14 +27,13 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
 
-public abstract class AbstractUndefinedSizeGridIT extends AbstractComponentIT {
+public abstract class AbstractRowCountGridIT extends AbstractComponentIT {
 
     // changing the dimension might get grid change what it fetches and how many
     // items it shows, so changing this is a bad idea ...
     private static final Dimension TARGET_SIZE = new Dimension(1000, 900);
     protected GridElement grid;
-    protected int sizeIncreasePageCount = new Grid<String>()
-            .getDataCommunicator().getSizeIncreasePageCount();
+    protected int sizeIncreasePageCount = 4;
     protected int pageSize = new Grid<String>().getPageSize();
 
     @Override
@@ -64,32 +63,32 @@ public abstract class AbstractUndefinedSizeGridIT extends AbstractComponentIT {
         verifyRows(expectedRows);
     }
 
-    protected void setUndefinedSize() {
+    protected void setUnknownCount() {
         findElement(
-                By.id(AbstractUndefinedSizeGridPage.UNDEFINED_SIZE_BUTTON_ID))
+                By.id(AbstractRowCountGridPage.UNDEFINED_SIZE_BUTTON_ID))
                         .click();
     }
 
-    protected void setDefinedSizeCallback() {
-        findElement(By.id(AbstractUndefinedSizeGridPage.DEFINED_SIZE_BUTTON_ID))
+    protected void setCountCallback() {
+        findElement(By.id(AbstractRowCountGridPage.DEFINED_SIZE_BUTTON_ID))
                 .click();
     }
 
-    protected void setUndefinedSizeBackendSize(int size) {
+    protected void setUnknownCountBackendSize(int size) {
         $(IntegerFieldElement.class).id(
-                AbstractUndefinedSizeGridPage.UNDEFINED_SIZE_BACKEND_SIZE_INPUT_ID)
+                AbstractRowCountGridPage.UNDEFINED_SIZE_BACKEND_SIZE_INPUT_ID)
                 .setValue(size + "");
     }
 
-    protected void setSizeEstimateCallback() {
-        findElement(By.id(
-                AbstractUndefinedSizeGridPage.SIZE_ESTIMATE_CALLBACK_BUTTON_ID))
-                        .click();
+    protected void setEstimateStep(int estimate) {
+        $(IntegerFieldElement.class).id(
+                AbstractRowCountGridPage.ROW_COUNT_ESTIMATE_STEP_INPUT)
+                .setValue(estimate + "");
     }
 
-    protected void setNextSizeEstimate(int estimate) {
+    protected void setEstimate(int estimate) {
         $(IntegerFieldElement.class).id(
-                AbstractUndefinedSizeGridPage.SIZE_ESTIMATE_CALLBACK_INPUT_ID)
+                AbstractRowCountGridPage.ROW_COUNT_ESTIMATE_INPUT)
                 .setValue(estimate + "");
     }
 

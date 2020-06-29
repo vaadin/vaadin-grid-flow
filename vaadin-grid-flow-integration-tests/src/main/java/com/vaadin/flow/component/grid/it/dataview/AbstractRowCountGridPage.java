@@ -15,8 +15,6 @@
  */
 package com.vaadin.flow.component.grid.it.dataview;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -31,13 +29,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.flow.data.provider.Query;
-import com.vaadin.flow.data.provider.SizeEstimateQuery;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
 
-public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
+public abstract class AbstractRowCountGridPage extends VerticalLayout
         implements BeforeEnterObserver {
 
     private class LazyLoadingProvider
@@ -69,32 +66,29 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     public static final String UNDEFINED_SIZE_BUTTON_ID = "undefined-size";
     public static final String DEFINED_SIZE_BUTTON_ID = "defined-size";
     public static final String DATA_PROVIDER_BUTTON_ID = "data-provider";
-    public static final String INITIAL_ESTIMATE_INPUT_ID = "initial-size-input";
-    public static final String SIZE_ESTIMATE_CALLBACK_INPUT_ID = "size-estimate-input";
-    public static final String SIZE_ESTIMATE_CALLBACK_BUTTON_ID = "size-estimate-button";
+    public static final String ROW_COUNT_ESTIMATE_INPUT = "row-count-estimate-input";
+    public static final String ROW_COUNT_ESTIMATE_STEP_INPUT = "row-count-estimate-step-input";
     public static final String DATA_PROVIDER_SIZE_INPUT_ID = "data-provider-size-input";
     public static final String UNDEFINED_SIZE_BACKEND_SIZE_INPUT_ID = "fetchcallback";
-    public static final int DEFAULT_INITIAL_SIZE_ESTIMATE = 500;
     public static final int DEFAULT_DATA_PROVIDER_SIZE = 1000;
 
     private LazyLoadingProvider dataProvider;
     private VerticalLayout menuBar;
     private Div logPanel;
-    protected IntegerField initialEstimateInput;
-    protected IntegerField estimateInput;
+    protected IntegerField rowCountEstimateInput;
+    protected IntegerField rowCountEstimateStepInput;
     protected IntegerField fetchCallbackSizeInput;
     protected IntegerField dataProviderSizeInput;
     protected Grid<String> grid;
 
     private int fetchQueryCount = 0;
-    private int sizeEstimateQueryCount = 0;
     private int dataProviderSize = DEFAULT_DATA_PROVIDER_SIZE;
     private int fetchCallbackSize = -1;
 
     private int sizeCallbackEstimate = -1;
     private int initialSizeEstimate = -1;
 
-    public AbstractUndefinedSizeGridPage() {
+    public AbstractRowCountGridPage() {
         initGrid();
 
         logPanel = new Div();
@@ -122,13 +116,13 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     private void initNavigationLinks() {
         menuBar.add("Open initially with");
         menuBar.add(
-                new RouterLink("UndefinedSize", UndefinedSizeGridPage.class));
+                new RouterLink("UndefinedSize", RowCountUnknownGridPage.class));
         menuBar.add(new RouterLink("InitialSizeEstimate",
-                InitialSizeEstimateGridPage.class));
+                RowCountEstimateGridPage.class));
         menuBar.add(new RouterLink("SizeEstimateCallback",
-                SizeEstimateCallbackGridPage.class));
+                RowCountEstimateStepGridPage.class));
         menuBar.add(new RouterLink("DefinedSize",
-                DefinedSizeCallbackGridPage.class));
+                RowCountCallbackGridPage.class));
     }
 
     private void initGrid() {
@@ -193,26 +187,20 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     }
 
     private void initEstimateOptions() {
-        menuBar.add("Size Estimate Configuration");
-        Button button = new Button(
-                "setUndefinedSize(SizeEstimateCallback) -> undefined size",
-                event -> switchToSizeEstimateCallback());
-        menuBar.add(button);
-        button.setId(SIZE_ESTIMATE_CALLBACK_BUTTON_ID);
+        menuBar.add("RowCount Estimate Configuration");
 
-        initialEstimateInput = new IntegerField(
-                "setUndefinedSize(int initialEstimate) -> undefined size:",
+        rowCountEstimateInput = new IntegerField(
+                "setRowCountEstimate",
                 event -> grid.getLazyDataView()
-                        .withUndefinedSize(event.getValue()));
-        initialEstimateInput.setId(INITIAL_ESTIMATE_INPUT_ID);
-        initialEstimateInput.setWidthFull();
+                        .setRowCountEstimate(event.getValue()));
+        rowCountEstimateInput.setId(ROW_COUNT_ESTIMATE_INPUT);
+        rowCountEstimateInput.setWidthFull();
 
-        estimateInput = new IntegerField("Next Size Estimate:",
-                event -> sizeCallbackEstimate = event.getValue());
-        estimateInput.setId(SIZE_ESTIMATE_CALLBACK_INPUT_ID);
-        estimateInput.setPlaceholder("Test Default is +20% estimate");
-        estimateInput.setWidthFull();
-        menuBar.add(initialEstimateInput, estimateInput);
+        rowCountEstimateStepInput = new IntegerField("setRowCountEstimateStep",
+                event -> grid.getLazyDataView().setRowCountEstimateIncrease(event.getValue()));
+        rowCountEstimateStepInput.setId(ROW_COUNT_ESTIMATE_STEP_INPUT);
+        rowCountEstimateStepInput.setWidthFull();
+        menuBar.add(rowCountEstimateInput, rowCountEstimateStepInput);
     }
 
     private void initDataCommunicatorOptions() {
@@ -222,36 +210,8 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
         pageSizeInput.setValue(grid.getPageSize());
         pageSizeInput.setWidthFull();
 
-        IntegerField bufferPagesInput = new IntegerField(
-                "# pages to increase size", event -> grid.getDataCommunicator()
-                        .setSizeIncreasePageCount(event.getValue()));
-        bufferPagesInput.setValue(
-                grid.getDataCommunicator().getSizeIncreasePageCount());
-        bufferPagesInput.setWidthFull();
-
         menuBar.add("DataCommunicator Configuration");
-        menuBar.add(pageSizeInput, bufferPagesInput);
-    }
-
-    private int getSizeEstimate(SizeEstimateQuery<String, Void> query) {
-        Div log = new Div();
-        log.setId("log-" + sizeEstimateQueryCount);
-        log.setText(sizeEstimateQueryCount++ + ": Size "
-                + query.getPreviousSizeEstimate() + ", "
-                + query.getRequestedRangeEnd());
-        logPanel.addComponentAsFirst(log);
-        if (sizeCallbackEstimate < 1) {
-            // using +20% as the default
-            int previousSizeEstimate = query.getPreviousSizeEstimate();
-            if (previousSizeEstimate == 0) {
-                return DEFAULT_INITIAL_SIZE_ESTIMATE;
-            }
-            return new BigDecimal(previousSizeEstimate)
-                    .multiply(new BigDecimal(1.2, MathContext.DECIMAL32))
-                    .intValue();
-        } else {
-            return sizeCallbackEstimate;
-        }
+        menuBar.add(pageSizeInput);
     }
 
     protected void switchToDataProvider() {
@@ -260,7 +220,7 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     }
 
     protected void switchToDefinedSize() {
-        grid.getLazyDataView().withDefinedSize(dataProvider::size);
+        grid.getLazyDataView().setRowCountCallback(dataProvider::size);
         dataProviderSizeInput.setEnabled(true);
     }
 
@@ -270,12 +230,8 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     }
 
     protected void switchToUndefinedSize() {
-        grid.getLazyDataView().withUndefinedSize();
+        grid.getLazyDataView().setRowCountUnknown();
         dataProviderSizeInput.setEnabled(false);
-    }
-
-    protected void switchToSizeEstimateCallback() {
-        grid.getLazyDataView().withUndefinedSize(this::getSizeEstimate);
     }
 
     private Stream<String> fakeFetch(Query<String, Void> query) {
