@@ -2359,12 +2359,13 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
     /**
      * {@inheritDoc}
      * 
-     * @deprecated use {@link HasListDataView#setDataSource(Stream)}
+     * @deprecated use {@link HasListDataView#setDataSource(Collection)} or {@
+     *             code setDataSource(DataProvider.fromStream(streamOfItems))}.
      */
     @Override
     @Deprecated
     public void setItems(Stream<T> streamOfItems) {
-        setDataSource(streamOfItems);
+        setDataSource(DataProvider.fromStream(streamOfItems));
     }
 
     /**

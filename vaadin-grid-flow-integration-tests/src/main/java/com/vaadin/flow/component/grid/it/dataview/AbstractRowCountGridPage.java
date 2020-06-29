@@ -197,7 +197,7 @@ public abstract class AbstractRowCountGridPage extends VerticalLayout
         rowCountEstimateInput.setWidthFull();
 
         rowCountEstimateStepInput = new IntegerField("setRowCountEstimateStep",
-                event -> grid.getLazyDataView().setRowCountEstimateStep(event.getValue()));
+                event -> grid.getLazyDataView().setRowCountEstimateIncrease(event.getValue()));
         rowCountEstimateStepInput.setId(ROW_COUNT_ESTIMATE_STEP_INPUT);
         rowCountEstimateStepInput.setWidthFull();
         menuBar.add(rowCountEstimateInput, rowCountEstimateStepInput);
