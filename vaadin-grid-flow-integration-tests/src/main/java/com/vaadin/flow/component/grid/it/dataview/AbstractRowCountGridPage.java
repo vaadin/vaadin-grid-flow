@@ -34,7 +34,7 @@ import com.vaadin.flow.internal.Range;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
 
-public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
+public abstract class AbstractRowCountGridPage extends VerticalLayout
         implements BeforeEnterObserver {
 
     private class LazyLoadingProvider
@@ -88,7 +88,7 @@ public abstract class AbstractUndefinedSizeGridPage extends VerticalLayout
     private int sizeCallbackEstimate = -1;
     private int initialSizeEstimate = -1;
 
-    public AbstractUndefinedSizeGridPage() {
+    public AbstractRowCountGridPage() {
         initGrid();
 
         logPanel = new Div();

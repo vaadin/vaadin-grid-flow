@@ -21,7 +21,7 @@ import com.vaadin.flow.router.Route;
 
 @Route("row-count-estimate-step/:step?([0-9]{1,9})")
 public class RowCountEstimateStepGridPage
-        extends AbstractUndefinedSizeGridPage {
+        extends AbstractRowCountGridPage {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {

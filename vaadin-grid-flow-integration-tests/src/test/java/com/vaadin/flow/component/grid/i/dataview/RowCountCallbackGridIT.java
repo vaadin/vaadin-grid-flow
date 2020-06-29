@@ -22,7 +22,7 @@ import org.junit.Test;
 
 
 @TestPath("row-count-callback")
-public class RowCountCallbackGridIT extends AbstractUndefinedSizeGridIT {
+public class RowCountCallbackGridIT extends AbstractRowCountGridIT {
 
     @Test
     public void rowCountCallbackCallbackGrid_scrolledToMiddleAndSwitchesToUndefinedSize_canScrollPastOldKnownSize() {

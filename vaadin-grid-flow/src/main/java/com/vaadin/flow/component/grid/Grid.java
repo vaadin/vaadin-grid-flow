@@ -2427,7 +2427,7 @@ public class Grid<T> extends Component implements HasDataProvider<T>, HasStyle,
      * <li>{@link #setDataSource(CallbackDataProvider.FetchCallback, CallbackDataProvider.CountCallback)}</li>
      * <li>{@link #setDataSource(BackEndDataProvider)}</li>
      * </ul>
-     * If the data source is of wrong type (in-memory), and exception is thrown.
+     * If the data source is of wrong type (in-memory), a exception is thrown.
      * 
      * @return the lazy data view that provides access to the data bound to the
      *         grid

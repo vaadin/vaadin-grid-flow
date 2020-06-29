@@ -20,7 +20,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
 @Route("row-count-estimate/:estimate?([0-9]{1,9})")
-public class RowCountEstimateGridPage extends AbstractUndefinedSizeGridPage {
+public class RowCountEstimateGridPage extends AbstractRowCountGridPage {
 
     public RowCountEstimateGridPage() {
     }

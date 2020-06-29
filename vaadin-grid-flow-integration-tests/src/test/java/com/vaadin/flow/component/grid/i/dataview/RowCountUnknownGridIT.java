@@ -21,10 +21,10 @@ import com.vaadin.flow.testutil.TestPath;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.vaadin.flow.component.grid.it.dataview.AbstractUndefinedSizeGridPage.DEFAULT_DATA_PROVIDER_SIZE;
+import static com.vaadin.flow.component.grid.it.dataview.AbstractRowCountGridPage.DEFAULT_DATA_PROVIDER_SIZE;
 
 @TestPath("row-count-unknown")
-public class RowCountUnknownGridIT extends AbstractUndefinedSizeGridIT {
+public class RowCountUnknownGridIT extends AbstractRowCountGridIT {
 
     @Test
     public void undefinedSizeGrid_defaultPageSizeEvenToDatasetSize_scrollingToEnd() {

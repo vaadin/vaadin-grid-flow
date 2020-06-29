@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 @TestPath("row-count-estimate-step")
-public class RowCountEstimateStepGridIT extends AbstractUndefinedSizeGridIT {
+public class RowCountEstimateStepGridIT extends AbstractRowCountGridIT {
 
     @Test
     public void customStep_scrollingPastEstimate_estimateIncreased() {

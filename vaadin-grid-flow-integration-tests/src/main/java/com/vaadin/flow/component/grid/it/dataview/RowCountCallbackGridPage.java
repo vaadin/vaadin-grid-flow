@@ -20,7 +20,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
 @Route("row-count-callback/:count?([0-9]{1,9})")
-public class RowCountCallbackGridPage extends AbstractUndefinedSizeGridPage {
+public class RowCountCallbackGridPage extends AbstractRowCountGridPage {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
