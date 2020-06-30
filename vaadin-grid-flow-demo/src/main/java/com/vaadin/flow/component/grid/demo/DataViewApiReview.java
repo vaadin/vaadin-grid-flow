@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.dataview.GridDataView;
 import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -414,6 +415,23 @@ public class DataViewApiReview extends DemoView {
         new GridDemo().createContextMenu();
     }
 
+    public void baseDataView() {
+        Grid<GridDemo.Person> grid = new Grid<>();
+        /*
+         * The base data view is available for:
+         * 1) using common API regardless of the type of data
+         * 2) when using an existing data provider type that is not a ListDataProvider
+         * or BackEndDataProvider.
+         */
+        final DataProvider<GridDemo.Person, ?> dataProvider = DataProvider.fromStream(Stream.of());
+        GridDataView<GridDemo.Person> dataView = grid.setDataSource(dataProvider);
+
+        final GridDataView<GridDemo.Person> dataView2 = grid.getDataView();
+        // because the base data view getter was problematic in DX tests,
+        // the plan is to rename it to getGenericDataView()
+        // (another option would be to remove it)
+        // https://github.com/vaadin/flow/issues/8618
+    }
 
 
 
