@@ -81,7 +81,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-dialog-flow</artifactId>
-            <version>3.1-SNAPSHOT</version>
+            <version>3.2-SNAPSHOT</version>
         </dependency>
 
         <!-- externals -->

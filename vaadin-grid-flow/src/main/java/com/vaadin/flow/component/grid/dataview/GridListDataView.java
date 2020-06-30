@@ -17,15 +17,18 @@ package com.vaadin.flow.component.grid.dataview;
 
 import java.util.stream.Stream;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractListDataView;
 import com.vaadin.flow.data.provider.DataCommunicator;
+import com.vaadin.flow.data.provider.IdentifierProvider;
 
 /**
- * GridListDataView for in-memory list data handling.
+ * Data view implementation for Grid with in-memory list data. Provides
+ * information on the data and allows operations on it.
  *
  * @param <T>
- *         data type
+ *            data type
  * @since
  */
 public class GridListDataView<T> extends AbstractListDataView<T>
@@ -57,4 +60,10 @@ public class GridListDataView<T> extends AbstractListDataView<T>
         return dataCommunicator.getDataSize();
     }
 
+    @Override
+    public void setIdentifierProvider(
+            IdentifierProvider<T> identifierProvider) {
+        super.setIdentifierProvider(identifierProvider);
+        dataCommunicator.getKeyMapper().setIdentifierGetter(identifierProvider);
+    }
 }

@@ -16,13 +16,21 @@
 
 package com.vaadin.flow.component.grid.dataview;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractDataView;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.IdentifierProvider;
 
+/**
+ * Implementation of generic data view for grid.
+ * 
+ * @param <T> the item type
+ * @since
+ */
 public class GridDataViewImpl<T> extends AbstractDataView<T>
         implements GridDataView<T> {
 
@@ -40,6 +48,12 @@ public class GridDataViewImpl<T> extends AbstractDataView<T>
                 .fetch(dataCommunicator.buildQuery(0, Integer.MAX_VALUE));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <em>NOTE:</em> calling this method might trigger a count call to the
+     * backend when a lazy data source is used.
+     */
     @Override
     public int getSize() {
         return dataCommunicator.getDataSize();
@@ -47,11 +61,17 @@ public class GridDataViewImpl<T> extends AbstractDataView<T>
 
     @Override
     public boolean contains(T item) {
-        final DataProvider<T, ?> dataProvider = dataCommunicator
-                .getDataProvider();
-        final Object itemIdentifier = dataProvider.getId(item);
-        return getItems()
-                .anyMatch(i -> itemIdentifier.equals(dataProvider.getId(i)));
+        final IdentifierProvider<T> identifierProvider =
+                getIdentifierProvider();
+
+        Object itemIdentifier = identifierProvider.apply(item);
+        Objects.requireNonNull(itemIdentifier,
+                "Identity provider should not return null");
+        //@formatter:off
+        return getItems().anyMatch(
+                i -> itemIdentifier.equals(
+                        identifierProvider.apply(i)));
+        //@formatter:on
     }
 
     @Override
@@ -68,5 +88,12 @@ public class GridDataViewImpl<T> extends AbstractDataView<T>
                     rowIndex, dataSize - 1));
         }
         return getItems().skip(rowIndex).findFirst().orElse(null);
+    }
+
+    @Override
+    public void setIdentifierProvider(
+            IdentifierProvider<T> identifierProvider) {
+        super.setIdentifierProvider(identifierProvider);
+        dataCommunicator.getKeyMapper().setIdentifierGetter(identifierProvider);
     }
 }
