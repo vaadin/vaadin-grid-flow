@@ -317,7 +317,7 @@ public class GridDemo extends DemoView {
 
     // end-source-example
 
-    public class PersonService {
+    public static class PersonService {
         private PersonData personData = new PersonData();
 
         public List<Person> fetch(int offset, int limit) {
@@ -1415,8 +1415,9 @@ public class GridDemo extends DemoView {
         final GridListDataView<Person> dataView = grid
                 .setDataSource(personList);
 
-        grid.addColumn(Person::getFirstName).setHeader("First Name")
-                .setFooter("Total: " + dataView.getSize() + " people");
+        final Column<Person> firstNameColumn = grid.addColumn(Person::getFirstName).setHeader("First Name");
+        dataView.addSizeChangeListener(event -> firstNameColumn
+                .setFooter("Total: " + event.getSize() + " people"));
 
         long averageOfAge = Math.round(personList.stream()
                 .mapToInt(Person::getAge).average().orElse(0));
@@ -1736,7 +1737,7 @@ public class GridDemo extends DemoView {
     // begin-source-example
     // source-example-heading: Navigating grid items externally
     // Clicking on item in grid opens dialog for item navigation
-    private Grid createExternalDataNavigationGrid() {
+    Grid createExternalDataNavigationGrid() {
         Grid<Person> grid = new Grid<>(Person.class);
         final GridListDataView<Person> dataView = grid
                 .setDataSource(new PersonService().fetchAll());
@@ -1754,7 +1755,7 @@ public class GridDemo extends DemoView {
         return grid;
     }
 
-    private class DataDialog extends Dialog {
+    public static class DataDialog extends Dialog {
         private Button next;
         private Button previous;
         private Person currentItem;
@@ -1795,7 +1796,7 @@ public class GridDemo extends DemoView {
 
 
     // Context Menu begin
-    private void createContextMenu() {
+    void createContextMenu() {
         TextArea message = new TextArea("");
         message.setHeight("100px");
         message.setReadOnly(true);
@@ -2358,7 +2359,7 @@ public class GridDemo extends DemoView {
     private Person draggedItem;
     private Grid<Person> dragSource;
 
-    private void createRowReordering() {
+    void createRowReordering() {
         // begin-source-example
         // source-example-heading: Row Reordering
 
