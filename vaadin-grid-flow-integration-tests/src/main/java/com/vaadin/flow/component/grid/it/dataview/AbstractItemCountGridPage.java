@@ -117,7 +117,7 @@ public abstract class AbstractItemCountGridPage extends VerticalLayout
         menuBar.add(new RouterLink("InitialSizeEstimate",
                 ItemCountEstimateGridPage.class));
         menuBar.add(new RouterLink("SizeEstimateCallback",
-                ItemCountEstimateStepGridPage.class));
+                ItemCountEstimateIncreaseGridPage.class));
         menuBar.add(new RouterLink("DefinedSize",
                 ItemCountCallbackGridPage.class));
     }
