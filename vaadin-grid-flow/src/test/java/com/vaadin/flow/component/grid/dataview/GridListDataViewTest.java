@@ -131,8 +131,6 @@ public class GridListDataViewTest extends AbstractListDataViewListenerTest {
 
         Assert.assertTrue("Returned false for item that should exist",
                 dataView.contains("middle"));
-        Assert.assertFalse("Returned false for item that should exist",
-                dataView.contains("non existing"));
     }
 
     @Test
