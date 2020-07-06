@@ -27,7 +27,7 @@ public class ItemCountEstimateIncreaseGridPage
     public void beforeEnter(BeforeEnterEvent event) {
         event.getRouteParameters().get("increase").ifPresent(string -> {
             int size = Integer.parseInt(string);
-            itemCountEstimateStepInput.setValue(size);
+            itemCountEstimateIncreaseInput.setValue(size);
         });
     }
 }

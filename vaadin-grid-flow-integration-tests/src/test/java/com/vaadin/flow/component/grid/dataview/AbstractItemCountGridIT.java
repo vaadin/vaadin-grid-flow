@@ -82,7 +82,7 @@ public abstract class AbstractItemCountGridIT extends AbstractComponentIT {
 
     protected void setEstimateIncrease(int estimateIncrease) {
         $(IntegerFieldElement.class).id(
-                AbstractItemCountGridPage.ITEM_COUNT_ESTIMATE_STEP_INPUT)
+                AbstractItemCountGridPage.ITEM_COUNT_ESTIMATE_INCREASE_INPUT)
                 .setValue(estimateIncrease + "");
     }
 
