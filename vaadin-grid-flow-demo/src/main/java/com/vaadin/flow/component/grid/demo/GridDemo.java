@@ -745,7 +745,7 @@ public class GridDemo extends DemoView {
     private void createGridWithCustomItemCountEstimate() {
         // begin-source-example
         // source-example-heading: Fast Scroll with Custom Item Count Estimate
-        // the backend will have 12345 rows
+        // The backend will have 12345 items
         final ItemGenerator fakeBackend = new ItemGenerator(12345);
         Grid<Item> grid = new Grid<>();
 
@@ -764,14 +764,14 @@ public class GridDemo extends DemoView {
         lazyDataView.setItemCountEstimate(1000);
         lazyDataView.setItemCountEstimateIncrease(1000);
 
-        // showing the row count for demo purposes
+        // Showing the item count for demo purposes
         Div countText = new Div();
         lazyDataView.addItemCountChangeListener(event -> {
             if (event.isItemCountEstimated()) {
                 countText
-                        .setText("Row Count Estimate: " + event.getItemCount());
+                        .setText("Item Count Estimate: " + event.getItemCount());
             } else {
-                countText.setText("Exact size: " + event.getItemCount());
+                countText.setText("Exact Item Count: " + event.getItemCount());
             }
         });
         
