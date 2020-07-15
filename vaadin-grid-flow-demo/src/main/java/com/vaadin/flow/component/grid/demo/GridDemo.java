@@ -1042,7 +1042,7 @@ public class GridDemo extends DemoView {
 
         HeaderRow filterRow = grid.appendHeaderRow();
 
-        PersonFilterObject filterObject = new PersonFilterObject();
+        PersonFilter filterObject = new PersonFilter();
         dataProvider.setFilter(person -> filterObject.test(person));
         // First filter
         TextField firstNameField = new TextField();
@@ -2857,7 +2857,7 @@ public class GridDemo extends DemoView {
     // begin-source-example
     // source-example-heading: Person filter object
 
-    public class PersonFilterObject {
+    public class PersonFilter {
         String name = "";
         String city = "";
         String age = "";
