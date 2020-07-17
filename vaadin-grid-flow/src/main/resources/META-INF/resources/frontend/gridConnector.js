@@ -89,6 +89,8 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       let ensureSubCacheQueue = [];
       let ensureSubCacheDebouncer;
 
+      let dataProviderDebouncer;
+
       let lastRequestedRanges = {};
       const root = 'null';
       lastRequestedRanges[root] = [0, 0];
@@ -393,7 +395,14 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             rootPageCallbacks[page] = callback;
           }
 
-          grid.$connector.fetchPage((firstIndex, size) => grid.$server.setRequestedRange(firstIndex, size), page, root);
+          dataProviderDebouncer = Debouncer.debounce(
+            dataProviderDebouncer,
+            timeOut.after(150), () => grid.$connector.fetchPage((firstIndex, size) => grid.$server.setRequestedRange(firstIndex, size), page, root)
+          );
+
+          if (page === 0) {
+            dataProviderDebouncer.flush();
+          }
         }
       })
 
