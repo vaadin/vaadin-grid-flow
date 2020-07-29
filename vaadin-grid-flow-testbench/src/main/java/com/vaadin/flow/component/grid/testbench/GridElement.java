@@ -33,7 +33,7 @@ import com.vaadin.testbench.elementsbase.Element;
 public class GridElement extends TestBenchElement {
 
     private void waitUntilLoadingFinished() {
-        waitUntil(e -> !hasAttribute("loading"));
+        waitUntil(e -> !getPropertyBoolean("loading"));
     }
 
     /**
