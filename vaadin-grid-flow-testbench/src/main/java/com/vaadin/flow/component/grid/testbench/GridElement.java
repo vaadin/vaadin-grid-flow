@@ -32,6 +32,10 @@ import com.vaadin.testbench.elementsbase.Element;
 @Element("vaadin-grid")
 public class GridElement extends TestBenchElement {
 
+    private void waitUntilLoadingFinished() {
+        waitUntil(e -> !hasAttribute("loading"));
+    }
+
     /**
      * Scrolls to the row with the given index.
      *
@@ -40,6 +44,7 @@ public class GridElement extends TestBenchElement {
      */
     public void scrollToRow(int row) {
         callFunction("_scrollToIndex", row);
+        waitUntilLoadingFinished();
     }
 
     /**
@@ -68,6 +73,7 @@ public class GridElement extends TestBenchElement {
      * @return the number of rows
      */
     public int getRowCount() {
+        waitUntilLoadingFinished();
         return getPropertyDouble("_effectiveSize").intValue();
     }
 

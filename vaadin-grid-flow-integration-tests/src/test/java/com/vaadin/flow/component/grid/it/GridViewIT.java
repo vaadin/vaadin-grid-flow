@@ -70,7 +70,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         Assert.assertEquals("Name", grid.getHeaderCell(0).getText());
         Assert.assertEquals("Person 1", grid.getCell(0, 0).getText());
-        scroll(grid, 185);
+        grid.scrollToRow(185);
         waitUntil(driver -> grid.getFirstVisibleRowIndex() >= 185);
         Assert.assertEquals("Person 186", grid.getCell(185, 0).getText());
     }
@@ -91,7 +91,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
         scrollToElement(grid);
 
         Assert.assertEquals("Name", grid.getHeaderCell(0).getText());
-        scroll(grid, 1010);
+        grid.scrollToRow(1010);
         waitUntil(driver -> grid.getFirstVisibleRowIndex() >= 1010);
         Assert.assertEquals("Person 1011", grid.getCell(1010, 0).getText());
     }
@@ -143,7 +143,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         // scroll to bottom
         for (int i = 0; i < 10; i++) {
-            scroll(grid, 100 + (100 * i));
+                grid.scrollToRow(100 + (100 * i));
         }
         waitUntilCellHasText(grid, "Person 499");
         // select item that is not in cache
@@ -152,7 +152,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 getSelectionMessage(null, GridView.items.get(0), false),
                 messageDiv.getText());
         // scroll back up
-        scroll(grid, 100);
+        grid.scrollToRow(100);
         WebElement table = findInShadowRoot(grid, By.id("table")).get(0);
         // Actually scroll up to have grid do a correct event.
         while (!getCells(grid).stream()
@@ -161,7 +161,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
             executeScript("arguments[0].scrollTop -= 100;", table);
         }
         // scroll the first row so it is visible.
-        scroll(grid, 0);
+        grid.scrollToRow(0);
         Assert.assertTrue("Person 1 was not marked as selected",
                 isRowSelected(grid, 0));
 
@@ -228,7 +228,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
 
         // scroll to bottom
         for (int i = 0; i < 10; i++) {
-            scroll(grid, 100 + (100 * i));
+                grid.scrollToRow(100 + (100 * i));
         }
         waitUntilCellHasText(grid, "Person 499");
         // select item that is not in cache
@@ -237,7 +237,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 getSelectionMessage(null, GridView.items.get(0), false),
                 messageDiv.getText());
         // scroll back up
-        scroll(grid, 100);
+        grid.scrollToRow(100);
         WebElement table = findInShadowRoot(grid, By.id("table")).get(0);
         // Actually scroll up to have grid do a correct event.
         while (!getCells(grid).stream()
@@ -246,7 +246,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
             executeScript("arguments[0].scrollTop -= 100;", table);
         }
         // scroll the first row so it is visible.
-        scroll(grid, 0);
+        grid.scrollToRow(0);
         Assert.assertTrue("Person 1 was not marked as selected",
                 isRowSelected(grid, 0));
 
@@ -1600,11 +1600,6 @@ public class GridViewIT extends TabbedComponentDemoTest {
         return String.format(
                 "Selection changed from %s to %s, selection is from client: %s",
                 oldSelection, newSelection, isFromClient);
-    }
-
-    private void scroll(WebElement grid, int index) {
-        getCommandExecutor().executeScript(
-                "arguments[0].scrollToIndex(" + index + ")", grid);
     }
 
     private void waitUntilCellHasText(WebElement grid, String text) {
