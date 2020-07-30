@@ -81,7 +81,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       *  into one request. Delay in milliseconds. Disable by setting to 0.
       *  parentRequestBatchMaxSize - maximum size of the batch.
       */
-      const parentRequestDelay = 20;
+      const parentRequestDelay = 150;
       const parentRequestBatchMaxSize = 20;
 
       let parentRequestQueue = [];
@@ -89,7 +89,8 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       let ensureSubCacheQueue = [];
       let ensureSubCacheDebouncer;
 
-      let dataProviderDebouncer;
+      const rootRequestDelay = 150;
+      let rootRequestDebouncer;
 
       let lastRequestedRanges = {};
       const root = 'null';
@@ -128,13 +129,14 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         ensureSubCacheQueue.sort(function(a, b) {
           return a.scaledIndex - b.scaledIndex || a.level - b.level;
         });
-        if(!ensureSubCacheDebouncer) {
-          grid.$connector.flushQueue(
-            (debouncer) => ensureSubCacheDebouncer = debouncer,
-            () => grid.$connector.hasEnsureSubCacheQueue(),
-            () => grid.$connector.flushEnsureSubCache(),
-            (action) => Debouncer.debounce(ensureSubCacheDebouncer, animationFrame, action));
-        }
+
+        ensureSubCacheDebouncer = Debouncer.debounce(ensureSubCacheDebouncer, animationFrame,
+          () => {
+            while (ensureSubCacheQueue.length) {
+              grid.$connector.flushEnsureSubCache();
+            }
+          }
+        );
       })
 
       grid.$connector.doSelection = tryCatchWrapper(function(items, userOriginated) {
@@ -247,23 +249,9 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
           return cacheAndIndex.cache;
         }
         return undefined;
-      })
-
-      grid.$connector.flushQueue = tryCatchWrapper(function(timeoutIdSetter, hasQueue, flush, startTimeout) {
-        if(!hasQueue()) {
-          timeoutIdSetter(undefined);
-          return;
-        }
-        if(flush()) {
-          timeoutIdSetter(startTimeout(() =>
-            grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout)));
-        } else {
-          grid.$connector.flushQueue(timeoutIdSetter, hasQueue, flush, startTimeout);
-        }
-      })
+      });
 
       grid.$connector.flushEnsureSubCache = tryCatchWrapper(function() {
-        let fetched = false;
         let pendingFetch = ensureSubCacheQueue.splice(0, 1)[0];
         let itemkey =  pendingFetch.itemkey;
 
@@ -308,14 +296,13 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             parentKey: parentKey
           });
 
-          if(!parentRequestDebouncer) {
-            grid.$connector.flushQueue(
-              (debouncer) => parentRequestDebouncer = debouncer,
-              () => grid.$connector.hasParentRequestQueue(),
-              () => grid.$connector.flushParentRequests(),
-              (action) => Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay), action));
-          }
-
+          parentRequestDebouncer = Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay),
+            () => {
+              while (parentRequestQueue.length) {
+                grid.$connector.flushParentRequests();
+              }
+            }
+          );
         } else {
           grid.$server.setParentRequestedRange(firstIndex, size, parentKey);
         }
@@ -395,14 +382,11 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             rootPageCallbacks[page] = callback;
           }
 
-          dataProviderDebouncer = Debouncer.debounce(
-            dataProviderDebouncer,
-            timeOut.after(150), () => grid.$connector.fetchPage((firstIndex, size) => grid.$server.setRequestedRange(firstIndex, size), page, root)
+          rootRequestDebouncer = Debouncer.debounce(rootRequestDebouncer, timeOut.after(grid._hasData ? rootRequestDelay : 0),
+            () => {
+              grid.$connector.fetchPage((firstIndex, size) => grid.$server.setRequestedRange(firstIndex, size), page, root);
+            }
           );
-
-          if (page === 0) {
-            dataProviderDebouncer.flush();
-          }
         }
       })
 
@@ -764,6 +748,9 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         }
         if(parentRequestDebouncer) {
           parentRequestDebouncer.cancel();
+        }
+        if (rootRequestDebouncer) {
+          rootRequestDebouncer.cancel();
         }
         ensureSubCacheDebouncer = undefined;
         parentRequestDebouncer = undefined;
