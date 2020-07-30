@@ -115,6 +115,7 @@ public class TreeGridElement extends GridElement {
                     "The element at row " + rowIndex + " was expanded already");
         }
         getExpandToggleElement(rowIndex, hierarchyColumnIndex).click();
+        waitUntilLoadingFinished();
     }
 
     /**

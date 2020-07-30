@@ -32,8 +32,14 @@ import com.vaadin.testbench.elementsbase.Element;
 @Element("vaadin-grid")
 public class GridElement extends TestBenchElement {
 
-    private void waitUntilLoadingFinished() {
-        waitUntil(e -> !getPropertyBoolean("loading"));
+    protected void waitUntilLoadingFinished() {
+        waitUntil(e -> !isCacheLoading());
+    }
+
+    protected boolean isCacheLoading() {
+        return (Boolean) executeScript(
+                "return arguments[0]._cache.isLoading()",
+                this);
     }
 
     /**
