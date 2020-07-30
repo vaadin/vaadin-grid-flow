@@ -110,6 +110,7 @@ public class TreeGridElement extends GridElement {
      *            0-based index of the hierarchy column
      */
     public void expandWithClick(int rowIndex, int hierarchyColumnIndex) {
+        waitUntilLoadingFinished();
         if (isRowExpanded(rowIndex, hierarchyColumnIndex)) {
             throw new IllegalStateException(
                     "The element at row " + rowIndex + " was expanded already");
@@ -140,11 +141,13 @@ public class TreeGridElement extends GridElement {
      *            0-based index of the hierarchy column
      */
     public void collapseWithClick(int rowIndex, int hierarchyColumnIndex) {
+        waitUntilLoadingFinished();
         if (isRowCollapsed(rowIndex, hierarchyColumnIndex)) {
             throw new IllegalStateException("The element at row " + rowIndex
                     + " was collapsed already");
         }
         getExpandToggleElement(rowIndex, hierarchyColumnIndex).click();
+        waitUntilLoadingFinished();
     }
 
     /**
