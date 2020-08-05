@@ -33,10 +33,10 @@ import com.vaadin.testbench.elementsbase.Element;
 public class GridElement extends TestBenchElement {
 
     protected void waitUntilLoadingFinished() {
-        waitUntil(e -> !isCacheLoading());
+        waitUntil(e -> !isLoading());
     }
 
-    protected boolean isCacheLoading() {
+    protected boolean isLoading() {
         return (Boolean) executeScript(
                 "return arguments[0]._cache.isLoading()",
                 this);

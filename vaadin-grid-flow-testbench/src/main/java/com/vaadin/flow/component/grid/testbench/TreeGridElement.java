@@ -272,6 +272,7 @@ public class TreeGridElement extends GridElement {
      * @return the number of expanded rows
      */
     public long getNumberOfExpandedRows() {
+        waitUntilLoadingFinished();
         long value = (long) executeScript(
                 "return arguments[0].expandedItems.length;", this);
         return value;
@@ -317,6 +318,13 @@ public class TreeGridElement extends GridElement {
     public boolean isLoadingExpandedRows() {
         return (Boolean) executeScript(
                 "return arguments[0].$connector.hasEnsureSubCacheQueue();",
-                this) || isCacheLoading();
+                this) || (Boolean) executeScript(
+                "return arguments[0].$connector.hasParentRequestQueue();",
+                this);
+    }
+
+    @Override
+    protected boolean isLoading() {
+        return super.isLoading() || isLoadingExpandedRows();
     }
 }
