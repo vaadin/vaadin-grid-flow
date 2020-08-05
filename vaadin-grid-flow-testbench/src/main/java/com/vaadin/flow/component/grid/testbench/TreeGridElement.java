@@ -34,15 +34,18 @@ public class TreeGridElement extends GridElement {
      *            the row to scroll to
      */
     public void scrollToRowAndWait(int row) {
+        waitUntilLoadingFinished();
         if (row > getLastVisibleRowIndex()) {
             int lastIndex = getLastVisibleRowIndex();
             scrollToRow(lastIndex);
             waitUntil(test -> getLastVisibleRowIndex() > lastIndex);
             waitUntil(test -> !isLoadingExpandedRows());
+            waitUntilLoadingFinished();
             scrollToRow(row);
         } else {
             callFunction("_scrollToIndex", row);
         }
+        waitUntilLoadingFinished();
     }
 
     /**
