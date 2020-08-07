@@ -39,13 +39,11 @@ public class TreeGridElement extends GridElement {
             int lastIndex = getLastVisibleRowIndex();
             scrollToRow(lastIndex);
             waitUntil(test -> getLastVisibleRowIndex() > lastIndex);
-            waitUntil(test -> !isLoadingExpandedRows());
             waitUntilLoadingFinished();
             scrollToRow(row);
         } else {
-            callFunction("_scrollToIndex", row);
+            scrollToRow(row);
         }
-        waitUntilLoadingFinished();
     }
 
     /**
@@ -113,7 +111,6 @@ public class TreeGridElement extends GridElement {
      *            0-based index of the hierarchy column
      */
     public void expandWithClick(int rowIndex, int hierarchyColumnIndex) {
-        waitUntilLoadingFinished();
         if (isRowExpanded(rowIndex, hierarchyColumnIndex)) {
             throw new IllegalStateException(
                     "The element at row " + rowIndex + " was expanded already");
@@ -144,7 +141,6 @@ public class TreeGridElement extends GridElement {
      *            0-based index of the hierarchy column
      */
     public void collapseWithClick(int rowIndex, int hierarchyColumnIndex) {
-        waitUntilLoadingFinished();
         if (isRowCollapsed(rowIndex, hierarchyColumnIndex)) {
             throw new IllegalStateException("The element at row " + rowIndex
                     + " was collapsed already");
@@ -163,6 +159,7 @@ public class TreeGridElement extends GridElement {
      * @return {@code true} if expanded, {@code false} if collapsed
      */
     public boolean isRowExpanded(int rowIndex, int hierarchyColumnIndex) {
+        waitUntilLoadingFinished();
         WebElement expandElement = getExpandToggleElement(rowIndex,
                 hierarchyColumnIndex);
         return expandElement != null
