@@ -840,8 +840,12 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         for(let i = 0; i < outstandingRequests.length; i++) {
           let page = outstandingRequests[i];
           let lastRequestedRange = lastRequestedRanges[root] || [0, 0];
+
+          const lastAvailablePage = grid.size ? Math.ceil(grid.size / grid.pageSize) - 1 : 0;
+          // It's possible that the lastRequestedRange includes a page that's beyond lastAvailablePage if the grid's size got reduced during an ongoing data request
+          const lastRequestedRangeEnd = Math.min(lastRequestedRange[1], lastAvailablePage);
           // Resolve if we have data or if we don't expect to get data
-          if ((cache[root] && cache[root][page]) || page < lastRequestedRange[0] || page > lastRequestedRange[1] || +page > grid.size / grid.pageSize - 1) {
+          if ((cache[root] && cache[root][page]) || page < lastRequestedRange[0] || +page > lastRequestedRangeEnd) {
             let callback = rootPageCallbacks[page];
             delete rootPageCallbacks[page];
             callback(cache[root][page] || new Array(grid.pageSize));
