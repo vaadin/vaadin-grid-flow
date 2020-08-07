@@ -37,11 +37,11 @@ public class GridElement extends TestBenchElement {
     }
 
     protected boolean isLoading() {
-        return (Boolean) executeScript(
-                "return arguments[0]._cache.isLoading()",
-                this) || (Boolean) executeScript(
-                "return arguments[0].$connector.hasRootRequestQueue();",
-                this);
+        return (Boolean) executeScript("return arguments[0]._cache.isLoading()",
+                this)
+                || (Boolean) executeScript(
+                        "return arguments[0].$connector.hasRootRequestQueue();",
+                        this);
     }
 
     /**
