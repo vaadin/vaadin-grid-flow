@@ -117,6 +117,10 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         return parentRequestQueue.length > 0;
       })
 
+      grid.$connector.hasRootRequestQueue = tryCatchWrapper(function() {
+        return Object.keys(rootPageCallbacks).length > 0 || (rootRequestDebouncer && rootRequestDebouncer.isActive());
+      })
+
       grid.$connector.beforeEnsureSubCacheForScaledIndex = tryCatchWrapper(function(targetCache, scaledIndex) {
         // add call to queue
         ensureSubCacheQueue.push({
@@ -759,12 +763,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         updateAllGridRowsInDomBasedOnCache();
       });
 
-      const deleteObjectContents = function(obj) {
-        let props = Object.keys(obj);
-        for (let i = 0; i < props.length; i++) {
-          delete obj[props[i]];
-        }
-      };
+      const deleteObjectContents = obj => Object.keys(obj).forEach(key => delete obj[key]);
 
       grid.$connector.updateSize = function(newSize) {
         grid.size = newSize;
@@ -842,7 +841,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
           let page = outstandingRequests[i];
           let lastRequestedRange = lastRequestedRanges[root] || [0, 0];
           // Resolve if we have data or if we don't expect to get data
-          if ((cache[root] && cache[root][page]) || page < lastRequestedRange[0] || page > lastRequestedRange[1]) {
+          if ((cache[root] && cache[root][page]) || page < lastRequestedRange[0] || page > lastRequestedRange[1] || +page > grid.size / grid.pageSize - 1) {
             let callback = rootPageCallbacks[page];
             delete rootPageCallbacks[page];
             callback(cache[root][page] || new Array(grid.pageSize));
