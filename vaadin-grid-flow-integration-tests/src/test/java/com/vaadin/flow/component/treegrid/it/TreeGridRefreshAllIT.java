@@ -85,11 +85,8 @@ public class TreeGridRefreshAllIT extends AbstractTreeGridIT {
 
         clickElementWithJs("clear");
 
-        // Can't use getRowCount() with an empty grid, (which waits until the
-        // grid is no longer loading),
-        // due to https://github.com/vaadin/vaadin-grid-flow/issues/1082
         Assert.assertEquals("Expected no rows to be rendered", 0,
-                getTreeGrid().getPropertyDouble("_effectiveSize").intValue());
+                getTreeGrid().getRowCount());
     }
 
 }
