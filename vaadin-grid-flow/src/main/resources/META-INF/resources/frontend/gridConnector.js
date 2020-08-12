@@ -822,11 +822,16 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
           let page = outstandingRequests[i];
 
           let lastRequestedRange = lastRequestedRanges[parentKey] || [0, 0];
+
+          const callback = treePageCallbacks[parentKey][page];
           if((cache[parentKey] && cache[parentKey][page]) || page < lastRequestedRange[0] || page > lastRequestedRange[1]) {
-            let callback = treePageCallbacks[parentKey][page];
             delete treePageCallbacks[parentKey][page];
             let items = cache[parentKey][page] || new Array(levelSize);
             callback(items, levelSize);
+          } else if (callback && levelSize === 0) {
+            // The parent item has 0 child items => resolve the callback with an empty array
+            delete treePageCallbacks[parentKey][page];
+            callback([], levelSize);
           }
         }
         // Let server know we're done
@@ -845,8 +850,8 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
           // It's possible that the lastRequestedRange includes a page that's beyond lastAvailablePage if the grid's size got reduced during an ongoing data request
           const lastRequestedRangeEnd = Math.min(lastRequestedRange[1], lastAvailablePage);
           // Resolve if we have data or if we don't expect to get data
+          const callback = rootPageCallbacks[page];
           if ((cache[root] && cache[root][page]) || page < lastRequestedRange[0] || +page > lastRequestedRangeEnd) {
-            let callback = rootPageCallbacks[page];
             delete rootPageCallbacks[page];
             callback(cache[root][page] || new Array(grid.pageSize));
             // Makes sure to push all new rows before this stack execution is done so any timeout expiration called after will be applied on a fully updated grid
@@ -855,6 +860,10 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
               grid._debounceIncreasePool.flush();
             }
 
+          } else if (callback && grid.size === 0) {
+            // The grid has 0 items => resolve the callback with an empty array
+            delete rootPageCallbacks[page];
+            callback([]);
           }
         }
 

@@ -18,6 +18,7 @@ package com.vaadin.flow.component.treegrid.it;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.vaadin.flow.component.button.testbench.ButtonElement;
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
@@ -33,10 +34,17 @@ public class TreeGridEmptyIT extends AbstractComponentIT {
 
         Assert.assertTrue("Grid should be displayd", grid.isDisplayed());
 
-        // Can't use getRowCount() with an empty grid, (which waits until the
-        // grid is no longer loading),
-        // due to https://github.com/vaadin/vaadin-grid-flow/issues/1082
-        Assert.assertEquals("Expected no rows to be rendered", 0,
-                grid.getPropertyDouble("_effectiveSize").intValue());
+        Assert.assertEquals("Expected no rows to be rendered", 0, grid.getRowCount());
+    }
+
+    @Test
+    public void empty_treegrid_item_expanded() {
+        open();
+
+        TreeGridElement grid = $(TreeGridElement.class).id("treegrid");
+
+        $(ButtonElement.class).id("add-expanded-button").click();
+
+        Assert.assertEquals("Expected only the parent row to be rendered", 1, grid.getRowCount());
     }
 }
