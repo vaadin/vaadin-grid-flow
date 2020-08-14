@@ -34,7 +34,7 @@ public class TreeGridEmptyIT extends AbstractComponentIT {
 
         Assert.assertTrue("Grid should be displayd", grid.isDisplayed());
 
-        Assert.assertEquals("Expected no rows to be rendered", 0, grid.getRowCount());
+        Assert.assertTrue("Grid should not have rows", grid.getRowCount() == 0);
     }
 
     @Test
