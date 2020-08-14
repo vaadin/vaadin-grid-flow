@@ -873,10 +873,6 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
 
         // Let server know we're done
         grid.$server.confirmUpdate(id);
-
-        if (!grid.loading) {
-          grid._assignModels();
-        }
       })
 
       grid.$connector.ensureHierarchy = tryCatchWrapper(function() {
