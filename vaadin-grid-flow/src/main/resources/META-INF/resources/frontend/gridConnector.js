@@ -838,7 +838,6 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         grid.$server.confirmParentUpdate(id, parentKey);
 
         if (!grid.loading) {
-          // BUGFIX. TEST NEEDED!
           grid._assignModels();
         }
       });
@@ -876,7 +875,6 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         grid.$server.confirmUpdate(id);
 
         if (!grid.loading) {
-          // BUGFIX. TEST NEEDED!
           grid._assignModels();
         }
       })
