@@ -81,7 +81,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       *  into one request. Delay in milliseconds. Disable by setting to 0.
       *  parentRequestBatchMaxSize - maximum size of the batch.
       */
-      const parentRequestDelay = 150;
+      const parentRequestDelay = 50;
       const parentRequestBatchMaxSize = 20;
 
       let parentRequestQueue = [];
