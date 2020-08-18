@@ -833,13 +833,17 @@ public class GridDemo extends DemoView {
     private void createGridWithPagedRepository() {
         //@formatter:off
         // begin-source-example
-        // source-example-heading: Loading from paged repository
+        // source-example-heading: Loading from a paged repository
 
         Grid<Person> grid = new Grid<>();
         PersonService service = new PersonService();
         /*
-         * For those backend repositories which use paged data fetching, it
-         * is possible to get the page number and page size from Query API.
+         * For backends which provide data in pages, like Spring Data
+         * repositories, it is possible to get the page number and size from the
+         * Query API.
+         * For more instructions on how to work with Spring Data,
+         * see the documentation in https://vaadin.com/docs and the tutorials in
+         * https://vaadin.com/learn/tutorials/.
          */
         grid.setItems(query -> service.fetchPage(query.getPage(),
                 query.getPageSize())
@@ -852,7 +856,7 @@ public class GridDemo extends DemoView {
         // end-source-example
         //@formatter:on
         grid.setId("paged-grid");
-        addCard("Lazy Loading", "Loading from paged repository", grid);
+        addCard("Lazy Loading", "Loading from a paged repository", grid);
     }
 
     // Assigning Data Begin
