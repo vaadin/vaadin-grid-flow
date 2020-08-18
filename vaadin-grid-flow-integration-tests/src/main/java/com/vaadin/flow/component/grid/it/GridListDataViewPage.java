@@ -102,15 +102,15 @@ public class GridListDataViewPage extends Div {
         TextField updateFirstNameField = new TextField("Update first name",
                 event -> {
                     Person updatedPerson =
-                            dataView.getItemOnRow(rowSelect.getValue());
+                            dataView.getItem(rowSelect.getValue());
                     updatedPerson.setFirstName(event.getValue());
-                    dataView.updateItem(updatedPerson);
+                    dataView.refreshItem(updatedPerson);
                 });
         updateFirstNameField.setId(UPDATE_ITEM);
         Button deletePerson = new Button("Delete person",
                 event -> {
                     Person deletedPerson =
-                            dataView.getItemOnRow(rowSelect.getValue());
+                            dataView.getItem(rowSelect.getValue());
                     dataView.removeItem(deletedPerson);
                 });
         deletePerson.setId(DELETE_ITEM);
