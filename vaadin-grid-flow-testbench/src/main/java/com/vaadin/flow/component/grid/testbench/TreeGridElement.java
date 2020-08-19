@@ -317,11 +317,8 @@ public class TreeGridElement extends GridElement {
      */
     public boolean isLoadingExpandedRows() {
         return (Boolean) executeScript(
-                "return arguments[0].$connector.hasEnsureSubCacheQueue();",
-                this)
-                || (Boolean) executeScript(
-                        "return arguments[0].$connector.hasParentRequestQueue();",
-                        this);
+                "return arguments[0].$connector.hasEnsureSubCacheQueue() || arguments[0].$connector.hasParentRequestQueue()",
+                this);
     }
 
     @Override
