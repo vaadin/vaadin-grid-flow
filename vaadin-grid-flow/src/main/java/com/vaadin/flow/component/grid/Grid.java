@@ -88,9 +88,7 @@ import com.vaadin.flow.data.provider.HasDataView;
 import com.vaadin.flow.data.provider.HasLazyDataView;
 import com.vaadin.flow.data.provider.HasListDataView;
 import com.vaadin.flow.data.provider.KeyMapper;
-import com.vaadin.flow.data.provider.LazyDataView;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.provider.ListDataView;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
@@ -145,8 +143,8 @@ import elemental.json.JsonValue;
 public class Grid<T> extends Component implements HasStyle, HasSize,
         Focusable<Grid<T>>, SortNotifier<Grid<T>, GridSortOrder<T>>, HasTheme,
         HasDataGenerators<T>, HasListDataView<T, GridListDataView<T>>,
-        HasDataView<T, GridDataView<T>>,
-        HasLazyDataView<T, GridLazyDataView<T>> {
+        HasDataView<T, Void, GridDataView<T>>,
+        HasLazyDataView<T, Void, GridLazyDataView<T>> {
 
     // package-private because it's used in tests
     static final String DRAG_SOURCE_DATA_KEY = "drag-source-data";
@@ -2359,7 +2357,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     }
 
     @Override
-    public GridDataView<T> setItems(DataProvider<T, ?> dataProvider) {
+    public GridDataView<T> setItems(DataProvider<T, Void> dataProvider) {
         setDataProvider(dataProvider);
         return getGenericDataView();
     }

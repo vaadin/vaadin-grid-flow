@@ -19,7 +19,11 @@ package com.vaadin.flow.component.grid.dataview;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
+import com.vaadin.flow.data.provider.DataProviderListener;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.shared.Registration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -48,9 +52,42 @@ public class GridDataViewTest extends AbstractComponentDataViewTest {
         Item second = new Item(2L, "middle");
 
         List<Item> items = new ArrayList<>(Arrays.asList(first, second));
-
-        DataProvider<Item, ?> dataProvider = DataProvider.ofCollection(items);
         Grid<Item> component = new Grid<>();
+
+        // We create a generic data provider to test the identity
+        // handling behavior in generic data view
+        DataProvider<Item, Void> dataProvider = new DataProvider<Item, Void>() {
+            @Override
+            public boolean isInMemory() {
+                return true;
+            }
+
+            @Override
+            public int size(Query<Item, Void> query) {
+                return 2;
+            }
+
+            @Override
+            public Stream<Item> fetch(Query<Item, Void> query) {
+                return Stream.of(first, second);
+            }
+
+            @Override
+            public void refreshItem(Item item) {
+
+            }
+
+            @Override
+            public void refreshAll() {
+
+            }
+
+            @Override
+            public Registration addDataProviderListener(
+                    DataProviderListener<Item> listener) {
+                return null;
+            }
+        };
 
         // Generic grid data view
         DataView<Item> dataView = component.setItems(dataProvider);
@@ -61,15 +98,19 @@ public class GridDataViewTest extends AbstractComponentDataViewTest {
         Assert.assertFalse(keyMapper.has(new Item(1L, "non-present")));
         dataView.setIdentifierProvider(Item::getId);
         Assert.assertTrue(keyMapper.has(new Item(1L, "non-present")));
-
         dataView.setIdentifierProvider(IdentifierProvider.identity());
+        Assert.assertFalse(keyMapper.has(new Item(1L, "non-present")));
 
         // In-memory grid data view
-        dataView = component.getListDataView();
+        dataView = component.setItems(DataProvider.ofCollection(items));
+        // We need to repopulate the keyMapper after setting a new data provider
+        items.forEach(keyMapper::key);
 
         Assert.assertFalse(keyMapper.has(new Item(1L, "non-present")));
         dataView.setIdentifierProvider(Item::getId);
         Assert.assertTrue(keyMapper.has(new Item(1L, "non-present")));
+        dataView.setIdentifierProvider(IdentifierProvider.identity());
+        Assert.assertFalse(keyMapper.has(new Item(1L, "non-present")));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -86,7 +127,7 @@ public class GridDataViewTest extends AbstractComponentDataViewTest {
     }
 
     @Override
-    protected HasDataView<String, ? extends DataView<String>> getComponent() {
+    protected HasDataView<String, Void, ? extends DataView<String>> getComponent() {
         return new Grid<>();
     }
 }

@@ -37,7 +37,8 @@ public class GridDataView<T> extends AbstractDataView<T> {
 
     public GridDataView(DataCommunicator<T> dataCommunicator,
                         Grid<T> grid) {
-        super(dataCommunicator::getDataProvider, grid);
+        super(dataCommunicator::getDataProvider,
+                dataCommunicator::buildQuery, grid);
         this.dataCommunicator = dataCommunicator;
     }
 
@@ -54,7 +55,7 @@ public class GridDataView<T> extends AbstractDataView<T> {
     @Override
     public Stream<T> getItems() {
         return dataCommunicator.getDataProvider()
-                .fetch(dataCommunicator.buildQuery(0, Integer.MAX_VALUE));
+                .fetch(buildQuery(0, Integer.MAX_VALUE));
     }
 
     @Override

@@ -32,19 +32,18 @@ import com.vaadin.flow.data.provider.IdentifierProvider;
  */
 public class GridListDataView<T> extends AbstractListDataView<T> {
     private DataCommunicator<T> dataCommunicator;
-    private Grid<T> grid;
 
     public GridListDataView(DataCommunicator<T> dataCommunicator,
             Grid<T> grid) {
-        super(dataCommunicator::getDataProvider, grid);
+        super(dataCommunicator::getDataProvider, dataCommunicator::buildQuery,
+                grid);
         this.dataCommunicator = dataCommunicator;
-        this.grid = grid;
     }
 
     @Override
     public Stream<T> getItems() {
         return getDataProvider()
-                .fetch(dataCommunicator.buildQuery(0, Integer.MAX_VALUE));
+                .fetch(buildQuery(0, Integer.MAX_VALUE));
     }
 
     @Override
