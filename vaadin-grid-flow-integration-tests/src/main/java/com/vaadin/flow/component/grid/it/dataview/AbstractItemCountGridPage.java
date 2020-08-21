@@ -218,15 +218,8 @@ public abstract class AbstractItemCountGridPage extends VerticalLayout
     }
 
     protected void switchToDefinedSize() {
-        grid.getLazyDataView().setItemCountCallback(query -> {
-            // LazyLoadingProvider has no filter, and this callback is given
-            // a filter type of Object. Thus, this ugly Object->Void conversion
-            // shall be done.
-            Query<String, Void> noFilterQuery = new Query<>(query.getOffset(),
-                    query.getLimit(), query.getSortOrders(),
-                    query.getInMemorySorting(), null);
-            return dataProvider.size(noFilterQuery);
-        });
+        grid.getLazyDataView()
+                .setItemCountCallback(query -> dataProvider.size(query));
         dataProviderSizeInput.setEnabled(true);
     }
 

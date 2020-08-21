@@ -87,6 +87,7 @@ import com.vaadin.flow.data.provider.HasDataGenerators;
 import com.vaadin.flow.data.provider.HasDataView;
 import com.vaadin.flow.data.provider.HasLazyDataView;
 import com.vaadin.flow.data.provider.HasListDataView;
+import com.vaadin.flow.data.provider.InMemoryDataProvider;
 import com.vaadin.flow.data.provider.KeyMapper;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
@@ -2360,6 +2361,15 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     public GridDataView<T> setItems(DataProvider<T, Void> dataProvider) {
         setDataProvider(dataProvider);
         return getGenericDataView();
+    }
+
+    @Override
+    public GridDataView<T> setItems(InMemoryDataProvider<T> dataProvider) {
+        DataProvider<T, Void> convertedDataProvider = dataProvider
+                .withConvertedFilter(filter -> Optional
+                        .ofNullable(dataProvider.getFilter())
+                        .orElse(item -> true));
+        return setItems(convertedDataProvider);
     }
 
     /**

@@ -26,7 +26,7 @@ import com.vaadin.flow.data.provider.IdentifierProvider;
 
 /**
  * Implementation of generic data view for grid.
- * 
+ *
  * @param <T>
  *            the item type
  * @since
@@ -37,8 +37,7 @@ public class GridDataView<T> extends AbstractDataView<T> {
 
     public GridDataView(DataCommunicator<T> dataCommunicator,
                         Grid<T> grid) {
-        super(dataCommunicator::getDataProvider,
-                dataCommunicator::buildQuery, grid);
+        super(dataCommunicator::getDataProvider, grid);
         this.dataCommunicator = dataCommunicator;
     }
 
@@ -55,7 +54,7 @@ public class GridDataView<T> extends AbstractDataView<T> {
     @Override
     public Stream<T> getItems() {
         return dataCommunicator.getDataProvider()
-                .fetch(buildQuery(0, Integer.MAX_VALUE));
+                .fetch(dataCommunicator.buildQuery(0, Integer.MAX_VALUE));
     }
 
     @Override

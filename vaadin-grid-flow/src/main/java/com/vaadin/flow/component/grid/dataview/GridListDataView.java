@@ -34,16 +34,15 @@ public class GridListDataView<T> extends AbstractListDataView<T> {
     private DataCommunicator<T> dataCommunicator;
 
     public GridListDataView(DataCommunicator<T> dataCommunicator,
-            Grid<T> grid) {
-        super(dataCommunicator::getDataProvider, dataCommunicator::buildQuery,
-                grid);
+                            Grid<T> grid) {
+        super(dataCommunicator::getDataProvider, grid);
         this.dataCommunicator = dataCommunicator;
     }
 
     @Override
     public Stream<T> getItems() {
         return getDataProvider()
-                .fetch(buildQuery(0, Integer.MAX_VALUE));
+                .fetch(dataCommunicator.buildQuery(0, Integer.MAX_VALUE));
     }
 
     @Override
