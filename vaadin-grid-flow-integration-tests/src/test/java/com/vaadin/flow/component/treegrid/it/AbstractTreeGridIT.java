@@ -4,12 +4,11 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import com.vaadin.flow.component.AbstractNoW3c;
 import com.vaadin.flow.component.grid.testbench.GridColumnElement;
 import com.vaadin.flow.component.grid.testbench.TreeGridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 
-public abstract class AbstractTreeGridIT extends AbstractNoW3c {
+public abstract class AbstractTreeGridIT extends AbstractComponentIT {
 
     private TreeGridElement grid;
 
@@ -20,7 +19,7 @@ public abstract class AbstractTreeGridIT extends AbstractNoW3c {
     /**
      * Returns {@link TreeGridElement} created in {@link #setupTreeGrid()}. Or
      * null if not initialized.
-     * 
+     *
      * @return the optional grid element
      */
     protected TreeGridElement getTreeGrid() {
@@ -29,7 +28,7 @@ public abstract class AbstractTreeGridIT extends AbstractNoW3c {
 
     /**
      * Returns id by clearing spaces from the given text.
-     * 
+     *
      * @param id
      *            the text to make id from
      * @return the new id
@@ -41,7 +40,7 @@ public abstract class AbstractTreeGridIT extends AbstractNoW3c {
     /**
      * Finds element with id 'log' and checks if its value contains given text.
      * Uses {@link String#contains(CharSequence)} to search.
-     * 
+     *
      * @param txt
      *            the text to search
      * @return {@code true} when text if found.
@@ -64,11 +63,11 @@ public abstract class AbstractTreeGridIT extends AbstractNoW3c {
      * {@link #makeId(String)} and finding element by that id.
      * <p>
      * Shortcut for calling:
-     * 
+     *
      * <pre>
      * findElement(By.id(makeId(text)))
      * </pre>
-     * 
+     *
      * @param text
      *            the target text
      * @return the found element
@@ -81,7 +80,7 @@ public abstract class AbstractTreeGridIT extends AbstractNoW3c {
      * Asserts that TreeGrid contains same texts in cells as the given
      * {@code cellTexts} starting from given {@code startRowIndex} and
      * {@code cellIndex}.
-     * 
+     *
      * @param startRowIndex
      *            First row index. Starts from 0.
      * @param cellIndex
