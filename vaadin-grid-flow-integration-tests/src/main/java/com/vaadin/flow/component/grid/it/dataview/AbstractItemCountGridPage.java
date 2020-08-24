@@ -218,8 +218,7 @@ public abstract class AbstractItemCountGridPage extends VerticalLayout
     }
 
     protected void switchToDefinedSize() {
-        grid.getLazyDataView()
-                .setItemCountCallback(query -> dataProvider.size(query));
+        grid.getLazyDataView().setItemCountCallback(dataProvider::size);
         dataProviderSizeInput.setEnabled(true);
     }
 

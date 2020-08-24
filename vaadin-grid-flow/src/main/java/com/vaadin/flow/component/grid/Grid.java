@@ -82,6 +82,7 @@ import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataGenerator;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.DataProviderListener;
+import com.vaadin.flow.data.provider.DataProviderWrapper;
 import com.vaadin.flow.data.provider.DataView;
 import com.vaadin.flow.data.provider.HasDataGenerators;
 import com.vaadin.flow.data.provider.HasDataView;
@@ -2364,11 +2365,22 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     }
 
     @Override
-    public GridDataView<T> setItems(InMemoryDataProvider<T> dataProvider) {
-        DataProvider<T, Void> convertedDataProvider = dataProvider
-                .withConvertedFilter(filter -> Optional
-                        .ofNullable(dataProvider.getFilter())
-                        .orElse(item -> true));
+    public GridDataView<T> setItems(
+            InMemoryDataProvider<T> inMemoryDataProvider) {
+        // We don't use DataProvider.withConvertedFilter() here because it's
+        // implementation does not apply the filter converter if Query has a
+        // null filter
+        DataProvider<T, Void> convertedDataProvider =
+                new DataProviderWrapper<T, Void, SerializablePredicate<T>>(
+                        inMemoryDataProvider) {
+                    @Override
+                    protected SerializablePredicate<T> getFilter(Query<T, Void> query) {
+                        // Just ignore the query filter (Void) and apply the
+                        // predicate only
+                        return Optional.ofNullable(inMemoryDataProvider.getFilter())
+                                .orElse(item -> true);
+                    }
+                };
         return setItems(convertedDataProvider);
     }
 
