@@ -15,6 +15,9 @@ error-screenshots
 reference-screenshots
 
 # npm
-node_modules/
-webpack.config.js
 package*.json
+pnpm-lock.yaml
+webpack.*.js
+tsconfig.json
+types.d.ts
+node_modules/
