@@ -44,12 +44,7 @@
         }
 
         if (!this.itemCaches[scaledIndex]) {
-
-          if(ensureSubCacheDelay) {
-            this.grid.$connector.beforeEnsureSubCacheForScaledIndex(this, scaledIndex);
-          } else {
-            this.doEnsureSubCacheForScaledIndex(scaledIndex);
-          }
+          this.grid.$connector.beforeEnsureSubCacheForScaledIndex(this, scaledIndex);
         }
       })
 
@@ -98,12 +93,6 @@
       const treePageCallbacks = {};
       const cache = {};
 
-      /* ensureSubCacheDelay - true optimizes scrolling performance by adding small
-      *  delay between each first page fetch of expanded item.
-      *  Disable by setting to false.
-      */
-      const ensureSubCacheDelay = true;
-
       /* parentRequestDelay - optimizes parent requests by batching several requests
       *  into one request. Delay in milliseconds. Disable by setting to 0.
       *  parentRequestBatchMaxSize - maximum size of the batch.
@@ -136,15 +125,11 @@
 
       grid.$connector = {};
 
-      grid.$connector.hasEnsureSubCacheQueue = tryCatchWrapper(function() {
-        return ensureSubCacheQueue.length > 0;
-      })
+      grid.$connector.hasEnsureSubCacheQueue = tryCatchWrapper(() => ensureSubCacheQueue.length > 0);
 
-      grid.$connector.hasParentRequestQueue = tryCatchWrapper(function() {
-        return parentRequestQueue.length > 0;
-      })
+      grid.$connector.hasParentRequestQueue = tryCatchWrapper(() => parentRequestQueue.length > 0);
 
-      grid.$connector.hasRootRequestQueue = tryCatchWrapper(function() {
+      grid.$connector.hasRootRequestQueue = tryCatchWrapper(() => {
         return Object.keys(rootPageCallbacks).length > 0 || (rootRequestDebouncer && rootRequestDebouncer.isActive());
       })
 
@@ -319,24 +304,20 @@
       })
 
       grid.$connector.beforeParentRequest = tryCatchWrapper(function(firstIndex, size, parentKey) {
-        if(parentRequestDelay > 0) {
-          // add request in queue
-          parentRequestQueue.push({
-            firstIndex: firstIndex,
-            size: size,
-            parentKey: parentKey
-          });
+        // add request in queue
+        parentRequestQueue.push({
+          firstIndex: firstIndex,
+          size: size,
+          parentKey: parentKey
+        });
 
-          parentRequestDebouncer = Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay),
-            () => {
-              while (parentRequestQueue.length) {
-                grid.$connector.flushParentRequests();
-              }
+        parentRequestDebouncer = Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay),
+          () => {
+            while (parentRequestQueue.length) {
+              grid.$connector.flushParentRequests();
             }
-          );
-        } else {
-          grid.$server.setParentRequestedRange(firstIndex, size, parentKey);
-        }
+          }
+        );
       })
 
       grid.$connector.fetchPage = tryCatchWrapper(function(fetch, page, parentKey) {
@@ -792,13 +773,9 @@
 
       const deleteObjectContents = obj => Object.keys(obj).forEach(key => delete obj[key]);
 
-      grid.$connector.updateSize = function(newSize) {
-        grid.size = newSize;
-      };
+      grid.$connector.updateSize = newSize => grid.size = newSize;
 
-      grid.$connector.updateUniqueItemIdPath = function(path) {
-        grid.itemIdPath = path;
-      }
+      grid.$connector.updateUniqueItemIdPath = path => grid.itemIdPath = path;
 
       grid.$connector.expandItems = tryCatchWrapper(function(items) {
         let newExpandedItems = Array.from(grid.expandedItems);
