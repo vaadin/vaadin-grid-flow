@@ -19,7 +19,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       // side only grids
       ItemCache.prototype.ensureSubCacheForScaledIndexOriginal = ItemCache.prototype.ensureSubCacheForScaledIndex;
       ItemCache.prototype.ensureSubCacheForScaledIndex = tryCatchWrapper(function(scaledIndex) {
-        if (!this.$connector) {
+        if (!this.grid.$connector) {
           this.ensureSubCacheForScaledIndexOriginal(scaledIndex);
           return;
         }
