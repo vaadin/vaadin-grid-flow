@@ -25,7 +25,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.Route;
 
 @Route("allow-nested-nulls")
-public class GridAllowNestedNullsPage extends VerticalLayout {
+public class GridAllowNestedNullsPage extends Div {
 
     public GridAllowNestedNullsPage(){
         addEmployeeGrid();
