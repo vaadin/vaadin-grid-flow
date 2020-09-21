@@ -25,7 +25,7 @@ import com.vaadin.flow.testutil.TestPath;
 @TestPath("allow-nested-nulls")
 public class GridAllowNestedNullsIT {
 
-	@Test
+    @Test
     public void sortBornColumn_valuesAreSortedAsIntegers() {
         open();
         GridElement grid = $(GridElement.class).first();
