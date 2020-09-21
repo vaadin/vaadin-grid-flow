@@ -23,7 +23,7 @@ import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 
 @TestPath("allow-nested-nulls")
-public class GridAllowNestedNullsIT {
+public class GridAllowNestedNullsIT extends AbstractComponentIT {
 
     @Test
     public void sortBornColumn_valuesAreSortedAsIntegers() {
