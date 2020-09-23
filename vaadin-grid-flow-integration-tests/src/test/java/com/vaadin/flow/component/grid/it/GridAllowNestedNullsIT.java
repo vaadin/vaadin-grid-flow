@@ -18,6 +18,7 @@ package com.vaadin.flow.component.grid.it;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
@@ -34,12 +35,11 @@ public class GridAllowNestedNullsIT extends AbstractComponentIT {
         Assert.assertNotNull(grid);
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void addGridThrowNulls() {
         open();
         findElement(By.id("null-thrown")).click();
         GridElement grid = $(GridElement.class).first();
-        Assert.assertNull(grid);
     }
 
 }
