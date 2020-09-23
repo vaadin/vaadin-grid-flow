@@ -17,6 +17,7 @@ package com.vaadin.flow.component.grid.it;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.By;
 
 import com.vaadin.flow.component.button.testbench.ButtonElement;
 import com.vaadin.flow.component.grid.testbench.GridElement;
