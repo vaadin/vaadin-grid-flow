@@ -19,7 +19,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
-import com.vaadin.flow.component.button.testbench.ButtonElement;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
@@ -30,8 +29,7 @@ public class GridAllowNestedNullsIT extends AbstractComponentIT {
     @Test
     public void addGridAllowNulls() {
         open();
-        ButtonElement button = (ButtonElement) findElement(By.id("null-allowed"));
-        button.click();
+        findElement(By.id("null-allowed")).click();
         GridElement grid = $(GridElement.class).first();
         Assert.assertNotNull(grid);
     }
@@ -39,8 +37,7 @@ public class GridAllowNestedNullsIT extends AbstractComponentIT {
     @Test
     public void addGridThrowNulls() {
         open();
-        ButtonElement button = (ButtonElement) findElement(By.id("null-thrown"));
-        button.click();
+        findElement(By.id("null-thrown")).click();
         GridElement grid = $(GridElement.class).first();
         Assert.assertNull(grid);
     }
