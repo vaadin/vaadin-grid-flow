@@ -36,7 +36,7 @@ public class GridAllowNestedNullsPage extends Div {
         Grid<Employee> grid = new Grid<>(Employee.class, false);
         // This data has nested nulls, without this setting view will
         // fail on client side error and be empty 
-        grid.setNestNullBehavior(NestedNullBehavior.ALLOW_NULLS);
+        grid.setNestedNullBehavior(NestedNullBehavior.ALLOW_NULLS);
         grid.setColumns("name", "company.companyname");
         grid.setDataProvider(new ListDataProvider<>(employeeList));
         add(grid);
