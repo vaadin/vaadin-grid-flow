@@ -30,7 +30,7 @@ public class GridAllowNestedNullsIT extends AbstractComponentIT {
     @Test
     public void addGridAllowNulls() {
         open();
-        ButtonElement button = findElement(By.id("null-allowed"));
+        ButtonElement button = (ButtonElement) findElement(By.id("null-allowed"));
         button.click();
         GridElement grid = $(GridElement.class).first();
         Assert.assertNotNull(grid);
@@ -39,7 +39,7 @@ public class GridAllowNestedNullsIT extends AbstractComponentIT {
     @Test
     public void addGridThrowNulls() {
         open();
-        ButtonElement button = findElement(By.id("null-thrown"));
+        ButtonElement button = (ButtonElement) findElement(By.id("null-thrown"));
         button.click();
         GridElement grid = $(GridElement.class).first();
         Assert.assertNull(grid);
