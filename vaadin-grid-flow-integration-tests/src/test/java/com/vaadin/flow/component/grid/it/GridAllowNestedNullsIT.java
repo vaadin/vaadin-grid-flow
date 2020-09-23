@@ -18,6 +18,7 @@ package com.vaadin.flow.component.grid.it;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.vaadin.flow.component.button.testbench.ButtonElement;
 import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
@@ -26,10 +27,21 @@ import com.vaadin.flow.testutil.TestPath;
 public class GridAllowNestedNullsIT extends AbstractComponentIT {
 
     @Test
-    public void sortBornColumn_valuesAreSortedAsIntegers() {
+    public void addGridAllowNulls() {
         open();
+        ButtonElement button = findElement(By.id("null-allowed"));
+        button.click();
         GridElement grid = $(GridElement.class).first();
         Assert.assertNotNull(grid);
+    }
+
+    @Test
+    public void addGridThrowNulls() {
+        open();
+        ButtonElement button = findElement(By.id("null-thrown"));
+        button.click();
+        GridElement grid = $(GridElement.class).first();
+        Assert.assertNull(grid);
     }
 
 }
