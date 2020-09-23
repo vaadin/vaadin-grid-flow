@@ -27,19 +27,33 @@ import com.vaadin.flow.router.Route;
 @Route("allow-nested-nulls")
 public class GridAllowNestedNullsPage extends Div {
 
-    public GridAllowNestedNullsPage(){
-        addEmployeeGrid();
+    public GridAllowNestedNullsPage() {
+        addButtons();
     }
 
-    public void addEmployeeGrid(){
+    public void addEmployeeGrid(NestedNullBehavior behavior) {
+        removeAll();
+        addButtons();
         List<Employee> employeeList = mockEmployees();
         Grid<Employee> grid = new Grid<>(Employee.class, false);
-        // This data has nested nulls, without this setting view will
-        // fail on client side error and be empty 
-        grid.setNestedNullBehavior(NestedNullBehavior.ALLOW_NULLS);
+        grid.setNestNullBehavior(behavior);
         grid.setColumns("name", "company.companyname");
         grid.setDataProvider(new ListDataProvider<>(employeeList));
         add(grid);
+    }
+
+    private void addButtons() {
+        Button nullAllowedGridBtn = new Button("Null allowed");
+        nullAllowedGridBtn.setId("null-allowed");
+        nullAllowedGridBtn.addClickListener(event -> {
+            addEmployeeGrid(NestedNullBehavior.ALLOW_NULLS);
+        });
+        Button nullThrownGridBtn = new Button("Null allowed");
+        nullThrownGridBtn.setId("null-thrown");
+        nullThrownGridBtn.addClickListener(event -> {
+            addEmployeeGrid(NestedNullBehavior.THROW);
+        });
+        add(nullAllowedGridBtn,nullThrownGridBtn);
     }
 
     private List<Employee> mockEmployees() {
