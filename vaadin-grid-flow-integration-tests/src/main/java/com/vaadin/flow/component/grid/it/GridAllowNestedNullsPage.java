@@ -36,7 +36,7 @@ public class GridAllowNestedNullsPage extends Div {
         addButtons();
         List<Employee> employeeList = mockEmployees();
         Grid<Employee> grid = new Grid<>(Employee.class, false);
-        grid.setNestNullBehavior(behavior);
+        grid.setNestedNullBehavior(behavior);
         grid.setColumns("name", "company.companyname");
         grid.setDataProvider(new ListDataProvider<>(employeeList));
         add(grid);
