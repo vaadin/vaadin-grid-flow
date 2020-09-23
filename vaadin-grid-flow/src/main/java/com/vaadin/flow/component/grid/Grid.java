@@ -4066,11 +4066,12 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     }
 
     /**
-     * Set the behavior when facing nested <code>null</code> values.
+     * Set the behavior when facing nested <code>null</code> values. By default the value
+     * is <code>NestedNullBehavior.THROW</code>.
      * 
      * @param nestedNullBehavior the behavior when facing nested <code>null</code> values.
      */
-    public void setNestNullBehavior(NestedNullBehavior nestedNullBehavior) {
+    public void setNestedNullBehavior(NestedNullBehavior nestedNullBehavior) {
     	this.nestedNullBehavior = nestedNullBehavior;
     }
 
