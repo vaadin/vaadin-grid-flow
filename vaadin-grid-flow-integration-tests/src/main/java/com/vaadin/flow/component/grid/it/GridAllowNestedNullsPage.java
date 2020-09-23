@@ -44,12 +44,12 @@ public class GridAllowNestedNullsPage extends Div {
     }
 
     private void addButtons() {
-        Button nullAllowedGridBtn = new Button("Null allowed");
+        Button nullAllowedGridBtn = new Button("Nulls allowed");
         nullAllowedGridBtn.setId("null-allowed");
         nullAllowedGridBtn.addClickListener(event -> {
             addEmployeeGrid(NestedNullBehavior.ALLOW_NULLS);
         });
-        Button nullThrownGridBtn = new Button("Null allowed");
+        Button nullThrownGridBtn = new Button("Nulls thrown");
         nullThrownGridBtn.setId("null-thrown");
         nullThrownGridBtn.addClickListener(event -> {
             addEmployeeGrid(NestedNullBehavior.THROW);
