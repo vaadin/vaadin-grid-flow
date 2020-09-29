@@ -1,5 +1,5 @@
 import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
-import { timeOut, animationFrame } from '@polymer/polymer/lib/utils/async.js';
+import { timeOut } from '@polymer/polymer/lib/utils/async.js';
 import { GridElement } from '@vaadin/vaadin-grid/src/vaadin-grid.js';
 import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mixin.js';
 
@@ -25,7 +25,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         }
 
         if (!this.itemCaches[scaledIndex]) {
-          this.grid.$connector.beforeEnsureSubCacheForScaledIndex(this, scaledIndex);
+          this.doEnsureSubCacheForScaledIndex(scaledIndex);
         }
       })
 
@@ -76,15 +76,10 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
 
       /* parentRequestDelay - optimizes parent requests by batching several requests
       *  into one request. Delay in milliseconds. Disable by setting to 0.
-      *  parentRequestBatchMaxSize - maximum size of the batch.
       */
       const parentRequestDelay = 50;
-      const parentRequestBatchMaxSize = 20;
-
       let parentRequestQueue = [];
       let parentRequestDebouncer;
-      let ensureSubCacheQueue = [];
-      let ensureSubCacheDebouncer;
 
       const rootRequestDelay = 150;
       let rootRequestDebouncer;
@@ -106,34 +101,10 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
 
       grid.$connector = {};
 
-      grid.$connector.hasEnsureSubCacheQueue = tryCatchWrapper(() => ensureSubCacheQueue.length > 0);
-
       grid.$connector.hasParentRequestQueue = tryCatchWrapper(() => parentRequestQueue.length > 0);
 
       grid.$connector.hasRootRequestQueue = tryCatchWrapper(() => {
         return Object.keys(rootPageCallbacks).length > 0 || (rootRequestDebouncer && rootRequestDebouncer.isActive());
-      })
-
-      grid.$connector.beforeEnsureSubCacheForScaledIndex = tryCatchWrapper(function(targetCache, scaledIndex) {
-        // add call to queue
-        ensureSubCacheQueue.push({
-          cache: targetCache,
-          scaledIndex: scaledIndex,
-          itemkey: grid.getItemId(targetCache.items[scaledIndex]),
-          level: targetCache.getLevel()
-        });
-        // sort by ascending scaledIndex and level
-        ensureSubCacheQueue.sort(function(a, b) {
-          return a.scaledIndex - b.scaledIndex || a.level - b.level;
-        });
-
-        ensureSubCacheDebouncer = Debouncer.debounce(ensureSubCacheDebouncer, animationFrame,
-          () => {
-            while (ensureSubCacheQueue.length) {
-              grid.$connector.flushEnsureSubCache();
-            }
-          }
-        );
       })
 
       grid.$connector.doSelection = tryCatchWrapper(function(items, userOriginated) {
@@ -248,55 +219,50 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         return undefined;
       });
 
-      grid.$connector.flushEnsureSubCache = tryCatchWrapper(function() {
-        let pendingFetch = ensureSubCacheQueue.splice(0, 1)[0];
-        let itemkey =  pendingFetch.itemkey;
-
-        let start = grid._virtualStart;
-        let end = grid._virtualEnd;
-        let buffer = end - start;
-        let firstNeededIndex = Math.max(0, start + grid._vidxOffset - buffer);
-        let lastNeededIndex = Math.min(end + grid._vidxOffset + buffer, grid._effectiveSize);
-
-        // only fetch if given item is still in visible range
-        for(let index = firstNeededIndex; index <= lastNeededIndex; index++) {
-          let item = grid._cache.getItemForIndex(index);
-
-          if(grid.getItemId(item) === itemkey) {
-            if(grid._isExpanded(item)) {
-              pendingFetch.cache.doEnsureSubCacheForScaledIndex(pendingFetch.scaledIndex);
-              return true;
-            } else {
-              break;
-            }
-          }
-        }
-        return false;
-      })
-
       grid.$connector.flushParentRequests = tryCatchWrapper(function() {
-        let pendingFetches = parentRequestQueue.splice(0, parentRequestBatchMaxSize);
+        const start = grid._virtualStart;
+        const end = grid._virtualEnd;
+        const buffer = end - start;
+        const firstNeededIndex = Math.max(0, start + grid._vidxOffset - buffer);
+        const lastNeededIndex = Math.min(end + grid._vidxOffset + buffer, grid._effectiveSize);
 
-        if(pendingFetches.length) {
-          grid.$server.setParentRequestedRanges(pendingFetches);
-          return true;
+        // Keys for items that are in the viewport
+        const neededItemKeys = [];
+        for(let index = firstNeededIndex; index <= lastNeededIndex; index++) {
+          const item = grid._cache.getItemForIndex(index);
+          neededItemKeys.push(grid.getItemId(item));
         }
-        return false;
+
+        const pendingFetches = [];
+        parentRequestQueue.forEach(pendingFetch => {
+          const parentKey =  pendingFetch.parentKey;
+          if (neededItemKeys.indexOf(parentKey) > -1) {
+            // Parent item is in the viewport, do fetch
+            pendingFetches.push(pendingFetch)
+          } else {
+            // Not in the viewport, discard the data request with an empty array
+            const callback = treePageCallbacks[parentKey][pendingFetch.page];
+            delete treePageCallbacks[parentKey][pendingFetch.page];
+            callback([]);
+          }
+        });
+        parentRequestQueue = [];
+
+        grid.$server.setParentRequestedRanges(pendingFetches);
       })
 
-      grid.$connector.beforeParentRequest = tryCatchWrapper(function(firstIndex, size, parentKey) {
+      grid.$connector.beforeParentRequest = tryCatchWrapper(function(firstIndex, size, parentKey, page) {
         // add request in queue
         parentRequestQueue.push({
-          firstIndex: firstIndex,
-          size: size,
-          parentKey: parentKey
+          firstIndex,
+          size,
+          parentKey,
+          page
         });
 
         parentRequestDebouncer = Debouncer.debounce(parentRequestDebouncer, timeOut.after(parentRequestDelay),
           () => {
-            while (parentRequestQueue.length) {
-              grid.$connector.flushParentRequests();
-            }
+            grid.$connector.flushParentRequests();
           }
         );
       })
@@ -360,7 +326,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
             treePageCallbacks[parentUniqueKey][page] = callback;
           }
           grid.$connector.fetchPage(
-            (firstIndex, size) => grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key),
+            (firstIndex, size) => grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key, page),
             page,
             parentUniqueKey
           );
@@ -691,7 +657,6 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
 
       grid.$connector.clearExpanded = tryCatchWrapper(function() {
         grid.expandedItems = [];
-        ensureSubCacheQueue = [];
         parentRequestQueue = [];
       })
 
@@ -736,18 +701,14 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         deleteObjectContents(cache);
         deleteObjectContents(grid._cache.items);
         deleteObjectContents(lastRequestedRanges);
-        if(ensureSubCacheDebouncer) {
-          ensureSubCacheDebouncer.cancel();
-        }
+
         if(parentRequestDebouncer) {
           parentRequestDebouncer.cancel();
         }
         if (rootRequestDebouncer) {
           rootRequestDebouncer.cancel();
         }
-        ensureSubCacheDebouncer = undefined;
         parentRequestDebouncer = undefined;
-        ensureSubCacheQueue = [];
         parentRequestQueue = [];
         updateAllGridRowsInDomBasedOnCache();
       });
@@ -781,7 +742,6 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
       grid.$connector.removeFromQueue = tryCatchWrapper(function(item) {
         let itemId = grid.getItemId(item);
         delete treePageCallbacks[itemId];
-        grid.$connector.removeFromArray(ensureSubCacheQueue, item => item.itemkey === itemId);
         grid.$connector.removeFromArray(parentRequestQueue, item => item.parentKey === itemId);
       })
 
