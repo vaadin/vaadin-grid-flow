@@ -226,24 +226,46 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
         const firstNeededIndex = Math.max(0, start + grid._vidxOffset - buffer);
         const lastNeededIndex = Math.min(end + grid._vidxOffset + buffer, grid._effectiveSize);
 
-        // Keys for items that are in the viewport
-        const neededItemKeys = [];
+        // The viewport items and references to their parent caches and the item's page index on that cache level
+        const viewPortItems = [];
         for(let index = firstNeededIndex; index <= lastNeededIndex; index++) {
-          const item = grid._cache.getItemForIndex(index);
-          neededItemKeys.push(grid.getItemId(item));
+          const {cache, scaledIndex} = grid._cache.getCacheAndIndex(index);
+          const item = cache.items[scaledIndex];
+          const page = Math.floor(scaledIndex / grid.pageSize);
+          viewPortItems.push({
+            item,
+            parentCache: cache,
+            cacheLevelPage: page
+          });
         }
 
         const pendingFetches = [];
         parentRequestQueue.forEach(pendingFetch => {
           const parentKey =  pendingFetch.parentKey;
-          if (neededItemKeys.indexOf(parentKey) > -1) {
-            // Parent item is in the viewport, do fetch
-            pendingFetches.push(pendingFetch)
+          // TODO: Cleanup this logic
+          const parent = viewPortItems.find(i => grid.getItemId(i.item) === parentKey);
+          const isParentInViewport = !!parent;
+          const isVisibleParentExpanded = isParentInViewport && grid._isExpanded(parent.item);
+          const isFirstPage = pendingFetch.page === 0;
+
+          const isInitialRequestToVisibleParent = isParentInViewport && isVisibleParentExpanded && isFirstPage;
+          const isRequestToVisiblePageOfAnOpenedParent = viewPortItems.some(i => {
+            return grid.getItemId(i.parentCache.parentItem) === parentKey &&
+              i.cacheLevelPage === pendingFetch.page;
+          });
+
+
+          if (
+            isInitialRequestToVisibleParent ||
+            isRequestToVisiblePageOfAnOpenedParent
+          ) {
+            // The requested page in still in viewport, request data for it
+            pendingFetches.push(pendingFetch);
           } else {
-            // Not in the viewport, discard the data request with an empty array
+            // Requested page is no longer in the viewport, discard the grid data request with an empty array
             const callback = treePageCallbacks[parentKey][pendingFetch.page];
             delete treePageCallbacks[parentKey][pendingFetch.page];
-            callback([]);
+            callback([], cache[parentKey] ? cache[parentKey].size : 0);
           }
         });
         parentRequestQueue = [];
