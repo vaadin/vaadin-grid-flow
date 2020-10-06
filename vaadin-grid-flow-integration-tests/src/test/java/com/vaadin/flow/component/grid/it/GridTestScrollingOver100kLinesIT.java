@@ -37,12 +37,13 @@ public class GridTestScrollingOver100kLinesIT extends AbstractComponentIT {
 
         GridElement grid = $(GridElement.class).first();
 
-        TestBenchElement scroller = grid.$("vaadin-grid-outer-scroller")
-                .id("outerscroller");
+        TestBenchElement scroller = grid.$("table").id("table");
 
         // Scroll value that scrolls a bit further than the 100000th row to
         // trigger the loading loop issue (vaadin-grid-flow issue #578)
         scroller.setProperty("scrollTop", 3597800);
+
+        waitUntil(e -> !grid.getPropertyBoolean("loading"));
 
         // Checks that all header and body cells have text content
         List<TestBenchElement> allCellContents = grid

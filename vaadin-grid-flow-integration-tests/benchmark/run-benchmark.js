@@ -1,6 +1,22 @@
 const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const { URLSearchParams } = require('url');
+
+const options = (args => {
+    const result = {};
+    for(let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        let property;
+        if (arg === "--browser") property = "browser";
+        else if(arg === "--huburl") property = "huburl";
+        else if(arg === "--submit-results-path") property = "submitResultsPath";
+
+        if(property) result[property] = args[++i];
+    }
+    return result;
+})(process.argv.slice(2));
 
 const GRID_DIR = '../../';
 const REF_GRID_DIR = './reference-clone';
@@ -24,7 +40,8 @@ process.on('exit', cleanup);
 process.on('SIGINT', cleanup);
 
 const testVariants = [];
-['firefox-headless', 'chrome-headless'].forEach((browserName) => {
+const browsers = options.browser ? [options.browser] : ['firefox-headless', 'chrome-headless'];
+browsers.forEach((browserName) => {
   [
     'simple',
     'multicolumn',
@@ -62,12 +79,10 @@ const testVariants = [];
 
 const startJetty = (cwd) => {
   return new Promise((resolve) => {
-    const jetty = spawn('mvn', ['jetty:run'], { cwd });
+    const jetty = spawn('mvn', ['-B', '-q', 'jetty:run'], { cwd });
     processes.push(jetty);
     jetty.stderr.on('data', (data) => console.error(data.toString()));
     jetty.stdout.on('data', (data) => {
-      console.log(data.toString());
-
       if (data.toString().includes('Frontend compiled successfully')) {
         resolve();
       }
@@ -99,26 +114,20 @@ const prepareReferenceGrid = () => {
 
   fs.writeFileSync(pomFile, result, 'utf8');
 
-  execSync(`mvn versions:set -DnewVersion=${REF_GIT_BRANCH}-BENCHMARK`, {
+  execSync(`mvn versions:set -B -q -DnewVersion=${REF_GIT_BRANCH}-BENCHMARK`, {
     cwd: refGridPath,
   });
 
   console.log('Installing the reference grid');
-  execSync(`mvn install -DskipTests`, { cwd: refGridPath });
+  execSync(`mvn -B -q install -DskipTests`, { cwd: refGridPath });
 };
 
-const reportTestResults = (testVariantName, testResultsFilePath) => {
+const getTestResultValue = (testResultsFilePath) => {
   const testResultsFileContent = fs.readFileSync(testResultsFilePath, 'utf-8');
   const { benchmarks } = JSON.parse(testResultsFileContent);
   const { low, high } = benchmarks[0].differences.find((d) => d).percentChange;
   const relativeDifferenceAverage = (low + high) / 2;
-
-  // Print the test result as TeamCity build statistics
-  console.log(
-    `##teamcity[buildStatisticValue key='${testVariantName}' value='${relativeDifferenceAverage.toFixed(
-      6
-    )}']\n`
-  );
+  return relativeDifferenceAverage;
 };
 
 const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
@@ -138,34 +147,81 @@ const runTachometerTest = ({ gridVariantName, metricName, browserName }) => {
     resultsPath,
     `${testVariantName}.json`
   );
+  const hubAddress = options.huburl;
+  const browserParamValue = hubAddress ? `${browserName}@${hubAddress}` : browserName;
   const args = [];
   args.push('--measure', 'global');
   args.push('--sample-size', sampleSize);
   args.push('--json-file', testResultsFilePath);
-  args.push('--browser', browserName);
+  args.push('--browser', browserParamValue);
+  let clientHostname = process.env['CLIENT_HOSTNAME'] || 'localhost';
   const ports = [9998, REF_JETTY_PORT];
   ports.forEach((port) => {
     args.push(
-      `http://localhost:${port}/benchmark?variant=${gridVariantName}&metric=${metricName}`
+      `http://${clientHostname}:${port}/benchmark?variant=${gridVariantName}&metric=${metricName}`
     );
   });
 
   return new Promise((resolve) => {
-    const tach = spawn('node_modules/.bin/tach', args, { cwd: gridTestPath });
-    tach.stderr.on('data', (data) => console.error(data.toString()));
-    tach.stdout.on('data', (data) => console.log(data.toString()));
+    const tach = spawn('node_modules/.bin/tach', args, {
+      cwd: gridTestPath,
+      stdio: [process.stdin, process.stdout, process.stderr],
+    });
     tach.on('close', () => {
-      reportTestResults(testVariantName, testResultsFilePath);
-      resolve();
+      const value = getTestResultValue(testResultsFilePath);
+      resolve({
+        testVariantName,
+        value
+      });
     });
   });
 };
 
+const submitBenchmarkResults = (results, submitResultsPath) => {
+  return new Promise(resolve => {
+    const params = new URLSearchParams();
+    results.forEach(result => {
+      params.append(result.testVariantName, result.value);
+    });
+    const data = params.toString();
+
+    const requestOptions = {
+      hostname: 'script.google.com',
+      port: 443,
+      path: submitResultsPath,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'Content-Length': Buffer.byteLength(data)
+      },
+      body: data
+    };
+
+    const req = https.request(requestOptions, (res) => {
+      console.log(`statusCode: ${res.statusCode}`);
+
+      res.on('data', (d) => {
+        process.stdout.write(d);
+      });
+
+      res.on('end', resolve);
+    });
+
+    req.on('error', (error) => {
+      console.error(error);
+    });
+
+    req.write(data);
+    req.end();
+  });
+};
+
 const run = async () => {
-  if (!fs.existsSync(refGridPath)) {
-    console.log('Prepare the reference Grid project');
-    prepareReferenceGrid();
-  }
+  // Remove a possibly existing reference grid
+  execSync(`rm -rf ${refGridPath}`);
+
+  console.log('Prepare the reference Grid project');
+  prepareReferenceGrid();
 
   console.log('Starting the Jetty server: Grid');
   await startJetty(gridTestPath);
@@ -177,15 +233,30 @@ const run = async () => {
     !fs.existsSync(path.resolve(gridTestPath, 'node_modules', '.bin', 'tach'))
   ) {
     console.log('Installing tachometer');
-    execSync('npm i tachometer@0.4.18', { cwd: gridTestPath });
+    execSync('npm i --quiet tachometer@0.4.18', { cwd: gridTestPath });
   }
 
+  const results = [];
   for (const testVariant of testVariants) {
     console.log(
       'Running test:',
       `${testVariant.gridVariantName}-${testVariant.metricName}`
     );
-    await runTachometerTest(testVariant);
+    results.push(await runTachometerTest(testVariant));
+  }
+
+  // Print the test result as TeamCity build statistics
+  results.forEach(({ testVariantName, value }) => {
+    console.log(
+      `##teamcity[buildStatisticValue key='${testVariantName}' value='${value.toFixed(
+        6
+      )}']\n`
+    );
+  });
+
+  if (options.submitResultsPath) {
+    // Submit results to Google Spreadsheet
+    await submitBenchmarkResults(results, options.submitResultsPath);
   }
 
   // Exit
