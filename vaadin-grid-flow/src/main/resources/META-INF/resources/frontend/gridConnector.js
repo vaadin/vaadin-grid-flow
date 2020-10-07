@@ -347,13 +347,7 @@ import { ItemCache } from '@vaadin/vaadin-grid/src/vaadin-grid-data-provider-mix
           } else {
             treePageCallbacks[parentUniqueKey][page] = callback;
           }
-          // TODO: The callbacks get lost (and grid gets stuck in loading state) if the parent request doesn't get
-          // processed by fetchPage!
-          grid.$connector.fetchPage(
-            (firstIndex, size) => grid.$connector.beforeParentRequest(firstIndex, size, params.parentItem.key, page),
-            page,
-            parentUniqueKey
-          );
+          grid.$connector.beforeParentRequest(page * params.pageSize, params.pageSize, params.parentItem.key, page);
 
         } else {
           // workaround: sometimes grid-element gives page index that overflows
