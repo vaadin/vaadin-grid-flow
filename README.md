@@ -1,5 +1,5 @@
 ⚠️ **This repository is deprecated**
-- Sources for this flow component can be found at https://github.com/vaadin/vaadin-flow-component
+- Sources for this flow component can be found at https://github.com/vaadin/vaadin-flow-components
 - Tickets has been moved to the web component repository https://github.com/vaadin/vaadin-grid/issues
 
 # Grid component for Vaadin Flow
