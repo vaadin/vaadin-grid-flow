@@ -29,6 +29,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import com.vaadin.flow.component.grid.testbench.GridElement;
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
 
@@ -434,7 +435,7 @@ public class GridTestPageIT extends AbstractComponentIT {
     }
 
     private WebElement getRow(WebElement grid, int row) {
-        return getInShadowRoot(grid, By.id("items"))
+        return wrap(GridElement.class, grid).$("*").id("items")
                 .findElements(By.cssSelector("tr")).get(row);
     }
 

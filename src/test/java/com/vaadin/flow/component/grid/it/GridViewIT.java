@@ -125,7 +125,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 messageDiv.getText());
         // scroll back up
         scroll(grid, 100);
-        WebElement table = findInShadowRoot(grid, By.id("table")).get(0);
+        WebElement table = grid.$("*").id("table");
         // Actually scroll up to have grid do a correct event.
         while (!getCells(grid).stream()
                 .filter(cell -> "Person 1".equals(cell.getText())).findFirst()
@@ -374,7 +374,7 @@ public class GridViewIT extends TabbedComponentDemoTest {
     @Test
     public void gridWithComponentRenderer_detailsAreRenderered() {
         openTabAndCheckForErrors("using-components");
-        WebElement grid = findElement(By.id("component-renderer"));
+        GridElement grid = $(GridElement.class).id("component-renderer");
         scrollToElement(grid);
 
         clickElementWithJs(getRow(grid, 0).findElement(By.tagName("td")));
@@ -749,9 +749,9 @@ public class GridViewIT extends TabbedComponentDemoTest {
                 rowIndex -> Assert.assertTrue(isRowSelected(grid, rowIndex)));
     }
 
-    private WebElement getRow(WebElement grid, int row) {
-        return getInShadowRoot(grid, By.id("items"))
-                .findElements(By.cssSelector("tr")).get(row);
+    private WebElement getRow(GridElement grid, int row) {
+        return grid.$("*").id("items").findElements(By.cssSelector("tr"))
+                .get(row);
     }
 
     private boolean isRowSelected(GridElement grid, int row) {
