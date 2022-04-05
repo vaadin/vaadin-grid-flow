@@ -23,6 +23,7 @@ import org.openqa.selenium.WebElement;
 
 import com.vaadin.flow.testutil.AbstractComponentIT;
 import com.vaadin.flow.testutil.TestPath;
+import com.vaadin.testbench.TestBenchElement;
 
 @TestPath("grid-filtering")
 public class GridFilteringIT extends AbstractComponentIT {
@@ -31,8 +32,8 @@ public class GridFilteringIT extends AbstractComponentIT {
     public void gridInNotLoadingState() {
         open();
 
-        WebElement filter = findElement(By.id("filter"));
-        WebElement input = getInShadowRoot(filter, By.cssSelector("input"));
+        TestBenchElement filter = $(TestBenchElement.class).id("filter");
+        WebElement input = filter.$("input").first();
         input.sendKeys("w");
 
         // Blur input to get value change
